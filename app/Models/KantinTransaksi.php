@@ -20,7 +20,7 @@ class KantinTransaksi extends Model
         return $this->belongsTo(PembayaranDuitku::class, 'merchant_order_id');
     }
 
-    public function kantin () 
+    public function kantin ()
     {
         return $this->belongsTo(Kantin::class, 'kantin_id');
     }

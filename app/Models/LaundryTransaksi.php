@@ -20,7 +20,7 @@ class LaundryTransaksi extends Model
         return $this->belongsTo(PembayaranDuitku::class, 'merchant_order_id');
     }
 
-    public function laundry () 
+    public function laundry ()
     {
         return $this->belongsTo(Laundry::class, 'laundry_id');
     }
