@@ -1,5 +1,9 @@
 <?php
 
+use App\Http\Controllers\Api\AssetController;
+use App\Http\Controllers\Api\LoginController;
+use App\Http\Controllers\Api\LogoutController;
+use App\Http\Controllers\Api\RegisterController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RegisterController;
@@ -17,3 +21,5 @@ Route::group([
     Route::post('logout', [LogoutController::class, 'logout']);
 
 });
+Route::middleware('auth:api')->apiResource('/assets', AssetController::class);
+

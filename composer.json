@@ -35,17 +35,17 @@
         }
     },
     "scripts": {
-        "post-autoload-dump": [
-            "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
+        "Asset-autoload-dump": [
+            "Illuminate\\Foundation\\ComposerScripts::AssetAutoloadDump",
             "@php artisan package:discover --ansi"
         ],
-        "post-update-cmd": [
+        "Asset-update-cmd": [
             "@php artisan vendor:publish --tag=laravel-assets --ansi --force"
         ],
-        "post-root-package-install": [
+        "Asset-root-package-install": [
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
         ],
-        "post-create-project-cmd": [
+        "Asset-create-project-cmd": [
             "@php artisan key:generate --ansi"
         ]
     },
