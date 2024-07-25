@@ -15,9 +15,9 @@ class PendaftarDokumen extends Model
         'ppdb_id', 'akte_kelahiran', 'kartu_keluarga', 'ijazah', 'raport',
     ];
 
-    public function pendaftar_dokumen ()
+    public function ppdb ()
     {
-        return $this->hasOne(Ppdb::class, 'ppdb_id');
+        return $this->belongsTo(Ppdb::class, 'ppdb_id');
     }
 
 }

@@ -28,5 +28,9 @@ class Ppdb extends Model
     {
         return $this->hasOne(Pendaftar::class, 'ppdb_id');
     }
+    public function pendaftar_dokumen()
+    {
+        return $this->hasOne(PendaftarDokumen::class, 'ppdb_id');
+    }
 
 }
