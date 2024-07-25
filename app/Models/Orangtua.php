@@ -23,6 +23,6 @@ class Orangtua extends Model
 
     public function Siswa()
     {
-        return $this->hasMany(Siswa::class, 'orangtua_id');
+        return $this->hasOne(Siswa::class, 'orangtua_id');
     }
 }
