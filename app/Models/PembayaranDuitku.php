@@ -15,13 +15,9 @@ class PembayaranDuitku extends Model
         'merchant_order_id', 'reference', 'payment_method', 'transaction_response', 'callback_response', 'status',
     ];
 
-    public function Ppdb() 
+    public function ppdb() 
     {
         return $this->hasOne(Ppdb::class, 'merchant_order_id');
-    }
-    public function PembayaranSiswa()
-    {
-        return $this->hasMany(PembayaranSiswa::class, 'pembayaran_duitku_id');    
     }
     public function siswa_wallet_riwayat() 
     {
@@ -36,8 +32,12 @@ class PembayaranDuitku extends Model
         return $this->hasOne(LaundryTransaksi::class, 'merchant_order_id');
     }
 
-    public function Pembayaran()
+    public function pembayaran_siswa()
         {
-            return $this->hasMany(Pembayaran::class, 'pembayaran_duitku_id');
+            return $this->hasOne(PembayaranSiswa::class, 'merchant_order_id');
+        }
+    public function pembayaran_siswa_cicilan()
+        {
+            return $this->hasOne(PembayaranSiswaCicilan::class, 'merchant_order_id');
         }
     }

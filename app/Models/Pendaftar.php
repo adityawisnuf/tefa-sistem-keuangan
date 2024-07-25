@@ -28,6 +28,6 @@ class Pendaftar extends Model
 
     public function ppdb()
     {
-        return $this->hasOne(Ppdb::class, 'ppdb_id');
+        return $this->belongsTo(Ppdb::class, 'ppdb_id');
     }
 }

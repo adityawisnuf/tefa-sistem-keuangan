@@ -20,27 +20,21 @@ class Pembayaran extends Model
         'kelas_id',
     ];
 
-    public function Siswa()
+    public function siswa()
     {
         return $this->belongsTo(Siswa::class, 'siswa_id');
     }
 
-    public function PembayaranKategori()
+    public function pembayaran_kategori()
     {
-        return $this->belongsTo(PembayaranKategori::class, 'pembayaran_kategori_id');
+        return $this->hasMany(PembayaranKategori::class, 'pembayaran_kategori_id');
+    }
+    public function pembayaran_siswa()
+    {
+        return $this->hasMany(PembayaranSiswa::class, 'pembayaran_id');
     }
 
-    public function PembayaranDuitku()
-    {
-        return $this->belongsTo(PembayaranDuitku::class, 'pembayaran_duitku_id');
-    }
-
-    public function PembayaranCicilan()
-    {
-        return $this->hasMany(PembayaranSiswaCicilan::class, 'pembayaran_siswa_id');
-    }
-
-    public function Kelas()
+    public function kelas()
     {
         return $this->belongsTo(Kelas::class, 'kelas_id');
     }

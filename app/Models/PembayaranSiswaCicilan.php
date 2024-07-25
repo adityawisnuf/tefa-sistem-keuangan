@@ -17,8 +17,12 @@ class PembayaranSiswaCicilan extends Model
         'status',
     ];
 
-    public function Pembayaran()
+    public function pembayaran_siswa()
     {
-        return $this->belongsTo(Pembayaran::class, 'pembayaran_siswa_id');
+        return $this->belongsTo(PembayaranSiswa::class, 'pembayaran_siswa_id');
+    }
+    public function pembayaran_duitku()
+    {
+        return $this->belongsTo(PembayaranDuitku::class, 'merchant_order_id');
     }
 }

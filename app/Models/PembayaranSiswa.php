@@ -14,26 +14,26 @@ class PembayaranSiswa extends Model
         'siswa_id', 
         'pembayaran_kategori_id', 
         'nominal', 
-        'merchant_code', 
+        'merchant_order_id', 
         'status',
     ];
 
-    public function Siswa()
+    public function siswa()
     {
         return $this->belongsTo(Siswa::class, 'siswa_id');
     }
 
-    public function PembayaranKategori()
+    public function pembayaran_kategori()
     {
         return $this->belongsTo(PembayaranKategori::class, 'pembayaran_kategori_id');
     }
 
-    public function PembayaranDuitku()
+    public function pembayaran()
     {
-        return $this->belongsTo(PembayaranDuitku::class, 'pembayaran_duitku_id');
+        return $this->belongsTo(Pembayaran::class, 'pembayaran_id');
     }
 
-    public function PembayaranSiswaCicilan()
+    public function pembayaran_siswa_cicilan()
     {
         return $this->hasMany(PembayaranSiswaCicilan::class, 'pembayaran_siswa_id');
     }

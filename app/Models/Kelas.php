@@ -17,17 +17,17 @@ class Kelas extends Model
         'kelas',
     ];
 
-    public function Sekolah()
+    public function sekolah()
     {
         return $this->belongsTo(Sekolah::class, 'sekolah_id');
     }
 
-    public function Siswa()
+    public function siswa()
     {
         return $this->hasMany(Siswa::class, 'kelas_id');
     }
 
-    public function Pembayaran()
+    public function pembayaran()
     {
         return $this->hasMany(Pembayaran::class, 'kelas_id');
     }
