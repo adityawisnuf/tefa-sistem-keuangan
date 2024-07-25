@@ -19,5 +19,13 @@ class PembayaranDuitku extends Model
     {
         return $this->hasOne(Ppdb::class, 'merchant_order_id');
     }
+    public function PembayaranSiswa()
+    {
+        return $this->hasMany(PembayaranSiswa::class, 'pembayaran_duitku_id');
+    }
 
+public function Pembayaran()
+    {
+        return $this->hasMany(Pembayaran::class, 'pembayaran_duitku_id');
+    }
 }
