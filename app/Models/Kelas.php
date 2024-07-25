@@ -9,18 +9,26 @@ class Kelas extends Model
 {
     use HasFactory;
 
-    protected $table='kelas';
+    protected $table = 'kelas';
 
     protected $fillable = [
-        'sekolah_id', 'jurusan', 'kelas',
+        'sekolah_id', 
+        'jurusan', 
+        'kelas',
     ];
 
-    public function sekolah () 
+    public function Sekolah()
     {
         return $this->belongsTo(Sekolah::class, 'sekolah_id');
     }
-    public function siswa () 
+
+    public function Siswa()
     {
-        return $this->hasMany(siswa::class, 'kelas_id');
+        return $this->hasMany(Siswa::class, 'kelas_id');
+    }
+
+    public function Pembayaran()
+    {
+        return $this->hasMany(Pembayaran::class, 'kelas_id');
     }
 }
