@@ -37,9 +37,16 @@ class AssetController extends Controller
     {
         //define validation rules
         $validator = Validator::make($request->all(), [
-            'nama'     => 'required',
-            'kondisi'     => 'required',
-            'penggunaan'   => 'required',
+            'nama' => 'required|string|max:255',
+            'kategori' => 'required|string|max:255',
+            'tanggal_pembelian' => 'required|date',
+            'harga' => 'required|numeric',
+            'keterangan' => 'nullable|string',
+            'jumlah' => 'required|integer',
+            'kondisi_baik' => 'required|integer',
+            'kondisi_kurang_baik' => 'required|integer',
+            'kondisi_buruk' => 'required|integer',
+            'penggunaan' => 'required|string'
         ]);
 
         //check if validation fails
@@ -47,11 +54,7 @@ class AssetController extends Controller
             return response()->json($validator->errors(), 422);
         }
 
-        $asset = Asset::create([
-            'nama'     => $request->nama,
-            'kondisi'     => $request->kondisi,
-            'penggunaan'   => $request->penggunaan,
-        ]);
+        $asset = Asset::create($validator->validated());
 
         //return response
         return new AssetResource(true, 'Asset Baru Berhasil Ditambahkan!', $asset);
@@ -76,9 +79,16 @@ class AssetController extends Controller
     public function update(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
-            'nama'     => 'required',
-            'kondisi'   => 'required',
-            'penggunaan'   => 'required',
+            'nama' => 'required|string|max:255',
+            'kategori' => 'required|string|max:255',
+            'tanggal_pembelian' => 'required|date',
+            'harga' => 'required|numeric',
+            'keterangan' => 'nullable|string',
+            'jumlah' => 'required|integer',
+            'kondisi_baik' => 'required|integer',
+            'kondisi_kurang_baik' => 'required|integer',
+            'kondisi_buruk' => 'required|integer',
+            'penggunaan' => 'required|string'
         ]);
 
         if ($validator->fails()) {
@@ -86,15 +96,11 @@ class AssetController extends Controller
         }
 
         $asset = Asset::find($id);
-        $asset->update([
-            'nama'     => $request->nama,
-            'penggunaan'   => $request->penggunaan,
-            'kondisi'   => $request->kondisi,
-        ]);
+        $asset->update($validator->validated());
         return new AssetResource(true, 'Asset Berhasil Diubah!', $asset);
     }
 
-       /**
+    /**
      * destroy
      *
      * @param  mixed $asset

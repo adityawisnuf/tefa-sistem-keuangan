@@ -12,8 +12,16 @@ class Asset extends Model
     protected $table =  'asset';
     protected $fillable = [
         'nama',
-        'kondisi',
+        'kategori',
+        'tanggal_pembelian',
+        'harga',
+        'keterangan',
+        'jumlah',
+        'kondisi_baik',
+        'kondisi_kurang_baik',
+        'kondisi_buruk',
         'penggunaan',
+
     ];
 
 }
