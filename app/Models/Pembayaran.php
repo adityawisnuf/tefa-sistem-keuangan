@@ -15,7 +15,6 @@ class Pembayaran extends Model
         'siswa_id',
         'pembayaran_kategori_id',
         'nominal',
-        'merchant_code',
         'status',
         'kelas_id',
     ];

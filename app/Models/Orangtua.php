@@ -19,6 +19,7 @@ class Orangtua extends Model
     {
         return $this->hasOne(Siswa::class, 'orangtua_id');
     }
+    
     public function user ()
     {
         return $this->belongsTo(User::class, 'user_id');

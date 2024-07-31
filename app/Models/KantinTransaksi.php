@@ -22,6 +22,6 @@ class KantinTransaksi extends Model
 
     public function kantin () 
     {
-        return $this->hasOne(Kantin::class, 'kantin_id');
+        return $this->belongsTo(Kantin::class, 'kantin_id');
     }
 }

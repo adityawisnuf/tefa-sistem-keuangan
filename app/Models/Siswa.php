@@ -24,14 +24,17 @@ class Siswa extends Model
     {
         return $this->belongsTo(Orangtua::class, 'orangtua_id');
     }
+
     public function kelas()
     {
         return $this->belongsTo(Kelas::class, 'kelas_id');
     }
+
     public function siswa_wallet()
     {
         return $this->hasOne(SiswaWallet::class, 'siswa_id');
     }
+    
     public function pembayaran()
     {
         return $this->hasMany(Pembayaran::class, 'siswa_id');
