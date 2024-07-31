@@ -8,8 +8,11 @@ class LogoutController extends Controller
 {
     public function logout()
     {
-        auth()->logout();
-        return response()->json(['message' => 'Successfully logged out']);
+        $removeToken = JWTAuth::invalidate(JWTAuth::getToken());
+
+        if($removeToken) {
+            return response()->json(['message' => 'Successfully logged out']);
+        }
     }
 
     protected function respondWithToken($token)

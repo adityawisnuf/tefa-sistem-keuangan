@@ -8,6 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Tymon\JWTAuth\Contracts\JWTSubject;
+use app\Http\Controllers\LoginController;
 
 class User extends Authenticatable implements JWTSubject
 {
@@ -52,7 +53,14 @@ class User extends Authenticatable implements JWTSubject
 
     public function getJWTCustomClaims()
     {
-        return [];
+        $datas = (new LoginController)->getAllDatas($this->id);
+        
+        return [
+            'user_id' => $this->id,
+            'email' => $this->email,
+            'role' => $this->role,
+            'user' => $datas,
+        ];
     }
 
     public function siswa ()
