@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Tymon\JWTAuth\Facades\JWTAuth;
 
-class Logout extends Controller
+class LogoutController extends Controller
 {
     public function logout()
     {
