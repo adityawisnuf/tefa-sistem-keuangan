@@ -12,7 +12,7 @@ class RegisterController extends Controller
     public function register(Request $request)
     {
         $this->validate($request, [
-            'name' => 'required|string|max:255',          
+            'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:6|confirmed',
         ]);
@@ -23,15 +23,15 @@ class RegisterController extends Controller
             'role' => 'orangtua',
             'password' => Hash::make($request->password),
         ]);
-                              
+
         if($user) {
             return response()->json([
                 'success' => true,
-                'user'    => $user,  
+                'user'    => $user,
             ], 201);
         }
 
-        
+
 
         return response()->json([
             'success' => false,
