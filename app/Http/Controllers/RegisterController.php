@@ -20,7 +20,7 @@ class RegisterController extends Controller
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'role' => 'orangtua',
+            'role' => 'OrangTua',
             'password' => Hash::make($request->password),
         ]);
 
@@ -31,8 +31,11 @@ class RegisterController extends Controller
             ], 201);
         }
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> f5d1416116ad48b215345cc987d5485f23c8550d
         return response()->json([
             'success' => false,
         ], 409);
