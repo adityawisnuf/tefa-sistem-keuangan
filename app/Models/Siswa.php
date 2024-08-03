@@ -39,4 +39,9 @@ class Siswa extends Model
     {
         return $this->hasMany(Pembayaran::class, 'siswa_id');
     }
+
+    public function village()
+    {
+        return $this->belongsTo(Village::class, 'village_id');
+    }
 }
