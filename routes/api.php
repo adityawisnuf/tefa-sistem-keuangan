@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\LabaRugiController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RegisterController;
@@ -14,6 +15,7 @@ Route::post('login', [LoginController::class, 'login']);
 Route::group([
     'middleware' => ['auth:api']
 ], function () {
+    Route::get('laba-rugi', [LabaRugiController::class, 'index']);
     Route::post('logout', [LogoutController::class, 'logout']);
 
 });
