@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c46b268a2f17a34fdcfab632d0584806",
+    "content-hash": "ab15c73a4f72324596868e6d1ed91ef7",
     "packages": [
         {
             "name": "brick/math",
@@ -3313,6 +3313,65 @@
                 }
             ],
             "time": "2024-04-27T21:32:50+00:00"
+        },
+        {
+            "name": "royryando/laravel-duitku",
+            "version": "v1.0.6",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/royryando/laravel-duitku.git",
+                "reference": "d9949b4c620f34a5d719b933f036010240b518f2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/royryando/laravel-duitku/zipball/d9949b4c620f34a5d719b933f036010240b518f2",
+                "reference": "d9949b4c620f34a5d719b933f036010240b518f2",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "guzzlehttp/guzzle": "^6.3 || ^7.0",
+                "php": ">=5.5"
+            },
+            "require-dev": {
+                "orchestra/testbench": "^3.1.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Royryando\\Duitku\\DuitkuServiceProvider"
+                    ],
+                    "aliases": {
+                        "Duitku": "Royryando\\Duitku\\DuitkuProcessor"
+                    }
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Royryando\\Duitku\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Roy Habeahan",
+                    "email": "hi@royryando.me"
+                }
+            ],
+            "description": "A simple Duitku payment gateway library for Laravel.",
+            "keywords": [
+                "duitku",
+                "laravel"
+            ],
+            "support": {
+                "issues": "https://github.com/royryando/laravel-duitku/issues",
+                "source": "https://github.com/royryando/laravel-duitku/tree/v1.0.6"
+            },
+            "time": "2021-08-12T03:43:54+00:00"
         },
         {
             "name": "stella-maris/clock",

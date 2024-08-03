@@ -8,6 +8,7 @@ use App\Http\Controllers\PendaftarController;
 use App\Http\Controllers\LogoutController;
 use App\Http\Controllers\PendaftarDokumenController;
 use App\Http\Controllers\PendaftaranAkademikController;
+use App\Http\Controllers\PembayaranController;
 
 
 
@@ -20,6 +21,8 @@ Route::post('login', [LoginController::class, 'login']);
 Route::post('/pendaftar', [PendaftarController::class, 'store']);
 Route::post('/pendaftar-dokumen', [PendaftarDokumenController::class, 'store']);
 Route::post('pendaftar-akademik', [PendaftaranAkademikController::class, 'store']);
+Route::get('/payment', [PembayaranController::class, 'payment']);
+
 
 Route::group([
     'middleware' => ['auth:api']
