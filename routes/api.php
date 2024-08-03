@@ -13,6 +13,8 @@ use App\Http\Controllers\PendaftaranAkademikController;
 
 
 
+// ROLE : Admin; KepalaSekolah; Bendahara; OrangTua; Siswa; Kantin; Laundry;
+
 Route::post('register', [RegisterController::class, 'register']);
 Route::post('login', [LoginController::class, 'login']);
 Route::post('/pendaftar', [PendaftarController::class, 'store']);
