@@ -9,11 +9,7 @@ class LabaRugiController extends Controller
 {
     public function index()
     {
-        // $pemasukan = PembayaranSiswa::all();
-        // $pengeluaran = Pengeluaran::all();
 
-        $pemasukanTotal = 0;
-        $pengeluaranTotal = 0;
         $pembayaranSiswa = [
             [
                 'id' => 1,
@@ -79,8 +75,9 @@ class LabaRugiController extends Controller
             ],
         ];
 
-        $pemasukanTotal = array_sum(array_column($pembayaranSiswa, 'nominal'));
+        $pendapatanTotal = array_sum(array_column($pembayaranSiswa, 'nominal'));
 
+        $pengeluaranTotal = 0;
         foreach ($pengeluaran as $item) {
             $pengeluaranTotal += $item['nominal'];
         }
@@ -88,10 +85,10 @@ class LabaRugiController extends Controller
         $keperluan = array_column($pengeluaran, 'keperluan');
         $nominal = array_column($pengeluaran, 'nominal');
 
-        $labaRugi = $pemasukanTotal - $pengeluaranTotal;
+        $labaRugi = $pendapatanTotal - $pengeluaranTotal;
 
         $data = [
-            'pendapatan' => $pemasukanTotal,
+            'pendapatan' => $pendapatanTotal,
             'pengeluaran' => array_combine($keperluan, $nominal),
             'pengeluaran_total' => $pengeluaranTotal,
             'laba_bersih' => $labaRugi,
