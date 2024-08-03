@@ -13,16 +13,21 @@ class LoginController extends Controller
         $credentials = $request->only('email', 'password');
 
         //if auth failed
-        if(!$token = auth()->guard('api')->attempt($credentials)) {
+        if (!$token = auth()->guard('api')->attempt($credentials)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Invalid Email or Password.'
             ], 401);
         }
-        
+
         return response()->json([
             'message'   => 'success',
             'token'     => $token
         ]);
+    }
+
+    public function getAllDatas($id)
+    {
+        return User::find($id);
     }
 }
