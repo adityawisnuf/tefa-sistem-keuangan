@@ -31,11 +31,6 @@ class RegisterController extends Controller
             ], 201);
         }
 
-<<<<<<<<< Temporary merge branch 1
-
-
-=========
->>>>>>>>> Temporary merge branch 2
         return response()->json([
             'success' => false,
         ], 409);
