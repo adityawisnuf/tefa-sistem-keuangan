@@ -24,7 +24,6 @@ class PendaftarController extends Controller
             'tempat_lahir' => 'required|string|max:255',
             'tgl_lahir' => 'required|date',
             'alamat' => 'required|string',
-            
             'nama_ayah' => 'required|string|max:255',
             'nama_ibu' => 'required|string|max:255',
             'tgl_lahir_ayah' => 'required|date',
