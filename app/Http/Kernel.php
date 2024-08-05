@@ -2,6 +2,7 @@
 
 namespace App\Http;
 
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
 class Kernel extends HttpKernel
@@ -69,4 +70,9 @@ class Kernel extends HttpKernel
     protected $routeMiddleware = [
         'checkrole' => \App\Http\Middleware\CheckRole::class,
     ];
+
+    protected function schedule(Schedule $schedule)
+{
+    $schedule->command('otp:clean')->daily();
+}
 }

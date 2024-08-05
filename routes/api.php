@@ -8,15 +8,13 @@ use App\Http\Controllers\PendaftarController;
 use App\Http\Controllers\LogoutController;
 use App\Http\Controllers\PendaftarDokumenController;
 use App\Http\Controllers\PendaftaranAkademikController;
-
-
-
-
+use Ichtrojan\Otp\Models\Otp;
 
 // ROLE : Admin; KepalaSekolah; Bendahara; OrangTua; Siswa; Kantin; Laundry;
 
 Route::post('register', [RegisterController::class, 'register']);
 Route::post('login', [LoginController::class, 'login']);
+// Otp::generate('$id,$digits = 10, int $validity = 15');
 Route::post('/pendaftar', [PendaftarController::class, 'store']);
 Route::post('/pendaftar-dokumen', [PendaftarDokumenController::class, 'store']);
 Route::post('pendaftar-akademik', [PendaftaranAkademikController::class, 'store']);

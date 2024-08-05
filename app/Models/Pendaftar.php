@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Notifications\Notifiable;
+
 
 class Pendaftar extends Model
 {
-    use HasFactory;
+    use HasFactory, Notifiable;
 
     protected $table='pendaftar';
 
@@ -16,6 +18,9 @@ class Pendaftar extends Model
         'nama_depan',
         'nama_belakang',
         'jenis_kelamin',
+        'nik',
+        'email',
+        'nisn',
         'tempat_lahir',
         'tgl_lahir',
         'alamat',
@@ -29,5 +34,9 @@ class Pendaftar extends Model
     public function ppdb()
     {
         return $this->belongsTo(Ppdb::class, 'ppdb_id');
+    }
+    public function village()
+    {
+        return $this->belongsTo(Village::class, 'village_id');
     }
 }
