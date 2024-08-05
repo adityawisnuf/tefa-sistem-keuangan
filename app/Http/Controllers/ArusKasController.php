@@ -9,7 +9,7 @@ use App\Models\PengeluaranKategori;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
-class BukuKasController extends Controller
+class ArusKasController extends Controller
 {
     public function index()
     {
