@@ -17,6 +17,7 @@ class UpdateTablePendaftar extends Migration
             $table->string('nisn')->nullable()->after('jenis_kelamin'); // Menambahkan kolom nisn
             $table->string('nik')->nullable()->after('jenis_kelamin');  // Menambahkan kolom nik
             $table->string('email')->nullable()->after('nik');  // Menambahkan kolom nik
+            $table->timestamp('email_verified_at')->nullable()->after('email');  // Menambahkan
         });
     }
 
