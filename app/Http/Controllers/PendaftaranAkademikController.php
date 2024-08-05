@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\PendaftarAkademik;
+use App\Models\Ppdb;
 use Illuminate\Http\Request;
 
 class PendaftaranAkademikController extends Controller
@@ -45,20 +46,27 @@ class PendaftaranAkademikController extends Controller
         $request->validate([
             'ppdb_id' => 'required|integer|exists:ppdb,id',
             'sekolah_asal' => 'required|string|max:255',
-            'tahun_lulus' => 'required|integer',
+            'tahun_lulus' => 'required|date',
             'jurusan_tujuan' => 'required|string|max:255',
         ]);
-
-        // Simpan data ke dalam database
-        $pendaftarAkademik = PendaftarAkademik::create($request->all());
-
+    
+        
+        $ppdb = Ppdb::find($request->ppdb_id);
+    
+        $pendaftarAkademik = PendaftarAkademik::create([
+            'ppdb_id' => $ppdb->id,
+            'sekolah_asal' => $request->sekolah_asal,
+            'tahun_lulus' => $request->tahun_lulus,
+            'jurusan_tujuan' => $request->jurusan_tujuan,
+        ]);
+    
         // Mengembalikan response JSON
         return response()->json([
             'message' => 'Pendaftar Akademik berhasil disimpan',
             'data' => $pendaftarAkademik
         ], 201);
     }
-
+    
     /**
      * Memperbarui entri spesifik di dalam database.
      *
