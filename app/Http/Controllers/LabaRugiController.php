@@ -8,10 +8,16 @@ use Illuminate\Http\Request;
 
 class LabaRugiController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         try {
-            $financialData = $this->retrieveFinancialData();
+            $month = $request->input('month', date('m')); // default bulan saat ini
+
+            // Mendapatkan tanggal awal dan akhir bulan
+            $startDate = date('Y-' . $month . '-01');
+            $endDate = date('Y-' . $month . '-t');
+
+            $financialData = $this->retrieveFinancialData($startDate, $endDate);
             $financialMetrics = $this->calculateFinancialMetrics($financialData);
 
             $response = [
@@ -34,11 +40,11 @@ class LabaRugiController extends Controller
         }
     }
 
-    private function retrieveFinancialData()
+    private function retrieveFinancialData($startDate, $endDate)
     {
         // Mengambil data Pembayaran dan Pengeluaran
-        $payments = PembayaranSiswa::all();
-        $expenditures = Pengeluaran::all();
+        $payments = PembayaranSiswa::whereBetween('created_at', [$startDate, $endDate])->get();
+        $expenditures = Pengeluaran::whereBetween('created_at', [$startDate, $endDate])->get();
         return [
             'payments' => $payments,
             'expenditures' => $expenditures,
