@@ -34,7 +34,7 @@ class PendaftarController extends Controller
             'ppdb_id' => 'required|integer|exists:ppdb,id',
             'nama_depan' => 'required|string|max:255',
             'nama_belakang' => 'required|string|max:255',
-            'jenis_kelamin' => 'required|string|max:10',
+            'jenis_kelamin' => 'required',
             'nik' => 'required|integer|unique:pendaftar',
             'email' => 'required|string|email|max:255',
             'nisn' => 'required|integer|unique:pendaftar',
