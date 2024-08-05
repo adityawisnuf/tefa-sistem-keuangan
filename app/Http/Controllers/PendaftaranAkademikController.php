@@ -7,17 +7,30 @@ use Illuminate\Http\Request;
 
 class PendaftaranAkademikController extends Controller
 {
-     /**
-     * Menampilkan formulir untuk membuat entri baru.
+    /**
+     * Menampilkan daftar semua entri pendaftar akademik.
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function index()
     {
-        // Menampilkan formulir pembuatan baru
-        return response()->json([
-            'message' => 'Formulir pembuatan baru'
-        ], 200);
+        $pendaftarAkademiks = PendaftarAkademik::all();
+        return response()->json($pendaftarAkademiks);
+    }
+
+    /**
+     * Menampilkan entri spesifik pendaftar akademik.
+     *
+     * @param int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        $pendaftarAkademik = PendaftarAkademik::find($id);
+        if (is_null($pendaftarAkademik)) {
+            return response()->json(['message' => 'Pendaftar Akademik tidak ditemukan'], 404);
+        }
+        return response()->json($pendaftarAkademik);
     }
 
     /**
@@ -37,17 +50,62 @@ class PendaftaranAkademikController extends Controller
         ]);
 
         // Simpan data ke dalam database
-        $pendaftarAkademik = PendaftarAkademik::create([
-            'ppdb_id' => $request->input('ppdb_id'),
-            'sekolah_asal' => $request->input('sekolah_asal'),
-            'tahun_lulus' => $request->input('tahun_lulus'),
-            'jurusan_tujuan' => $request->input('jurusan_tujuan'),
-        ]);
+        $pendaftarAkademik = PendaftarAkademik::create($request->all());
 
         // Mengembalikan response JSON
         return response()->json([
             'message' => 'Pendaftar Akademik berhasil disimpan',
             'data' => $pendaftarAkademik
         ], 201);
+    }
+
+    /**
+     * Memperbarui entri spesifik di dalam database.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+        // Validasi input
+        $request->validate([
+            'ppdb_id' => 'integer|exists:ppdb,id',
+            'sekolah_asal' => 'string|max:255',
+            'tahun_lulus' => 'integer',
+            'jurusan_tujuan' => 'string|max:255',
+        ]);
+
+        // Temukan entri pendaftar akademik
+        $pendaftarAkademik = PendaftarAkademik::find($id);
+        if (is_null($pendaftarAkademik)) {
+            return response()->json(['message' => 'Pendaftar Akademik tidak ditemukan'], 404);
+        }
+
+        // Perbarui data
+        $pendaftarAkademik->update($request->all());
+
+        return response()->json([
+            'message' => 'Pendaftar Akademik berhasil diperbarui',
+            'data' => $pendaftarAkademik
+        ]);
+    }
+
+    /**
+     * Menghapus entri spesifik dari database.
+     *
+     * @param int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($id)
+    {
+        $pendaftarAkademik = PendaftarAkademik::find($id);
+        if (is_null($pendaftarAkademik)) {
+            return response()->json(['message' => 'Pendaftar Akademik tidak ditemukan'], 404);
+        }
+
+        $pendaftarAkademik->delete();
+
+        return response()->json(['message' => 'Pendaftar Akademik berhasil dihapus']);
     }
 }
