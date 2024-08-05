@@ -18,14 +18,14 @@ class BukuKasController extends Controller
         $pengeluaran = Pengeluaran::find(1);
         $kategoriPengeluaran = PengeluaranKategori::find($pengeluaran->pengeluaran_kategori_id);
 
-        $kredit = [
+        $debet = [
             'nominal' => $pembayaran->nominal(),
             'kategori' => $kategoriPembayaran->nama(),
         ];
-        $debit = [
+        $kredit = [
             'nominal' => $pengeluaran->nominal(),
             'kategori' => $kategoriPengeluaran->nama(),
         ];
-        return response()->json([]);
+        return response()->json([$debet, $kredit]);
     }
 }
