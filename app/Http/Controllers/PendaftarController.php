@@ -43,7 +43,6 @@ class PendaftarController extends Controller
         $pendaftar = Pendaftar::create($request->all());
 
         Notification::send($pendaftar, new EmailVerificationNotification());
-        Mail::to($request->input('inputEmail'))->queue(new PendaftarCreated($pendaftar));
 
         // Mengembalikan respons JSON dengan pesan sukses
         return response()->json([

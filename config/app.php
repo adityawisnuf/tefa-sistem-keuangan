@@ -169,6 +169,7 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         Ichtrojan\Otp\OtpServiceProvider::class,
+        Illuminate\Mail\MailServiceProvider::class,
     ])->toArray(),
 
     /*
