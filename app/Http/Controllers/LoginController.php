@@ -25,8 +25,4 @@ class LoginController extends Controller
             'token'     => $token
         ]);
     }
-
-    public function getAllDatas($id){
-        return User::find($id);
-    }
 }
