@@ -3,97 +3,63 @@
 namespace App\Http\Controllers;
 
 use App\Models\PembayaranSiswa;
+use App\Models\Pengeluaran;
 use Illuminate\Http\Request;
 
 class LabaRugiController extends Controller
 {
     public function index()
     {
+        try {
+            $financialData = $this->retrieveFinancialData();
+            $financialMetrics = $this->calculateFinancialMetrics($financialData);
 
-        $pembayaranSiswa = [
-            [
-                'id' => 1,
-                'siswa_id' => 1,
-                'kategori_id' => 1,
-                'nominal' => 100000,
-                'status' => 1
-            ],
-            [
-                'id' => 2,
-                'siswa_id' => 2,
-                'kategori_id' => 1,
-                'nominal' => 200000,
-                'status' => 1
-            ],
-            [
-                'id' => 2,
-                'siswa_id' => 2,
-                'kategori_id' => 2,
-                'nominal' => 200000,
-                'status' => 1
-            ],
-            [
-                'id' => 3,
-                'siswa_id' => 3,
-                'kategori_id' => 3,
-                'nominal' => 300000,
-                'status' => 1
-            ],
-            [
-                'id' => 1,
-                'siswa_id' => 1,
-                'kategori_id' => 1,
-                'nominal' => 100000,
-                'status' => 1
-            ],
-        ];
+            $response = [
+                'pendapatan' => $financialMetrics['totalPayment'],
+                'pengeluaran' => $financialData['expenditures']->mapWithKeys(function ($item) {
+                    return [$item->keperluan => $item->nominal];
+                }),
+                'pengeluaran_total' => $financialMetrics['totalExpenditure'],
+                'laba_bersih' => $financialMetrics['profit'],
+                'rasio_laba_bersih' => $this->formatPercentage($financialMetrics['profit'] / $financialMetrics['totalPayment']),
+                'rasio_beban_operasional' => $this->formatPercentage($financialMetrics['totalExpenditure'] / $financialMetrics['totalPayment']),
+            ];
 
-        $pengeluaran = [
-            [
-                'id' => 1,
-                'pengeluaran_kategori_id' => 1,
-                'keperluan' => 'Membeli spidol',
-                'nominal' => 10000,
-                'diajukan_pada' => now(),
-                'disetujui_pada' => '',
-            ],
-            [
-                'id' => 1,
-                'pengeluaran_kategori_id' => 1,
-                'keperluan' => 'Membeli pulpen',
-                'nominal' => 10000,
-                'diajukan_pada' => now(),
-                'disetujui_pada' => '',
-            ],
-            [
-                'id' => 2,
-                'pengeluaran_kategori_id' => 1,
-                'keperluan' => 'White Board',
-                'nominal' => 100000,
-                'diajukan_pada' => now(),
-                'disetujui_pada' => '',
-            ],
-        ];
-
-        $pendapatanTotal = array_sum(array_column($pembayaranSiswa, 'nominal'));
-
-        $pengeluaranTotal = 0;
-        foreach ($pengeluaran as $item) {
-            $pengeluaranTotal += $item['nominal'];
+            return response()->json($response);
+        } catch (\Exception $e) {
+            // Log error
+            logger()->error($e->getMessage());
+            // Return error response
+            return response()->json(['error' => 'Terjadi kesalahan'], 500);
         }
+    }
 
-        $keperluan = array_column($pengeluaran, 'keperluan');
-        $nominal = array_column($pengeluaran, 'nominal');
-
-        $labaRugi = $pendapatanTotal - $pengeluaranTotal;
-
-        $data = [
-            'pendapatan' => $pendapatanTotal,
-            'pengeluaran' => array_combine($keperluan, $nominal),
-            'pengeluaran_total' => $pengeluaranTotal,
-            'laba_bersih' => $labaRugi,
+    private function retrieveFinancialData()
+    {
+        // Mengambil data Pembayaran dan Pengeluaran
+        $payments = PembayaranSiswa::all();
+        $expenditures = Pengeluaran::all();
+        return [
+            'payments' => $payments,
+            'expenditures' => $expenditures,
         ];
+    }
 
-        return response()->json($data);
+    private function calculateFinancialMetrics(array $financialData)
+    {
+        // Hitung laba kotor, total pengeluaran, dan laba bersih
+        $totalPayment = $financialData['payments']->sum('nominal');
+        $totalExpenditure = $financialData['expenditures']->sum('nominal');
+        $profit = $totalPayment - $totalExpenditure;
+        return [
+            'totalPayment' => $totalPayment,
+            'totalExpenditure' => $totalExpenditure,
+            'profit' => $profit,
+        ];
+    }
+
+    private function formatPercentage($value)
+    {
+        return number_format($value * 100, 0) . '%';
     }
 }
