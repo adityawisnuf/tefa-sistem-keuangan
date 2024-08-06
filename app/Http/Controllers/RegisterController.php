@@ -17,10 +17,17 @@ class RegisterController extends Controller
             'password' => 'required|string|min:6|confirmed',
         ]);
 
+        // $user = User::create([
+        //     'name' => $request->name,
+        //     'email' => $request->email,
+        //     'role' => 'OrangTua',
+        //     'password' => Hash::make($request->password),
+        // ]);
+
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'role' => 'OrangTua',
+            'role' => $request->role,
             'password' => Hash::make($request->password),
         ]);
                               
