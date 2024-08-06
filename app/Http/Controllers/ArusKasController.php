@@ -5,16 +5,31 @@ namespace App\Http\Controllers;
 use App\Models\Pembayaran;
 use App\Models\PembayaranKategori;
 use App\Models\Pengeluaran;
-use App\Models\PengeluaranKategori;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class ArusKasController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $payments = Pembayaran::paginate(50);
-        $expenses = Pengeluaran::paginate(50);
+        $bulan = $request->query('bulan');
+        $tahun = $request->query('tahun');
+
+        $payments = Pembayaran::when($bulan, function ($query) use ($bulan) {
+                            return $query->whereMonth('created_at', $bulan);
+                        })
+                        ->when($tahun, function ($query) use ($tahun) {
+                            return $query->whereYear('created_at', $tahun);
+                        })
+                        ->get();
+
+        $expenses = Pengeluaran::when($bulan, function ($query) use ($bulan) {
+                            return $query->whereMonth('created_at', $bulan);
+                        })
+                        ->when($tahun, function ($query) use ($tahun) {
+                            return $query->whereYear('created_at', $tahun);
+                        })
+                        ->get();
 
         // Group payments by month and year
         $monthlyPayments = $payments->groupBy(function ($payment) {
@@ -51,7 +66,6 @@ class ArusKasController extends Controller
             'Total Pemasukan' => $totalIncome,
             'Total Pengeluaran' => $totalExpense,
             'Saldo Akhir' => $totalIncome - $totalExpense,
-            'nextPageUrl' => $payments->nextPageUrl(),
         ]);
     }
 }
