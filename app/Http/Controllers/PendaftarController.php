@@ -50,12 +50,10 @@ class PendaftarController extends Controller
              'tgl_lahir_ibu' => 'required|date',
          ]);
 
-        $ppdb = Ppdb::create([
-            'status' => 1,
-        ]);
+         $ppdb = Ppdb::find($request->id);
      
          $pendaftar = Pendaftar::create([
-             'ppdb_id' => $ppdb->id,
+            'ppdb_id'   => $ppdb->id,
              'nama_depan' => $request->input('nama_depan'),
              'nama_belakang' => $request->input('nama_belakang'),
              'jenis_kelamin' => $request->input('jenis_kelamin'),
@@ -72,7 +70,7 @@ class PendaftarController extends Controller
              'tgl_lahir_ibu' => $request->input('tgl_lahir_ibu'),
          ]);
      
-         Notification::send($pendaftar, new EmailVerificationNotification());
+    
      
          return response()->json([
              'message' => 'Anda telah berhasil mendaftar!',
@@ -151,4 +149,5 @@ class PendaftarController extends Controller
 
         return response()->json(['message' => 'Pendaftar deleted successfully']);
     }
+
 }
