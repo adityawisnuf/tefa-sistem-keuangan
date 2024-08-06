@@ -38,7 +38,7 @@ class ArusKasController extends Controller
             return $payments->map(function ($payment) {
                 $category = PembayaranKategori::find($payment->pembayaran_kategori_id);
                 return [
-                    'nominal' => $payment->nominal,
+                    'payment' => $payment->nominal,
                     'category' => $category->nama,
                 ];
             });
@@ -50,7 +50,7 @@ class ArusKasController extends Controller
         })->map(function ($expenses) {
             return $expenses->map(function ($expense) {
                 return [
-                    'nominal' => $expense->nominal,
+                    'expense' => $expense->nominal,
                     'category' => $expense->keperluan,
                 ];
             });
