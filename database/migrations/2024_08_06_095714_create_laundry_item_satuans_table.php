@@ -11,9 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('laundry_item_satuans', function (Blueprint $table) {
+        Schema::create('laundry_item_satuan', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('laundry_id');
+            $table->string('nama_item');
+            $table->text('deskripsi');
+            $table->unsignedInteger('harga');
+            $table->enum('status', ['aktif', 'tidak_aktif']);
             $table->timestamps();
+
+            $table->foreign('laundry_id')->references('id')->on('laundry');
         });
     }
 
@@ -22,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('laundry_item_satuans');
+        Schema::dropIfExists('laundry_item_satuan');
     }
 };

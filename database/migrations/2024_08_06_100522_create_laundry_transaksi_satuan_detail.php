@@ -13,7 +13,15 @@ return new class extends Migration
     {
         Schema::create('laundry_transaksi_satuan_detail', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('laundry_item_satuan_id');
+            $table->unsignedBigInteger('laundry_transaksi_satuan_id');
+            $table->unsignedInteger('jumlah');
+            $table->unsignedInteger('harga');
+            $table->unsignedInteger('harga_total');
             $table->timestamps();
+
+            $table->foreign('laundry_item_satuan_id')->references('id')->on('laundry_item_satuan');
+            $table->foreign('laundry_transaksi_satuan_id')->references('id')->on('laundry_transaksi_satuan');
         });
     }
 
