@@ -13,8 +13,7 @@ return new class extends Migration
     {
         Schema::create('laundry_transaksi_satuan', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('siswa_id');
-            $table->unsignedBigInteger('laundry_transaksi_satuan_detail_id');
+            $table->bigInteger('siswa_id');
             $table->unsignedInteger('jumlah_item');
             $table->unsignedInteger('harga_total');
             $table->enum('status', ['pending', 'proses', 'siap_diambil', 'selesai', 'dibatalkan']);
@@ -23,7 +22,6 @@ return new class extends Migration
             $table->timestamps();
 
             $table->foreign('siswa_id')->references('id')->on('siswa');
-            $table->foreign('laundry_transaksi_satuan_detail_id')->references('id')->on('laundry_transaksi_satuan_detail');
         });
     }
 
