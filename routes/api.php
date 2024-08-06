@@ -50,6 +50,6 @@ Route::group(['middleware' => ['auth:api']], function () {
     Route::post('email-verification', [EmailVerificationController::class, 'email_verification']);
     Route::post('send-email-verification', [EmailVerificationController::class, 'sendEmailVerification']);
 
-    Route::get('/payment', [PembayaranController::class, 'payment']);
+    Route::post('/payment', [PembayaranController::class, 'getPaymentMethods']);
 });
 

@@ -4,15 +4,15 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use GuzzleHttp\Client;
-use Illuminate\Support\Facades\Log;
+
 class PembayaranController extends Controller
 {
-    public function getPaymentMethod()
+    public function getPaymentMethods(Request $request)
     {
-        $merchantCode = "DS19869";
-        $apiKey = "8093b2c02b8750e4e73845f307325566";
+        $merchantCode = $request->input('merchantcode');
+        $apiKey = $request->input('apikey');
         $datetime = now()->format('Y-m-d H:i:s');
-        $paymentAmount = 10000;
+        $paymentAmount = $request->input('amount');
         $signature = hash('sha256', $merchantCode . $paymentAmount . $datetime . $apiKey);
 
         $params = [
@@ -23,29 +23,81 @@ class PembayaranController extends Controller
         ];
 
         $client = new Client();
-        $url = 'https://sandbox.duitku.com/webapi/api/merchant/paymentmethod/getpaymentmethod';
+        $response = $client->post('https://sandbox.duitku.com/webapi/api/merchant/paymentmethod/getpaymentmethod', [
+            'headers' => [
+                'Content-Type' => 'application/json',
+            ],
+            'json' => $params,
+            'verify' => false
+        ]);
 
-        try {
-            $response = $client->post($url, [
-                'json' => $params,
-                'headers' => [
-                    'Content-Type' => 'application/json',
-                ],
-                'verify' => false, // Menonaktifkan SSL verification, sebaiknya diaktifkan di production
-            ]);
+        if ($response->getStatusCode() == 200) {
+            return response()->json(json_decode($response->getBody(), true));
+        } else {
+            return response()->json(['error' => 'Server Error', 'message' => json_decode($response->getBody())->Message], $response->getStatusCode());
+        }
+    }
 
-            $statusCode = $response->getStatusCode();
-            $body = json_decode($response->getBody()->getContents(), true);
 
-            if ($statusCode == 200) {
-                return response()->json($body);
-            } else {
-                return response()->json(['error' => 'Server error: ' . $statusCode], $statusCode);
-            }
-        } catch (\Exception $e) {
-            Log::error('Error in getPaymentMethod: ' . $e->getMessage());
-            return response()->json(['error' => 'Something went wrong'], 500);
+        public function createTransaction(Request $request)
+    {
+        $merchantCode = $request->input('merchantCode');
+        $apiKey = $request->input('apiKey');
+        $paymentAmount = $request->input('paymentAmount');
+        $paymentMethod = $request->input('paymentMethod');
+        $email = $request->input('email');
+        $customerVaName = $request->input('customerVaName');
+        $callbackUrl = $request->input('callbackUrl');
+        $returnUrl = $request->input('returnUrl');
+        $expiryPeriod = $request->input('expiryPeriod');
+        $signature = md5($merchantCode  . $paymentAmount . $apiKey);
+
+        $address = [
+            'firstName' => $request->input('firstName'),
+            'lastName' => $request->input('lastName'),
+            'address' => $request->input('address'),
+            'city' => $request->input('city'),
+            'postalCode' => $request->input('postalCode'),
+            'countryCode' => $request->input('countryCode')
+        ];
+
+        $customerDetail = [
+            'firstName' => $request->input('firstName'),
+            'lastName' => $request->input('lastName'),
+            'email' => $email,
+            'billingAddress' => $address,
+            'shippingAddress' => $address
+        ];
+
+        $itemDetails = $request->input('itemDetails'); // Assumed to be an array of item details
+
+        $params = [
+            'merchantCode' => $merchantCode,
+            'paymentAmount' => $paymentAmount,
+            'paymentMethod' => $paymentMethod,
+            'customerVaName' => $customerVaName,
+            'email' => $email,
+            'itemDetails' => $itemDetails,
+            'customerDetail' => $customerDetail,
+            'callbackUrl' => $callbackUrl,
+            'returnUrl' => $returnUrl,
+            'signature' => $signature,
+            'expiryPeriod' => $expiryPeriod
+        ];
+
+        $client = new Client();
+        $response = $client->post('https://sandbox.duitku.com/webapi/api/merchant/v2/inquiry', [
+            'headers' => [
+                'Content-Type' => 'application/json',
+            ],
+            'json' => $params,
+            'verify' => false
+        ]);
+
+        if ($response->getStatusCode() == 200) {
+            return response()->json(json_decode($response->getBody(), true));
+        } else {
+            return response()->json(['error' => 'Server Error', 'message' => json_decode($response->getBody())->Message], $response->getStatusCode());
         }
     }
 }
-
