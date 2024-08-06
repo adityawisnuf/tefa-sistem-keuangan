@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\PendaftarDokumen;
+use App\Models\Ppdb;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -42,9 +43,11 @@ class PendaftarDokumenController extends Controller
         $ijazah = $request->file('ijazah')->store('documents');
         $raport = $request->file('raport')->store('documents');
 
+        $ppdb = Ppdb::find($request->id);
+
         // Membuat data pendaftar dokumen baru
         $pendaftarDokumen = PendaftarDokumen::create([
-            'ppdb_id' => $request->ppdb_id,
+            'ppdb_id' => $ppdb->id,
             'akte_kelahiran' => $akte_kelahiran,
             'kartu_keluarga' => $kartu_keluarga,
             'ijazah' => $ijazah,
