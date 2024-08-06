@@ -1,7 +1,7 @@
 <?php
 
-use App\Http\Controllers\Api\AssetController;
-use App\Models\Asset;
+use App\Http\Controllers\Api\AsetSekolahController;
+use App\Models\AsetSekolah;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -21,17 +21,17 @@ Route::group([
     Route::post('logout', [LogoutController::class, 'logout']);
     Route::get('inventaris', PrintInventaris::class);
 });
-Route::middleware('auth:api')->apiResource('/assets', AssetController::class);
+Route::middleware('auth:api')->apiResource('/assets', AsetSekolah::class);
 
 Route::get('/laporan/inventaris', function () {
     $tgl_awal = request('tgl_awal');
     $tgl_akhir = request('tgl_akhir');
 
     if ($tgl_awal && $tgl_akhir) {
-        $assets = Asset::whereBetween('created_at', [$tgl_awal, $tgl_akhir])->get();
+        $assets = AsetSekolah::whereBetween('created_at', [$tgl_awal, $tgl_akhir])->get();
         $fileName = "Inventaris {$tgl_awal} - {$tgl_akhir}.pdf";
     } else {
-        $assets = Asset::all();
+        $assets = AsetSekolah::all();
         $fileName = "Data Keseluruhan Inventaris.pdf";
     }
 

@@ -11,17 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('asset', function (Blueprint $table) {
+        Schema::create('asst', function (Blueprint $table) {
             $table->id();
             $table->string('nama');
-            $table->string('kategori');
-            $table->date('tanggal_pembelian');
-            $table->decimal('harga');
-            $table->text('keterangan')->nullable();
-            $table->integer('jumlah');
-            $table->integer('kondisi_baik')->default(0);
-            $table->integer('kondisi_kurang_baik')->default(0);
-            $table->integer('kondisi_buruk')->default(0);
+            $table->string('kondisi')->nullable();
             $table->string('penggunaan')->nullable();
             $table->timestamps();
         });
