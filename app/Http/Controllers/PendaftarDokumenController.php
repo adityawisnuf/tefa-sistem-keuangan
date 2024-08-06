@@ -47,7 +47,6 @@ class PendaftarDokumenController extends Controller
 
         // Membuat data pendaftar dokumen baru
         $pendaftarDokumen = PendaftarDokumen::create([
-            'ppdb_id' => $ppdb->id,
             'akte_kelahiran' => $akte_kelahiran,
             'kartu_keluarga' => $kartu_keluarga,
             'ijazah' => $ijazah,

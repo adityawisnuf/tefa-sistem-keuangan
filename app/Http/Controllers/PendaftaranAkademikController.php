@@ -42,6 +42,7 @@ class PendaftaranAkademikController extends Controller
      */
     public function store(Request $request)
     {
+        // Validasi input
         $request->validate([
             'ppdb_id' => 'required|integer|exists:ppdb,id',
             'sekolah_asal' => 'required|string|max:255',
@@ -49,15 +50,15 @@ class PendaftaranAkademikController extends Controller
             'jurusan_tujuan' => 'required|string|max:255',
         ]);
     
-        $ppdb = Ppdb::find($request->id);
+        
     
-        $pendaftarAkademik = new PendaftarAkademik([
-            'ppdb_id'   => $ppdb->id,
+        $pendaftarAkademik = PendaftarAkademik::create([
             'sekolah_asal' => $request->sekolah_asal,
             'tahun_lulus' => $request->tahun_lulus,
             'jurusan_tujuan' => $request->jurusan_tujuan,
         ]);
-
+    
+        // Mengembalikan response JSON
         return response()->json([
             'message' => 'Pendaftar Akademik berhasil disimpan',
             'data' => $pendaftarAkademik
