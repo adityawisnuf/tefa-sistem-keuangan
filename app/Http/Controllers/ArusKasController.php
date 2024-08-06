@@ -13,52 +13,44 @@ class ArusKasController extends Controller
 {
     public function index()
     {
-        $expenses = Pengeluaran::paginate(50);
         $payments = Pembayaran::paginate(50);
+        $expenses = Pengeluaran::paginate(50);
 
-        $credits = [];
-        $totalDebits = Pembayaran::sum('nominal');
-        $totalCredits = Pengeluaran::sum('nominal');
+        // Group payments by month and year
+        $monthlyPayments = $payments->groupBy(function ($payment) {
+            return Carbon::parse($payment->created_at)->format('F Y');
+        })->map(function ($payments) {
+            return $payments->map(function ($payment) {
+                $category = PembayaranKategori::find($payment->pembayaran_kategori_id);
+                return [
+                    'nominal' => $payment->nominal,
+                    'category' => $category->nama,
+                ];
+            });
+        });
 
-        foreach ($expenses as $expense) {
-            $expenseCategory = PengeluaranKategori::find($expense->pengeluaran_kategori_id);
-            $credits[] = [
-                'nominal' => $expense->nominal,
-                'category' => $expenseCategory->nama,
-            ];
-        }
+        // Group expenses by month and year
+        $monthlyExpenses = $expenses->groupBy(function ($expense) {
+            return Carbon::parse($expense->created_at)->format('F Y');
+        })->map(function ($expenses) {
+            return $expenses->map(function ($expense) {
+                return [
+                    'nominal' => $expense->nominal,
+                    'category' => $expense->keperluan,
+                ];
+            });
+        });
 
-        $monthlyPayments = [];
-        foreach ($payments as $payment) {
-            $monthYear = Carbon::parse($payment->created_at)->format('F Y');
-            if (!isset($monthlyPayments[$monthYear])) {
-                $monthlyPayments[$monthYear] = [];
-            }
-            $monthlyPayments[$monthYear][] = [
-                'nominal' => $payment->nominal,
-                'category' => $payment->pembayaran_kategori->nama,
-            ];
-        }
-
-        $yearlyPayments = [];
-        foreach ($payments as $payment) {
-            $year = Carbon::parse($payment->created_at)->format('Y');
-            $paymentCategory = PembayaranKategori::find($payment->pembayaran_kategori_id);
-            if (!isset($yearlyPayments[$year])) {
-                $yearlyPayments[$year] = [];
-            }
-            $yearlyPayments[$year][] = [
-                'nominal' => $payment->nominal,
-                'category' => $paymentCategory->nama,
-            ];
-        }
+        // Calculate totals
+        $totalIncome = $payments->sum('nominal');
+        $totalExpense = $expenses->sum('nominal');
 
         return response()->json([
-            'Pemasukan Bayaran Bulanan' => $monthlyPayments,
-            'Pemasukan Bayaran Tahunan' => $yearlyPayments,
-            'kredit' => $credits,
-            'Total Debet' => $totalDebits,
-            'Total Kredit' => $totalCredits,
+            'Pemasukan' => $monthlyPayments,
+            'Pengeluaran' => $monthlyExpenses,
+            'Total Pemasukan' => $totalIncome,
+            'Total Pengeluaran' => $totalExpense,
+            'Saldo Akhir' => $totalIncome - $totalExpense,
             'nextPageUrl' => $payments->nextPageUrl(),
         ]);
     }

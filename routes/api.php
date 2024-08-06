@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\BukuKasController;
+use App\Http\Controllers\ArusKasController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RegisterController;
@@ -16,6 +16,6 @@ Route::group([
     'middleware' => ['auth:api']
 ], function () {
     Route::post('logout', [LogoutController::class, 'logout']);
-    Route::get('buku-kas', [BukuKasController::class, 'index']);
+    Route::get('arus-kas', [ArusKasController::class, 'index']);
 
 });
