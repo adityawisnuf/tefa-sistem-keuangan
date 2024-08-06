@@ -21,7 +21,7 @@ Route::group([
     Route::post('logout', [LogoutController::class, 'logout']);
     Route::get('inventaris', PrintInventaris::class);
 });
-Route::middleware('auth:api')->apiResource('/assets', AsetSekolah::class);
+Route::middleware('auth:api')->apiResource('/assets', AsetSekolahController::class);
 
 Route::get('/laporan/inventaris', function () {
     $tgl_awal = request('tgl_awal');

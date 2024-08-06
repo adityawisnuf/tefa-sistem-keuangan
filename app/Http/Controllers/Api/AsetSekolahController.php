@@ -23,7 +23,7 @@ class AsetSekolahController extends Controller
      */
     public function index()
     {
-        $asset = AsetSekolah::latest()->get();
+        $asset = AsetSekolah::latest()->paginate(15);
         return new AssetResource(true, 'List Inventaris', $asset);
     }
 
@@ -38,14 +38,7 @@ class AsetSekolahController extends Controller
         //define validation rules
         $validator = Validator::make($request->all(), [
             'nama' => 'required|string|max:255',
-            'kategori' => 'required|string|max:255',
-            'tanggal_pembelian' => 'required|date',
-            'harga' => 'required|numeric',
-            'keterangan' => 'nullable|string',
-            'jumlah' => 'required|integer',
-            'kondisi_baik' => 'required|integer',
-            'kondisi_kurang_baik' => 'required|integer',
-            'kondisi_buruk' => 'required|integer',
+            'kondisi_baik' => 'required|string',
             'penggunaan' => 'required|string'
         ]);
 
@@ -80,14 +73,7 @@ class AsetSekolahController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'nama' => 'required|string|max:255',
-            'kategori' => 'required|string|max:255',
-            'tanggal_pembelian' => 'required|date',
-            'harga' => 'required|numeric',
-            'keterangan' => 'nullable|string',
-            'jumlah' => 'required|integer',
-            'kondisi_baik' => 'required|integer',
-            'kondisi_kurang_baik' => 'required|integer',
-            'kondisi_buruk' => 'required|integer',
+            'kondisi' => 'required|string',
             'penggunaan' => 'required|string'
         ]);
 
