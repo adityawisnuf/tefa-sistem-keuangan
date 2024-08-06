@@ -19,12 +19,16 @@ class LabaRugiController extends Controller
 
             $financialData = $this->retrieveFinancialData($startDate, $endDate);
             $financialMetrics = $this->calculateFinancialMetrics($financialData);
+            $pengeluaranArray = collect($financialData['expenditures'])->map(function ($item) {
+                return [
+                    'keperluan' => $item['keperluan'],
+                    'nominal' => $item['nominal'],
+                ];
+            });
 
             $response = [
                 'pendapatan' => $financialMetrics['totalPayment'],
-                'pengeluaran' => $financialData['expenditures']->mapWithKeys(function ($item) {
-                    return [$item->keperluan => $item->nominal];
-                }),
+                'pengeluaran' => $pengeluaranArray,
                 'pengeluaran_total' => $financialMetrics['totalExpenditure'],
                 'laba_bersih' => $financialMetrics['profit'],
                 'rasio_laba_bersih' => $this->formatPercentage($financialMetrics['profit'] / $financialMetrics['totalPayment']),
