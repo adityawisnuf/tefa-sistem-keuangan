@@ -27,6 +27,6 @@ class LoginController extends Controller
     }
 
     public function getAllDatas($id){
-        return User::find($id);
+        return User::find($id); 
     }
 }
