@@ -77,7 +77,7 @@ class PendaftarController extends Controller
          return response()->json([
              'message' => 'Anda telah berhasil mendaftar!',
              'pendaftar' => $pendaftar
-         ], 201);
+         ], 201);   
      }
     /**
      * Display the specified resource.

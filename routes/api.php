@@ -8,8 +8,13 @@ use App\Http\Controllers\PendaftarController;
 use App\Http\Controllers\LogoutController;
 use App\Http\Controllers\PendaftarDokumenController;
 use App\Http\Controllers\PendaftaranAkademikController;
+use App\Http\Controllers\PendaftarKomplitController;
 use App\Http\Controllers\PembayaranController;
 use Ichtrojan\Otp\Models\Otp;
+
+
+
+Route::post('/pendaftar-komplit', [PendaftarKomplitController::class, 'store']);
 
 // ROLE : Admin; KepalaSekolah; Bendahara; OrangTua; Siswa; Kantin; Laundry;
 
@@ -28,7 +33,7 @@ Route::get('pendaftar-akademik/{id}', [PendaftaranAkademikController::class, 'sh
 Route::put('pendaftar-akademik/{id}', [PendaftaranAkademikController::class, 'update']);
 Route::delete('pendaftar-akademik/{id}', [PendaftaranAkademikController::class, 'destroy']);
 Route::group(['middleware' => ['auth:api']], function () {
-    Route::post('logout', [LogoutController::class, 'logout']);
+     Route::post('logout', [LogoutController::class, 'logout']);
 
 
     Route::post('/pendaftar-dokumen', [PendaftarDokumenController::class, 'store']);
