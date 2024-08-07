@@ -77,6 +77,9 @@ class LabaRugiController extends Controller
         $totalPayment = $financialData['payments']->sum('nominal');
         $totalExpenditure = $financialData['expenditures']->sum('nominal');
         $profit = $totalPayment - $totalExpenditure;
+        if ($profit < 0) {
+            $profit = 0;
+        }
         return [
             'totalPayment' => $totalPayment,
             'totalExpenditure' => $totalExpenditure,
@@ -87,7 +90,11 @@ class LabaRugiController extends Controller
     private function formatPercentage($value, $divisor)
     {
         if ($divisor === 0) {
-            return '0%'; // Atau nilai lain yang sesuai, seperti 'N/A'
+            if ($value > 0) {
+                return '100%'; // Jika ada pengeluaran, tampilkan 100%
+            } else {
+                return '0%'; // Jika tidak ada pengeluaran, tampilkan 0%
+            }
         } else {
             // Gunakan presisi yang cukup untuk menghindari pembulatan yang tidak diinginkan
             return number_format($value / $divisor * 100, 2) . '%';

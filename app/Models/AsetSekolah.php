@@ -12,6 +12,6 @@ class AsetSekolah extends Model
     protected $table= 'aset';
 
     protected $fillable= [
-        'nama', 'kondisi', 'penggunaan',
+        'tipe', 'nama', 'harga', 'kondisi', 'penggunaan',
     ];
 }
