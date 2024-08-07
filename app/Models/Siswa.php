@@ -34,7 +34,7 @@ class Siswa extends Model
     {
         return $this->hasOne(SiswaWallet::class, 'siswa_id');
     }
-
+    
     public function pembayaran()
     {
         return $this->hasMany(Pembayaran::class, 'siswa_id');

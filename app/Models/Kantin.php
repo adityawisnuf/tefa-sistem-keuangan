@@ -8,7 +8,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Kantin extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
+    use SoftDeletes;
 
     protected $table= 'kantin';
 
@@ -16,7 +17,7 @@ class Kantin extends Model
         'nama_produk', 'deskripsi', 'harga', 'stok', 'status',
     ];
 
-    public function kantin_transaksi ()
+    public function kantin_transaksi () 
     {
         return $this->hasMany(KantinTransaksi::class, 'kantin_id');
     }

@@ -8,13 +8,14 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Kelas extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
+    use SoftDeletes;
 
     protected $table = 'kelas';
 
     protected $fillable = [
-        'sekolah_id',
-        'jurusan',
+        'sekolah_id', 
+        'jurusan', 
         'kelas',
     ];
 

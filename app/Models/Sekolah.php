@@ -15,7 +15,7 @@ class Sekolah extends Model
         'nama', 'alamat', 'telepon',
     ];
 
-    public function kelas()
+    public function kelas() 
     {
         return $this->hasMany(kelas::class, 'sekolah_id');
     }

@@ -8,7 +8,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Laundry extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
+    use SoftDeletes;
 
     protected $table= 'laundry';
 
@@ -16,7 +17,7 @@ class Laundry extends Model
         'berat', 'harga',
     ];
 
-    public function laundry_transaksi ()
+    public function laundry_transaksi () 
     {
         return $this->hasMany(LaundryTransaksi::class, 'laundry_id');
     }
