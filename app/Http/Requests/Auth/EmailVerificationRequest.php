@@ -22,7 +22,7 @@ class EmailVerificationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'identifier' => 'required|email|exists:otps',
+            'email' => 'required|email|exists:emailverif',
             'otp'   => 'required|max:6'
         ];
     }

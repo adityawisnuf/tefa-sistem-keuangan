@@ -4,15 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Notifications\Notifiable;
 
-class ModelOtp extends Model
+class Email extends Model
 {
-    use HasFactory;
-
-    protected $table= 'otps';
+    use HasFactory, Notifiable;
+    protected $table= 'emailverif';
 
     protected $fillable = [
-        'identifier', 'token', 'validity', 'valid'
+        'email'
     ];
 }
-
