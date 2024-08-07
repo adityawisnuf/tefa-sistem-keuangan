@@ -3,31 +3,86 @@
 namespace App\Http\Controllers;
 
 use App\Models\PembayaranDuitku;
+use App\Models\Pembayaran;
 use Illuminate\Http\Request;
 use GuzzleHttp\Client;
+use Illuminate\Support\Str;
 use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Facades\Log;
 use GuzzleHttp\Exception\TransferException;
 
 class PembayaranController extends Controller
 {
-    public function getPaymentMethods(Request $request)
-    {
-        $merchantCode = $request->input('merchantcode');
-        $apiKey = $request->input('apikey');
-        $datetime = now()->format('Y-m-d H:i:s');
-        $paymentAmount = $request->input('amount');
-        $signature = hash('sha256', $merchantCode . $paymentAmount . $datetime . $apiKey);
 
-        $params = [
-            'merchantcode' => $merchantCode,
-            'amount' => $paymentAmount,
-            'datetime' => $datetime,
-            'signature' => $signature,
-        ];
 
-        $client = new Client();
-        $response = $client->post('https://sandbox.duitku.com/webapi/api/merchant/paymentmethod/getpaymentmethod', [
+public function createTransaction(Request $request)
+{
+    // Ambil data dari request
+    $merchantCode = $request->input('merchantCode');
+    $apiKey = $request->input('apiKey');
+    $paymentAmount = $request->input('paymentAmount');
+    $paymentMethod = $request->input('paymentMethod');
+    $merchantOrderId = Str::uuid(); // Menggunakan UUID sebagai merchant_order_id
+    $productDetails = $request->input('productDetails');
+    $email = $request->input('email');
+    $phoneNumber = $request->input('phoneNumber');
+    $additionalParam = $request->input('additionalParam');
+    $merchantUserInfo = $request->input('merchantUserInfo');
+    $customerVaName = $request->input('customerVaName');
+    $callbackUrl = $request->input('callbackUrl');
+    $returnUrl = $request->input('returnUrl');
+    $expiryPeriod = $request->input('expiryPeriod');
+    $signature = md5($merchantCode . $merchantOrderId . $paymentAmount . $apiKey);
+
+    Log::info('Signature generated in createTransaction', ['signature' => $signature]);
+
+    // Detail alamat
+    $address = [
+        'firstName' => $request->input('firstName'),
+        'lastName' => $request->input('lastName'),
+        'address' => $request->input('address'),
+        'city' => $request->input('city'),
+        'postalCode' => $request->input('postalCode'),
+        'phone' => $phoneNumber,
+        'countryCode' => $request->input('countryCode')
+    ];
+
+    // Detail pelanggan
+    $customerDetail = [
+        'firstName' => $request->input('firstName'),
+        'lastName' => $request->input('lastName'),
+        'email' => $email,
+        'phoneNumber' => $phoneNumber,
+        'billingAddress' => $address,
+        'shippingAddress' => $address
+    ];
+
+    // Detail item
+    $itemDetails = $request->input('itemDetails'); // Pastikan ini adalah array
+
+    $params = [
+        'merchantCode' => $merchantCode,
+        'paymentAmount' => $paymentAmount,
+        'paymentMethod' => $paymentMethod,
+        'merchantOrderId' => $merchantOrderId,
+        'productDetails' => $productDetails,
+        'additionalParam' => $additionalParam,
+        'merchantUserInfo' => $merchantUserInfo,
+        'customerVaName' => $customerVaName,
+        'email' => $email,
+        'phoneNumber' => $phoneNumber,
+        'itemDetails' => $itemDetails,
+        'customerDetail' => $customerDetail,
+        'callbackUrl' => $callbackUrl,
+        'returnUrl' => $returnUrl,
+        'signature' => $signature,
+        'expiryPeriod' => $expiryPeriod
+    ];
+
+    $client = new Client();
+
+    try {
+        $response = $client->post('https://sandbox.duitku.com/webapi/api/merchant/v2/inquiry', [
             'headers' => [
                 'Content-Type' => 'application/json',
             ],
@@ -35,119 +90,46 @@ class PembayaranController extends Controller
             'verify' => false
         ]);
 
+        // Cek jika status code 200
         if ($response->getStatusCode() == 200) {
-            return response()->json(json_decode($response->getBody(), true));
-        } else {
-            return response()->json(['error' => 'Server Error', 'message' => json_decode($response->getBody())->Message], $response->getStatusCode());
-        }
-    }
+            $responseBody = json_decode($response->getBody(), true);
+            $responseBody['signature'] = $signature; // Tambahkan signature ke response
 
-    public function createTransaction(Request $request)
-    {
-        // Ambil data dari request
-        $merchantCode = $request->input('merchantCode');
-        $apiKey = $request->input('apiKey');
-        $paymentAmount = $request->input('paymentAmount');
-        $paymentMethod = $request->input('paymentMethod');
-        $merchantOrderId = $request->input('merchantOrderId');
-        $productDetails = $request->input('productDetails');
-        $email = $request->input('email');
-        $phoneNumber = $request->input('phoneNumber');
-        $additionalParam = $request->input('additionalParam');
-        $merchantUserInfo = $request->input('merchantUserInfo');
-        $customerVaName = $request->input('customerVaName');
-        $callbackUrl = $request->input('callbackUrl');
-        $returnUrl = $request->input('returnUrl');
-        $expiryPeriod = $request->input('expiryPeriod');
-        $signature = md5($merchantCode . $merchantOrderId . $paymentAmount . $apiKey);
-
-        Log::info('Signature generated in createTransaction', ['signature' => $signature]);
-
-        // Detail alamat
-        $address = [
-            'firstName' => $request->input('firstName'),
-            'lastName' => $request->input('lastName'),
-            'address' => $request->input('address'),
-            'city' => $request->input('city'),
-            'postalCode' => $request->input('postalCode'),
-            'phone' => $phoneNumber,
-            'countryCode' => $request->input('countryCode')
-        ];
-
-        // Detail pelanggan
-        $customerDetail = [
-            'firstName' => $request->input('firstName'),
-            'lastName' => $request->input('lastName'),
-            'email' => $email,
-            'phoneNumber' => $phoneNumber,
-            'billingAddress' => $address,
-            'shippingAddress' => $address
-        ];
-
-        // Detail item
-        $itemDetails = $request->input('itemDetails'); // Pastikan ini adalah array
-
-        $params = [
-            'merchantCode' => $merchantCode,
-            'paymentAmount' => $paymentAmount,
-            'paymentMethod' => $paymentMethod,
-            'merchantOrderId' => $merchantOrderId,
-            'productDetails' => $productDetails,
-            'additionalParam' => $additionalParam,
-            'merchantUserInfo' => $merchantUserInfo,
-            'customerVaName' => $customerVaName,
-            'email' => $email,
-            'phoneNumber' => $phoneNumber,
-            'itemDetails' => $itemDetails,
-            'customerDetail' => $customerDetail,
-            'callbackUrl' => $callbackUrl,
-            'returnUrl' => $returnUrl,
-            'signature' => $signature,
-            'expiryPeriod' => $expiryPeriod
-        ];
-
-        $client = new Client();
-
-        try {
-            $response = $client->post('https://sandbox.duitku.com/webapi/api/merchant/v2/inquiry', [
-                'headers' => [
-                    'Content-Type' => 'application/json',
-                ],
-                'json' => $params,
-                'verify' => false
+            // Simpan data transaksi ke dalam database
+            PembayaranDuitku::create([
+                'merchant_order_id' => $merchantOrderId,
+                'reference' => $responseBody['reference'],
+                'payment_method' => $paymentMethod,
+                'transaction_response' => json_encode($responseBody),
+                'callback_response' => null,
+                'status' => 'pending',
             ]);
 
-            // Cek jika status code 200
-            if ($response->getStatusCode() == 200) {
-                $responseBody = json_decode($response->getBody(), true);
-                $responseBody['signature'] = $signature; // Tambahkan signature ke response
+            // Simpan nominal pembayaran ke tabel pembayaran dengan siswa_id dan kelas_id null, serta status 1 (aktif)
+            Pembayaran::create([
+                'siswa_id' => null,
+                'pembayaran_kategori_id' => $request->input('pembayaran_kategori_id'), // Pastikan pembayaran_kategori_id disertakan dalam request
+                'nominal' => $paymentAmount,
+                'status' => 1, // 1 untuk aktif
+                'kelas_id' => null,
+            ]);
 
-                // Simpan data transaksi ke dalam database
-                PembayaranDuitku::create([
-                    'merchant_order_id' => $merchantOrderId,
-                    'reference' => $responseBody['reference'],
-                    'payment_method' => $paymentMethod,
-                    'transaction_response' => json_encode($responseBody),
-                    'callback_response' => null,
-                    'status' => 'pending',
-                ]);
-
-                return response()->json($responseBody);
-            } else {
-                return response()->json([
-                    'error' => 'Server Error',
-                    'message' => json_decode($response->getBody())->Message
-                ], $response->getStatusCode());
-            }
-        } catch (RequestException $e) {
-            // Tangani exception jika terjadi kesalahan pada request
-            Log::error('Request Error in createTransaction', ['message' => $e->getMessage()]);
+            return response()->json($responseBody);
+        } else {
             return response()->json([
-                'error' => 'Request Error',
-                'message' => $e->getMessage()
-            ], $e->getCode());
+                'error' => 'Server Error',
+                'message' => json_decode($response->getBody())->Message
+            ], $response->getStatusCode());
         }
+    } catch (RequestException $e) {
+        // Tangani exception jika terjadi kesalahan pada request
+        Log::error('Request Error in createTransaction', ['message' => $e->getMessage()]);
+        return response()->json([
+            'error' => 'Request Error',
+            'message' => $e->getMessage()
+        ], $e->getCode());
     }
+}
 
     public function handleCallback(Request $request)
     {
