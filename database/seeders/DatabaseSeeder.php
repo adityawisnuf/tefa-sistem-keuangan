@@ -15,6 +15,13 @@ class DatabaseSeeder extends Seeder
         // \App\Models\User::factory(10)->create();
 
         \App\Models\User::factory()->create([
+            'name' => 'admin',
+            'email' => 'admin@example.com',
+            'password' => 'admin123',
+            'role' => 'Admin',
+        ]);
+
+        \App\Models\User::factory()->create([
             'name' => 'siswa',
             'email' => 'siswa@example.com',
             'password' => 'siswa123',
@@ -56,9 +63,48 @@ class DatabaseSeeder extends Seeder
             'role' => 'Kepsek',
         ]);
 
+        \App\Models\Orangtua::create([
+            'user_id' => '6',
+            'nama' => 'Ega',
+        ]);
+
+        \App\Models\Sekolah::create([
+            'nama' => 'SMKN 1 Cianjur',
+            'alamat' => 'Cianjur',
+            'telepon' => '088888888888',
+        ]);
+
+        \App\Models\Kelas::create([
+            'sekolah_id' => '1',
+            'jurusan' => 'PPLG',
+            'kelas' => 'XI'
+        ]);
+
+        \App\Models\Siswa::create([
+            'user_id' => '2',
+            'nama_depan' => 'Ega',
+            'nama_belakang' => 'Masardi',
+            'village_id' => '1',
+            'kelas_id' => '1',
+            'alamat' => 'Cibaduyut',
+            'tempat_lahir' => 'Cibaduyut',
+            'tanggal_lahir' => now(),
+            'telepon' => '088888888888',
+        ]);
+
         \App\Models\Laundry::create([
-            'user_id' => '3',
+            'user_id' => '4',
             'nama_laundry' => 'Laundry Ega',
+            'alamat' => 'Cimahi',
+            'no_telepon' => '088888888888',
+            'no_rekening' => '4000000000000044',
+            'saldo' => 0,
+            'status_buka' => 'tutup'
+        ]);
+
+        \App\Models\Kantin::create([
+            'user_id' => '4',
+            'nama_kantin' => 'Kantin Ega',
             'alamat' => 'Cimahi',
             'no_telepon' => '088888888888',
             'no_rekening' => '4000000000000044',
