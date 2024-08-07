@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\KantinProdukController;
 use App\Http\Controllers\LaundryItemController;
 use App\Http\Controllers\TopUpController;
 use Illuminate\Http\Request;
@@ -37,5 +38,16 @@ Route::group([
         Route::post('/', [LaundryItemController::class, 'create']);
         Route::put('/{item}', [LaundryItemController::class, 'update']);
         Route::delete('/{item}', [LaundryItemController::class, 'destroy']);
+    });
+});
+
+Route::group([
+    'prefix' => 'kantin'
+], function() {
+    Route::group(['prefix' => 'produk'], function() {
+        Route::get('/', [KantinProdukController::class, 'index']);
+        Route::post('/', [KantinProdukController::class, 'create']);
+        Route::put('/{produk}', [KantinProdukController::class, 'update']);
+        Route::delete('/{produk}', [KantinProdukController::class, 'destroy']);
     });
 });
