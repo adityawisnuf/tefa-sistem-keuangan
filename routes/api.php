@@ -34,7 +34,7 @@ Route::group([
 ], function() {
     Route::group(['prefix' => 'item'], function() {
         Route::get('/', [LaundryItemController::class, 'index']);
-        Route::post('/{item}', [LaundryItemController::class, 'create']);
+        Route::post('/', [LaundryItemController::class, 'create']);
         Route::put('/{item}', [LaundryItemController::class, 'update']);
         Route::delete('/{item}', [LaundryItemController::class, 'destroy']);
     });

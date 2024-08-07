@@ -35,7 +35,7 @@ class LaundryItemRequest extends FormRequest
             'foto_item' => ['required', 'image', 'mimes:png,jpg,jpeg', 'max:2048'],
             'deskripsi' => ['required', 'string'],
             'harga' => ['required', 'integer', 'min:0'],
-        ]
+        ];
     }
 
     public function update()
@@ -46,6 +46,6 @@ class LaundryItemRequest extends FormRequest
             'foto_item' => ['nullable', 'image', 'mimes:png,jpg,jpeg', 'max:2048'],
             'deskripsi' => ['required', 'string'],
             'harga' => ['required', 'integer', 'min:0'],
-        ]
+        ];
     }
 }
