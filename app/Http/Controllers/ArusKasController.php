@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Pembayaran;
 use App\Models\PembayaranKategori;
+use App\Models\PembayaranSiswa;
 use App\Models\Pengeluaran;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -15,7 +16,7 @@ class ArusKasController extends Controller
         $bulan = $request->query('bulan');
         $tahun = $request->query('tahun');
 
-        $payments = Pembayaran::when($bulan, function ($query) use ($bulan) {
+        $payments = PembayaranSiswa::when($bulan, function ($query) use ($bulan) {
                             return $query->whereMonth('created_at', $bulan);
                         })
                         ->when($tahun, function ($query) use ($tahun) {
@@ -36,7 +37,8 @@ class ArusKasController extends Controller
             return Carbon::parse($payment->created_at)->format('F Y');
         })->map(function ($payments) {
             return $payments->map(function ($payment) {
-                $category = PembayaranKategori::find($payment->pembayaran_kategori_id);
+                $categories = Pembayaran::find($payment->pembayaran_id);
+                $category = PembayaranKategori::find($categories->pembayaran_kategori_id);
                 return [
                     'payment' => $payment->nominal,
                     'category' => $category->nama,
@@ -62,12 +64,13 @@ class ArusKasController extends Controller
         $totalIncome = $payments->sum('nominal');
         $totalExpense = $expenses->sum('nominal');
 
-        return response()->json([
+        $data = [
             'Pemasukan' => $monthlyPayments,
             'Pengeluaran' => $monthlyExpenses,
             'Total Pemasukan' => $totalIncome,
             'Total Pengeluaran' => $totalExpense,
             'Saldo Akhir' => $totalIncome - $totalExpense,
-        ]);
+        ];
+        return response()->json($data);
     }
 }
