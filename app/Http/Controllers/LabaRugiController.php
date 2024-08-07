@@ -93,4 +93,22 @@ class LabaRugiController extends Controller
             return number_format($value / $divisor * 100, 2) . '%';
         }
     }
+    public function getOptions()
+    {
+        $data = PembayaranSiswa::selectRaw('DISTINCT YEAR(created_at) as year, MONTHNAME(created_at) as month')
+                               ->orderBy('year', 'desc')
+                               ->orderBy('month', 'asc')
+                               ->get();
+    
+        $months = $data->pluck('month')->unique()->values()->toArray();
+        $years = $data->pluck('year')->unique()->values()->toArray(); // Menggunakan values() untuk menghapus indeks numerik
+    
+        return response()->json([
+            'months' => $months,
+            'years' => $years
+        ]);
+    }
+    
+
+
 }

@@ -19,5 +19,6 @@ Route::group([
     Route::get('laba-rugi', [LabaRugiController::class, 'index']);
     Route::post('logout', [LogoutController::class, 'logout']);
     Route::get('arus-kas', [ArusKasController::class, 'index']);
+    Route::get('get-options', [LabaRugiController::class, 'getOptions']);
 
 });
