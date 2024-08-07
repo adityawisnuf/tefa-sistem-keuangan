@@ -16,11 +16,11 @@ class KantinProduk extends Model
         'kantin_id',
         'kantin_produk_kategori_id',
         'nama_produk',
+        'foto_produk',
         'deskripsi',
         'harga',
         'stok',
-        'status',
-        
+        'status',        
     ];
 
     public function kantin()

@@ -17,6 +17,7 @@ return new class extends Migration
             $table->unsignedBigInteger('kantin_id');
             $table->unsignedBigInteger('kantin_produk_kategori_id');
             $table->string('nama_produk');
+            $table->string('foto_produk');
             $table->text('deskripsi');
             $table->unsignedInteger('harga');
             $table->unsignedInteger('stok');

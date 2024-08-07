@@ -13,6 +13,7 @@ class SiswaWalletRiwayat extends Model
 
     protected $fillable = [
         'siswa_wallet_id',
+        'merchant_order_id',
         'tipe_transaksi',
         'nominal',
         'tanggal_riwayat',
@@ -21,5 +22,10 @@ class SiswaWalletRiwayat extends Model
     public function siswa_wallet()
     {
         return $this->belongsTo(SiswaWallet::class, 'siswa_wallet_id');
+    }
+
+    public function pembayaran_duitku()
+    {
+        return $this->belongsTo(PembayaranDuitku::class, 'merchant_order_id');
     }
 }

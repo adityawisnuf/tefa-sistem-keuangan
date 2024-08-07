@@ -13,6 +13,7 @@ class LaundryItem extends Model
     protected $fillable = [
         'laundry_id',
         'nama_item',
+        'foto_item',
         'deskripsi',
         'harga',
         'status',

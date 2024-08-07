@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('laundry_id');
             $table->string('nama_layanan');
+            $table->string('foto_layanan');
             $table->text('deskripsi');
             $table->unsignedInteger('harga_per_kilo');
             $table->enum('status',['aktif','tidak_aktif']);
