@@ -36,7 +36,7 @@ class AsetSekolahController extends Controller
         }
 
         // Lakukan paginasi pada hasil query
-        $asset = $query->paginate(15);
+        $asset = $query->paginate(5);
 
         // Kembalikan hasil dalam format resource
         return new AssetResource(true, 'List Inventaris', $asset);
@@ -53,7 +53,9 @@ class AsetSekolahController extends Controller
         //define validation rules
         $validator = Validator::make($request->all(), [
             'nama' => 'required|string|max:255',
+            'tipe' => 'required|string|max:225',
             'kondisi' => 'required|string',
+            'harga' => 'required|numeric',
             'penggunaan' => 'required|string'
         ]);
 
@@ -87,8 +89,10 @@ class AsetSekolahController extends Controller
     public function update(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
+            'tipe' => 'required|string|max:225',
             'nama' => 'required|string|max:255',
             'kondisi' => 'required|string',
+            'harga' => 'required|numeric',
             'penggunaan' => 'required|string'
         ]);
 

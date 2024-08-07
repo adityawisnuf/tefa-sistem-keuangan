@@ -79,13 +79,9 @@
                 <tr>
                     <th>ID</th>
                     <th>Nama</th>
-                    <th>Kategori</th>
-                    <th>Tanggal Pembelian</th>
                     <th>Harga</th>
-                    <th>Kondisi Baik</th>
-                    <th>Kondisi Kurang Baik</th>
-                    <th>Kondisi Buruk</th>
-                    <th>Jumlah</th>
+                    <th>Kondisi</th>
+                    <th>Tipe</th>
                     <th>Penggunaan</th>
                 </tr>
             </thead>
@@ -94,13 +90,9 @@
                     <tr>
                         <td>{{ $asset->id }}</td>
                         <td>{{ $asset->nama }}</td>
-                        <td>{{ $asset->kategori }}</td>
-                        <td>{{ $asset->tanggal_pembelian }}</td>
                         <td>{{ $asset->harga }}</td>
-                        <td>{{ $asset->kondisi_baik }}</td>
-                        <td>{{ $asset->kondisi_kurang_baik }}</td>
-                        <td>{{ $asset->kondisi_buruk }}</td>
-                        <td>{{ $asset->jumlah }}</td>
+                        <td>{{ $asset->kondisi }}</td>
+                        <td>{{ $asset->tipe }}</td>
                         <td>{{ $asset->penggunaan }}</td>
                     </tr>
                 @endforeach

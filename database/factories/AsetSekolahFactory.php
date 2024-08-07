@@ -19,7 +19,9 @@ class AsetSekolahFactory extends Factory
         return [
             'nama' => $this->faker->streetName(),
             'kondisi' => $this->faker->randomElement(['Lecet 99%', 'Mulus', 'Batangan', 'Baru unbox', 'Fatal']),
-            'penggunaan' => $this->faker->randomDigitNotNull() . " " . $this->faker->randomElement(['Tahun', 'Bulan', 'Minggu', 'Hari', 'Jam'])
+            'penggunaan' => $this->faker->randomDigitNotNull() . " " . $this->faker->randomElement(['Tahun', 'Bulan', 'Minggu', 'Hari', 'Jam']),
+            'tipe' => $this->faker->randomElement(['Tahunan', 'Bulanan', 'Mingguan']),
+
         ];
     }
 }
