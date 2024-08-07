@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\TopUpController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RegisterController;
@@ -17,8 +18,11 @@ Route::group([
     Route::post('logout', [LogoutController::class, 'logout']);
 });
 
+//kantin & laundry
 Route::group([
-    'prefix' => 'siswa'
+    'prefix' => 'duitku'
 ], function() {
-    Route::get()
+    Route::get('get-payment-method', [TopUpController::class, 'getPaymentMethod']);
+    Route::post('request-transaksi', [TopUpController::class, 'requestTransaction']);
+    Route::post('callback', [TopUpController::class, 'callback']);
 });
