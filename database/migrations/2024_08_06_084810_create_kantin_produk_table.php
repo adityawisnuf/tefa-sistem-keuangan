@@ -21,7 +21,7 @@ return new class extends Migration
             $table->text('deskripsi');
             $table->unsignedInteger('harga');
             $table->unsignedInteger('stok');
-            $table->enum('status',['aktif','tidak_aktif']);
+            $table->enum('status',['aktif','tidak_aktif'])->default('tidak_aktif');
 
             $table->timestamps();
             $table->foreign('kantin_id')->references('id')->on('kantin');

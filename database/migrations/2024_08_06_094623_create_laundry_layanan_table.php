@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('foto_layanan');
             $table->text('deskripsi');
             $table->unsignedInteger('harga_per_kilo');
-            $table->enum('status',['aktif','tidak_aktif']);
+            $table->enum('status',['aktif','tidak_aktif'])->default('tidak_aktif');
             $table->timestamps();
 
             $table->foreign('laundry_id')->references('id')->on('laundry');
