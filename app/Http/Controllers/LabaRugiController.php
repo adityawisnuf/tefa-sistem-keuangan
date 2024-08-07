@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\PembayaranSiswa;
 use App\Models\Pengeluaran;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class LabaRugiController extends Controller
@@ -11,28 +12,38 @@ class LabaRugiController extends Controller
     public function index(Request $request)
     {
         try {
-            $month = $request->input('month', date('m')); // default bulan saat ini
+            $bulan = $request->input('bulan');
+            $tahun = $request->input('tahun');
 
-            // Mendapatkan tanggal awal dan akhir bulan
-            $startDate = date('Y-' . $month . '-01');
-            $endDate = date('Y-' . $month . '-t');
+            // Buat tanggal awal dan akhir berdasarkan input
+            $startDate = null;
+            $endDate = null;
+
+            if ($bulan && $tahun && $bulan != '') {
+                $startDate = Carbon::createFromDate($tahun, $bulan, 1);
+                $endDate = $startDate->copy()->endOfMonth();
+            } elseif ($tahun) {
+                $startDate = Carbon::createFromDate($tahun, 1, 1);
+                $endDate = Carbon::createFromDate($tahun, 12, 31);
+            }
 
             $financialData = $this->retrieveFinancialData($startDate, $endDate);
             $financialMetrics = $this->calculateFinancialMetrics($financialData);
-            $pengeluaranArray = collect($financialData['expenditures'])->map(function ($item) {
+            $pengeluaranArray = $financialData['expenditures']->map(function ($item) {
                 return [
                     'keperluan' => $item['keperluan'],
                     'nominal' => $item['nominal'],
                 ];
             });
 
+
             $response = [
                 'pendapatan' => $financialMetrics['totalPayment'],
                 'pengeluaran' => $pengeluaranArray,
                 'pengeluaran_total' => $financialMetrics['totalExpenditure'],
                 'laba_bersih' => $financialMetrics['profit'],
-                'rasio_laba_bersih' => $this->formatPercentage($financialMetrics['profit'] / $financialMetrics['totalPayment']),
-                'rasio_beban_operasional' => $this->formatPercentage($financialMetrics['totalExpenditure'] / $financialMetrics['totalPayment']),
+                'rasio_laba_bersih' => $this->formatPercentage($financialMetrics['profit'], $financialMetrics['totalPayment']),
+                'rasio_beban_operasional' => $this->formatPercentage($financialMetrics['totalExpenditure'], $financialMetrics['totalPayment']),
             ];
 
             return response()->json($response);
@@ -48,7 +59,7 @@ class LabaRugiController extends Controller
     {
         // Mengambil data Pembayaran dan Pengeluaran
         $payments = PembayaranSiswa::whereBetween('created_at', [$startDate, $endDate])->get();
-        $expenditures = Pengeluaran::whereBetween('created_at', [$startDate, $endDate])->get();
+        $expenditures = Pengeluaran::whereBetween('disetujui_pada', [$startDate, $endDate])->get();
         return [
             'payments' => $payments,
             'expenditures' => $expenditures,
@@ -68,8 +79,13 @@ class LabaRugiController extends Controller
         ];
     }
 
-    private function formatPercentage($value)
+    private function formatPercentage($value, $divisor)
     {
-        return number_format($value * 100, 0) . '%';
+        if ($divisor === 0) {
+            return '0%'; // Atau nilai lain yang sesuai, seperti 'N/A'
+        } else {
+            // Gunakan presisi yang cukup untuk menghindari pembulatan yang tidak diinginkan
+            return number_format($value / $divisor * 100, 2) . '%';
+        }
     }
 }
