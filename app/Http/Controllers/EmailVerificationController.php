@@ -23,10 +23,12 @@ class EmailVerificationController extends Controller
     }
     public function email_verification(EmailVerificationRequest $request){
         $otp2 = $this->otp->validate($request->email, $request->otp);
+        //jika data error
         if(!$otp2->status){
             return response()->json(['error' => $otp2], 401);
         }
-        $pendaftar = Email::where('email', $request->email);
+        Email::where('email', $request->email)->first();
+        //jika data sukses
         $success['success'] = true;
         return response()->json($success,200);
     }
