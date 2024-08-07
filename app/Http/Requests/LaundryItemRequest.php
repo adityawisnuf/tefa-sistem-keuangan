@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class LaundryItemRequest extends FormRequest
 {
@@ -46,6 +47,7 @@ class LaundryItemRequest extends FormRequest
             'foto_item' => ['nullable', 'image', 'mimes:png,jpg,jpeg', 'max:2048'],
             'deskripsi' => ['required', 'string'],
             'harga' => ['required', 'integer', 'min:0'],
+            'status' => ['nullable', Rule::in('aktif', 'tidak_aktif')],
         ];
     }
 }

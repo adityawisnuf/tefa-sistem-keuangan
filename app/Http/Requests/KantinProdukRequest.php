@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class KantinProdukRequest extends FormRequest
 {
@@ -37,7 +38,6 @@ class KantinProdukRequest extends FormRequest
             'deskripsi' => ['required', 'string'],
             'harga' => ['required', 'integer', 'min:0'],
             'stok' => ['required', 'integer', 'min:0'],
-
         ];
     }
 
@@ -51,6 +51,7 @@ class KantinProdukRequest extends FormRequest
             'deskripsi' => ['required', 'string'],
             'harga' => ['required', 'integer', 'min:0'],
             'stok' => ['required', 'integer', 'min:0'],
+            'status' => ['nullable', Rule::in('aktif', 'tidak_aktif')],
         ];
     }
 }
