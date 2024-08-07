@@ -14,8 +14,6 @@ class LabaRugiController extends Controller
         try {
             $bulan = $request->query('bulan');
             $tahun = $request->query('tahun');
-            $bulan = $request->query('bulan');
-            $tahun = $request->query('tahun');
 
             // Buat tanggal awal dan akhir berdasarkan query
             $startDate = null;
@@ -65,8 +63,6 @@ class LabaRugiController extends Controller
     private function retrieveFinancialData($startDate, $endDate)
     {
         // Mengambil data Pembayaran dan Pengeluaran
-        $payments = PembayaranSiswa::whereBetween('created_at', [$startDate, $endDate])->paginate(20);
-        $expenditures = Pengeluaran::whereBetween('disetujui_pada', [$startDate, $endDate])->paginate(20);
         $payments = PembayaranSiswa::whereBetween('created_at', [$startDate, $endDate])->paginate(20);
         $expenditures = Pengeluaran::whereBetween('disetujui_pada', [$startDate, $endDate])->paginate(20);
         return [
