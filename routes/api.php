@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\LaundryItemController;
 use App\Http\Controllers\TopUpController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -25,4 +26,16 @@ Route::group([
     Route::get('get-payment-method', [TopUpController::class, 'getPaymentMethod']);
     Route::post('request-transaksi', [TopUpController::class, 'requestTransaction']);
     Route::post('callback', [TopUpController::class, 'callback']);
+});
+
+
+Route::group([
+    'prefix' => 'laundry'
+], function() {
+    Route::group(['prefix' => 'item'], function() {
+        Route::get('/', [LaundryItemController::class, 'index']);
+        Route::post('/{item}', [LaundryItemController::class, 'create']);
+        Route::put('/{item}', [LaundryItemController::class, 'update']);
+        Route::delete('/{item}', [LaundryItemController::class, 'destroy']);
+    });
 });
