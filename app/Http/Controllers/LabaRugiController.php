@@ -12,10 +12,12 @@ class LabaRugiController extends Controller
     public function index(Request $request)
     {
         try {
-            $bulan = $request->input('bulan');
-            $tahun = $request->input('tahun');
+            $bulan = $request->query('bulan');
+            $tahun = $request->query('tahun');
 
-            // Buat tanggal awal dan akhir berdasarkan input
+            // Buat tanggal awal dan akhir berdasarkan query
+            // Jika tidak ada query bulan dan tahun, maka tampilkan data dari bulan dan tahun saat ini
+            $now = Carbon::now();
             $startDate = null;
             $endDate = null;
 
@@ -25,6 +27,9 @@ class LabaRugiController extends Controller
             } elseif ($tahun) {
                 $startDate = Carbon::createFromDate($tahun, 1, 1);
                 $endDate = Carbon::createFromDate($tahun, 12, 31);
+            } elseif (!$bulan && !$tahun) {
+                $startDate = Carbon::createFromDate($now->year, 1, 1);
+                $endDate = Carbon::createFromDate($now->year, 12, 31);
             }
 
             $financialData = $this->retrieveFinancialData($startDate, $endDate);
