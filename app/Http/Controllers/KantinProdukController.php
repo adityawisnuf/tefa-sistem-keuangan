@@ -11,14 +11,14 @@ use Symfony\Component\HttpFoundation\Response;
 class KantinProdukController extends Controller
 {
     const IMAGE_STORAGE_PATH = 'public/kantin/produk/';
-    
+
     public function index()
     {
         $perPage = request()->input('per_page', 10);
         $items = KantinProduk::latest()->paginate($perPage);
         return response()->json(['data' => $items], Response::HTTP_OK);
     }
-
+ 
     public function create(KantinProdukRequest $request)
     {
         $fields = $request->validated();

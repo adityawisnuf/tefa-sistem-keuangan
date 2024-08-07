@@ -42,10 +42,10 @@ class KantinProdukKategoriController extends Controller
         }
     }
 
-    public function destroy(KantinProdukKategori $item)
+    public function destroy(KantinProdukKategori $kategori)
     {
         try {
-            $item->delete();
+            $kategori->delete();
             return response(null, 204);
         } catch (Exception $e) {
             return response()->json(['message' => 'Gagal menghapus kategori: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
