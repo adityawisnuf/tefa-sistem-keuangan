@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\LogoutController;
+use App\Http\Controllers\OrangTuaController;
 use App\Http\Controllers\PengeluaranController;
 
 // ROLE : Admin; KepalaSekolah; Bendahara; OrangTua; Siswa; Kantin; Laundry;
@@ -22,3 +23,7 @@ Route::group([
    Route::post('pengeluaran/kategori', [PengeluaranController::class, 'addPengeluaranKategori']);
 
 });
+
+Route::post('orangtua', [OrangTuaController::class, 'store']);
+Route::patch('orangtua/{id}', [OrangTuaController::class, 'update']);
+Route::delete('orangtua/{id}', [OrangTuaController::class, 'destroy']);
