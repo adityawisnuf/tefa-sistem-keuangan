@@ -7,11 +7,7 @@ use App\Models\AsetSekolah;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\AsetSekolahResource;
-//import Resource "AssetResource"
-use App\Http\Resources\AsetSekolahResourceResource;
 use App\Http\Resources\AssetResource;
-//import Facade "Validator"
 use Illuminate\Support\Facades\Validator;
 
 class AsetSekolahController extends Controller
@@ -21,9 +17,28 @@ class AsetSekolahController extends Controller
      *
      * @return void
      */
-    public function index()
+    public function index(Request $request)
     {
-        $asset = AsetSekolah::latest()->paginate(15);
+        // Ambil parameter pencarian dari query string, jika ada
+        $search = $request->query('search', '');
+
+        // Mulai dengan query untuk mengambil data terbaru
+        $query = AsetSekolah::latest();
+
+        // Tambahkan kondisi pencarian jika ada parameter 'search'
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                // Anda dapat menyesuaikan kolom yang dicari sesuai kebutuhan
+                $q->where('nama', 'like', "%$search%")
+                    ->orWhere('kondisi', 'like', "%$search%")
+                    ->orWhere('penggunaan', 'like', "%$search%");
+            });
+        }
+
+        // Lakukan paginasi pada hasil query
+        $asset = $query->paginate(15);
+
+        // Kembalikan hasil dalam format resource
         return new AssetResource(true, 'List Inventaris', $asset);
     }
 
