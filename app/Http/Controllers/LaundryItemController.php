@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Storage;
 
 class LaundryItemController extends Controller
 {
-    const IMAGE_STORAGE_PATH = 'public/laundry/item';
+    const IMAGE_STORAGE_PATH = 'public/laundry/item/';
 
     public function index()
     {
@@ -25,7 +25,7 @@ class LaundryItemController extends Controller
         $fields = $request->validated();
 
         $path = Storage::putFile(self::IMAGE_STORAGE_PATH, $fields['foto_item']);
-        $fields['foto'] = basename($path);
+        $fields['foto_item'] = basename($path);
         $item = LaundryItem::create($fields);
 
         return response()->json([
@@ -56,10 +56,7 @@ class LaundryItemController extends Controller
     {
         Storage::delete(self::IMAGE_STORAGE_PATH . $item->foto_item);
         $item->delete();
-        
-        return response()->json([
-            'data' => [],
-            'message' => 'Item deleted.'
-        ], 204);
+
+        return response(null, 204);
     }
 }

@@ -21,7 +21,7 @@ class LaundryItemRequest extends FormRequest
      */
     public function rules(): array
     {
-        return match ($this->method) {
+        return match ($this->method()) {
             'POST' => $this->store(),
             'PUT' => $this->update(),
         };
