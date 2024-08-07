@@ -11,14 +11,35 @@ class Laundry extends Model
     use HasFactory;
     use SoftDeletes;
 
-    protected $table= 'laundry';
+    protected $table = 'laundry';
 
     protected $fillable = [
-        'berat', 'harga',
+        'user_id',
+        'nama_laundry',
+        'alamat',
+        'no_telepon',
+        'no_rekening',
+        'saldo',
+        'status_buka',
     ];
-
-    public function laundry_transaksi () 
+    
+    public function user()
     {
-        return $this->hasMany(LaundryTransaksi::class, 'laundry_id');
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function laundry_layanan()
+    {
+        return $this->hasMany(LaundryLayanan::class, 'laundry_id');
+    }
+
+    public function laundry_item()
+    {
+        return $this->hasMany(LaundryItem::class, 'laundry_id');
+    }
+
+    public function laundry_pengajuan()
+    {
+        return $this->hasMany(LaundryPengajuan::class, 'laundry_id');
     }
 }

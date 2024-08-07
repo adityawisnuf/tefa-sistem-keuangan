@@ -11,14 +11,31 @@ class Kantin extends Model
     use HasFactory;
     use SoftDeletes;
 
-    protected $table= 'kantin';
+    protected $table = 'kantin';
 
     protected $fillable = [
-        'nama_produk', 'deskripsi', 'harga', 'stok', 'status',
+        'user_id',
+        'nama_kantin',
+        'alamat',
+        'no_telepon',
+        'no_rekening',
+        'saldo',
+        'status_buka',
     ];
 
-    public function kantin_transaksi () 
+
+    public function kantin_pengajuan()
     {
-        return $this->hasMany(KantinTransaksi::class, 'kantin_id');
+        return $this->hasMany(KantinPengajuan::class, 'kantin_id');
+    }
+
+    public function kantin_produk()
+    {
+        return $this->hasMany(KantinProduk::class, 'kantin_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

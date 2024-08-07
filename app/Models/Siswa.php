@@ -9,18 +9,27 @@ class Siswa extends Model
 {
     use HasFactory;
 
-    protected $table= 'siswa';
+    protected $table = 'siswa';
 
-    protected $fillable= [
-        'user_id', 'nama_depan', 'nama_belakang', 'alamat', 'tempat_lahir', 'telepon', 'kelas_id', 'orangtua_id',
+    protected $fillable = [
+        'user_id',
+        'orangtua_id',
+        'kelas_id',
+        'nama_depan',
+        'nama_belakang',
+        'alamat',
+        'tempat_lahir',
+        'tempat_lahir',
+        'telepon',
+        'kelas_id',
     ];
 
-    public function user ()
+    public function user()
     {
-        return $this->belongsTo(user::class, 'user_id');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function orangtua ()
+    public function orangtua()
     {
         return $this->belongsTo(Orangtua::class, 'orangtua_id');
     }
@@ -34,7 +43,7 @@ class Siswa extends Model
     {
         return $this->hasOne(SiswaWallet::class, 'siswa_id');
     }
-    
+
     public function pembayaran()
     {
         return $this->hasMany(Pembayaran::class, 'siswa_id');
@@ -43,5 +52,20 @@ class Siswa extends Model
     public function village()
     {
         return $this->belongsTo(Village::class, 'village_id');
+    }
+
+    public function kantin_transaksi()
+    {
+        return $this->hasMany(KantinTransaksi::class, 'siswa_id');
+    }
+
+    public function laundry_transaksi_kiloan()
+    {
+        return $this->hasMany(LaundryTransaksiKiloan::class, 'siswa_id');
+    }
+
+    public function laundry_transaksi_satuan()
+    {
+        return $this->hasMany(LaundryTransaksiSatuan::class, 'siswa_id');
     }
 }

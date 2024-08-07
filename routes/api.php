@@ -15,5 +15,10 @@ Route::group([
     'middleware' => ['auth:api']
 ], function () {
     Route::post('logout', [LogoutController::class, 'logout']);
-    
+});
+
+Route::group([
+    'prefix' => 'siswa'
+], function() {
+    Route::get()
 });

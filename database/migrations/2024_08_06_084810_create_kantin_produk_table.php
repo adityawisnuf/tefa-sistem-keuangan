@@ -11,9 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
+        
         Schema::create('kantin_produk', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('kantin_id');
+            $table->unsignedBigInteger('kantin_produk_kategori_id');
+            $table->string('nama_produk');
+            $table->text('deskripsi');
+            $table->unsignedInteger('harga');
+            $table->unsignedInteger('stok');
+            $table->enum('status',['aktif','tidak_aktif']);
+
             $table->timestamps();
+            $table->foreign('kantin_id')->references('id')->on('kantin');
+            $table->foreign('kantin_produk_kategori_id')->references('id')->on('kantin_produk_kategori');
         });
     }
 
@@ -23,5 +34,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('kantin_produk');
+
     }
 };

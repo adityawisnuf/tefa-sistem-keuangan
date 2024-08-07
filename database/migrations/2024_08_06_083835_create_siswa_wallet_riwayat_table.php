@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('siswa_wallet_riwayat', function (Blueprint $table) {
             $table->id();
             $table->integer('siswa_wallet_id');
-            $table->enum('tipe', ['pemasukan', 'pengeluaran']);
+            $table->enum('tipe_transaksi', ['pemasukan', 'pengeluaran']);
             $table->double('nominal');
             $table->dateTime('tanggal_riwayat');
             $table->timestamps();
