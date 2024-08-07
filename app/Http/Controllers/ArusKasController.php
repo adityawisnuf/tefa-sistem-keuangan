@@ -22,7 +22,7 @@ class ArusKasController extends Controller
                         ->when($tahun, function ($query) use ($tahun) {
                             return $query->whereYear('created_at', $tahun);
                         })
-                        ->get();
+                        ->paginate(20);
 
         $expenses = Pengeluaran::when($bulan, function ($query) use ($bulan) {
                             return $query->whereMonth('created_at', $bulan);
@@ -30,7 +30,7 @@ class ArusKasController extends Controller
                         ->when($tahun, function ($query) use ($tahun) {
                             return $query->whereYear('created_at', $tahun);
                         })
-                        ->get();
+                        ->paginate(20);
 
         // Group payments by month and year
         $monthlyPayments = $payments->groupBy(function ($payment) {
