@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\KantinProdukController;
+use App\Http\Controllers\KantinProdukKategoriController;
 use App\Http\Controllers\LaundryItemController;
 use App\Http\Controllers\TopUpController;
 use Illuminate\Http\Request;
@@ -49,5 +50,11 @@ Route::group([
         Route::post('/', [KantinProdukController::class, 'create']);
         Route::put('/{produk}', [KantinProdukController::class, 'update']);
         Route::delete('/{produk}', [KantinProdukController::class, 'destroy']);
+    });
+    Route::group(['prefix' => 'kategori'], function() {
+        Route::get('/', [KantinProdukKategoriController::class, 'index']);
+        Route::post('/', [KantinProdukKategoriController::class, 'create']);
+        Route::put('/{kategori}', [KantinProdukKategoriController::class, 'update']);
+        Route::delete('/{kategori}', [KantinProdukKategoriController::class, 'destroy']);
     });
 });
