@@ -40,18 +40,20 @@ class ArusKasController extends Controller
                 return [
                     'payment' => $payment->nominal,
                     'category' => $category->nama,
+                    'tanggal' => Carbon::parse($payment->created_at)->format('d M Y'),
                 ];
             });
         });
 
         // Group expenses by month and year
         $monthlyExpenses = $expenses->groupBy(function ($expense) {
-            return Carbon::parse($expense->created_at)->format('F Y');
+            return Carbon::parse($expense->disetujui_pada)->format('F Y');
         })->map(function ($expenses) {
             return $expenses->map(function ($expense) {
                 return [
                     'expense' => $expense->nominal,
                     'category' => $expense->keperluan,
+                    'tanggal' => Carbon::parse($expense->disetujui_pada)->format('d M Y'),
                 ];
             });
         });
