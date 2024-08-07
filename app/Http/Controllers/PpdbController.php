@@ -66,7 +66,6 @@ class PpdbController extends Controller
 
             Log::error('Pendaftaran gagal:', [
                 'exception' => $e,
-                'user_id' => auth()->id() ?? 'anonymous', // Contoh menambahkan informasi pengguna
                 'request_data' => $request->all(),
             ]);
 
