@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\EmailVerificationController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\LoginController;
@@ -12,42 +11,54 @@ use App\Http\Controllers\PendaftaranAkademikController;
 use App\Http\Controllers\PendaftarKomplitController;
 use App\Http\Controllers\PembayaranController;
 use App\Http\Controllers\PpdbController;
-use App\Http\Requests\Auth\EmailVerificationRequest;
-use App\Models\Ppdb;
-use Ichtrojan\Otp\Models\Otp;
-
-
-
-// ROLE : Admin; KepalaSekolah; Bendahara; OrangTua; Siswa; Kantin; Laundry;
-
+ 
 Route::post('register', [RegisterController::class, 'register']);
 Route::post('login', [LoginController::class, 'login']);
 
-Route::group(['middleware' => ['auth:api']], function () {
+// Routes for authenticated users
+Route::middleware('auth:api')->group(function () {
     Route::post('logout', [LogoutController::class, 'logout']);
-    
+
     Route::post('ppdb', [PpdbController::class, 'store']);
-    Route::post('/pendaftar', [PendaftarController::class, 'store']);
-    Route::get('/pendaftar', [PendaftarController::class, 'index']);
-    Route::get('/pendaftar/{id}', [PendaftarController::class, 'show']);
-    Route::put('/pendaftar/{id}', [PendaftarController::class, 'update']);
-    Route::delete('/pendaftar/{id}', [PendaftarController::class, 'destroy']);
-    
-    Route::post('pendaftar-akademik', [PendaftaranAkademikController::class, 'store']);
-    Route::get('pendaftar-akademik', [PendaftaranAkademikController::class, 'index']);
-    Route::get('pendaftar-akademik/{id}', [PendaftaranAkademikController::class, 'show']);
-    Route::put('pendaftar-akademik/{id}', [PendaftaranAkademikController::class, 'update']);
-    Route::delete('pendaftar-akademik/{id}', [PendaftaranAkademikController::class, 'destroy']);
-    
-    Route::post('/pendaftar-dokumen', [PendaftarDokumenController::class, 'store']);
-    Route::get('/pendaftar-dokumen', [PendaftarDokumenController::class, 'index']);
-    Route::get('/pendaftar-dokumen/{id}', [PendaftarDokumenController::class, 'show']);
-    Route::put('/pendaftar-dokumen/{id}', [PendaftarDokumenController::class, 'update']);
-    Route::delete('/pendaftar-dokumen/{id}', [PendaftarDokumenController::class, 'destroy']);
-    
+
+    // Pendaftar Routes
+    Route::prefix('pendaftar')->group(function () {
+        Route::post('/', [PendaftarController::class, 'store']);
+        Route::get('/', [PendaftarController::class, 'index']);
+        Route::get('{id}', [PendaftarController::class, 'show']);
+        Route::put('{id}', [PendaftarController::class, 'update']);
+        Route::delete('{id}', [PendaftarController::class, 'destroy']);
+    });
+
+    // Pendaftaran Akademik Routes
+    Route::prefix('pendaftar-akademik')->group(function () {
+        Route::post('/', [PendaftaranAkademikController::class, 'store']);
+        Route::get('/', [PendaftaranAkademikController::class, 'index']);
+        Route::get('{id}', [PendaftaranAkademikController::class, 'show']);
+        Route::put('{id}', [PendaftaranAkademikController::class, 'update']);
+        Route::delete('{id}', [PendaftaranAkademikController::class, 'destroy']);
+    });
+
+    // Pendaftar Dokumen Routes
+    Route::prefix('pendaftar-dokumen')->group(function () {
+        Route::post('/', [PendaftarDokumenController::class, 'store']);
+        Route::get('/', [PendaftarDokumenController::class, 'index']);
+        Route::get('{id}', [PendaftarDokumenController::class, 'show']);
+        Route::put('{id}', [PendaftarDokumenController::class, 'update']);
+        Route::delete('{id}', [PendaftarDokumenController::class, 'destroy']);
+    });
+
+    // Email Verification Routes
     Route::post('email-verification', [EmailVerificationController::class, 'email_verification']);
     Route::post('send-email-verification', [EmailVerificationController::class, 'sendEmailVerification']);
-    
-    Route::post('/payment', [PembayaranController::class, 'getPaymentMethods']);
+
+    // Pembayaran Routes
+    Route::post('/payment', [PembayaranController::class, 'createTransaction']);
+    Route::post('/payment-method', [PembayaranController::class, 'getPeymentMethod']);
+    Route::post('/payment-callback', [PembayaranController::class, 'handleCallback']);
+
+
 });
 
+// Route for Pendaftar Komplit (no auth required)
+Route::post('pendaftar-komplit', [PendaftarKomplitController::class, 'store']);

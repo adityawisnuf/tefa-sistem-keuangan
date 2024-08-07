@@ -15,19 +15,24 @@ class PembayaranDuitku extends Model
         'merchant_order_id', 'reference', 'payment_method', 'transaction_response', 'callback_response', 'status',
     ];
 
-    public function ppdb() 
+    protected $primaryKey = 'merchant_order_id';
+
+
+
+
+    public function ppdb()
     {
         return $this->hasOne(Ppdb::class, 'merchant_order_id');
     }
-    public function siswa_wallet_riwayat() 
+    public function siswa_wallet_riwayat()
     {
         return $this->hasOne(SiswaWalletRiwayat::class, 'merchant_order_id');
     }
-    public function kantin_transaksi() 
+    public function kantin_transaksi()
     {
         return $this->hasOne(KantinTransaksi::class, 'merchant_order_id');
     }
-    public function laundry_transaksi() 
+    public function laundry_transaksi()
     {
         return $this->hasOne(LaundryTransaksi::class, 'merchant_order_id');
     }
