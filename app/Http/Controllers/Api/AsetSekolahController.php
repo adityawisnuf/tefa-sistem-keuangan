@@ -53,7 +53,7 @@ class AsetSekolahController extends Controller
         //define validation rules
         $validator = Validator::make($request->all(), [
             'nama' => 'required|string|max:255',
-            'kondisi_baik' => 'required|string',
+            'kondisi' => 'required|string',
             'penggunaan' => 'required|string'
         ]);
 
