@@ -17,8 +17,8 @@ Route::group([
 ], function () {
     Route::post('logout', [LogoutController::class, 'logout']);
 
-
     // pengeluaran
    Route::post('pengeluaran/kategori', [PengeluaranController::class, 'addPengeluaranKategori']);
+   Route::delete('pengeluaran/kategori/{id}', [PengeluaranController::class, 'deletePengeluaranKategori']);
 
 });
