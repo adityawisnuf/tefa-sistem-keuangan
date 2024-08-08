@@ -31,10 +31,10 @@ class PendaftarDokumenController extends Controller
         // Validasi data input
         $request->validate([
             'ppdb_id' => 'required|integer|exists:ppdb,id',
-            'akte_kelahiran' => 'required|image|mimes:jpeg,png,jpg,gif,svg',
-            'kartu_keluarga' => 'required|image|mimes:jpeg,png,jpg,gif,svg',
-            'ijazah' => 'required|image|mimes:jpeg,png,jpg,gif,svg',
-            'raport' => 'required|image|mimes:jpeg,png,jpg,gif,svg',
+            'akte_kelahiran' => 'required|file|mimes:pdf|max:2048',
+            'kartu_keluarga' => 'required|file|mimes:pdf|max:2048',
+            'ijazah' => 'required|file|mimes:pdf|max:2048',
+            'raport' => 'required|file|mimes:pdf|max:2048',
         ]);
 
         // Upload file dan simpan pathnya
@@ -43,10 +43,9 @@ class PendaftarDokumenController extends Controller
         $ijazah = $request->file('ijazah')->store('documents');
         $raport = $request->file('raport')->store('documents');
 
-        $ppdb = Ppdb::find($request->id);
-
         // Membuat data pendaftar dokumen baru
         $pendaftarDokumen = PendaftarDokumen::create([
+            'ppdb_id' => $request->ppdb_id,
             'akte_kelahiran' => $akte_kelahiran,
             'kartu_keluarga' => $kartu_keluarga,
             'ijazah' => $ijazah,
@@ -62,6 +61,7 @@ class PendaftarDokumenController extends Controller
             'pendaftar_dokumen' => $pendaftarDokumen
         ], 201);
     }
+
     /**
      * Display the specified resource.
      *
@@ -88,10 +88,10 @@ class PendaftarDokumenController extends Controller
     {
         $request->validate([
             'ppdb_id' => 'integer|exists:ppdb,id',
-            'akte_kelahiran' => 'image|mimes:jpeg,png,jpg,gif,svg',
-            'kartu_keluarga' => 'image|mimes:jpeg,png,jpg,gif,svg',
-            'ijazah' => 'image|mimes:jpeg,png,jpg,gif,svg',
-            'raport' => 'image|mimes:jpeg,png,jpg,gif,svg',
+            'akte_kelahiran' => 'file|mimes:pdf|max:2048',
+            'kartu_keluarga' => 'file|mimes:pdf|max:2048',
+            'ijazah' => 'file|mimes:pdf|max:2048',
+            'raport' => 'file|mimes:pdf|max:2048',
         ]);
 
         $pendaftarDokumen = PendaftarDokumen::find($id);

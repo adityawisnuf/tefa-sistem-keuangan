@@ -11,7 +11,7 @@ use App\Http\Controllers\PendaftaranAkademikController;
 use App\Http\Controllers\PendaftarKomplitController;
 use App\Http\Controllers\PembayaranController;
 use App\Http\Controllers\PpdbController;
- 
+
 Route::post('register', [RegisterController::class, 'register']);
 Route::post('login', [LoginController::class, 'login']);
 
@@ -53,12 +53,13 @@ Route::middleware('auth:api')->group(function () {
     Route::post('send-email-verification', [EmailVerificationController::class, 'sendEmailVerification']);
 
     // Pembayaran Routes
-    Route::post('/payment', [PembayaranController::class, 'createTransaction']);
-    Route::post('/payment-method', [PembayaranController::class, 'getPeymentMethod']);
-    Route::post('/payment-callback', [PembayaranController::class, 'handleCallback']);
 
 
 });
 
 // Route for Pendaftar Komplit (no auth required)
 Route::post('pendaftar-komplit', [PendaftarKomplitController::class, 'store']);
+
+Route::post('/payment', [PembayaranController::class, 'createTransaction']);
+Route::post('/payment-method', [PembayaranController::class, 'getPeymentMethod']);
+Route::post('/payment-callback', [PembayaranController::class, 'handleCallback']);

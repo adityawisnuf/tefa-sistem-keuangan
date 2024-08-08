@@ -33,4 +33,9 @@ class Ppdb extends Model
         return $this->hasOne(PendaftarDokumen::class, 'ppdb_id');
     }
 
+    public function pembayaran_ppdb()
+    {
+        return $this->hasOne(PembayaranPpdb::class, 'ppdb_id');
+    }
+
 }

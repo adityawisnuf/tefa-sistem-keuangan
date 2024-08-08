@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\PembayaranDuitku;
 use App\Models\Pembayaran;
+use App\Models\Ppdb;
 use App\Models\PembayaranKategori;
 use Illuminate\Http\Request;
 use GuzzleHttp\Client;
@@ -19,33 +20,43 @@ class PembayaranController extends Controller
         // Ambil data dari request
         $merchantCode = $request->input('merchantCode');
         $apiKey = $request->input('apiKey');
+        $first_name = $request->input('nama_depan');
+        $last_name = $request->input('nama_belakang');
         $paymentAmount = $request->input('paymentAmount');
         $paymentMethod = $request->input('paymentMethod');
         $merchantOrderId = Str::uuid();
         $callbackUrl = $request->input('callbackUrl');
         $returnUrl = $request->input('returnUrl');
         $expiryPeriod = $request->input('expiryPeriod');
+        $customerEmail = $request->input('email');
+        $customerVaName = $first_name . ' ' . $last_name;
         $signature = md5($merchantCode . $merchantOrderId . $paymentAmount . $apiKey);
 
         Log::info('Signature generated in createTransaction', ['signature' => $signature]);
 
         // Buat pembayaran kategori baru
         $pembayaranKategori = PembayaranKategori::create([
-            'nama' => $request->input('nama_kategori'), // Tambahkan nama kategori dari request
-            'jenis_pembayaran' => $request->input('jenis_pembayaran'), // Tambahkan jenis pembayaran dari request
-            'tanggal_pembayaran' => now(), // Atur tanggal pembayaran ke saat ini
-            'status' => 1 // 1 untuk aktif
+            'nama' => $request->input('nama_kategori'),
+            'jenis_pembayaran' => $request->input('jenis_pembayaran'),
+            'tanggal_pembayaran' => now(),
+            'status' => 1
         ]);
+
+        // Buat PPDB baru
 
         $params = [
             'merchantCode' => $merchantCode,
+            'nama_depan' => $first_name,
+            'nama_belakang' => $last_name,
             'paymentAmount' => $paymentAmount,
             'paymentMethod' => $paymentMethod,
             'merchantOrderId' => $merchantOrderId,
             'callbackUrl' => $callbackUrl,
             'returnUrl' => $returnUrl,
             'signature' => $signature,
-            'expiryPeriod' => $expiryPeriod
+            'expiryPeriod' => $expiryPeriod,
+            'email' => $customerEmail,
+            'customerVaName' => $customerVaName
         ];
 
         $client = new Client();
@@ -59,10 +70,10 @@ class PembayaranController extends Controller
                 'verify' => false
             ]);
 
-            // Cek jika status code 200
             if ($response->getStatusCode() == 200) {
                 $responseBody = json_decode($response->getBody(), true);
-                $responseBody['signature'] = $signature; // Tambahkan signature ke response
+                $responseBody['signature'] = $signature;
+                $responseBody['merchantOrderId'] = $merchantOrderId;
 
                 PembayaranDuitku::create([
                     'merchant_order_id' => $merchantOrderId,
@@ -72,13 +83,19 @@ class PembayaranController extends Controller
                     'callback_response' => null,
                     'status' => 'pending',
                 ]);
+                $ppdb = Ppdb::create([
+
+                    'status' => 2, // Misalnya, set status sebagai 'active'
+                    'merchant_order_id' => $merchantOrderId,
+                ]);
 
                 Pembayaran::create([
                     'siswa_id' => null,
-                    'pembayaran_kategori_id' => $pembayaranKategori->id, // Gunakan pembayaran_kategori_id yang diambil
+                    'pembayaran_kategori_id' => $pembayaranKategori->id,
                     'nominal' => $paymentAmount,
-                    'status' => 1, // 1 untuk aktif
+                    'status' => 1,
                     'kelas_id' => null,
+                    'ppdb_id' => $ppdb->id // Simpan ppdb_id
                 ]);
 
                 return response()->json($responseBody);
@@ -89,7 +106,6 @@ class PembayaranController extends Controller
                 ], $response->getStatusCode());
             }
         } catch (RequestException $e) {
-            // Tangani exception jika terjadi kesalahan pada request
             Log::error('Request Error in createTransaction', ['message' => $e->getMessage()]);
             return response()->json([
                 'error' => 'Request Error',
@@ -98,9 +114,13 @@ class PembayaranController extends Controller
         }
     }
 
+
+
+
     // Method untuk menangani callback
     public function handleCallback(Request $request)
-    {
+{
+    try {
         $apiKey = '8093b2c02b8750e4e73845f307325566';
         $merchantCode = $request->input('merchantCode');
         $amount = $request->input('amount');
@@ -114,16 +134,14 @@ class PembayaranController extends Controller
             'signature' => $signature,
         ]);
 
-        $params = $merchantCode . $merchantOrderId . $amount . $apiKey;
+        $params = $merchantCode . $amount.$merchantOrderId . $apiKey;
         $calcSignature = md5($params);
 
         Log::info('Calculated Signature', ['calcSignature' => $calcSignature]);
 
         if ($signature == $calcSignature) {
-            // Callback tervalidasi, proses transaksi sesuai kebutuhan Anda
             Log::info("Callback valid untuk Order ID: $merchantOrderId, Amount: $amount");
 
-            // Update status transaksi di database
             $pembayaran = PembayaranDuitku::where('merchant_order_id', $merchantOrderId)->first();
 
             if ($pembayaran) {
@@ -142,10 +160,15 @@ class PembayaranController extends Controller
                 return response()->json(['error' => 'Payment record not found'], 404);
             }
 
-            return response()->json(['message' => 'Callback processed successfully'], 200);
+            return response()->json(['message' => 'Callback processed successfully', 'merchantOrderId' => $merchantOrderId], 200);
         } else {
             Log::error("Bad signature for Order ID: $merchantOrderId");
             return response()->json(['error' => 'Bad signature'], 400);
         }
+    } catch (\Exception $e) {
+        Log::error('Unexpected error in handleCallback', ['message' => $e->getMessage()]);
+        return response()->json(['error' => 'Unexpected Error', 'message' => $e->getMessage()], 500);
     }
+}
+
 }
