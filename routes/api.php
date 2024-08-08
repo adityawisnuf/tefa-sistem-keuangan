@@ -7,6 +7,7 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\LogoutController;
 use App\Http\Controllers\OrangTuaController;
 use App\Http\Controllers\PengeluaranController;
+use App\Http\Controllers\SekolahController;
 
 // ROLE : Admin; KepalaSekolah; Bendahara; OrangTua; Siswa; Kantin; Laundry;
 
@@ -27,3 +28,6 @@ Route::group([
 Route::post('orangtua', [OrangTuaController::class, 'store']);
 Route::patch('orangtua/{id}', [OrangTuaController::class, 'update']);
 Route::delete('orangtua/{id}', [OrangTuaController::class, 'destroy']);
+
+
+Route::post('sekolah', [SekolahController::class, 'store']);
