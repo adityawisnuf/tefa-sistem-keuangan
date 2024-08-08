@@ -29,27 +29,22 @@ class PengeluaranController extends Controller
 
         $role = auth()->user()->role;
 
-        if ($role == 'KepalaSekolah') {
+        if ($role !== 'Bendahara') {
             $pengeluaran = Pengeluaran::create([
                 'pengeluaran_kategori_id' => $request->pengeluaran_kategori_id,
                 'keperluan' => $request->keperluan,
                 'nominal' => $request->nominal,
                 'diajukan_pada' => now(),
             ]);
-        } else if ($role == 'Bendahara') {
-            $pengeluaran = Pengeluaran::create([
-                'pengeluaran_kategori_id' => $request->pengeluaran_kategori_id,
-                'keperluan' => $request->keperluan,
-                'nominal' => $request->nominal,
-                'diajukan_pada' => now(),
-                'disetujui_pada' => now(),
-            ]);
-        } else {
-            return response()->json([
-                'success' => false,
-                'message' => 'Forbidden',
-            ], 403);
         }
+
+        $pengeluaran = Pengeluaran::create([
+            'pengeluaran_kategori_id' => $request->pengeluaran_kategori_id,
+            'keperluan' => $request->keperluan,
+            'nominal' => $request->nominal,
+            'diajukan_pada' => now(),
+            'disetujui_pada' => now(),
+        ]);
 
         return response()->json([
             'success' => true,

@@ -17,8 +17,11 @@ Route::group([
 ], function () {
     Route::post('logout', [LogoutController::class, 'logout']);
 
-    // pengeluaran
-    Route::post('pengeluaran', [PengeluaranController::class, 'addPengeluaran']);
+    Route::middleware('checkrole:Bendahara,KepalaSekolah')->group(function () {
+        // pengeluaran
+        Route::post('pengeluaran', [PengeluaranController::class, 'addPengeluaran']);
+    });
+
 
     // pengeluaran kategori
    Route::post('pengeluaran/kategori', [PengeluaranController::class, 'addPengeluaranKategori']);

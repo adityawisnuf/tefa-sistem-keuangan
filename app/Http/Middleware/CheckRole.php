@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
-class CheckUserRole
+class CheckRole
 {
     /**
      * Handle an incoming request.
@@ -25,5 +25,6 @@ class CheckUserRole
         }
 
         abort(403);
+
     }
 }
