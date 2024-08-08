@@ -42,54 +42,61 @@ class PengeluaranController extends Controller
         ]);
     }
 
-    public function deletePengeluaranKategori($id)
-    {
-
-        //find post by ID
-        $pengeluaranKategori = PengeluaranKategori::find($id);
-
-        if(!$pengeluaranKategori){
-            return response()->json([
-                'success' => false,
-                'message' => 'pengeluaran kategori tidak ditemukan'
-            ],
-            404);
-        }
-
-        //delete post
-        $pengeluaranKategori->delete();
-
-        //return response
-        return response()->json([
-            'success' => true,
-            'message' => 'pengeluaran kategori berhasil dihapus',
-            'data' => $pengeluaranKategori
-        ]);
-    }
-
-    public function updatePengeluaranKategori(Request $request, $id)
+    public function updatePengeluaranKategori(Request $request, string $id)
     {
         //define validation rules
         $validator = Validator::make($request->all(), [
             'nama'     => 'required'
         ]);
 
-        //check if validation fails
         if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
+            return response()->json([
+                'success' => false,
+                'message' => 'invalid field',
+                'errors' => $validator->errors()
+            ], 422);
         }
 
-        //find post by ID
         $pengeluaranKategori = PengeluaranKategori::find($id);
+
+        if (!$pengeluaranKategori) {
+            return response()->json([
+                'success' => false,
+                'message' => 'pengeluaran kategori tidak ditemukan'
+            ]);
+        }
 
         $pengeluaranKategori->update([
             'nama' => $request->nama
         ]);
 
-        //return response
         return response()->json([
             'success' => true,
             'message' => 'pengeluaran kategori berhasil di ubah',
+            'data' => $pengeluaranKategori
+        ]);
+    }
+
+    public function deletePengeluaranKategori(string $id)
+    {
+
+        $pengeluaranKategori = PengeluaranKategori::find($id);
+
+        if (!$pengeluaranKategori) {
+            return response()->json(
+                [
+                    'success' => false,
+                    'message' => 'pengeluaran kategori tidak ditemukan'
+                ],
+                404
+            );
+        }
+
+        $pengeluaranKategori->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'pengeluaran kategori berhasil dihapus',
             'data' => $pengeluaranKategori
         ]);
     }
