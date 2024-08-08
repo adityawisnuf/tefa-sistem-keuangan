@@ -2,12 +2,13 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\SiswaController;
 use App\Http\Controllers\LogoutController;
-use App\Http\Controllers\OrangTuaController;
-use App\Http\Controllers\PengeluaranController;
 use App\Http\Controllers\SekolahController;
+use App\Http\Controllers\OrangTuaController;
+use App\Http\Controllers\RegisterController;
+use App\Http\Controllers\PengeluaranController;
 
 // ROLE : Admin; KepalaSekolah; Bendahara; OrangTua; Siswa; Kantin; Laundry;
 
@@ -32,3 +33,6 @@ Route::delete('orangtua/{id}', [OrangTuaController::class, 'destroy']);
 
 Route::post('sekolah', [SekolahController::class, 'store']);
 Route::get('sekolah', [SekolahController::class, 'getAllSekolah']);
+
+Route::post('siswa', [SiswaController::class, 'store']);
+Route::get('siswa', [SiswaController::class, 'getAllSiswa']);
