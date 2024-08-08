@@ -18,7 +18,7 @@ Route::group([
     'middleware' => ['auth:api']
 ], function () {
     Route::post('logout', [LogoutController::class, 'logout']);
-    
+
     //kantin & laundry
     Route::group([
         'prefix' => 'duitku'
@@ -27,8 +27,8 @@ Route::group([
         Route::post('request-transaksi', [TopUpController::class, 'requestTransaction']);
         Route::post('callback', [TopUpController::class, 'callback']);
     });
-    
-    
+
+
     Route::group([
         'prefix' => 'laundry',
         'middleware' => 'checkrole:Laundry'
@@ -40,7 +40,7 @@ Route::group([
             Route::delete('/{item}', [LaundryItemController::class, 'destroy']);
         });
     });
-    
+
     Route::group([
         'prefix' => 'kantin',
         'middleware' => 'checkrole:Kantin'
