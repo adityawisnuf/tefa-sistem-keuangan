@@ -22,7 +22,7 @@ return new class extends Migration
             $table->unsignedInteger('harga_total');
             $table->enum('status',['pending','proses','selesai','dibatalkan']);
             $table->dateTime('tanggal_pemesanan');
-            $table->dateTime('tanggal_selesai');
+            $table->dateTime('tanggal_selesai')->nullable();
             $table->timestamps();
 
             $table->foreign('siswa_id')->references('id')->on('siswa');
