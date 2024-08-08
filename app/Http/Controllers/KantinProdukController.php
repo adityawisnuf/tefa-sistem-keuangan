@@ -4,33 +4,33 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\KantinProdukRequest;
 use App\Models\KantinProduk;
-use Illuminate\Http\Request;
+use Exception;
 use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\Response;
 
 class KantinProdukController extends Controller
 {
     const IMAGE_STORAGE_PATH = 'public/kantin/produk/';
+
     public function index()
     {
-        $items = KantinProduk::latest()->paginate(3);
-        return response()->json([
-            'data' => $items,
-            'message' => 'List item.'
-        ], 200);
+        $perPage = request()->input('per_page', 10);
+        $items = KantinProduk::latest()->paginate($perPage);
+        return response()->json(['data' => $items], Response::HTTP_OK);
     }
-
+ 
     public function create(KantinProdukRequest $request)
     {
         $fields = $request->validated();
 
-        $path = Storage::putFile(self::IMAGE_STORAGE_PATH, $fields['foto_produk']);
-        $fields['foto_produk'] = basename($path);
-        $item = KantinProduk::create($fields);
-
-        return response()->json([
-            'data' => $item,
-            'message' => 'Item created.'
-        ], 201);
+        try {
+            $path = Storage::putFile(self::IMAGE_STORAGE_PATH, $fields['foto_produk']);
+            $fields['foto_produk'] = basename($path);
+            $item = KantinProduk::create($fields);
+            return response()->json(['data' => $item], Response::HTTP_CREATED);
+        } catch (Exception $e) {
+            return response()->json(['message' => 'Gagal menyimpan produk: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
 
@@ -38,25 +38,27 @@ class KantinProdukController extends Controller
     {
         $fields = array_filter($request->validated());
 
-        if (isset($fields['foto_produk'])) {
-            $path = Storage::putFile(self::IMAGE_STORAGE_PATH, $fields['foto_produk']);
-            Storage::delete(self::IMAGE_STORAGE_PATH . $produk->foto_produk);
-            $fields['foto_produk'] = basename($path);
+        try {
+            if (isset($fields['foto_produk'])) {
+                $path = Storage::putFile(self::IMAGE_STORAGE_PATH, $fields['foto_produk']);
+                Storage::delete(self::IMAGE_STORAGE_PATH . $produk->foto_produk);
+                $fields['foto_produk'] = basename($path);
+            }
+            $produk->update($fields);
+            return response()->json(['data' => $produk], 200);
+        } catch (Exception $e) {
+            return response()->json(['message' => 'Gagal memperbarui produk: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
-
-        $produk->update($fields);
-
-        return response()->json([
-            'data' => $produk,
-            'message' => 'Item updated.'
-        ], 200);
     }
 
     public function destroy(KantinProduk $produk)
     {
-        Storage::delete(self::IMAGE_STORAGE_PATH . $produk->foto_produk);
-        $produk->delete();
-
-        return response(null, 204);
+        try {
+            Storage::delete(self::IMAGE_STORAGE_PATH . $produk->foto_produk);
+            $produk->delete();
+            return response(null, Response::HTTP_NO_CONTENT);
+        } catch (Exception $e) {
+            return response()->json(['message' => 'Gagal menghapus produk: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 }

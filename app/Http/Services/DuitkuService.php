@@ -185,7 +185,8 @@ class DuitkuService
         file_put_contents('callback.txt', "* {$amount} *\r\n\r\n", FILE_APPEND | LOCK_EX);
 
         if (!empty($merchantCode) && !empty($amount) && !empty($merchantOrderId) && !empty($signature)) {
-            $calcSignature = md5($merchantCode . $amount . $merchantOrderId . $this->apiKey);
+            $params = $merchantCode . $amount . $merchantOrderId . $this->apiKey;
+            $calcSignature = md5($params);
 
             if ($signature == $calcSignature) {
                 file_put_contents('callback.txt', "* Success *\r\n\r\n", FILE_APPEND | LOCK_EX);

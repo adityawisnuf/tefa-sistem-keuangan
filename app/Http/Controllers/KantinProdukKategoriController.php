@@ -4,17 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\KantinProdukKategoriRequest;
 use App\Models\KantinProdukKategori;
+use Exception;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class KantinProdukKategoriController extends Controller
 {
     public function index()
     {
-        $items = KantinProdukKategori::latest()->paginate(3);
-        return response()->json([
-            'data' => $items,
-            'message' => 'List item.'
-        ], 200);
+        $perPage = request()->input('per_page', 10);
+        $items = KantinProdukKategori::latest()->paginate($perPage);
+        return response()->json(['data' => $items], Response::HTTP_OK);
     }
 
 
@@ -22,33 +22,34 @@ class KantinProdukKategoriController extends Controller
     {
         $fields = $request->validated();
 
-        $item = KantinProdukKategori::create($fields);
-
-        return response()->json([
-            'data' => $item,
-            'message' => 'Item created.'
-        ], 201);
+        try {
+            $item = KantinProdukKategori::create($fields);
+            return response()->json(['data' => $item], 201);
+        } catch (Exception $e) {
+            return response()->json(['message' => 'Gagal menyimpan kategori: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     public function update(KantinProdukKategoriRequest $request, KantinProdukKategori $kategori)
     {
-        $fields = array_filter($request->validated());
+        $fields = $request->validated();
 
-
-
-        $kategori->update;
-
-        return response()->json([
-            'data' => $kategori,
-            'message' => 'Item updated.'
-        ], 200);
+        try {
+            $kategori->update($fields);
+            return response()->json(['data' => $kategori], 200);
+        } catch (Exception $e) {
+            return response()->json(['message' => 'Gagal memperbarui kategori: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
-    public function destroy(KantinProdukKategori $item)
+    public function destroy(KantinProdukKategori $kategori)
     {
+        try {
+            $kategori->delete();
+            return response(null, 204);
+        } catch (Exception $e) {
+            return response()->json(['message' => 'Gagal menghapus kategori: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
 
-        $item->delete();
-
-        return response(null, 204);
     }
 }

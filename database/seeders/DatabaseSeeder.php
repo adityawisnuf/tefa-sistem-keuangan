@@ -92,6 +92,11 @@ class DatabaseSeeder extends Seeder
             'telepon' => '088888888888',
         ]);
 
+        \App\Models\SiswaWallet::create([
+            'siswa_id' => '1',
+            'nominal' => 0
+        ]);
+
         \App\Models\Laundry::create([
             'user_id' => '4',
             'nama_laundry' => 'Laundry Ega',

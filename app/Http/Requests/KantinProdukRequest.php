@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class KantinProdukRequest extends FormRequest
 {
@@ -31,13 +32,12 @@ class KantinProdukRequest extends FormRequest
     {
         return [
             'kantin_id' => ['required', 'exists:kantin,id'],
-            'kantin_produk_kategori_id' => ['required', 'exists:kantin,id'],
+            'kantin_produk_kategori_id' => ['required', 'exists:kantin_produk_kategori,id'],
             'nama_produk' => ['required', 'string', 'max:255'],
             'foto_produk' => ['required', 'image', 'mimes:png,jpg,jpeg', 'max:2048'],
             'deskripsi' => ['required', 'string'],
             'harga' => ['required', 'integer', 'min:0'],
             'stok' => ['required', 'integer', 'min:0'],
-
         ];
     }
 
@@ -45,12 +45,13 @@ class KantinProdukRequest extends FormRequest
     {
         return [
             'kantin_id' => ['required', 'exists:kantin,id'],
-            'kantin_produk_kategori_id' => ['required', 'exists:kantin,id'],
+            'kantin_produk_kategori_id' => ['required', 'exists:kantin_produk_kategori,id'],
             'nama_produk' => ['required', 'string', 'max:255'],
             'foto_produk' => ['nullable', 'image', 'mimes:png,jpg,jpeg', 'max:2048'],
             'deskripsi' => ['required', 'string'],
             'harga' => ['required', 'integer', 'min:0'],
             'stok' => ['required', 'integer', 'min:0'],
+            'status' => ['nullable', Rule::in('aktif', 'tidak_aktif')],
         ];
     }
 }
