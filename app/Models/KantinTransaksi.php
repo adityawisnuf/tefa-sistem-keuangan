@@ -16,7 +16,7 @@ class KantinTransaksi extends Model
         'kantin_produk_id',
         'jumlah',
         'harga',
-        'total_harga',
+        'harga_total',
         'status',
         'tanggal_pemesanan',
         'tanggal_selesai',
