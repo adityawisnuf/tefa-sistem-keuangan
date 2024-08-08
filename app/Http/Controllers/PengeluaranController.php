@@ -10,6 +10,54 @@ use Symfony\Component\HttpFoundation\Test\Constraint\ResponseFormatSame;
 
 class PengeluaranController extends Controller
 {
+    public function addPengeluaran(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'pengeluaran_kategori_id' => 'required|exists:pengeluaran_kategori,id',
+            'keperluan' => 'required',
+            'nominal' => 'required|integer',
+        ]);
+
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'invalid field',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $role = auth()->user()->role;
+
+        if ($role == 'KepalaSekolah') {
+            $pengeluaran = Pengeluaran::create([
+                'pengeluaran_kategori_id' => $request->pengeluaran_kategori_id,
+                'keperluan' => $request->keperluan,
+                'nominal' => $request->nominal,
+                'diajukan_pada' => now(),
+            ]);
+        } else if ($role == 'Bendahara') {
+            $pengeluaran = Pengeluaran::create([
+                'pengeluaran_kategori_id' => $request->pengeluaran_kategori_id,
+                'keperluan' => $request->keperluan,
+                'nominal' => $request->nominal,
+                'diajukan_pada' => now(),
+                'disetujui_pada' => now(),
+            ]);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'Forbidden',
+            ], 403);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'pengeluaran berhasil ditambahkan',
+            'data' => $pengeluaran
+        ]);
+    }
+
     public function addPengeluaranKategori(Request $request)
     {
         $validator = Validator::make($request->all(), [

@@ -18,6 +18,9 @@ Route::group([
     Route::post('logout', [LogoutController::class, 'logout']);
 
     // pengeluaran
+    Route::post('pengeluaran', [PengeluaranController::class, 'addPengeluaran']);
+
+    // pengeluaran kategori
    Route::post('pengeluaran/kategori', [PengeluaranController::class, 'addPengeluaranKategori']);
    Route::delete('pengeluaran/kategori/{id}', [PengeluaranController::class, 'deletePengeluaranKategori']);
    Route::patch('pengeluaran/kategori/{id}', [PengeluaranController::class, 'updatePengeluaranKategori']);
