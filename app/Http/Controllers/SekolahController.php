@@ -2,13 +2,26 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Sekolah;
-use Validator;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 
 class SekolahController extends Controller
 {
+    public function getAllSekolah()
+    {
+        $sekolah = Sekolah::all();
+
+        return response()->json(
+            [
+                'success' => true,
+                'message' => 'sekolah berhasil ditampilkan',
+                'data' => $sekolah
+            ]
+        );
+    }
+
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
