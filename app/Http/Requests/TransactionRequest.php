@@ -29,7 +29,7 @@ class TransactionRequest extends FormRequest
             'phoneNumber' => ['required'],
             'firstName' => ['required'],
             'lastName' => ['required'],
-            'itemDetails' => ['required'],
+            'additionalParam' => ['required', 'email', 'exists:users,email'],
         ];
     }
 }
