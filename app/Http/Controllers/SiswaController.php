@@ -46,7 +46,7 @@ class SiswaController extends Controller
             'alamat' => 'required',
             'village_id' => 'required',
             'tempat_lahir' => 'required',
-            'tanggal_lahir' => 'required', // Pastikan format tanggal sesuai
+            'tanggal_lahir' => 'required',
             'telepon' => 'required',
             'kelas_id' => 'required',
             'orangtua_id' => 'required',
@@ -77,6 +77,99 @@ class SiswaController extends Controller
             'success' => true,
             'message' => 'Siswa berhasil ditambahkan',
             'data' => $siswa
-        ], 201); // Menggunakan kode status 201 untuk berhasil menambahkan data
+        ], 201);
     }
+
+    public function updateSiswa(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required',
+            'nama_depan' => 'required',
+            'nama_belakang' => 'required',
+            'alamat' => 'required',
+            'village_id' => 'required',
+            'tempat_lahir' => 'required',
+            'tanggal_lahir' => 'required',
+            'telepon' => 'required',
+            'kelas_id' => 'required',
+            'orangtua_id' => 'required',
+
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'invalid field',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $updatesiswa = Siswa::find($id);
+
+        if (!$updatesiswa) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data Siswa tidak ditemukan'
+            ], 404);
+        }
+
+        if ($request->user_id) {
+            $updatesiswa->update([
+                'user_id' => $request->user_id,
+                'nama_depan' => $request->nama_depan,
+                'nama_belakang' => $request->nama_belakang,
+                'alamat' => $request->alamat,
+                'village_id' => $request->village_id,
+                'tempat_lahir' => $request->tempat_lahir,
+                'tanggal_lahir' => $request->tanggal_lahir,
+                'telepon' => $request->telepon,
+                'kelas_id' => $request->kelas_id,
+                'orangtua_id' => $request->orangtua_id
+
+            ]);
+        } else {
+            $updatesiswa->update([
+
+                'user_id' => $request->user_id,
+                'nama_depan' => $request->nama_depan,
+                'nama_belakang' => $request->nama_belakang,
+                'alamat' => $request->alamat,
+                'village_id' => $request->village_id,
+                'tempat_lahir' => $request->tempat_lahir,
+                'tanggal_lahir' => $request->tanggal_lahir,
+                'telepon' => $request->telepon,
+                'kelas_id' => $request->kelas_id,
+                'orangtua_id' => $request->orangtua_id
+
+            ]);
+        }
+
+
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Data Siswa berhasil diperbarui',
+            'data' => $updatesiswa
+        ]);
+    }
+
+    public function destroy($id)
+    {
+        $deletesiswa = Siswa::find($id);
+
+        if (!$deletesiswa) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data Siswa tidak ditemukan'
+            ], 404);
+        }
+
+        $deletesiswa->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Data Siswa berhasil dihapus'
+        ]);
+    }
+
 }

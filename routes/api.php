@@ -22,7 +22,7 @@ Route::group([
 
 
     // pengeluaran
-   Route::post('pengeluaran/kategori', [PengeluaranController::class, 'addPengeluaranKategori']);
+    Route::post('pengeluaran/kategori', [PengeluaranController::class, 'addPengeluaranKategori']);
 
 });
 
@@ -56,7 +56,9 @@ Route::delete('kelas/{id}', [KelasController::class, 'destroy']);
 
 
 // data siswa
-Route::get('/siswa', [SiswaController::class, 'getAllSiswa']);
-Route::get('/siswa/{id}', [SiswaController::class, 'show']);
-Route::post('/siswa', [SiswaController::class, 'store']);
+Route::get('siswa', [SiswaController::class, 'getAllSiswa']);
+Route::get('siswa/{id}', [SiswaController::class, 'show']);
+Route::post('siswa', [SiswaController::class, 'store']);
+Route::put('siswa/{id}', [SiswaController::class, 'updateSiswa']);
+Route::delete('siswa/{id}', [SiswaController::class, 'destroy']);
 // close data siswa
