@@ -25,8 +25,10 @@ class TransactionRequest extends FormRequest
             'paymentAmount' => ['required', 'numeric', 'min:1'],
             'paymentMethod' => ['required'],
             'email' => ['required', 'email'],
+            'alamat' => ['required'],
             'phoneNumber' => ['required'],
-            'customerVaName' => ['required'],
+            'firstName' => ['required'],
+            'lastName' => ['required'],
             'itemDetails' => ['required'],
         ];
     }
