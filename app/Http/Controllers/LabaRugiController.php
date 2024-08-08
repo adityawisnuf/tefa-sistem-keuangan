@@ -102,19 +102,41 @@ class LabaRugiController extends Controller
     }
     public function getOptions()
     {
-        $data = PembayaranSiswa::selectRaw('DISTINCT YEAR(created_at) as year, MONTHNAME(created_at) as month')
-                               ->orderBy('year', 'desc')
-                               ->orderBy('month', 'asc')
-                               ->get();
+        $data = PembayaranSiswa::selectRaw('DISTINCT YEAR(created_at) as year, MONTHNAME(created_at) as month, created_at')
+                             ->orderBy('created_at', 'desc')
+                             ->get();
     
         $months = $data->pluck('month')->unique()->values()->toArray();
-        $years = $data->pluck('year')->unique()->values()->toArray(); // Menggunakan values() untuk menghapus indeks numerik
+        $years = $data->pluck('year')->unique()->values()->toArray();
+    
+        // Create a mapping of month names to numbers
+        $monthNumbers = [
+            'January' => 1,
+            'February' => 2,
+            'March' => 3,
+            'April' => 4,
+            'May' => 5,
+            'June' => 6,
+            'July' => 7,
+            'August' => 8,
+            'September' => 9,
+            'October' => 10,
+            'November' => 11,
+            'December' => 12,
+        ];
+    
+        // Add key-value pairs with month numbers
+        $monthsWithNumbers = [];
+        foreach ($months as $month) {
+            $monthsWithNumbers[$monthNumbers[$month]] = $month;
+        }
     
         return response()->json([
-            'months' => $months,
+            'months' => $monthsWithNumbers,
             'years' => $years
         ]);
     }
+    
     
 
 
