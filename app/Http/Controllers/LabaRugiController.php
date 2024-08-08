@@ -28,8 +28,8 @@ class LabaRugiController extends Controller
             } elseif (!$bulan && !$tahun) {
                 // Jika tidak ada query bulan dan tahun, maka tampilkan data dari bulan dan tahun saat ini
                 $now = Carbon::now();
-                $startDate = Carbon::createFromDate($now->year, 1, 1);
-                $endDate = Carbon::createFromDate($now->year, 12, 31);
+                $startDate = $now->startOfMonth();
+                $endDate = $startDate->copy()->endOfMonth();
             }
 
             $financialData = $this->retrieveFinancialData($startDate, $endDate);
@@ -41,14 +41,16 @@ class LabaRugiController extends Controller
                 ];
             });
 
+            $rasioLabaBersih = $this->formatPercentage($financialMetrics['profit'], $financialMetrics['totalPayment']);
+            $rasioBeban = $this->formatPercentage($financialMetrics['totalExpenditure'], $financialMetrics['totalPayment']);
 
             $response = [
                 'pendapatan' => $financialMetrics['totalPayment'],
                 'pengeluaran' => $pengeluaranArray,
                 'pengeluaran_total' => $financialMetrics['totalExpenditure'],
                 'laba_bersih' => $financialMetrics['profit'],
-                'rasio_laba_bersih' => $this->formatPercentage($financialMetrics['profit'], $financialMetrics['totalPayment']),
-                'rasio_beban_operasional' => $this->formatPercentage($financialMetrics['totalExpenditure'], $financialMetrics['totalPayment']),
+                'rasio_laba_bersih' => $rasioLabaBersih,
+                'rasio_beban_operasional' => $rasioBeban,
             ];
 
             return response()->json($response);
@@ -63,8 +65,8 @@ class LabaRugiController extends Controller
     private function retrieveFinancialData($startDate, $endDate)
     {
         // Mengambil data Pembayaran dan Pengeluaran
-        $payments = PembayaranSiswa::whereBetween('created_at', [$startDate, $endDate])->paginate(20);
-        $expenditures = Pengeluaran::whereBetween('disetujui_pada', [$startDate, $endDate])->paginate(20);
+        $payments = PembayaranSiswa::whereBetween('created_at', [$startDate, $endDate])->get();
+        $expenditures = Pengeluaran::whereBetween('disetujui_pada', [$startDate, $endDate])->get();
         return [
             'payments' => $payments,
             'expenditures' => $expenditures,
@@ -91,31 +93,28 @@ class LabaRugiController extends Controller
     {
         if ($divisor === 0) {
             if ($value > 0) {
-                return '100%'; // Jika ada pengeluaran, tampilkan 100%
+                return 100.0; // Jika ada pengeluaran, tampilkan 100%
             } else {
-                return '0%'; // Jika tidak ada pengeluaran, tampilkan 0%
+                return 0.0; // Jika tidak ada pengeluaran, tampilkan 0%
             }
         } else {
             // Gunakan presisi yang cukup untuk menghindari pembulatan yang tidak diinginkan
-            return number_format($value / $divisor * 100, 2) . '%';
+            return ($value / $divisor) * 100;
         }
     }
     public function getOptions()
     {
         $data = PembayaranSiswa::selectRaw('DISTINCT YEAR(created_at) as year, MONTHNAME(created_at) as month')
-                               ->orderBy('year', 'desc')
-                               ->orderBy('month', 'asc')
-                               ->get();
-    
+            ->orderBy('year', 'desc')
+            ->orderBy('month', 'asc')
+            ->get();
+
         $months = $data->pluck('month')->unique()->values()->toArray();
         $years = $data->pluck('year')->unique()->values()->toArray(); // Menggunakan values() untuk menghapus indeks numerik
-    
+
         return response()->json([
             'months' => $months,
             'years' => $years
         ]);
     }
-    
-
-
 }
