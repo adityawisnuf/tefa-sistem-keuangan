@@ -56,6 +56,10 @@ Route::middleware('auth:api')->group(function () {
     // Pembayaran Routes
 
     
+    Route::post('/payment', [PembayaranController::class, 'createTransaction']);
+    Route::post('/payment-method', [PembayaranController::class, 'getPeymentMethod']);
+    Route::post('/payment-callback', [PembayaranController::class, 'handleCallback']);
+    Route::post('/payment-get', [PembayaranController::class, 'getPaymentMethod']);
     
 });
 
@@ -66,4 +70,5 @@ Route::middleware('auth:api')->group(function () {
     
 // Route for Pendaftar Komplit (no auth required)
 Route::post('pendaftar-komplit', [PendaftarKomplitController::class, 'store']);
+
 

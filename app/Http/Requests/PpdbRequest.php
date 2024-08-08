@@ -22,7 +22,7 @@ class PpdbRequest extends FormRequest
     public function rules(): array
     {
         return [
-            
+            'ppdb_id'   => 'required|integer|exists:ppdb,id',
             'nama_depan' => 'required|string|max:255',
              'nama_belakang' => 'required|string|max:255',
              'jenis_kelamin' => 'required|string|max:10',
