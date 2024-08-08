@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class KantinPengajuanRequest extends FormRequest
 {
@@ -31,12 +32,12 @@ class KantinPengajuanRequest extends FormRequest
     {
         return [
             'kantin_id' => ['required', 'exists:kantin,id'],
-            'kantin_produk_kategori_id' => ['required', 'exists:kantin,id'],
-            'nama_produk' => ['required', 'string', 'max:255'],
-            'foto_produk' => ['required', 'image', 'mimes:png,jpg,jpeg', 'max:2048'],
-            'deskripsi' => ['required', 'string'],
-            'harga' => ['required', 'integer', 'min:0'],
-            'status' => ['required', 'integer', 'min:0'],
+            'jumlah_pengajuan' => ['required', 'integer', 'min:0'],
+            'status' => ['nullable', Rule::in('pending', 'disetujui','ditolak')],
+            'alasan_penolakan' => ['nullable', 'string', 'max:255'],
+            'tanggal_pengajuan' => ['required', 'date'],
+            'tanggal_selesai' => ['nullable', 'date'],
+
 
         ];
     }

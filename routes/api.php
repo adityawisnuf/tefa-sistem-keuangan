@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\KantinPengajuanController;
 use App\Http\Controllers\KantinProdukController;
 use App\Http\Controllers\KantinProdukKategoriController;
 use App\Http\Controllers\LaundryItemController;
@@ -8,6 +9,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\LogoutController;
+use App\Models\KantinPengajuan;
 
 // ROLE : Admin; KepalaSekolah; Bendahara; OrangTua; Siswa; Kantin; Laundry;
 
@@ -18,7 +20,7 @@ Route::group([
     'middleware' => ['auth:api']
 ], function () {
     Route::post('logout', [LogoutController::class, 'logout']);
-    
+
     //kantin & laundry
     Route::group([
         'prefix' => 'duitku'
@@ -27,8 +29,8 @@ Route::group([
         Route::post('request-transaksi', [TopUpController::class, 'requestTransaction']);
         Route::post('callback', [TopUpController::class, 'callback']);
     });
-    
-    
+
+
     Route::group([
         'prefix' => 'laundry',
         'middleware' => 'checkrole:Laundry'
@@ -40,7 +42,7 @@ Route::group([
             Route::delete('/{item}', [LaundryItemController::class, 'destroy']);
         });
     });
-    
+
     Route::group([
         'prefix' => 'kantin',
         'middleware' => 'checkrole:Kantin'
@@ -56,6 +58,11 @@ Route::group([
             Route::post('/', [KantinProdukKategoriController::class, 'create']);
             Route::put('/{kategori}', [KantinProdukKategoriController::class, 'update']);
             Route::delete('/{kategori}', [KantinProdukKategoriController::class, 'destroy']);
+        });
+        Route::group(['prefix' => 'pengajuan'], function() {
+            Route::get('/', [KantinPengajuanController::class, 'index']);
+            Route::post('/', [KantinPengajuanController::class, 'create']);
+
         });
     });
 });

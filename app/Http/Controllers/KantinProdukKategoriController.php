@@ -24,7 +24,7 @@ class KantinProdukKategoriController extends Controller
 
         try {
             $item = KantinProdukKategori::create($fields);
-            return response()->json(['data' => $item], 201);
+            return response()->json(['data' => $item], Response::HTTP_CREATED);
         } catch (Exception $e) {
             return response()->json(['message' => 'Gagal menyimpan kategori: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
@@ -36,7 +36,7 @@ class KantinProdukKategoriController extends Controller
 
         try {
             $kategori->update($fields);
-            return response()->json(['data' => $kategori], 200);
+            return response()->json(['data' => $kategori], Response::HTTP_OK);
         } catch (Exception $e) {
             return response()->json(['message' => 'Gagal memperbarui kategori: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
@@ -46,7 +46,7 @@ class KantinProdukKategoriController extends Controller
     {
         try {
             $kategori->delete();
-            return response(null, 204);
+            return response(null, Response::HTTP_NO_CONTENT);
         } catch (Exception $e) {
             return response()->json(['message' => 'Gagal menghapus kategori: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
