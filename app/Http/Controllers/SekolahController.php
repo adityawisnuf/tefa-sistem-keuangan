@@ -12,9 +12,9 @@ class SekolahController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'nama' => 'required',
-            'alamat' => 'required',
-            'telepon' => 'required'
+            'nama' => 'required|string',
+            'alamat' => 'required|string',
+            'telepon' => 'required|numeric'
         ]);
 
         if ($validator->fails()) {
