@@ -8,19 +8,35 @@ use Illuminate\Support\Facades\Validator;
 
 class SiswaController extends Controller
 {
-    public function getAllSekolah()
+    public function getAllSiswa()
     {
         $siswa = Siswa::all();
 
-        return response()->json(
-            [
-                'success' => true,
-                'message' => 'siswa berhasil ditampilkan',
-                'data' => $siswa
-            ]
-        );
+        return response()->json([
+            'success' => true,
+            'message' => 'Data siswa berhasil ditampilkan',
+            'data' => $siswa
+        ]);
     }
-    
+
+    public function show($id)
+    {
+        $siswa = Siswa::find($id);
+
+        if (!$siswa) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data siswa tidak ditemukan'
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Data siswa berhasil ditampilkan',
+            'data' => $siswa
+        ], 200);
+    }
+
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -30,11 +46,10 @@ class SiswaController extends Controller
             'alamat' => 'required',
             'village_id' => 'required',
             'tempat_lahir' => 'required',
-            'tanggal_lahir' => 'required',
+            'tanggal_lahir' => 'required', // Pastikan format tanggal sesuai
             'telepon' => 'required',
             'kelas_id' => 'required',
             'orangtua_id' => 'required',
-
         ]);
 
         if ($validator->fails()) {
@@ -60,8 +75,8 @@ class SiswaController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'siswa berhasil ditambahkan',
+            'message' => 'Siswa berhasil ditambahkan',
             'data' => $siswa
-        ]);
+        ], 201); // Menggunakan kode status 201 untuk berhasil menambahkan data
     }
 }
