@@ -197,6 +197,6 @@ class DuitkuService
             Log::error('Bad Parameter Callback');
         }
 
-        return false
+        return false;
     }
 }
