@@ -24,7 +24,7 @@ class OrangTuaController extends Controller
         }
 
         $orangtua = Orangtua::create([
-            
+
             'nama' => $request->nama,
             'user_id' => $request->user_id,
         ]);
@@ -34,6 +34,8 @@ class OrangTuaController extends Controller
             'message' => 'orangtua berhasil ditambahkan',
             'data' => $orangtua
         ]);
+
+        // tes salman
     }
 
 
@@ -66,17 +68,17 @@ class OrangTuaController extends Controller
             $orangtua->update([
                 'user_id' => $request->user_id,
                 'nama' => $request->nama,
-    
+
             ]);
         } else {
             $orangtua->update([
-        
+
                 'nama' => $request->nama,
-    
+
             ]);
         }
 
-        
+
 
         return response()->json([
             'success' => true,
