@@ -66,7 +66,7 @@ class LabaRugiController extends Controller
     {
         // Mengambil data Pembayaran dan Pengeluaran
         $payments = PembayaranSiswa::whereBetween('created_at', [$startDate, $endDate])->get();
-        $expenditures = Pengeluaran::whereBetween('disetujui_pada', [$startDate, $endDate])->get();
+        $expenditures = Pengeluaran::whereBetween('disetujui_pada', [$startDate, $endDate])->paginate(2);
         return [
             'payments' => $payments,
             'expenditures' => $expenditures,
@@ -77,7 +77,7 @@ class LabaRugiController extends Controller
     {
         // Hitung laba kotor, total pengeluaran, dan laba bersih
         $totalPayment = $financialData['payments']->sum('nominal');
-        $totalExpenditure = $financialData['expenditures']->sum('nominal');
+        $totalExpenditure = Pengeluaran::all()->sum('nominal');
         $profit = $totalPayment - $totalExpenditure;
         if ($profit < 0) {
             $profit = 0;
