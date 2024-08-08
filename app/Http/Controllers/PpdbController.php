@@ -20,9 +20,9 @@ class PpdbController extends Controller
         try {
 
             // $ppdb = Ppdb::where('id')->first();
-
+            $ppdb = Ppdb::find($request->ppdb_id);
             $pendaftar = Pendaftar::create([
-                'ppdb_id'   => 2,
+                'ppdb_id'   => $ppdb->id,
                  'nama_depan' => $request->input('nama_depan'),
                  'nama_belakang' => $request->input('nama_belakang'),
                  'jenis_kelamin' => $request->input('jenis_kelamin'),
@@ -41,8 +41,7 @@ class PpdbController extends Controller
 
             // Simpan data dokumen
             PendaftarDokumen::create([
-                'ppdb_id'   => 2,
-
+                'ppdb_id' => $ppdb->id,
                 'akte_kelahiran' => $request->file('akte_kelahiran')->store('documents'),
                 'kartu_keluarga' => $request->file('kartu_keluarga')->store('documents'),
                 'ijazah' => $request->file('ijazah')->store('documents'),
@@ -51,7 +50,7 @@ class PpdbController extends Controller
 
             // Simpan data akademik
             PendaftarAkademik::create([
-                'ppdb_id'   => 2,
+                'ppdb_id' => $ppdb->id,
                 'sekolah_asal' => $request->sekolah_asal,
                 'tahun_lulus' => $request->tahun_lulus,
                 'jurusan_tujuan' => $request->jurusan_tujuan,

@@ -14,6 +14,65 @@ use Illuminate\Support\Facades\Log;
 
 class PembayaranController extends Controller
 {
+
+
+    public function getPaymentMethod(Request $request)
+    {
+        // Validasi input dari request
+        $request->validate([
+            'merchantCode' => 'required|string',
+            'apiKey' => 'required|string',
+            'paymentAmount' => 'required|numeric'
+        ]);
+
+        // Ambil data dari request
+        $merchantCode = $request->input('merchantCode');
+        $apiKey = $request->input('apiKey');
+        $paymentAmount = $request->input('paymentAmount');
+        $datetime = now()->format('Y-m-d H:i:s');
+        $signature = hash('sha256', $merchantCode . $paymentAmount . $datetime . $apiKey);
+
+        $params = [
+            'merchantcode' => $merchantCode,
+            'amount' => $paymentAmount,
+            'datetime' => $datetime,
+            'signature' => $signature
+        ];
+
+        $paramsString = json_encode($params);
+        $url = 'https://sandbox.duitku.com/webapi/api/merchant/paymentmethod/getpaymentmethod';
+
+        $client = new Client();
+
+        try {
+            $response = $client->post($url, [
+                'headers' => [
+                    'Content-Type' => 'application/json',
+                    'Content-Length' => strlen($paramsString),
+                ],
+                'body' => $paramsString,
+                'verify' => false,
+            ]);
+
+            $statusCode = $response->getStatusCode();
+            $responseBody = json_decode($response->getBody(), true);
+
+            if ($statusCode == 200) {
+                return response()->json($responseBody, 200);
+            } else {
+                return response()->json([
+                    'error' => 'Server Error',
+                    'message' => $responseBody['Message'] ?? 'An error occurred'
+                ], $statusCode);
+            }
+        } catch (\Exception $e) {
+            Log::error('Error retrieving payment methods from Duitku', ['message' => $e->getMessage()]);
+            return response()->json([
+                'error' => 'Request Error',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
     // Method untuk membuat transaksi
     public function createTransaction(Request $request)
     {
