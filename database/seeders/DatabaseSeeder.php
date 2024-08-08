@@ -60,7 +60,7 @@ class DatabaseSeeder extends Seeder
             'name' => 'kepsek',
             'email' => 'kepsek@example.com',
             'password' => 'kepsek123',
-            'role' => 'Kepsek',
+            'role' => 'KepalaSekolah',
         ]);
 
         \App\Models\Orangtua::create([

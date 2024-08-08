@@ -16,6 +16,8 @@ use App\Models\KantinPengajuan;
 Route::post('register', [RegisterController::class, 'register']);
 Route::post('login', [LoginController::class, 'login']);
 
+Route::post('duitku/callback', [TopUpController::class, 'callback']);
+
 Route::group([
     'middleware' => ['auth:api']
 ], function () {
@@ -27,7 +29,6 @@ Route::group([
     ], function() {
         Route::get('get-payment-method', [TopUpController::class, 'getPaymentMethod']);
         Route::post('request-transaksi', [TopUpController::class, 'requestTransaction']);
-        Route::post('callback', [TopUpController::class, 'callback']);
     });
 
 
