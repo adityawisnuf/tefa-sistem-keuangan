@@ -5,6 +5,7 @@ use App\Http\Controllers\KantinProdukController;
 use App\Http\Controllers\KantinProdukKategoriController;
 use App\Http\Controllers\KantinTransaksiController;
 use App\Http\Controllers\LaundryItemController;
+use App\Http\Controllers\LaundryPengajuanController;
 use App\Http\Controllers\TopUpController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RegisterController;
@@ -43,6 +44,11 @@ Route::group([
             Route::put('/{item}', [LaundryItemController::class, 'update']);
             Route::delete('/{item}', [LaundryItemController::class, 'destroy']);
         });
+        Route::group(['prefix' => 'pengajuan'], function() {
+            Route::get('/', [LaundryPengajuanController::class, 'index']);
+            Route::post('/', [LaundryPengajuanController::class, 'create']);
+
+        });
     });
     Route::group([
         'prefix' => 'transaksi',
@@ -54,6 +60,7 @@ Route::group([
 
         });
     });
+
 
     Route::group([
         'prefix' => 'kantin',

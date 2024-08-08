@@ -36,9 +36,6 @@ class KantinPengajuanRequest extends FormRequest
             'status' => ['nullable', Rule::in('pending', 'disetujui','ditolak')],
             'alasan_penolakan' => ['nullable', 'string', 'max:255'],
             'tanggal_pengajuan' => ['required', 'date'],
-            'tanggal_selesai' => ['nullable', 'date'],
-
-
         ];
     }
 }

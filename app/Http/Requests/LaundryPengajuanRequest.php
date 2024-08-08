@@ -4,7 +4,9 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
-class KantinTransaksiRequest extends FormRequest
+
+
+class LaundryPengajuanRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -30,15 +32,14 @@ class KantinTransaksiRequest extends FormRequest
     public function store()
     {
         return [
-            'siswa_id' => ['required', 'exists:siswa,id'],
-            'kantin_produk_id' => ['required', 'exists:kantin_produk,id'],
-            'jumlah' => ['required', 'integer', 'min:0'],
-            'harga' => ['required', 'integer', 'min:0'],
+            'laundry_id' => ['required', 'exists:laundry,id'],
+            'jumlah_pengajuan' => ['required', 'integer', 'min:0'],
             'status' => ['nullable', Rule::in('pending', 'disetujui','ditolak')],
-            'tanggal_pemesanan' => ['required', 'date'],
-        
+            'alasan_penolakan' => ['nullable', 'string', 'max:255'],
+            'tanggal_pengajuan' => ['required', 'date'],
+
+
+
         ];
     }
-
-
 }
