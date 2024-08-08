@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Kantin extends Model
 {
     use HasFactory;
-    use SoftDeletes;
 
     protected $table = 'kantin';
 

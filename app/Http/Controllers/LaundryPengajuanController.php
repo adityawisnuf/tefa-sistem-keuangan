@@ -6,6 +6,7 @@ use App\Http\Requests\LaundryPengajuanRequest;
 use App\Models\LaundryPengajuan;
 use Illuminate\Http\Request;
 use Exception;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 class LaundryPengajuanController extends Controller
 {
@@ -18,10 +19,11 @@ class LaundryPengajuanController extends Controller
 
     public function create(LaundryPengajuanRequest $request)
     {
-
         $fields = $request->validated();
-
+        
         try {
+            $laundry = Auth::user()->laundry->first();
+            $fields['laundry_id'] = $laundry->id;
             $item = LaundryPengajuan::create($fields);
             return response()->json(['data' => $item], Response::HTTP_CREATED);
         } catch (Exception $e) {

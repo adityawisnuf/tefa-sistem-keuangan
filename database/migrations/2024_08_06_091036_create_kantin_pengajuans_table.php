@@ -19,8 +19,9 @@ return new class extends Migration
             $table->string('alasan_penolakan')->nullable();
             $table->dateTime('tanggal_pengajuan')->default(now());
             $table->dateTime('tanggal_selesai')->nullable();
-            $table->foreign('kantin_id')->references('id')->on('kantin');
             $table->timestamps();
+            
+            $table->foreign('kantin_id')->references('id')->on('kantin');
         });
     }
 

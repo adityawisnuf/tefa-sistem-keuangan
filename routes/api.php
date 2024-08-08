@@ -7,6 +7,7 @@ use App\Http\Controllers\KantinTransaksiController;
 use App\Http\Controllers\LaundryItemController;
 use App\Http\Controllers\LaundryPengajuanController;
 use App\Http\Controllers\TopUpController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\LoginController;
@@ -81,3 +82,9 @@ Route::group([
         });
     });
 });
+
+Route::get('/test', function() {
+    return Auth::user()->laundry->first()->id;
+})
+->middleware('auth:api')
+;

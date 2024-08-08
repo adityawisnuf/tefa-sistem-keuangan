@@ -33,9 +33,6 @@ class KantinPengajuanRequest extends FormRequest
         return [
             'kantin_id' => ['required', 'exists:kantin,id'],
             'jumlah_pengajuan' => ['required', 'integer', 'min:0'],
-            'status' => ['nullable', Rule::in('pending', 'disetujui','ditolak')],
-            'alasan_penolakan' => ['nullable', 'string', 'max:255'],
-            'tanggal_pengajuan' => ['required', 'date'],
         ];
     }
 }

@@ -72,9 +72,15 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasMany(Orangtua::class, 'user_id');
     }
+
     public function kantin ()
     {
         return $this->hasMany(Kantin::class, 'user_id');
+    }
+
+    public function laundry ()
+    {
+        return $this->hasMany(Laundry::class, 'user_id');
     }
 
 }

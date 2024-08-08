@@ -18,8 +18,7 @@ class KantinPengajuanController extends Controller
     }
 
     public function create(KantinPengajuanRequest $request)
-    {
-        
+    {        
         $fields = $request->validated();
 
         try {

@@ -17,7 +17,7 @@ return new class extends Migration
             $table->unsignedInteger('jumlah_pengajuan');
             $table->enum('status',['pending','disetujui','ditolak'])->default('pending');
             $table->string('alasan_penolakan')->nullable();
-            $table->dateTime('tanggal_pengajuan');
+            $table->dateTime('tanggal_pengajuan')->default(now());
             $table->dateTime('tanggal_selesai')->nullable();
             $table->timestamps();
 

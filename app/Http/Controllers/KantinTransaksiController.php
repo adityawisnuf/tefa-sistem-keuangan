@@ -6,7 +6,6 @@ use App\Http\Requests\KantinTransaksiRequest;
 use App\Models\KantinProduk;
 use App\Models\KantinTransaksi;
 use Exception;
-use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class KantinTransaksiController extends Controller

@@ -32,14 +32,7 @@ class LaundryPengajuanRequest extends FormRequest
     public function store()
     {
         return [
-            'laundry_id' => ['required', 'exists:laundry,id'],
             'jumlah_pengajuan' => ['required', 'integer', 'min:0'],
-            'status' => ['nullable', Rule::in('pending', 'disetujui','ditolak')],
-            'alasan_penolakan' => ['nullable', 'string', 'max:255'],
-            'tanggal_pengajuan' => ['required', 'date'],
-
-
-
         ];
     }
 }
