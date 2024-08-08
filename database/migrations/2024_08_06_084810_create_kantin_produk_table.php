@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('foto_produk');
             $table->text('deskripsi');
             $table->unsignedInteger('harga');
-            $table->unsignedInteger('stok');
+            $table->unsignedInteger('stok')->default(0);
             $table->enum('status',['aktif','tidak_aktif'])->default('tidak_aktif');
 
             $table->timestamps();

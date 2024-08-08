@@ -19,8 +19,8 @@ return new class extends Migration
             $table->text('alamat');
             $table->string('no_telepon');
             $table->string('no_rekening');
-            $table->double('saldo');
-            $table->enum('status_buka',['buka','tutup']);
+            $table->double('saldo')->default(0);
+            $table->enum('status_buka',['buka','tutup'])->default('tutup');
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users');
