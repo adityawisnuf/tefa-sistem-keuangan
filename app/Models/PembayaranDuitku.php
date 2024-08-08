@@ -45,4 +45,10 @@ class PembayaranDuitku extends Model
         {
             return $this->hasOne(PembayaranSiswaCicilan::class, 'merchant_order_id');
         }
+
+
+        public function pembayaran_ppdb()
+        {
+            return $this->hasOne(PembayaranPpdb::class, 'merchant_order_id');
+        }
     }

@@ -19,7 +19,7 @@ class LoginController extends Controller
                 'message' => 'Invalid Email or Password.'
             ], 401);
         }
-        
+
         return response()->json([
             'message'   => 'success',
             'token'     => $token
@@ -27,6 +27,6 @@ class LoginController extends Controller
     }
 
     public function getAllDatas($id){
-        return User::find($id); 
+        return User::find($id);
     }
 }

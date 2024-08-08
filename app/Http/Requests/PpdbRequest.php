@@ -22,7 +22,7 @@ class PpdbRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'merchant_order_id' => 'required|string|exists:pembayaran_duitku,merchant_order_id',
+            
             'nama_depan' => 'required|string|max:255',
              'nama_belakang' => 'required|string|max:255',
              'jenis_kelamin' => 'required|string|max:10',
