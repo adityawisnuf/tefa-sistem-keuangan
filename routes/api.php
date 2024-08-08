@@ -3,12 +3,12 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LoginController;
-use App\Http\Controllers\SiswaController;
 use App\Http\Controllers\LogoutController;
-use App\Http\Controllers\SekolahController;
 use App\Http\Controllers\OrangTuaController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\PengeluaranController;
+use App\Http\Controllers\SekolahController;
+use App\Http\Controllers\SiswaController;
 
 // ROLE : Admin; KepalaSekolah; Bendahara; OrangTua; Siswa; Kantin; Laundry;
 
@@ -47,5 +47,16 @@ Route::put('/sekolah/{id}', [SekolahController::class, 'update']);
 // delete sekolah
 Route::delete('/sekolah/{id}', [SekolahController::class, 'destroy']);
 Route::get('sekolah/{id}', [SekolahController::class, 'show']);
+
+
+// kelas crud
+use App\Http\Controllers\KelasController;
+
+Route::get('kelas', [KelasController::class, 'index']);
+Route::get('kelas/{id}', [KelasController::class, 'show']);
+Route::post('kelas', [KelasController::class, 'store']);
+Route::put('kelas/{id}', [KelasController::class, 'update']);
+Route::delete('kelas/{id}', [KelasController::class, 'destroy']);
+
 
 
