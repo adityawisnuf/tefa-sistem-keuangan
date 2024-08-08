@@ -20,5 +20,5 @@ Route::group([
     // pengeluaran
    Route::post('pengeluaran/kategori', [PengeluaranController::class, 'addPengeluaranKategori']);
    Route::delete('pengeluaran/kategori/{id}', [PengeluaranController::class, 'deletePengeluaranKategori']);
-
+   Route::patch('pengeluaran/kategori/{id}', [PengeluaranController::class, 'updatePengeluaranKategori']);
 });

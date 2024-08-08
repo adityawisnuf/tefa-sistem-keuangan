@@ -66,4 +66,31 @@ class PengeluaranController extends Controller
             'data' => $pengeluaranKategori
         ]);
     }
+
+    public function updatePengeluaranKategori(Request $request, $id)
+    {
+        //define validation rules
+        $validator = Validator::make($request->all(), [
+            'nama'     => 'required'
+        ]);
+
+        //check if validation fails
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
+
+        //find post by ID
+        $pengeluaranKategori = PengeluaranKategori::find($id);
+
+        $pengeluaranKategori->update([
+            'nama' => $request->nama
+        ]);
+
+        //return response
+        return response()->json([
+            'success' => true,
+            'message' => 'pengeluaran kategori berhasil di ubah',
+            'data' => $pengeluaranKategori
+        ]);
+    }
 }
