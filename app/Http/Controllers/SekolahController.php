@@ -11,15 +11,41 @@ class SekolahController extends Controller
     // Get all sekolah
     public function getAllSekolah()
     {
-        $sekolah = Sekolah::all();
+        try {
+            $sekolah = Sekolah::all();
 
-        return response()->json(
-            [
+            return response()->json([
                 'success' => true,
                 'message' => 'sekolah berhasil ditampilkan',
                 'data' => $sekolah
-            ]
-        );
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat mengambil data sekolah',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    // Get single sekolah by ID
+    public function show($id)
+    {
+        // Find the sekolah by ID
+        $sekolah = Sekolah::find($id);
+
+        if (!$sekolah) {
+            return response()->json([
+                'success' => false,
+                'message' => 'sekolah tidak ditemukan'
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'sekolah berhasil ditampilkan',
+            'data' => $sekolah
+        ], 200);
     }
 
     // Create data sekolah
@@ -90,6 +116,28 @@ class SekolahController extends Controller
             'success' => true,
             'message' => 'sekolah berhasil diupdate',
             'data' => $sekolah
+        ]);
+    }
+
+    // Delete data sekolah
+    public function destroy($id)
+    {
+        // Find the sekolah by ID
+        $sekolah = Sekolah::find($id);
+
+        if (!$sekolah) {
+            return response()->json([
+                'success' => false,
+                'message' => 'sekolah tidak ditemukan'
+            ], 404);
+        }
+
+        // Delete the sekolah
+        $sekolah->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'sekolah berhasil dihapus'
         ]);
     }
 }

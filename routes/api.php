@@ -31,5 +31,15 @@ Route::delete('orangtua/{id}', [OrangTuaController::class, 'destroy']);
 
 
 Route::post('sekolah', [SekolahController::class, 'store']);
+
+// get sekolah
 Route::get('sekolah', [SekolahController::class, 'getAllSekolah']);
+
+// update sekolah
 Route::put('/sekolah/{id}', [SekolahController::class, 'update']);
+
+// delete sekolah
+Route::delete('/sekolah/{id}', [SekolahController::class, 'destroy']);
+Route::get('sekolah/{id}', [SekolahController::class, 'show']);
+
+
