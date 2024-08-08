@@ -26,6 +26,8 @@ Route::group([
 
 });
 
+Route::get('orangtua', [OrangTuaController::class, 'getAllSekolah']);
+Route::get('orangtua/{id}', [OrangTuaController::class, 'show']);
 Route::post('orangtua', [OrangTuaController::class, 'store']);
 Route::patch('orangtua/{id}', [OrangTuaController::class, 'update']);
 Route::delete('orangtua/{id}', [OrangTuaController::class, 'destroy']);
