@@ -5,6 +5,7 @@ use App\Http\Controllers\KantinProdukController;
 use App\Http\Controllers\KantinProdukKategoriController;
 use App\Http\Controllers\LaundryItemController;
 use App\Http\Controllers\TopUpController;
+use App\Models\User;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\LoginController;
@@ -23,14 +24,12 @@ Route::group([
 ], function () {
     Route::post('logout', [LogoutController::class, 'logout']);
 
-    //kantin & laundry
     Route::group([
         'prefix' => 'duitku'
     ], function() {
         Route::get('get-payment-method', [TopUpController::class, 'getPaymentMethod']);
         Route::post('request-transaksi', [TopUpController::class, 'requestTransaction']);
     });
-
 
     Route::group([
         'prefix' => 'laundry',

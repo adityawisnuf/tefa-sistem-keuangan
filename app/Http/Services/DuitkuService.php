@@ -80,12 +80,13 @@ class DuitkuService
         $merchantOrderId = time() . '';
         $productDetails = 'Tes pembayaran menggunakan Duitku';
         $email = $data['email'];
+        $additionalParam = $data['additionalParam'];
         $phoneNumber = $data['phoneNumber'];
         $firstName = $data['firstName'];
         $lastName = $data['lastName'];
         $customerVaName = $firstName . ' ' . $lastName;
-        $callbackUrl = 'https://3c0a-2001-448a-3020-35f0-fc97-c058-1cbe-8881.ngrok-free.app/api/duitku/callback';
-        $returnUrl = 'https://3c0a-2001-448a-3020-35f0-fc97-c058-1cbe-8881.ngrok-free.app/return';
+        $callbackUrl = 'https://8c18-180-244-135-171.ngrok-free.app/api/duitku/callback';
+        $returnUrl = 'https://8c18-180-244-135-171.ngrok-free.app/return';
         $expiryPeriod = 10;
         $signature = md5($this->merchantCode . $merchantOrderId . $paymentAmount . $this->apiKey);
 
@@ -121,8 +122,9 @@ class DuitkuService
             'productDetails' => $productDetails,
             'customerVaName' => $customerVaName,
             'email' => $email,
+            'additionalParam' => $additionalParam,
             'phoneNumber' => $phoneNumber,
-            'itemDetails' => $data['itemDetails'],
+            'itemDetails' => $data['itemDetails'] ?? null,
             'customerDetail' => $customerDetail,
             'callbackUrl' => $callbackUrl,
             'returnUrl' => $returnUrl,
@@ -181,15 +183,15 @@ class DuitkuService
 
     public function verifySignature(array $data)
     {
-        $merchantCode = $data['merchantCode'];
-        $amount = $data['amount'];
-        $merchantOrderId = $data['merchantOrderId'];
-        $signature = $data['signature'];
+        $merchantCode = $data['merchantCode'] ?? null;
+        $amount = $data['amount'] ?? null;
+        $merchantOrderId = $data['merchantOrderId'] ?? null;
+        $signature = $data['signature'] ?? null;
 
         if (!empty($merchantCode) && !empty($amount) && !empty($merchantOrderId) && !empty($signature)) {
             $calcSignature = md5($merchantCode . $amount . $merchantOrderId . $this->apiKey);
             if ($signature == $calcSignature) {
-                Log::error('Success Callback');
+                Log::info('Success Callback');
                 return true;
             }
             Log::error('Bad Signature Callback');

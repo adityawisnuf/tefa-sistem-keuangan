@@ -35,24 +35,28 @@ class TopUpController extends Controller
     public function callback()
     {
         $callbackData = request()->all();
-        if (!$this->duitkuService->verifySignature($callbackData))
-            return;
-
-        $pembayaranDuitku = PembayaranDuitku::where('merchant_order_id', $callbackData['merchantOrderId'])->first();
+        if (!$this->duitkuService->verifySignature($callbackData)) return;
         $resultCode = $callbackData['resultCode'] ?? null;
 
+        $pembayaranDuitku = PembayaranDuitku::where('merchant_order_id', $callbackData['merchantOrderId'])->first();
         $pembayaranDuitku->update([
             'callback_response' => json_encode($callbackData),
             'status' => $resultCode
         ]);
 
         if ($resultCode === '00') {
-            $siswaWallet = User::where('email', $callbackData['merchantUserId'])->siswa->siswa_wallet;
+            $siswaWallet = User::where('email', $callbackData['additionalParam'])->first()->siswa->first()->siswa_wallet;
+            Log::info($siswaWallet);
             SiswaWalletRiwayat::create([
                 'siswa_wallet_id' => $siswaWallet->id,
                 'merchant_order_id' => $callbackData['merchantOrderId'],
                 'tipe_transaksi' => 'pemasukan',
                 'nominal' => $callbackData['amount'],
+                'tanggal_riwayat' => now(),
+            ]);
+
+            $siswaWallet->update([
+                'nominal' => $siswaWallet->nominal + $callbackData['amount'],
             ]);
         }
     }
