@@ -52,7 +52,6 @@ class TopUpController extends Controller
                 'merchant_order_id' => $callbackData['merchantOrderId'],
                 'tipe_transaksi' => 'pemasukan',
                 'nominal' => $callbackData['amount'],
-                'tanggal_riwayat' => now(),
             ]);
 
             $siswaWallet->update([

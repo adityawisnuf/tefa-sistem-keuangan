@@ -6,12 +6,10 @@ use App\Http\Controllers\KantinProdukKategoriController;
 use App\Http\Controllers\KantinTransaksiController;
 use App\Http\Controllers\LaundryItemController;
 use App\Http\Controllers\TopUpController;
-use App\Models\User;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\LogoutController;
-use App\Models\KantinPengajuan;
 
 // ROLE : Admin; KepalaSekolah; Bendahara; OrangTua; Siswa; Kantin; Laundry;
 
@@ -43,6 +41,7 @@ Route::group([
             Route::delete('/{item}', [LaundryItemController::class, 'destroy']);
         });
     });
+
     Route::group([
         'prefix' => 'transaksi',
         'middleware' => 'checkrole:Siswa'
@@ -50,7 +49,6 @@ Route::group([
         Route::group(['prefix' => 'kantin'], function() {
             Route::get('/', [KantinTransaksiController::class, 'index']);
             Route::post('/', [KantinTransaksiController::class, 'create']);
-
         });
     });
 
@@ -73,7 +71,6 @@ Route::group([
         Route::group(['prefix' => 'pengajuan'], function() {
             Route::get('/', [KantinPengajuanController::class, 'index']);
             Route::post('/', [KantinPengajuanController::class, 'create']);
-
         });
     });
 });

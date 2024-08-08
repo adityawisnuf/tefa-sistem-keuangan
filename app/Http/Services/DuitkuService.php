@@ -21,9 +21,8 @@ class DuitkuService
         $this->baseUrl = env('DUITKU_ENV') === 'sandbox' ? 'https://sandbox.duitku.com/webapi' : 'https://duitku.com/webapi';
     }
 
-    public function getPaymentMethod()
+    public function getPaymentMethod(int $paymentAmount = 0)
     {
-        $paymentAmount = 0;
         $datetime = date('Y-m-d H:i:s');
         $signatureString = $this->merchantCode . $paymentAmount . $datetime . $this->apiKey; // Gabungkan string
         $signature = hash('sha256', $signatureString);

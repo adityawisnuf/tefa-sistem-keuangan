@@ -33,10 +33,6 @@ class KantinTransaksiRequest extends FormRequest
             'siswa_id' => ['required', 'exists:siswa,id'],
             'kantin_produk_id' => ['required', 'exists:kantin_produk,id'],
             'jumlah' => ['required', 'integer', 'min:0'],
-            'harga' => ['required', 'integer', 'min:0'],    
-            'status' => ['nullable', Rule::in('pending', 'disetujui','ditolak')],
-            'tanggal_pemesanan' => ['required', 'date'],
-            'tanggal_selesao' => ['nullable', 'date'],
         ];
     }
 

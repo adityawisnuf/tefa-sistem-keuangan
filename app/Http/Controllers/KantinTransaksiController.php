@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\KantinTransaksiRequest;
+use App\Models\KantinProduk;
 use App\Models\KantinTransaksi;
 use Exception;
 use Illuminate\Http\Request;
@@ -19,10 +20,10 @@ class KantinTransaksiController extends Controller
 
     public function create(KantinTransaksiRequest $request)
     {
-
         $fields = $request->validated();
-        $fields['harga_total'] = $fields['jumlah'] * $fields['harga'];
-        // dd($fields);
+        $produk = KantinProduk::find($fields['kantin_produk_id']);
+        $fields['harga'] = $produk->harga;
+        $fields['harga_total'] = $produk->harga * $fields['jumlah'];
         try {
             $item = KantinTransaksi::create($fields);
             return response()->json(['data' => $item], Response::HTTP_CREATED);
