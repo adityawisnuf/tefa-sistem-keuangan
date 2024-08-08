@@ -35,7 +35,6 @@ class OrangTuaController extends Controller
             'data' => $orangtua
         ]);
 
-        // tes salman
     }
 
 
