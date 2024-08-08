@@ -26,13 +26,26 @@ Route::group([
 
 });
 
+Route::get('orangtua', [OrangTuaController::class, 'getAllSekolah']);
+Route::get('orangtua/{id}', [OrangTuaController::class, 'show']);
 Route::post('orangtua', [OrangTuaController::class, 'store']);
 Route::patch('orangtua/{id}', [OrangTuaController::class, 'update']);
 Route::delete('orangtua/{id}', [OrangTuaController::class, 'destroy']);
 
 
 Route::post('sekolah', [SekolahController::class, 'store']);
+
+// get sekolah
 Route::get('sekolah', [SekolahController::class, 'getAllSekolah']);
 
 Route::post('siswa', [SiswaController::class, 'store']);
 Route::get('siswa', [SiswaController::class, 'getAllSiswa']);
+
+// update sekolah
+Route::put('/sekolah/{id}', [SekolahController::class, 'update']);
+
+// delete sekolah
+Route::delete('/sekolah/{id}', [SekolahController::class, 'destroy']);
+Route::get('sekolah/{id}', [SekolahController::class, 'show']);
+
+
