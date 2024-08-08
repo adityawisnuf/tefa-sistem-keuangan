@@ -26,7 +26,7 @@ Route::group([
 
     Route::group([
         'prefix' => 'duitku'
-    ], function() {
+    ], function () {
         Route::get('get-payment-method', [TopUpController::class, 'getPaymentMethod']);
         Route::post('request-transaksi', [TopUpController::class, 'requestTransaction']);
     });
@@ -36,8 +36,8 @@ Route::group([
     Route::group([
         'prefix' => 'laundry',
         'middleware' => 'checkrole:Laundry'
-    ], function() {
-        Route::group(['prefix' => 'item'], function() {
+    ], function () {
+        Route::group(['prefix' => 'item'], function () {
             Route::get('/', [LaundryItemController::class, 'index']);
             Route::post('/', [LaundryItemController::class, 'create']);
             Route::put('/{item}', [LaundryItemController::class, 'update']);
@@ -45,43 +45,41 @@ Route::group([
         });
     });
 
-        Route::group(['prefix' => 'pengajuan'], function() {
-            Route::get('/', [LaundryPengajuanController::class, 'index']);
-            Route::post('/', [LaundryPengajuanController::class, 'create']);
-
-        });
+    Route::group(['prefix' => 'pengajuan'], function () {
+        Route::get('/', [LaundryPengajuanController::class, 'index']);
+        Route::post('/', [LaundryPengajuanController::class, 'create']);
     });
+});
 
-    Route::group([
-        'prefix' => 'transaksi',
-        'middleware' => 'checkrole:Siswa'
-    ], function() {
-        Route::group(['prefix' => 'kantin'], function() {
-            Route::get('/', [KantinTransaksiController::class, 'index']);
-            Route::post('/', [KantinTransaksiController::class, 'create']);
-        });
+Route::group([
+    'prefix' => 'transaksi',
+    'middleware' => 'checkrole:Siswa'
+], function () {
+    Route::group(['prefix' => 'kantin'], function () {
+        Route::get('/', [KantinTransaksiController::class, 'index']);
+        Route::post('/', [KantinTransaksiController::class, 'create']);
     });
+});
 
 
-    Route::group([
-        'prefix' => 'kantin',
-        'middleware' => 'checkrole:Kantin'
-    ], function() {
-        Route::group(['prefix' => 'produk'], function() {
-            Route::get('/', [KantinProdukController::class, 'index']);
-            Route::post('/', [KantinProdukController::class, 'create']);
-            Route::put('/{produk}', [KantinProdukController::class, 'update']);
-            Route::delete('/{produk}', [KantinProdukController::class, 'destroy']);
-        });
-        Route::group(['prefix' => 'kategori'], function() {
-            Route::get('/', [KantinProdukKategoriController::class, 'index']);
-            Route::post('/', [KantinProdukKategoriController::class, 'create']);
-            Route::put('/{kategori}', [KantinProdukKategoriController::class, 'update']);
-            Route::delete('/{kategori}', [KantinProdukKategoriController::class, 'destroy']);
-        });
-        Route::group(['prefix' => 'pengajuan'], function() {
-            Route::get('/', [KantinPengajuanController::class, 'index']);
-            Route::post('/', [KantinPengajuanController::class, 'create']);
-        });
+Route::group([
+    'prefix' => 'kantin',
+    'middleware' => 'checkrole:Kantin'
+], function () {
+    Route::group(['prefix' => 'produk'], function () {
+        Route::get('/', [KantinProdukController::class, 'index']);
+        Route::post('/', [KantinProdukController::class, 'create']);
+        Route::put('/{produk}', [KantinProdukController::class, 'update']);
+        Route::delete('/{produk}', [KantinProdukController::class, 'destroy']);
+    });
+    Route::group(['prefix' => 'kategori'], function () {
+        Route::get('/', [KantinProdukKategoriController::class, 'index']);
+        Route::post('/', [KantinProdukKategoriController::class, 'create']);
+        Route::put('/{kategori}', [KantinProdukKategoriController::class, 'update']);
+        Route::delete('/{kategori}', [KantinProdukKategoriController::class, 'destroy']);
+    });
+    Route::group(['prefix' => 'pengajuan'], function () {
+        Route::get('/', [KantinPengajuanController::class, 'index']);
+        Route::post('/', [KantinPengajuanController::class, 'create']);
     });
 });
