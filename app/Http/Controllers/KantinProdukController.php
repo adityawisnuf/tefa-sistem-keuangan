@@ -18,7 +18,7 @@ class KantinProdukController extends Controller
         $items = KantinProduk::latest()->paginate($perPage);
         return response()->json(['data' => $items], Response::HTTP_OK);
     }
- 
+
     public function create(KantinProdukRequest $request)
     {
         $fields = $request->validated();
