@@ -8,6 +8,46 @@ use Illuminate\Support\Facades\Validator;
 
 class OrangTuaController extends Controller
 {
+
+
+    public function getAllSekolah()
+    {
+        try {
+            $orangtuashow = Orangtua::all();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'sekolah berhasil ditampilkan',
+                'data' => $orangtuashow
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat mengambil data sekolah',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+    public function show($id)
+    {
+        // Find the sekolah by ID
+        $orangtua = Orangtua::find($id);
+
+        if (!$orangtua) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data Orangtua tidak ditemukan'
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Data Orangtua berhasil ditampilkan',
+            'data' => $orangtua
+        ], 200);
+    }
+
+
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
