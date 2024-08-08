@@ -13,7 +13,7 @@ class KantinProdukKategori extends Model
 
     protected $fillable = [
         'nama_kategori',
-        'deskripsi',        
+        'deskripsi',
     ];
 
     public function kantin_produk()

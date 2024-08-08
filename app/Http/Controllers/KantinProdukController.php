@@ -18,7 +18,7 @@ class KantinProdukController extends Controller
         $items = KantinProduk::latest()->paginate($perPage);
         return response()->json(['data' => $items], Response::HTTP_OK);
     }
- 
+
     public function create(KantinProdukRequest $request)
     {
         $fields = $request->validated();
@@ -45,7 +45,7 @@ class KantinProdukController extends Controller
                 $fields['foto_produk'] = basename($path);
             }
             $produk->update($fields);
-            return response()->json(['data' => $produk], 200);
+            return response()->json(['data' => $produk], Response::HTTP_OK);
         } catch (Exception $e) {
             return response()->json(['message' => 'Gagal memperbarui produk: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }

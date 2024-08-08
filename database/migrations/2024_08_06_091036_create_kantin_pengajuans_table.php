@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('kantin_id');
             $table->unsignedInteger('jumlah_pengajuan');
-            $table->enum('status',['pending','disetujui','ditolak']);
+            $table->enum('status',['pending','disetujui','ditolak'])->default('pending');
             $table->string('alasan_penolakan')->nullable();
             $table->dateTime('tanggal_pengajuan');
             $table->dateTime('tanggal_selesai')->nullable();
