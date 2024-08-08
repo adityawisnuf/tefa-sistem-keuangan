@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\EmailVerificationController;
+use App\Http\Controllers\IndoRegionController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\LoginController;
@@ -57,8 +58,14 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/payment-method', [PembayaranController::class, 'getPeymentMethod']);
     Route::post('/payment-callback', [PembayaranController::class, 'handleCallback']);
 
-
+    
+    
 });
 
+    Route::get('get-province', [IndoRegionController::class, 'getAllProvinces']);
+    Route::get('get-regency/{provinceId}', [IndoRegionController::class, 'getRegenciesByProvince']);
+    Route::get('get-district/{regencyId}', [IndoRegionController::class, 'getDistrictsByRegency']);
+    Route::get('get-village/{districtId}', [IndoRegionController::class, 'getVillagesByDistrict']);
+    
 // Route for Pendaftar Komplit (no auth required)
 Route::post('pendaftar-komplit', [PendaftarKomplitController::class, 'store']);

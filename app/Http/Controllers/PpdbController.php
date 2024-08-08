@@ -18,7 +18,10 @@ class PpdbController extends Controller
         DB::beginTransaction();
 
         try {
-            $ppdb = Ppdb::create(['status' => 1]);
+            $ppdb = Ppdb::create([
+                'status' => 2,
+                'merchant_order_id' => $request->merchant_order_id,
+            ]);
 
             $pendaftar = Pendaftar::create([
                 'ppdb_id'   => $ppdb->id,

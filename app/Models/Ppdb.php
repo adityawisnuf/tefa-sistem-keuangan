@@ -12,7 +12,7 @@ class Ppdb extends Model
     protected $table= 'ppdb';
 
     protected $fillable= [
-        'dokumen_pendaftar_id', 'status', 'merchant_order_id',
+        'status', 'merchant_order_id',
     ];
 
     public function pembayaran_duitku()
