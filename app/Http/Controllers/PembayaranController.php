@@ -143,8 +143,7 @@ class PembayaranController extends Controller
                     'status' => 'pending',
                 ]);
                 $ppdb = Ppdb::create([
-
-                    'status' => 2, // Misalnya, set status sebagai 'active'
+                    'status' => 2, 
                     'merchant_order_id' => $merchantOrderId,
                 ]);
 

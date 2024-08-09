@@ -12,6 +12,7 @@ use App\Http\Controllers\PendaftaranAkademikController;
 use App\Http\Controllers\PendaftarKomplitController;
 use App\Http\Controllers\PembayaranController;
 use App\Http\Controllers\PpdbController;
+use App\Http\Controllers\TrackingPendaftaran;
 
 Route::post('register', [RegisterController::class, 'register']);
 Route::post('login', [LoginController::class, 'login']);
@@ -62,7 +63,10 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/payment-get', [PembayaranController::class, 'getPaymentMethod']);
     
 });
-
+Route::group(['prefix' => 'ppdb'], function () {
+    Route::get('/track/{ppdbId}', [TrackingPendaftaran::class, 'trackPendaftaran']);
+    Route::get('/track', [TrackingPendaftaran::class, 'getAllPendaftarans']);
+});
     Route::get('get-province', [IndoRegionController::class, 'getAllProvinces']);
     Route::get('get-regency/{provinceId}', [IndoRegionController::class, 'getRegenciesByProvince']);
     Route::get('get-district/{regencyId}', [IndoRegionController::class, 'getDistrictsByRegency']);
