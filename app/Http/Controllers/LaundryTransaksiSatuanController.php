@@ -39,18 +39,4 @@ class LaundryTransaksiSatuanController extends Controller
 
     //     'status' => proses => siap_diambil => selesai
     // }
-=======
-    public function update(LaundryTransaksiSatuan $transaksi)
-    {
-        $result = $this->statusService->update($transaksi);
-        return response()->json($result['message'], $result['statusCode']);
-    }
-
-    public function confirmInitialTransaction(LaundryTransaksiSatuanRequest $request, LaundryTransaksiSatuan $transaksi)
-    {
-        $fields = $request->validated();
-        $result = $this->statusService->confirmInitialTransaction($fields, $transaksi);
-        return response()->json($result['message'], $result['statusCode']);
-    }
->>>>>>> 57dd6f38bbb1e9bed85f36e48754cb9b6099443a
 }
