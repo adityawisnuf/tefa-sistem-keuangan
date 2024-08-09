@@ -25,7 +25,7 @@ class ArusKasController extends Controller
                         ->when($tahun, function ($query) use ($tahun) {
                             return $query->whereYear('created_at', $tahun);
                         })
-                        ->paginate();
+                        ->paginate(20);
 
         $paymentsPpdb = PembayaranPpdb::where('status', 1)
                             ->when($bulan, function ($query) use ($bulan) {
@@ -34,7 +34,7 @@ class ArusKasController extends Controller
                             ->when($tahun, function ($query) use ($tahun) {
                                 return $query->whereYear('created_at', $tahun);
                             })
-                            ->paginate();
+                            ->paginate(20);
 
         $expenses = Pengeluaran::when($bulan, function ($query) use ($bulan) {
                             return $query->whereMonth('disetujui_pada', $bulan);
@@ -42,22 +42,26 @@ class ArusKasController extends Controller
                         ->when($tahun, function ($query) use ($tahun) {
                             return $query->whereYear('disetujui_pada', $tahun);
                         })
-                        ->paginate();
+                        ->paginate(20);
 
         // Prepare an array to hold the profit data
         $profit = [];
 
-        // Combine and group payments
+        // Combine and group payments by date and category
         foreach ($payments as $payment) {
             $kategori = PembayaranKategori::find(Pembayaran::find($payment->pembayaran_id)->pembayaran_kategori_id)->nama;
             $periode = Carbon::parse($payment->created_at)->format('d M Y');
 
-            $profit[] = [
-                'tanggal' => $periode,
-                'keterangan' => $kategori,
-                'pemasukan' => $payment->nominal,
-                'pengeluaran' => 0,
-            ];
+            $key = $periode . '-' . $kategori;
+            if (!isset($profit[$key])) {
+                $profit[$key] = [
+                    'tanggal' => $periode,
+                    'keterangan' => $kategori,
+                    'pemasukan' => 0,
+                    'pengeluaran' => '-',
+                ];
+            }
+            $profit[$key]['pemasukan'] += $payment->nominal;
         }
 
         // Group expenses
@@ -65,17 +69,21 @@ class ArusKasController extends Controller
             $kategori = PengeluaranKategori::find($expense->pengeluaran_kategori_id)->nama;
             $periode = Carbon::parse($expense->disetujui_pada)->format('d M Y');
 
-            $profit[] = [
-                'tanggal' => $periode,
-                'keterangan' => $kategori,
-                'pemasukan' => '-',
-                'pengeluaran' => $expense->nominal,
-            ];
+            $key = $periode . '-' . $kategori;
+            if (!isset($profit[$key])) {
+                $profit[$key] = [
+                    'tanggal' => $periode,
+                    'keterangan' => $kategori,
+                    'pemasukan' => '-',
+                    'pengeluaran' => 0,
+                ];
+            }
+            $profit[$key]['pengeluaran'] += $expense->nominal;
         }
 
         // Group payment ppdb
         foreach ($paymentsPpdb as $ppdb) {
-            $kategori = 'Ppdb';
+            $kategori = 'Bayaran Ppdb';
             $periode = Carbon::parse($ppdb->created_at)->format('d M Y');
 
             $profit[] = [
@@ -92,7 +100,7 @@ class ArusKasController extends Controller
         });
 
         // Calculate totals
-        $totalIncome = PembayaranSiswa::all()->sum('nominal') + PembayaranPpdb::all()->sum('nominal');
+        $totalIncome = PembayaranSiswa::where('status', 1)->sum('nominal') + PembayaranPpdb::where('status', 1)->sum('nominal');
         $totalExpense = Pengeluaran::all()->sum('nominal');
 
         $total = [];
