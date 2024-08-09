@@ -54,6 +54,48 @@ class PengeluaranController extends Controller
         ]);
     }
 
+    public function updatePengeluaran(Request $request, string $id)
+    {
+        //define validation rules
+        $validator = Validator::make($request->all(), [
+            'pengeluaran_kategori_id' => 'required|exists:pengeluaran_kategori,id',
+            'keperluan' => 'required',
+            'nominal' => 'required|integer',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'invalid field',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $pengeluaran = Pengeluaran::find($id);
+
+        if (!$pengeluaran) {
+            return response()->json([
+                'success' => false,
+                'message' => 'pengeluaran tidak ditemukan'
+            ]);
+        }
+
+        $pengeluaran->update([
+            'pengeluaran_kategori_id' => $request->pengeluaran_kategori_id,
+            'keperluan' => $request->keperluan,
+            'nominal' => $request->nominal,
+            'diajukan_pada' => now(),
+            'disetujui_pada' => now(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'pengeluaran berhasil di ubah',
+            'data' => $pengeluaran
+        ]);
+    }
+
+
     public function deletePengeluaran(string $id)
     {
 
