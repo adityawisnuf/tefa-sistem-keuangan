@@ -18,7 +18,7 @@ class PembayaranController extends Controller
 {
 
 
-    public function getPaymentMethod(Request $request)
+    public function  getPaymentMethod(Request $request)
     {
         // Validasi input dari request
         $request->validate([
@@ -28,8 +28,8 @@ class PembayaranController extends Controller
         ]);
 
         // Ambil data dari request
-        $merchantCode = $request->input('merchantCode');
-        $apiKey = $request->input('apiKey');
+        $merchantCode = 'DS19869';
+        $apiKey = '8093b2c02b8750e4e73845f307325566';
         $paymentAmount = $request->input('paymentAmount');
         $datetime = now()->format('Y-m-d H:i:s');
         $signature = hash('sha256', $merchantCode . $paymentAmount . $datetime . $apiKey);

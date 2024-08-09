@@ -58,7 +58,7 @@ Route::middleware('auth:api')->group(function () {
 
     
     Route::post('/payment', [PembayaranController::class, 'createTransaction']);
-    Route::post('/payment-method', [PembayaranController::class, 'getPeymentMethod']);
+    Route::post('/payment-method', [PembayaranController::class, 'getPaymentMethod']);
     Route::post('/payment-callback', [PembayaranController::class, 'handleCallback']);
     Route::post('/payment-get', [PembayaranController::class, 'getPaymentMethod']);
     
