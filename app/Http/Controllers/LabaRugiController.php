@@ -9,30 +9,27 @@ use Illuminate\Http\Request;
 
 class LabaRugiController extends Controller
 {
+    protected $startDate;
+    protected $endDate;
+
     public function index(Request $request)
     {
         try {
             $bulan = $request->query('bulan');
             $tahun = $request->query('tahun');
 
-            // Buat tanggal awal dan akhir berdasarkan query
-            $startDate = null;
-            $endDate = null;
+            $this->startDate = Carbon::createFromDate($tahun ?? date('Y'), $bulan ?? 1, 1);
+            $this->endDate = $bulan ? $this->startDate->copy()->endOfMonth() : Carbon::createFromDate($tahun, 12, 31);
 
-            if ($bulan && $tahun && $bulan != '') {
-                $startDate = Carbon::createFromDate($tahun, $bulan, 1);
-                $endDate = $startDate->copy()->endOfMonth();
-            } elseif ($tahun) {
-                $startDate = Carbon::createFromDate($tahun, 1, 1);
-                $endDate = Carbon::createFromDate($tahun, 12, 31);
-            } elseif (!$bulan && !$tahun) {
-                // Jika tidak ada query bulan dan tahun, maka tampilkan data dari bulan dan tahun saat ini
-                $now = Carbon::now();
-                $startDate = $now->startOfMonth();
-                $endDate = $startDate->copy()->endOfMonth();
-            }
+            // if ($bulan && $tahun && $bulan != '') {
+            //     $this->startDate = Carbon::createFromDate($tahun, $bulan, 1);
+            //     $this->endDate = $this->startDate->copy()->endOfMonth();
+            // } elseif ($tahun) {
+            //     $this->startDate = Carbon::createFromDate($tahun, 1, 1);
+            //     $this->endDate = Carbon::createFromDate($tahun, 12, 31);
+            // }
 
-            $financialData = $this->retrieveFinancialData($startDate, $endDate);
+            $financialData = $this->retrieveFinancialData();
             $financialMetrics = $this->calculateFinancialMetrics($financialData);
             $pengeluaranArray = $financialData['expenditures']->map(function ($item) {
                 return [
@@ -44,16 +41,20 @@ class LabaRugiController extends Controller
             $rasioLabaBersih = $this->formatPercentage($financialMetrics['profit'], $financialMetrics['totalPayment']);
             $rasioBeban = $this->formatPercentage($financialMetrics['totalExpenditure'], $financialMetrics['totalPayment']);
 
-            $response = [
-                'pendapatan' => $financialMetrics['totalPayment'],
-                'pengeluaran' => $pengeluaranArray,
-                'pengeluaran_total' => $financialMetrics['totalExpenditure'],
-                'laba_bersih' => $financialMetrics['profit'],
-                'rasio_laba_bersih' => $rasioLabaBersih,
-                'rasio_beban_operasional' => $rasioBeban,
-            ];
+            $data = [];
 
-            return response()->json($response);
+            if ($financialMetrics['totalPayment'] && $pengeluaranArray) {
+                $data =  [
+                    'pendapatan' => $financialMetrics['totalPayment'],
+                    'pengeluaran' => $pengeluaranArray,
+                    'pengeluaran_total' => $financialMetrics['totalExpenditure'],
+                    'laba_bersih' => $financialMetrics['profit'],
+                    'rasio_laba_bersih' => $rasioLabaBersih,
+                    'rasio_beban_operasional' => $rasioBeban,
+                ];
+            }
+
+            return response()->json(['data' => $data], 200);
         } catch (\Exception $e) {
             // Log error
             logger()->error($e->getMessage());
@@ -62,11 +63,11 @@ class LabaRugiController extends Controller
         }
     }
 
-    private function retrieveFinancialData($startDate, $endDate)
+    private function retrieveFinancialData()
     {
         // Mengambil data Pembayaran dan Pengeluaran
-        $payments = PembayaranSiswa::whereBetween('created_at', [$startDate, $endDate])->get();
-        $expenditures = Pengeluaran::whereBetween('disetujui_pada', [$startDate, $endDate])->paginate(2);
+        $payments = PembayaranSiswa::whereBetween('created_at', [$this->startDate, $this->endDate])->get();
+        $expenditures = Pengeluaran::whereBetween('disetujui_pada', [$this->startDate, $this->endDate])->paginate(20);
         return [
             'payments' => $payments,
             'expenditures' => $expenditures,
@@ -77,7 +78,7 @@ class LabaRugiController extends Controller
     {
         // Hitung laba kotor, total pengeluaran, dan laba bersih
         $totalPayment = $financialData['payments']->sum('nominal');
-        $totalExpenditure = Pengeluaran::all()->sum('nominal');
+        $totalExpenditure = Pengeluaran::whereBetween('disetujui_pada', [$this->startDate, $this->endDate])->sum('nominal');
         $profit = $totalPayment - $totalExpenditure;
         if ($profit < 0) {
             $profit = 0;
@@ -91,16 +92,19 @@ class LabaRugiController extends Controller
 
     private function formatPercentage($value, $divisor)
     {
-        if ($divisor === 0) {
-            if ($value > 0) {
-                return 100.0; // Jika ada pengeluaran, tampilkan 100%
-            } else {
-                return 0.0; // Jika tidak ada pengeluaran, tampilkan 0%
-            }
-        } else {
-            // Gunakan presisi yang cukup untuk menghindari pembulatan yang tidak diinginkan
-            return ($value / $divisor) * 100;
-        }
+        // biar keren
+        if ($divisor) return ($value / $divisor) * 100;
+        return $value > 0 ? 100.0 : 0.0;
+        // if ($divisor === 0) {
+        //     if ($value > 0) {
+        //         return 100.0; // Jika ada pengeluaran, tampilkan 100%
+        //     } else {
+        //         return 0.0; // Jika tidak ada pengeluaran, tampilkan 0%
+        //     }
+        // } else {
+        //     // Gunakan presisi yang cukup untuk menghindari pembulatan yang tidak diinginkan
+        //     return ($value / $divisor) * 100;
+        // }
     }
     public function getOptions()
     {
@@ -111,7 +115,7 @@ class LabaRugiController extends Controller
 
         $months = $data->pluck('month')->unique()->values()->toArray();
         $years = $data->pluck('year')->unique()->values()->toArray();
-    
+
         // Create a mapping of month names to numbers
         $monthNumbers = [
             'January' => 1,
@@ -127,13 +131,13 @@ class LabaRugiController extends Controller
             'November' => 11,
             'December' => 12,
         ];
-    
+
         // Add key-value pairs with month numbers
         $monthsWithNumbers = [];
         foreach ($months as $month) {
             $monthsWithNumbers[$monthNumbers[$month]] = $month;
         }
-        
+
         return response()->json([
             'months' => $monthsWithNumbers,
             'years' => $years
