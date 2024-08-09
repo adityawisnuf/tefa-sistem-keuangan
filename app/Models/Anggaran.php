@@ -9,9 +9,19 @@ class Anggaran extends Model
 {
     use HasFactory;
 
+
     protected $table = 'anggaran';
 
+
     protected $fillable = [
-        'nama_anggaran', 'nominal', 'deskripsi', 'tanggal_pengajuan', 'target_terealisasikan', 'status', 'pengapprove', 'pengapprove_jabatan', 'catatan'
+        'nama_anggaran',
+        'nominal',
+        'deskripsi',
+        'tanggal_pengajuan',
+        'target_terealisasikan',
+        'status',
+        'pengapprove',
+        'pengapprove_jabatan',
+        'catatan'
     ];
 }
