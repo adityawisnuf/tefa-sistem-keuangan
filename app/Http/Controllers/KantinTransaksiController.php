@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\KantinTransaksiRequest;
+use App\Http\Services\StatusTransaksiService;
 use App\Models\KantinProduk;
 use App\Models\KantinTransaksi;
 use Exception;
@@ -10,6 +11,13 @@ use Symfony\Component\HttpFoundation\Response;
 
 class KantinTransaksiController extends Controller
 {
+    protected $statusService;
+
+    public function __construct()
+    {
+        $this->statusService = new StatusTransaksiService();
+    }
+
     public function index()
     {
         $perPage = request()->input('per_page', 10);
@@ -34,26 +42,14 @@ class KantinTransaksiController extends Controller
 
     public function update(KantinTransaksi $transaksi)
     {
-        if (in_array($transaksi['status'], ['dibatalkan', 'selesai'])) {
-            return response()->json(['message' => 'Pesanan sudah selesai!'], Response::HTTP_UNAUTHORIZED);
-        }
-
-        switch ($transaksi['status']) {
-            case 'proses':
-                $transaksi->update(['status' => 'siap_diambil']);
-                return response()->json(['data' => $transaksi], Response::HTTP_OK);
-
-            case 'siap_diambil':
-                $transaksi->update(['status' => 'selesai']);
-                return response()->json(['data' => $transaksi], Response::HTTP_OK);
-        }
+        $result = $this->statusService->update($transaksi);
+        return response()->json($result['message'], $result['statusCode']);
     }
-
+    
     public function confirmInitialTransaction(KantinTransaksiRequest $request, KantinTransaksi $transaksi)
     {
         $fields = $request->validated();
-
-        $transaksi->update($fields);
-        return response()->json(['data' => $transaksi], Response::HTTP_OK);
+        $result = $this->statusService->confirmInitialTransaction($fields, $transaksi);
+        return response()->json($result['message'], $result['statusCode']);
     }
 }
