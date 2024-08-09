@@ -18,21 +18,23 @@ class ArusKasController extends Controller
         $bulan = $request->query('bulan');
         $tahun = $request->query('tahun');
 
-        $payments = PembayaranSiswa::when($bulan, function ($query) use ($bulan) {
+        $payments = PembayaranSiswa::where('status', 1)
+                        ->when($bulan, function ($query) use ($bulan) {
                             return $query->whereMonth('created_at', $bulan);
                         })
                         ->when($tahun, function ($query) use ($tahun) {
                             return $query->whereYear('created_at', $tahun);
                         })
-                        ->get();
+                        ->paginate();
 
-        $paymentsPpdb = PembayaranPpdb::when($bulan, function ($query) use ($bulan) {
-                            return $query->whereMonth('created_at', $bulan);
-                        })
-                        ->when($tahun, function ($query) use ($tahun) {
-                            return $query->whereYear('created_at', $tahun);
-                        })
-                        ->get();
+        $paymentsPpdb = PembayaranPpdb::where('status', 1)
+                            ->when($bulan, function ($query) use ($bulan) {
+                                return $query->whereMonth('created_at', $bulan);
+                            })
+                            ->when($tahun, function ($query) use ($tahun) {
+                                return $query->whereYear('created_at', $tahun);
+                            })
+                            ->paginate();
 
         $expenses = Pengeluaran::when($bulan, function ($query) use ($bulan) {
                             return $query->whereMonth('disetujui_pada', $bulan);
@@ -40,7 +42,7 @@ class ArusKasController extends Controller
                         ->when($tahun, function ($query) use ($tahun) {
                             return $query->whereYear('disetujui_pada', $tahun);
                         })
-                        ->get();
+                        ->paginate();
 
         // Prepare an array to hold the profit data
         $profit = [];
@@ -51,8 +53,8 @@ class ArusKasController extends Controller
             $periode = Carbon::parse($payment->created_at)->format('d M Y');
 
             $profit[] = [
-                'periode' => $periode,
-                'kategori' => $kategori,
+                'tanggal' => $periode,
+                'keterangan' => $kategori,
                 'pemasukan' => $payment->nominal,
                 'pengeluaran' => 0,
             ];
@@ -64,9 +66,9 @@ class ArusKasController extends Controller
             $periode = Carbon::parse($expense->disetujui_pada)->format('d M Y');
 
             $profit[] = [
-                'periode' => $periode,
-                'kategori' => $kategori,
-                'pemasukan' => 0,
+                'tanggal' => $periode,
+                'keterangan' => $kategori,
+                'pemasukan' => '-',
                 'pengeluaran' => $expense->nominal,
             ];
         }
@@ -77,27 +79,27 @@ class ArusKasController extends Controller
             $periode = Carbon::parse($ppdb->created_at)->format('d M Y');
 
             $profit[] = [
-                'periode' => $periode,
-                'kategori' => $kategori,
+                'tanggal' => $periode,
+                'keterangan' => $kategori,
                 'pemasukan' => $ppdb->nominal,
-                'pengeluaran' => 0,
+                'pengeluaran' => '-',
             ];
         }
 
         // Sort the profit array by the date (in descending order)
         usort($profit, function($a, $b) {
-            return strtotime($b['periode']) - strtotime($a['periode']);
+            return strtotime($b['tanggal']) - strtotime($a['tanggal']);
         });
 
         // Calculate totals
-        $totalIncome = Pembayaran::all()->sum('nominal') + PembayaranPpdb::all()->sum('nominal');
+        $totalIncome = PembayaranSiswa::all()->sum('nominal') + PembayaranPpdb::all()->sum('nominal');
         $totalExpense = Pengeluaran::all()->sum('nominal');
 
         $total = [];
         if ($totalIncome > 0 || $totalExpense > 0) {
             $total = [
-                'Total_Pemasukan' => $totalIncome,
-                'Total_Pengeluaran' => $totalExpense,
+                'total_pemasukan' => $totalIncome,
+                'total_pengeluaran' => $totalExpense,
             ];
         }
 
