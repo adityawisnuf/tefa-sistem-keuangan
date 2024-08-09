@@ -38,8 +38,8 @@ class LaundryTransaksiSatuanRequest extends FormRequest
 
     public function update()
     {
-        return [
-            'status' => <div Ru=""></div>
-        ]
+        // return [
+        //     'status' => <div Ru=""></div>
+        // ]
     }
 }

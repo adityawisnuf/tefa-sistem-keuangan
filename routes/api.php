@@ -40,6 +40,8 @@ Route::group([
     ], function () {
         Route::get('/kantin', [KantinTransaksiController::class, 'index']);
         Route::post('/kantin', [KantinTransaksiController::class, 'create']);
+        Route::post('/kantin/{item}/konfirmasi', [KantinTransaksiController::class, 'confirmInitialTransaction']);
+        Route::post('/kantin/{item}', [KantinTransaksiController::class, 'update']);
 
         Route::get('/laundry/kiloan', [LaundryTransaksiKiloanController::class, 'index']);
         Route::post('/laundry/kiloan', [LaundryTransaksiKiloanController::class, 'create']);

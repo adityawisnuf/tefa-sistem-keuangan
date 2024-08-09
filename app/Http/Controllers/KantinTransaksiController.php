@@ -20,7 +20,7 @@ class KantinTransaksiController extends Controller
     public function create(KantinTransaksiRequest $request)
     {
         $fields = $request->validated();
-        
+
         $produk = KantinProduk::find($fields['kantin_produk_id']);
         $fields['harga'] = $produk->harga;
         $fields['harga_total'] = $fields['harga'] * $fields['jumlah'];
@@ -32,8 +32,28 @@ class KantinTransaksiController extends Controller
         }
     }
 
-    public function update()
+    public function update(KantinTransaksi $transaksi)
     {
+        if (in_array($transaksi['status'], ['dibatalkan', 'selesai'])) {
+            return response()->json(['message' => 'Pesanan sudah selesai!'], Response::HTTP_UNAUTHORIZED);
+        }
 
+        switch ($transaksi['status']) {
+            case 'proses':
+                $transaksi->update(['status' => 'siap_diambil']);
+                return response()->json(['data' => $transaksi], Response::HTTP_OK);
+
+            case 'siap_diambil':
+                $transaksi->update(['status' => 'selesai']);
+                return response()->json(['data' => $transaksi], Response::HTTP_OK);
+        }
+    }
+
+    public function confirmInitialTransaction(KantinTransaksiRequest $request, KantinTransaksi $transaksi)
+    {
+        $fields = $request->validated();
+
+        $transaksi->update($fields);
+        return response()->json(['data' => $transaksi], Response::HTTP_OK);
     }
 }
