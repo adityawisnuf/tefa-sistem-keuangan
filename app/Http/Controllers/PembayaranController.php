@@ -22,14 +22,14 @@ class PembayaranController extends Controller
     {
         // Validasi input dari request
         $request->validate([
-            'merchantCode' => 'required|string',
-            'apiKey' => 'required|string',
+            'merchantCode' => 'string',
+            'apiKey' => 'string',
             'paymentAmount' => 'required|numeric'
         ]);
 
         // Ambil data dari request
-        $merchantCode = 'DS19869';
-        $apiKey = '8093b2c02b8750e4e73845f307325566';
+        $merchantCode = "DS19869";
+        $apiKey ="8093b2c02b8750e4e73845f307325566";
         $paymentAmount = $request->input('paymentAmount');
         $datetime = now()->format('Y-m-d H:i:s');
         $signature = hash('sha256', $merchantCode . $paymentAmount . $datetime . $apiKey);
