@@ -21,6 +21,8 @@ Route::group([
     Route::middleware('checkrole:Bendahara,KepalaSekolah')->group(function () {
         // pengeluaran
         Route::get('pengeluaran', [PengeluaranController::class, 'getAllPengeluaran']);
+        Route::get('pengeluaran/disetujui', [PengeluaranController::class, 'getPengeluaranDisetujui']);
+        Route::get('pengeluaran/belum-disetujui', [PengeluaranController::class, 'getPengeluaranBelumDisetujui']);
         Route::post('pengeluaran', [PengeluaranController::class, 'addPengeluaran']);
         Route::delete('pengeluaran/{id}', [PengeluaranController::class, 'deletePengeluaran']);
         Route::patch('pengeluaran/{id}', [PengeluaranController::class, 'updatePengeluaran']);

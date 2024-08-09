@@ -11,8 +11,47 @@ use Symfony\Component\HttpFoundation\Test\Constraint\ResponseFormatSame;
 
 class PengeluaranController extends Controller
 {
-    public function getAllPengeluaran() {
+    public function getAllPengeluaran()
+    {
         $pengeluaran = Pengeluaran::with('pengeluaran_kategori')->get();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'data pengeluaran berhasil diambil',
+            'data' => $pengeluaran
+        ]);
+    }
+
+    public function getPengeluaranDisetujui()
+    {
+        $pengeluaran = Pengeluaran::with('pengeluaran_kategori')->where('disetujui_pada', '!=', null)->get();
+
+        if ($pengeluaran->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'data pengeluaran tidak ditemukan',
+                'data' => $pengeluaran
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'data pengeluaran berhasil diambil',
+            'data' => $pengeluaran
+        ]);
+    }
+
+    public function getPengeluaranBelumDisetujui()
+    {
+        $pengeluaran = Pengeluaran::with('pengeluaran_kategori')->where('disetujui_pada', '=', null)->get();
+
+        if ($pengeluaran->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'data pengeluaran tidak ditemukan',
+                'data' => $pengeluaran
+            ]);
+        }
 
         return response()->json([
             'success' => true,
