@@ -21,7 +21,7 @@ class LaundryTransaksiSatuanController extends Controller
     public function create(LaundryTransaksiSatuanRequest $request)
     {
         $fields = $request->validated();
-        
+
         $layanan = LaundryItem::find($fields['laundry_item_id']);
         $fields['harga'] = $layanan->harga;
         $fields['harga_total'] = $fields['harga'] * $fields['jumlah'];
@@ -35,7 +35,7 @@ class LaundryTransaksiSatuanController extends Controller
 
     // public function update()
     // {
-    //     'status' => proses, dibatalkan <= 
+    //     'status' => proses, dibatalkan <=
 
     //     'status' => proses => siap_diambil => selesai
     // }
