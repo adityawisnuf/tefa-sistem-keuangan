@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class LaundryTransaksiSatuanRequest extends FormRequest
 {
@@ -39,7 +40,7 @@ class LaundryTransaksiSatuanRequest extends FormRequest
     public function update()
     {
         return [
-            'status' => <div Ru=""></div>
-        ]
+            'status' => ['required', Rule::in('dibatalkan', 'proses')]
+        ];
     }
 }

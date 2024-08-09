@@ -3,14 +3,23 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\LaundryTransaksiKiloanRequest;
+use App\Http\Services\StatusTransaksiService;
 use App\Models\LaundryLayanan;
 use App\Models\LaundryTransaksiKiloan;
+use App\Models\LaundryTransaksiSatuan;
 use Exception;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class LaundryTransaksiKiloanController extends Controller
 {
+    protected $statusService;
+
+    public function __construct()
+    {
+        $this->statusService = new StatusTransaksiService();
+    }
+
     public function index()
     {
         $perPage = request()->input('per_page', 10);
@@ -31,5 +40,18 @@ class LaundryTransaksiKiloanController extends Controller
         } catch (Exception $e) {
             return response()->json(['message' => 'Gagal membuat transaksi: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+    }
+
+    public function update(LaundryTransaksiKiloan $transaksi)
+    {
+        $result = $this->statusService->update($transaksi);
+        return response()->json($result['message'], $result['statusCode']);
+    }
+    
+    public function confirmInitialTransaction(LaundryTransaksiKiloanRequest $request, LaundryTransaksiKiloan $transaksi)
+    {
+        $fields = $request->validated();
+        $result = $this->statusService->confirmInitialTransaction($fields, $transaksi);
+        return response()->json($result['message'], $result['statusCode']);
     }
 }
