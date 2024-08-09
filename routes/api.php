@@ -6,6 +6,8 @@ use App\Http\Controllers\KantinProdukKategoriController;
 use App\Http\Controllers\KantinTransaksiController;
 use App\Http\Controllers\LaundryItemController;
 use App\Http\Controllers\LaundryPengajuanController;
+use App\Http\Controllers\LaundryTransaksiKiloanController;
+use App\Http\Controllers\LaundryTransaksiSatuanController;
 use App\Http\Controllers\TopUpController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -32,84 +34,54 @@ Route::group([
         Route::post('request-transaksi', [TopUpController::class, 'requestTransaction']);
     });
 
+    Route::group([
+        'prefix' => 'transaksi',
+        'middleware' => 'checkrole:Siswa'
+    ], function () {
+        Route::get('/kantin', [KantinTransaksiController::class, 'index']);
+        Route::post('/kantin', [KantinTransaksiController::class, 'create']);
 
+        Route::get('/laundry/kiloan', [LaundryTransaksiKiloanController::class, 'index']);
+        Route::post('/laundry/kiloan', [LaundryTransaksiKiloanController::class, 'create']);
+
+        Route::get('/laundry/satuan', [LaundryTransaksiSatuanController::class, 'index']);
+        Route::post('/laundry/satuan', [LaundryTransaksiSatuanController::class, 'create']);
+    });
 
     Route::group([
         'prefix' => 'laundry',
         'middleware' => 'checkrole:Laundry'
     ], function () {
-        Route::group(['prefix' => 'item'], function () {
-            Route::get('/', [LaundryItemController::class, 'index']);
-            Route::post('/', [LaundryItemController::class, 'create']);
-            Route::put('/{item}', [LaundryItemController::class, 'update']);
-            Route::delete('/{item}', [LaundryItemController::class, 'destroy']);
-        });
+        Route::get('/item', [LaundryItemController::class, 'index']);
+        Route::post('/item', [LaundryItemController::class, 'create']);
+        Route::put('/item/{item}', [LaundryItemController::class, 'update']);
+        Route::delete('/item/{item}', [LaundryItemController::class, 'destroy']);
+
+        Route::get('/pengajuan', [LaundryPengajuanController::class, 'index']);
+        Route::post('/pengajuan', [LaundryPengajuanController::class, 'create']);
     });
 
-    Route::group(['prefix' => 'pengajuan'], function () {
-        Route::get('/', [LaundryPengajuanController::class, 'index']);
-        Route::post('/', [LaundryPengajuanController::class, 'create']);
-    });
-});
-
-Route::group([
-    'prefix' => 'transaksi',
-    'middleware' => 'checkrole:Siswa'
-], function () {
-    Route::group(['prefix' => 'kantin'], function () {
-        Route::get('/', [KantinTransaksiController::class, 'index']);
-        Route::post('/', [KantinTransaksiController::class, 'create']);
-    });
-});
-
-
-Route::group([
-    'prefix' => 'kantin',
-    'middleware' => 'checkrole:Kantin'
-], function () {
-    Route::group(['prefix' => 'produk'], function () {
-        Route::get('/', [KantinProdukController::class, 'index']);
-        Route::post('/', [KantinProdukController::class, 'create']);
-        Route::put('/{produk}', [KantinProdukController::class, 'update']);
-        Route::delete('/{produk}', [KantinProdukController::class, 'destroy']);
-    });
-    Route::group(['prefix' => 'kategori'], function () {
-        Route::get('/', [KantinProdukKategoriController::class, 'index']);
-        Route::post('/', [KantinProdukKategoriController::class, 'create']);
-        Route::put('/{kategori}', [KantinProdukKategoriController::class, 'update']);
-        Route::delete('/{kategori}', [KantinProdukKategoriController::class, 'destroy']);
-    });
-    Route::group(['prefix' => 'pengajuan'], function () {
-        Route::get('/', [KantinPengajuanController::class, 'index']);
-        Route::post('/', [KantinPengajuanController::class, 'create']);
-    });
-});
 
     Route::group([
         'prefix' => 'kantin',
         'middleware' => 'checkrole:Kantin'
-    ], function() {
-        Route::group(['prefix' => 'produk'], function() {
-            Route::get('/', [KantinProdukController::class, 'index']);
-            Route::post('/', [KantinProdukController::class, 'create']);
-            Route::put('/{produk}', [KantinProdukController::class, 'update']);
-            Route::delete('/{produk}', [KantinProdukController::class, 'destroy']);
-        });
-        Route::group(['prefix' => 'kategori'], function() {
-            Route::get('/', [KantinProdukKategoriController::class, 'index']);
-            Route::post('/', [KantinProdukKategoriController::class, 'create']);
-            Route::put('/{kategori}', [KantinProdukKategoriController::class, 'update']);
-            Route::delete('/{kategori}', [KantinProdukKategoriController::class, 'destroy']);
-        });
-        Route::group(['prefix' => 'pengajuan'], function() {
-            Route::get('/', [KantinPengajuanController::class, 'index']);
-            Route::post('/', [KantinPengajuanController::class, 'create']);
-        });
+    ], function () {
+        Route::get('/produk', [KantinProdukController::class, 'index']);
+        Route::post('/produk', [KantinProdukController::class, 'create']);
+        Route::put('/produk/{produk}', [KantinProdukController::class, 'update']);
+        Route::delete('/produk/{produk}', [KantinProdukController::class, 'destroy']);
+
+        Route::get('/kategori', [KantinProdukKategoriController::class, 'index']);
+        Route::post('/kategori', [KantinProdukKategoriController::class, 'create']);
+        Route::put('/kategori/{kategori}', [KantinProdukKategoriController::class, 'update']);
+        Route::delete('/kategori/{kategori}', [KantinProdukKategoriController::class, 'destroy']);
+
+        Route::get('/pengajuan', [KantinPengajuanController::class, 'index']);
+        Route::post('/pengajuan', [KantinPengajuanController::class, 'create']);
     });
 });
 
-Route::get('/test', function() {
+Route::get('/test', function () {
     return Auth::user()->laundry->first()->id;
 })
-->middleware('auth:api')
-;
+    ->middleware('auth:api');

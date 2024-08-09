@@ -3,15 +3,15 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
-class KantinTransaksiRequest extends FormRequest
+
+class LaundryTransaksiKiloanRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return true;
+        return false;
     }
 
     /**
@@ -31,15 +31,8 @@ class KantinTransaksiRequest extends FormRequest
     {
         return [
             'siswa_id' => ['required', 'exists:siswa,id'],
-            'kantin_produk_id' => ['required', 'exists:kantin_produk,id'],
-            'jumlah' => ['required', 'integer', 'min:1'],
-        ];
-    }
-
-    public function update()
-    {
-        return [
-            'status' => ['required', Rule::in('dibatalkan', 'proses', 'siap_diambil', 'selesai')]
+            'laundry_layanan_id' => ['required', 'exists:laundry_layanan,id'],
+            'berat' => ['required', 'integer', 'min:1'],
         ];
     }
 }

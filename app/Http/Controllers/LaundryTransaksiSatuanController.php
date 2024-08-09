@@ -2,38 +2,41 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\KantinTransaksiRequest;
-use App\Models\KantinProduk;
-use App\Models\KantinTransaksi;
+use App\Http\Requests\LaundryTransaksiSatuanRequest;
+use App\Models\LaundryItem;
+use App\Models\LaundryTransaksiSatuan;
 use Exception;
+use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class KantinTransaksiController extends Controller
+class LaundryTransaksiSatuanController extends Controller
 {
     public function index()
     {
         $perPage = request()->input('per_page', 10);
-        $transaksi = KantinTransaksi::paginate($perPage);
+        $transaksi = LaundryTransaksiSatuan::paginate($perPage);
         return response()->json(['data' => $transaksi], Response::HTTP_OK);
     }
 
-    public function create(KantinTransaksiRequest $request)
+    public function create(LaundryTransaksiSatuanRequest $request)
     {
         $fields = $request->validated();
         
-        $produk = KantinProduk::find($fields['kantin_produk_id']);
-        $fields['harga'] = $produk->harga;
+        $layanan = LaundryItem::find($fields['laundry_item_id']);
+        $fields['harga'] = $layanan->harga;
         $fields['harga_total'] = $fields['harga'] * $fields['jumlah'];
         try {
-            $transaksi = KantinTransaksi::create($fields);
+            $transaksi = LaundryTransaksiSatuan::create($fields);
             return response()->json(['data' => $transaksi], Response::HTTP_CREATED);
         } catch (Exception $e) {
             return response()->json(['message' => 'Gagal membuat transaksi: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
-    public function update()
-    {
+    // public function update()
+    // {
+    //     'status' => proses, dibatalkan <= 
 
-    }
+    //     'status' => proses => siap_diambil => selesai
+    // }
 }

@@ -7,6 +7,7 @@ use App\Models\KantinPengajuan;
 use Illuminate\Http\Request;
 use Exception;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\Auth;
 
 class KantinPengajuanController extends Controller
 {
@@ -22,6 +23,8 @@ class KantinPengajuanController extends Controller
         $fields = $request->validated();
 
         try {
+            $kantin = Auth::user()->laundry->first();
+            $fields['kantin_id'] = $kantin->id;
             $item = KantinPengajuan::create($fields);
             return response()->json(['data' => $item], Response::HTTP_CREATED);
         } catch (Exception $e) {
