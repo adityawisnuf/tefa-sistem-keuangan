@@ -9,14 +9,14 @@ class Pengeluaran extends Model
 {
     use HasFactory;
 
-    protected $table= 'pengeluaran';
+    protected $table = 'pengeluaran';
 
-    protected $fillable= [
+    protected $fillable = [
         'pengeluaran_kategori_id', 'keperluan', 'nominal', 'diajukan_pada', 'disetujui_pada',
     ];
 
     public function pengeluaran_kategori()
     {
-        return $this->hasOne(PengeluaranKategori::class, 'pengeluaran_kategori_id');
+        return $this->hasOne(PengeluaranKategori::class, 'id', 'pengeluaran_kategori_id');
     }
 }
