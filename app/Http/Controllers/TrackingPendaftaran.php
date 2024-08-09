@@ -20,11 +20,13 @@ class TrackingPendaftaran extends Controller
     public function getAllPendaftarans()
 {
     $ppdbs = Ppdb::with([
-        'pendaftaran_akademik',
         'pendaftar',
+        'pendaftaran_akademik',
         'pendaftar_dokumen',
     ])->get();
 
-    return response()->json($ppdbs);
+    return response()->json([
+        'data' => $ppdbs
+    ]);
 }
 }

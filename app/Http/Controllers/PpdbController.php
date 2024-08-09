@@ -19,8 +19,8 @@ class PpdbController extends Controller
 
         try {
 
-            // $ppdb = Ppdb::where('id')->first();
-            $ppdb = Ppdb::find($request->ppdb_id);
+            $ppdb = Ppdb::where('id')->first();
+            // $ppdb = Ppdb::find($request->ppdb_id);
             $pendaftar = Pendaftar::create([
                 'ppdb_id'   => $ppdb->id,
                  'nama_depan' => $request->input('nama_depan'),

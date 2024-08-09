@@ -56,23 +56,23 @@ Route::middleware('auth:api')->group(function () {
 
     // Pembayaran Routes
 
+    Route::group(['prefix' => 'ppdb'], function () {
+        Route::get('/track/{ppdbId}', [TrackingPendaftaran::class, 'trackPendaftaran']);
+        Route::get('/all/pendaftaran', [TrackingPendaftaran::class, 'getAllPendaftarans']);
+    });
     
+    
+    
+});
+// Route for Pendaftar Komplit (no auth required)
+Route::get('get-province', [IndoRegionController::class, 'getAllProvinces']);
+Route::get('get-regency/{provinceId}', [IndoRegionController::class, 'getRegenciesByProvince']);
+Route::get('get-district/{regencyId}', [IndoRegionController::class, 'getDistrictsByRegency']);
+Route::get('get-village/{districtId}', [IndoRegionController::class, 'getVillagesByDistrict']);
+    Route::post('pendaftar-komplit', [PendaftarKomplitController::class, 'store']);
+    
+    Route::get('/payment-get', [PembayaranController::class, 'getPaymentMethod']);
     Route::post('/payment', [PembayaranController::class, 'createTransaction']);
     Route::post('/payment-method', [PembayaranController::class, 'getPaymentMethod']);
     Route::post('/payment-callback', [PembayaranController::class, 'handleCallback']);
-    Route::post('/payment-get', [PembayaranController::class, 'getPaymentMethod']);
     
-});
-Route::group(['prefix' => 'ppdb'], function () {
-    Route::get('/track/{ppdbId}', [TrackingPendaftaran::class, 'trackPendaftaran']);
-    Route::get('/track', [TrackingPendaftaran::class, 'getAllPendaftarans']);
-});
-    Route::get('get-province', [IndoRegionController::class, 'getAllProvinces']);
-    Route::get('get-regency/{provinceId}', [IndoRegionController::class, 'getRegenciesByProvince']);
-    Route::get('get-district/{regencyId}', [IndoRegionController::class, 'getDistrictsByRegency']);
-    Route::get('get-village/{districtId}', [IndoRegionController::class, 'getVillagesByDistrict']);
-    
-// Route for Pendaftar Komplit (no auth required)
-Route::post('pendaftar-komplit', [PendaftarKomplitController::class, 'store']);
-
-
