@@ -23,10 +23,11 @@ Route::group([
         Route::post('pengeluaran', [PengeluaranController::class, 'addPengeluaran']);
         Route::delete('pengeluaran/{id}', [PengeluaranController::class, 'deletePengeluaran']);
     });
-
+    
+    Route::patch('/pengeluaran/{id}/accept', [PengeluaranController::class, 'acceptPengeluaran'])->middleware('checkrole:Bendahara');
 
     // pengeluaran kategori
-   Route::post('pengeluaran/kategori', [PengeluaranKategoriController::class, 'addPengeluaranKategori']);
-   Route::delete('pengeluaran/kategori/{id}', [PengeluaranKategoriController::class, 'deletePengeluaranKategori']);
-   Route::patch('pengeluaran/kategori/{id}', [PengeluaranKategoriController::class, 'updatePengeluaranKategori']);
+    Route::post('pengeluaran/kategori', [PengeluaranKategoriController::class, 'addPengeluaranKategori']);
+    Route::delete('pengeluaran/kategori/{id}', [PengeluaranKategoriController::class, 'deletePengeluaranKategori']);
+    Route::patch('pengeluaran/kategori/{id}', [PengeluaranKategoriController::class, 'updatePengeluaranKategori']);
 });

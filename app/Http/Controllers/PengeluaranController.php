@@ -19,7 +19,6 @@ class PengeluaranController extends Controller
             'nominal' => 'required|integer',
         ]);
 
-
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
@@ -74,6 +73,40 @@ class PengeluaranController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'pengeluaran berhasil dihapus',
+            'data' => $pengeluaran
+        ]);
+    }
+
+    public function acceptPengeluaran(string $id)
+    {
+        $pengeluaran = Pengeluaran::find($id);
+
+        if (!$pengeluaran) {
+            return response()->json([
+                'success' => false,
+                'message' => 'pengeluaran tidak ditemukan'
+            ], 404);
+        }
+
+        $role = auth()->user()->role;
+        if ($role !== 'Bendahara') {
+            abort(403);
+        }
+
+        if ($pengeluaran->disetujui_pada) {
+            return response()->json([
+                'success' => false,
+                'message' => 'pengeluaran sudah diterima',
+            ], 409);
+        }
+
+        $pengeluaran->update([
+            'disetujui_pada' => now()
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'pengeluaran berhasil diterima',
             'data' => $pengeluaran
         ]);
     }
