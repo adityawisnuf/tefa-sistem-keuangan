@@ -6,6 +6,7 @@ use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\LogoutController;
 use App\Http\Controllers\PengeluaranController;
+use App\Http\Controllers\PengeluaranKategoriController;
 
 // ROLE : Admin; KepalaSekolah; Bendahara; OrangTua; Siswa; Kantin; Laundry;
 
@@ -20,11 +21,12 @@ Route::group([
     Route::middleware('checkrole:Bendahara,KepalaSekolah')->group(function () {
         // pengeluaran
         Route::post('pengeluaran', [PengeluaranController::class, 'addPengeluaran']);
+        Route::delete('pengeluaran/{id}', [PengeluaranController::class, 'deletePengeluaran']);
     });
 
 
     // pengeluaran kategori
-   Route::post('pengeluaran/kategori', [PengeluaranController::class, 'addPengeluaranKategori']);
-   Route::delete('pengeluaran/kategori/{id}', [PengeluaranController::class, 'deletePengeluaranKategori']);
-   Route::patch('pengeluaran/kategori/{id}', [PengeluaranController::class, 'updatePengeluaranKategori']);
+   Route::post('pengeluaran/kategori', [PengeluaranKategoriController::class, 'addPengeluaranKategori']);
+   Route::delete('pengeluaran/kategori/{id}', [PengeluaranKategoriController::class, 'deletePengeluaranKategori']);
+   Route::patch('pengeluaran/kategori/{id}', [PengeluaranKategoriController::class, 'updatePengeluaranKategori']);
 });
