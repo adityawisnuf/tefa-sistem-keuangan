@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Pembayaran;
 use App\Models\PembayaranKategori;
+use App\Models\PembayaranPpdb;
 use App\Models\PembayaranSiswa;
 use App\Models\Pengeluaran;
+use App\Models\PengeluaranKategori;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -22,55 +24,88 @@ class ArusKasController extends Controller
                         ->when($tahun, function ($query) use ($tahun) {
                             return $query->whereYear('created_at', $tahun);
                         })
-                        ->paginate(20);
+                        ->get();
 
-        $expenses = Pengeluaran::when($bulan, function ($query) use ($bulan) {
+        $paymentsPpdb = PembayaranPpdb::when($bulan, function ($query) use ($bulan) {
                             return $query->whereMonth('created_at', $bulan);
                         })
                         ->when($tahun, function ($query) use ($tahun) {
                             return $query->whereYear('created_at', $tahun);
                         })
-                        ->paginate(20);
+                        ->get();
 
-        // Group payments by month and year
-        $monthlyPayments = $payments->groupBy(function ($payment) {
-            return Carbon::parse($payment->created_at)->format('F Y');
-        })->map(function ($payments) {
-            return $payments->map(function ($payment) {
-                $categories = Pembayaran::find($payment->pembayaran_id);
-                $category = PembayaranKategori::find($categories->pembayaran_kategori_id);
-                return [
-                    'payment' => $payment->nominal,
-                    'category' => $category->nama,
-                    'tanggal' => Carbon::parse($payment->created_at)->format('d M Y'),
-                ];
-            });
-        });
+        $expenses = Pengeluaran::when($bulan, function ($query) use ($bulan) {
+                            return $query->whereMonth('disetujui_pada', $bulan);
+                        })
+                        ->when($tahun, function ($query) use ($tahun) {
+                            return $query->whereYear('disetujui_pada', $tahun);
+                        })
+                        ->get();
 
-        // Group expenses by month and year
-        $monthlyExpenses = $expenses->groupBy(function ($expense) {
-            return Carbon::parse($expense->disetujui_pada)->format('F Y');
-        })->map(function ($expenses) {
-            return $expenses->map(function ($expense) {
-                return [
-                    'expense' => $expense->nominal,
-                    'category' => $expense->keperluan,
-                    'tanggal' => Carbon::parse($expense->disetujui_pada)->format('d M Y'),
-                ];
-            });
+        // Prepare an array to hold the profit data
+        $profit = [];
+
+        // Combine and group payments
+        foreach ($payments as $payment) {
+            $kategori = PembayaranKategori::find(Pembayaran::find($payment->pembayaran_id)->pembayaran_kategori_id)->nama;
+            $periode = Carbon::parse($payment->created_at)->format('d M Y');
+
+            $profit[] = [
+                'periode' => $periode,
+                'kategori' => $kategori,
+                'pemasukan' => $payment->nominal,
+                'pengeluaran' => 0,
+            ];
+        }
+
+        // Group expenses
+        foreach ($expenses as $expense) {
+            $kategori = PengeluaranKategori::find($expense->pengeluaran_kategori_id)->nama;
+            $periode = Carbon::parse($expense->disetujui_pada)->format('d M Y');
+
+            $profit[] = [
+                'periode' => $periode,
+                'kategori' => $kategori,
+                'pemasukan' => 0,
+                'pengeluaran' => $expense->nominal,
+            ];
+        }
+
+        // Group payment ppdb
+        foreach ($paymentsPpdb as $ppdb) {
+            $kategori = 'Ppdb';
+            $periode = Carbon::parse($ppdb->created_at)->format('d M Y');
+
+            $profit[] = [
+                'periode' => $periode,
+                'kategori' => $kategori,
+                'pemasukan' => $ppdb->nominal,
+                'pengeluaran' => 0,
+            ];
+        }
+
+        // Sort the profit array by the date (in descending order)
+        usort($profit, function($a, $b) {
+            return strtotime($b['periode']) - strtotime($a['periode']);
         });
 
         // Calculate totals
-        $totalIncome = $payments->sum('nominal');
-        $totalExpense = $expenses->sum('nominal');
+        $totalIncome = Pembayaran::all()->sum('nominal') + PembayaranPpdb::all()->sum('nominal');
+        $totalExpense = Pengeluaran::all()->sum('nominal');
+
+        $total = [];
+        if ($totalIncome > 0 || $totalExpense > 0) {
+            $total = [
+                'Total_Pemasukan' => $totalIncome,
+                'Total_Pengeluaran' => $totalExpense,
+            ];
+        }
 
         $data = [
-            'Pemasukan' => $monthlyPayments,
-            'Pengeluaran' => $monthlyExpenses,
-            'Total Pemasukan' => $totalIncome,
-            'Total Pengeluaran' => $totalExpense,
-            'Saldo Akhir' => $totalIncome - $totalExpense,
+            'profit' => $profit,
+            'total' => $total,
         ];
-        return response()->json($data);
+
+        return response()->json(['data' => $data], 200);
     }
 }

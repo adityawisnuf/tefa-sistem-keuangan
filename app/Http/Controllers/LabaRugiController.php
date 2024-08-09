@@ -133,7 +133,7 @@ class LabaRugiController extends Controller
         foreach ($months as $month) {
             $monthsWithNumbers[$monthNumbers[$month]] = $month;
         }
-    
+        
         return response()->json([
             'months' => $monthsWithNumbers,
             'years' => $years
