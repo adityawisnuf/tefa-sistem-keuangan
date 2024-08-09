@@ -42,7 +42,6 @@ class PengeluaranKategoriController extends Controller
 
     public function updatePengeluaranKategori(Request $request, string $id)
     {
-        //define validation rules
         $validator = Validator::make($request->all(), [
             'nama'     => 'required'
         ]);
@@ -81,13 +80,10 @@ class PengeluaranKategoriController extends Controller
         $pengeluaranKategori = PengeluaranKategori::find($id);
 
         if (!$pengeluaranKategori) {
-            return response()->json(
-                [
-                    'success' => false,
-                    'message' => 'pengeluaran kategori tidak ditemukan'
-                ],
-                404
-            );
+            return response()->json([
+                'success' => false,
+                'message' => 'pengeluaran kategori tidak ditemukan'
+            ], 404);
         }
 
         $pengeluaranKategori->delete();

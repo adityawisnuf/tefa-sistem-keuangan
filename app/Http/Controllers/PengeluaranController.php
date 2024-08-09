@@ -11,6 +11,16 @@ use Symfony\Component\HttpFoundation\Test\Constraint\ResponseFormatSame;
 
 class PengeluaranController extends Controller
 {
+    public function getAllPengeluaran() {
+        $pengeluaran = Pengeluaran::with('pengeluaran_kategori')->get();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'data pengeluaran berhasil diambil',
+            'data' => $pengeluaran
+        ]);
+    }
+
     public function addPengeluaran(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -55,7 +65,6 @@ class PengeluaranController extends Controller
 
     public function updatePengeluaran(Request $request, string $id)
     {
-        //define validation rules
         $validator = Validator::make($request->all(), [
             'pengeluaran_kategori_id' => 'required|exists:pengeluaran_kategori,id',
             'keperluan' => 'required',
@@ -93,7 +102,6 @@ class PengeluaranController extends Controller
             'data' => $pengeluaran
         ]);
     }
-
 
     public function deletePengeluaran(string $id)
     {
