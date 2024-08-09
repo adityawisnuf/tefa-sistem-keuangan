@@ -199,4 +199,54 @@ class PengeluaranController extends Controller
             'data' => $pengeluaran
         ]);
     }
+    
+    public function riwayatPengeluaran(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date',
+            'kategori_id' => 'nullable|exists:pengeluaran_kategori,id',
+            'status' => 'nullable|in:disetujui,belum_disetujui',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid field',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+        $kategoriId = $request->input('kategori_id');
+        $status = $request->input('status');
+
+        $query = Pengeluaran::with('pengeluaran_kategori');
+
+        if ($startDate) {
+            $query->where('diajukan_pada', '>=', $startDate);
+        }
+        if ($endDate) {
+            $query->where('diajukan_pada', '<=', $endDate);
+        }
+        if ($kategoriId) {
+            $query->where('pengeluaran_kategori_id', $kategoriId);
+        }
+        if ($status) {
+            if ($status == 'disetujui') {
+                $query->whereNotNull('disetujui_pada');
+            } elseif ($status == 'belum_disetujui') {
+                $query->whereNull('disetujui_pada');
+            }
+        }
+
+        $pengeluaran = $query->get();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Data riwayat pengeluaran berhasil diambil',
+            'data' => $pengeluaran
+        ]);
+    }
 }

@@ -26,6 +26,7 @@ Route::group([
         Route::post('pengeluaran', [PengeluaranController::class, 'addPengeluaran']);
         Route::delete('pengeluaran/{id}', [PengeluaranController::class, 'deletePengeluaran']);
         Route::patch('pengeluaran/{id}', [PengeluaranController::class, 'updatePengeluaran']);
+        Route::get('pengeluaran/riwayat', [PengeluaranController::class, 'riwayatPengeluaran']);
     });
 
     Route::patch('/pengeluaran/{id}/accept', [PengeluaranController::class, 'acceptPengeluaran'])->middleware('checkrole:Bendahara');
