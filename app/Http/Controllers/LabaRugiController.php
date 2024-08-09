@@ -66,7 +66,7 @@ class LabaRugiController extends Controller
     private function retrieveFinancialData()
     {
         // Mengambil data Pembayaran dan Pengeluaran
-        $payments = PembayaranSiswa::whereBetween('created_at', [$this->startDate, $this->endDate])->get();
+        $payments = PembayaranSiswa::whereBetween('created_at', [$this->startDate, $this->endDate])->where('status', 1);
         $expenditures = Pengeluaran::whereBetween('disetujui_pada', [$this->startDate, $this->endDate])->paginate(20);
         return [
             'payments' => $payments,
