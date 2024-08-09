@@ -14,6 +14,7 @@ class PengeluaranSeeder extends Seeder
     public function run(): void
     {
         $datas = ['gaji guru', 'operasional', 'investasi', 'pembangunan', 'lainnya'];
+        // tes commit
 
         foreach ($datas as $data) {
             PengeluaranKategori::create([
