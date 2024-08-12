@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Siswa;
+use App\Models\Orangtua;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -171,5 +172,28 @@ class SiswaController extends Controller
             'message' => 'Data Siswa berhasil dihapus'
         ]);
     }
+
+    public function filterByOrangTua($id)
+{
+    // Cari data orang tua berdasarkan ID
+    $orangTua = Orangtua::find($id);
+
+    if (!$orangTua) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Orang tua tidak ditemukan',
+        ], 404);
+    }
+
+    // Ambil semua siswa yang memiliki ID orang tua yang sama
+    $siswa = Siswa::where('orangtua_id', $id)->get();
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Data siswa dengan orang tua berhasil ditemukan',
+        'data' => $siswa,
+    ], 200);
+}
+
 
 }

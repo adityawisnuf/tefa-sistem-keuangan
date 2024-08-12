@@ -69,4 +69,8 @@ Route::get('filter-kelas', [KelasController::class, 'filterKelas']);
 // sortir sekolah
 Route::get('/filter-sekolah', [KelasController::class, 'filterBySekolah']);
 
+// sortir orang tua
+Route::get('filter-orangtua/{id}', [SiswaController::class, 'filterByOrangTua']);
+
+
 
