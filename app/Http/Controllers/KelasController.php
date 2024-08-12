@@ -123,4 +123,29 @@ class KelasController extends Controller
             'message' => 'Kelas berhasil dihapus'
         ]);
     }
+
+
+    // get sortir per kelas
+    public function filterKelas(Request $request)
+{
+    $jurusan = $request->get('jurusan');
+
+    $kelas = Kelas::where('jurusan', 'like', '%' . $jurusan . '%')
+        ->with('siswa') // Mengambil data siswa yang terkait
+        ->get();
+
+    if ($kelas->isEmpty()) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Kelas tidak ditemukan',
+        ], 404);
+    }
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Data kelas berhasil disaring',
+        'data' => $kelas
+    ]);
 }
+}
+
