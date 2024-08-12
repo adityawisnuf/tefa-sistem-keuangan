@@ -63,5 +63,10 @@ Route::put('siswa/{id}', [SiswaController::class, 'updateSiswa']);
 Route::delete('siswa/{id}', [SiswaController::class, 'destroy']);
 // close data siswa
 
-// sortir
+// sortir kelas
 Route::get('filter-kelas', [KelasController::class, 'filterKelas']);
+
+// sortir sekolah
+Route::get('/filter-sekolah', [KelasController::class, 'filterBySekolah']);
+
+

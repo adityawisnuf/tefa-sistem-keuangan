@@ -147,5 +147,33 @@ class KelasController extends Controller
         'data' => $kelas
     ]);
 }
+
+// sortir get sekolah
+public function filterBySekolah(Request $request)
+{
+    // Validate the incoming request
+    $request->validate([
+        'sekolah_id' => 'required|exists:sekolah,id',
+    ]);
+
+    // Fetch classes/jurusan associated with the given sekolah_id
+    $kelas = Kelas::where('sekolah_id', $request->sekolah_id)->get();
+
+    // Check if classes were found
+    if ($kelas->isEmpty()) {
+        return response()->json([
+            'success' => false,
+            'message' => 'No classes found for the specified school.',
+        ], 404);
+    }
+
+    // Return the classes with their associated data
+    return response()->json([
+        'success' => true,
+        'data' => $kelas,
+    ]);
 }
+
+}
+
 
