@@ -7,6 +7,7 @@ use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\PendaftarController;
 use App\Http\Controllers\LogoutController;
+use App\Http\Controllers\PdfDownloadController;
 use App\Http\Controllers\PendaftarDokumenController;
 use App\Http\Controllers\PendaftaranAkademikController;
 use App\Http\Controllers\PendaftarKomplitController;
@@ -60,9 +61,9 @@ Route::middleware('auth:api')->group(function () {
         Route::get('/track/{ppdbId}', [TrackingPendaftaran::class, 'trackPendaftaran']);
         Route::get('/all/pendaftaran', [TrackingPendaftaran::class, 'getAllPendaftarans']);
     });
-    
-    
-    
+
+
+
 });
 // Route for Pendaftar Komplit (no auth required)
 Route::get('get-province', [IndoRegionController::class, 'getAllProvinces']);
