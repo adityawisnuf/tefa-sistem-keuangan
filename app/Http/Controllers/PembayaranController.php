@@ -85,6 +85,7 @@ class PembayaranController extends Controller
     // Method untuk membuat transaksi
     public function createTransaction(Request $request)
     {
+        
         // Ambil data dari request
         $merchantCode = "DS19869";
         $apiKey ="8093b2c02b8750e4e73845f307325566";
@@ -134,8 +135,8 @@ class PembayaranController extends Controller
                 $responseBody['merchantOrderId'] = $merchantOrderId;
     
                 $pembayaranKategori = PembayaranKategori::create([
-                    'nama' => $request->input('nama_kategori'),
-                    'jenis_pembayaran' => $request->input('jenis_pembayaran'),
+                    'nama' => 'ppdb',
+                    'jenis_pembayaran' => 2,
                     'tanggal_pembayaran' => now(),
                     'status' => 1
                 ]);
