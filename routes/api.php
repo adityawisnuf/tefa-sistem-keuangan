@@ -80,6 +80,7 @@ Route::group([
 
         Route::get('/pengajuan', [KantinPengajuanController::class, 'index']);
         Route::post('/pengajuan', [KantinPengajuanController::class, 'create']);
+        Route::put('/pengajuan/{pengajuan}', [KantinPengajuanController::class, 'update']);
     });
 });
 
