@@ -99,9 +99,9 @@ class PembayaranController extends Controller
         $customerEmail = $request->input('email');
         $customerVaName = $first_name . ' ' . $last_name;
         $signature = md5($merchantCode . $merchantOrderId . $paymentAmount . $apiKey);
-
+    
         Log::info('Signature generated in createTransaction', ['signature' => $signature]);
-
+    
         $params = [
             'merchantCode' => $merchantCode,
             'nama_depan' => $first_name,
@@ -116,9 +116,9 @@ class PembayaranController extends Controller
             'email' => $customerEmail,
             'customerVaName' => $customerVaName
         ];
-
+    
         $client = new Client();
-
+    
         try {
             $response = $client->post('https://sandbox.duitku.com/webapi/api/merchant/v2/inquiry', [
                 'headers' => [
@@ -127,19 +127,19 @@ class PembayaranController extends Controller
                 'json' => $params,
                 'verify' => false
             ]);
-
+    
             if ($response->getStatusCode() == 200) {
                 $responseBody = json_decode($response->getBody(), true);
                 $responseBody['signature'] = $signature;
                 $responseBody['merchantOrderId'] = $merchantOrderId;
-
+    
                 $pembayaranKategori = PembayaranKategori::create([
                     'nama' => $request->input('nama_kategori'),
                     'jenis_pembayaran' => $request->input('jenis_pembayaran'),
                     'tanggal_pembayaran' => now(),
                     'status' => 1
                 ]);
-
+    
                 $pembayaranDuitku = PembayaranDuitku::create([
                     'merchant_order_id' => $merchantOrderId,
                     'reference' => $responseBody['reference'],
@@ -148,12 +148,14 @@ class PembayaranController extends Controller
                     'callback_response' => null,
                     'status' => 'pending',
                 ]);
-
+    
                 $ppdb = Ppdb::create([
                     'status' => 1, // Misalnya, set status sebagai 'active'
                     'merchant_order_id' => $merchantOrderId,
                 ]);
-
+    
+                $request->session()->put('ppdb_id', $ppdb->id);
+    
                 $pembayaran = Pembayaran::create([
                     'siswa_id' => null,
                     'pembayaran_kategori_id' => $pembayaranKategori->id,
@@ -162,7 +164,7 @@ class PembayaranController extends Controller
                     'kelas_id' => null,
                     'ppdb_id' => $ppdb->id // Simpan ppdb_id
                 ]);
-
+    
                 // Membuat entri di PembayaranPpdb
                 PembayaranPpdb::create([
                     'ppdb_id' => $ppdb->id,
@@ -171,7 +173,7 @@ class PembayaranController extends Controller
                     'merchant_order_id' => $merchantOrderId,
                     'status' => 0,
                 ]);
-
+    
                 return response()->json($responseBody);
             } else {
                 return response()->json([
@@ -187,6 +189,7 @@ class PembayaranController extends Controller
             ], $e->getCode());
         }
     }
+    
 
 
 

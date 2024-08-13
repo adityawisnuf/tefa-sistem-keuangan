@@ -72,5 +72,9 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasOne(Orangtua::class, 'user_id');
     }
+    public function ppdb()
+    {
+        return $this->hasOne(Ppdb::class);
+    }
 
 }
