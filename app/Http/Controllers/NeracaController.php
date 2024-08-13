@@ -19,36 +19,32 @@ class NeracaController extends Controller
 
         if ($totalAktiva) {
             $aktiva = [
-                'aktiva' => [
-                    'aktiva_lancar' => [
-                        'piutang_siswa' => $pembayaranBelumSelesai
-                    ],
-                    'total_aktiva_lancar' => $totalAktivaLancar,
-                    'aktiva_tetap' => [
-                        'aset_sekolah' => $asetSekolah
-                    ],
-                    'total_aktiva_tetap' => $totalAktivaTetap,
-                    'total_aktiva' => $totalAktiva,
+                'aktiva_lancar' => [
+                    'piutang_siswa' => $pembayaranBelumSelesai
                 ],
+                'total_aktiva_lancar' => $totalAktivaLancar,
+                'aktiva_tetap' => [
+                    'aset_sekolah' => $asetSekolah
+                ],
+                'total_aktiva_tetap' => $totalAktivaTetap,
+                'total_aktiva' => $totalAktiva
             ];
         } else {
             $aktiva = [];
         }
 
         $pasiva = [
-            'pasiva' => [
-                'kewajiban_lancar' => [],
-                'total_kewajiban_lancar' => 0,
-                'ekuitas' => [],
-                'total_ekuitas' => 0,
-                'total_pasiva' => 0,
-            ],
+            'kewajiban_lancar' => [],
+            'total_kewajiban_lancar' => 0,
+            'ekuitas' => [],
+            'total_ekuitas' => 0,
+            'total_pasiva' => 0,
         ];
 
         // Data untuk ditampilkan di view
         $data = [
-            $aktiva,
-            $pasiva
+            'aktiva' => $aktiva,
+            'pasiva' => $pasiva
         ];
 
         return response()->json(['data' => $data]);
