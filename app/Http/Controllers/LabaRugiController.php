@@ -18,8 +18,15 @@ class LabaRugiController extends Controller
             $bulan = $request->query('bulan');
             $tahun = $request->query('tahun');
 
-            $this->startDate = Carbon::createFromDate($tahun ?? date('Y'), $bulan ?? 1, 1);
-            $this->endDate = $bulan ? $this->startDate->copy()->endOfMonth() : Carbon::createFromDate($tahun, 12, 31);
+            //default (no parameter), if month only, if year & month
+            $this->startDate = Carbon::createFromDate($tahun ?? date('Y'), $bulan ?? date('m'), 1);
+            $this-> endDate = $this->startDate->copy()->endOfMonth();
+
+            //if year only (ngeri bosque)
+            if ($tahun && !$bulan) {
+                $this->startDate = Carbon::createFromDate($tahun, 1, 1);
+                $this->endDate = Carbon::createFromDate($tahun, 12, 31);
+            }
 
             // if ($bulan && $tahun && $bulan != '') {
             //     $this->startDate = Carbon::createFromDate($tahun, $bulan, 1);
@@ -66,7 +73,7 @@ class LabaRugiController extends Controller
     private function retrieveFinancialData()
     {
         // Mengambil data Pembayaran dan Pengeluaran
-        $payments = PembayaranSiswa::whereBetween('created_at', [$this->startDate, $this->endDate])->get();
+        $payments = PembayaranSiswa::whereBetween('created_at', [$this->startDate, $this->endDate])->where('status', 1);
         $expenditures = Pengeluaran::whereBetween('disetujui_pada', [$this->startDate, $this->endDate])->paginate(20);
         return [
             'payments' => $payments,
