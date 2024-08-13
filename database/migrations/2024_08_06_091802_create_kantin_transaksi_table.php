@@ -20,7 +20,7 @@ return new class extends Migration
             $table->unsignedInteger('jumlah');
             $table->unsignedInteger('harga');
             $table->unsignedInteger('harga_total');
-            $table->enum('status',['pending','proses','selesai','dibatalkan'])->default('pending');
+            $table->enum('status',['pending','proses', 'siap_diambil', 'selesai','dibatalkan'])->default('pending');
             $table->dateTime('tanggal_pemesanan')->default(now());
             $table->dateTime('tanggal_selesai')->nullable();
             $table->timestamps();

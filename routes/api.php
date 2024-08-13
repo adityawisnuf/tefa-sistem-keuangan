@@ -36,8 +36,8 @@ Route::group([
     ], function () {
         Route::get('/kantin', [KantinTransaksiController::class, 'index']);
         Route::post('/kantin', [KantinTransaksiController::class, 'create']);
-        Route::post('/kantin/{transaksi}/konfirmasi', [KantinTransaksiController::class, 'confirmInitialTransaction']);
-        Route::post('/kantin/{transaksi}', [KantinTransaksiController::class, 'update']);
+        Route::put('/kantin/{transaksi}/konfirmasi', [KantinTransaksiController::class, 'confirmInitialTransaction']);
+        Route::put('/kantin/{transaksi}', [KantinTransaksiController::class, 'update']);
 
         Route::get('/laundry/kiloan', [LaundryTransaksiKiloanController::class, 'index']);
         Route::post('/laundry/kiloan', [LaundryTransaksiKiloanController::class, 'create']);
@@ -46,8 +46,8 @@ Route::group([
 
         Route::get('/laundry/satuan', [LaundryTransaksiSatuanController::class, 'index']);
         Route::post('/laundry/satuan', [LaundryTransaksiSatuanController::class, 'create']);
-        Route::post('/laundry/satuan/{transaksi}/konfirmasi', [LaundryTransaksiSatuanController::class, 'confirmInitialTransaction']);
-        Route::post('/laundry/satuan/{transaksi}', [LaundryTransaksiSatuanController::class, 'update']);
+        Route::put('/laundry/satuan/{transaksi}/konfirmasi', [LaundryTransaksiSatuanController::class, 'confirmInitialTransaction']);
+        Route::put('/laundry/satuan/{transaksi}', [LaundryTransaksiSatuanController::class, 'update']);
     });
 
     Route::group([

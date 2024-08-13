@@ -23,7 +23,7 @@ class KantinTransaksiController extends Controller
         $perPage = request()->input('per_page', 10);
         $transaksi = KantinTransaksi::paginate($perPage);
         return response()->json(['data' => $transaksi], Response::HTTP_OK);
-    }   
+    }
 
     public function create(KantinTransaksiRequest $request)
     {

@@ -16,8 +16,10 @@ class StatusTransaksiService
             ];
         }
 
+
         switch ($model['status']) {
             case 'proses':
+
                 $model->update(['status' => 'siap_diambil']);
                 return [
                     'message' => ['data' => $model],
