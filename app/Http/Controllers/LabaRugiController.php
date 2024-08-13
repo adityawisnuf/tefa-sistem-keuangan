@@ -106,7 +106,7 @@ class LabaRugiController extends Controller
         //     return ($value / $divisor) * 100;
         // }
     }
-    public function getOptions()
+        public function getOptions()
     {
         $data = PembayaranSiswa::selectRaw('DISTINCT YEAR(created_at) as year, MONTHNAME(created_at) as month')
             ->orderBy('year', 'desc')
@@ -118,29 +118,33 @@ class LabaRugiController extends Controller
 
         // Create a mapping of month names to numbers
         $monthNumbers = [
-            'January' => 1,
-            'February' => 2,
-            'March' => 3,
-            'April' => 4,
-            'May' => 5,
-            'June' => 6,
-            'July' => 7,
-            'August' => 8,
-            'September' => 9,
-            'October' => 10,
-            'November' => 11,
-            'December' => 12,
+            'January' => '01',
+            'February' => '02',
+            'March' => '03',
+            'April' => '04',
+            'May' => '05',
+            'June' => '06',
+            'July' => '07',
+            'August' => '08',
+            'September' => '09',
+            'October' => '10',
+            'November' => '11',
+            'December' => '12',
         ];
 
-        // Add key-value pairs with month numbers
-        $monthsWithNumbers = [];
+        // Format months with values and labels
+        $formattedMonths = [];
         foreach ($months as $month) {
-            $monthsWithNumbers[$monthNumbers[$month]] = $month;
+            $formattedMonths[] = [
+                'values' => $monthNumbers[$month],
+                'labels' => $month,
+            ];
         }
 
         return response()->json([
-            'months' => $monthsWithNumbers,
-            'years' => $years
+            'months' => $formattedMonths,
+            'years' => $years,
         ]);
     }
+
 }
