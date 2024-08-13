@@ -40,47 +40,71 @@ class LaundryPengajuanController extends Controller
         }
     }
 
-    public function update(Request $request, LaundryPengajuan $pengajuan) {
+    public function update(Request $request, LaundryPengajuan $pengajuan)
+    {
+        // Validasi input
         $request->validate([
-            'status' => 'required|in:pending,disetujui,ditolak'
+            'status' => 'required|in:pending,disetujui,ditolak',
+            'alasan_penolakan' => 'nullable|string'
         ]);
 
+        // Ambil data laundry
         $laundry = $pengajuan->laundry;
 
+        // Periksa apakah pengajuan sudah diproses
         if (in_array($pengajuan->status, ['disetujui', 'ditolak'])) {
             return response()->json([
                 'message' => 'Pengajuan sudah diproses!',
             ], Response::HTTP_UNAUTHORIZED);
         }
 
-        switch ($pengajuan->status) {
+        // Logika untuk mengupdate status
+        switch ($request->status) {
             case 'pending':
+                // Tidak perlu penanganan khusus jika statusnya 'pending'
+                break;
 
+            case 'disetujui':
                 if ($laundry->saldo >= $pengajuan->jumlah_pengajuan) {
                     $laundry->saldo -= $pengajuan->jumlah_pengajuan;
                     $laundry->save();
 
-                    if ($request->status === 'disetujui') {
-                        $pengajuan->update(['status' => 'disetujui', 'tanggal_selesai' => now()]);
-                        return response()->json([
-                            'message' => 'Pengajuan telah disetujui.',
-                            'data' => $pengajuan,
-                        ], Response::HTTP_OK);
-                    } elseif ($request->status === 'ditolak') {
-
-                        $laundry->saldo += $pengajuan->jumlah_pengajuan;
-                        $laundry->save();
-                        $pengajuan->update(['status' => 'ditolak', 'tanggal_selesai' => now()]);
-                        return response()->json([
-                            'message' => 'Pengajuan telah ditolak dan saldo dikembalikan.',
-                            'data' => $pengajuan,
-                        ], Response::HTTP_OK);
-                    }
+                    $pengajuan->update([
+                        'status' => 'disetujui',
+                        'tanggal_selesai' => now(),
+                    ]);
+                    return response()->json([
+                        'message' => 'Pengajuan telah disetujui.',
+                        'data' => $pengajuan,
+                    ], Response::HTTP_OK);
                 } else {
                     return response()->json([
                         'message' => 'Saldo tidak mencukupi untuk pengajuan ini.',
                     ], Response::HTTP_BAD_REQUEST);
                 }
+                break;
+
+            case 'ditolak':
+                // Validasi alasan penolakan
+                if (empty($request->alasan_penolakan)) {
+                    return response()->json([
+                        'message' => 'Alasan penolakan harus diisi jika status adalah ditolak.',
+                    ], Response::HTTP_BAD_REQUEST);
+                }
+
+                // Kembalikan saldo
+                $laundry->saldo += $pengajuan->jumlah_pengajuan;
+                $laundry->save();
+
+                $pengajuan->update([
+                    'status' => 'ditolak',
+                    'alasan_penolakan' => $request->alasan_penolakan,
+                    'tanggal_selesai' => now(),
+                ]);
+                return response()->json([
+                    'message' => 'Pengajuan telah ditolak dan saldo dikembalikan.',
+                    'data' => $pengajuan,
+                ], Response::HTTP_OK);
                 break;
 
             default:
