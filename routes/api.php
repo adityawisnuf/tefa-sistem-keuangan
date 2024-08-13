@@ -73,9 +73,12 @@ Route::get('get-village/{districtId}', [IndoRegionController::class, 'getVillage
     Route::post('pendaftar-komplit', [PendaftarKomplitController::class, 'store']);
 
     Route::post('/update-status', [PpdbController::class, 'updateStatus']);
-    
+
     Route::get('/payment-get', [PembayaranController::class, 'getPaymentMethod']);
     Route::post('/payment', [PembayaranController::class, 'createTransaction']);
     Route::post('/payment-method', [PembayaranController::class, 'getPaymentMethod']);
     Route::post('/payment-callback', [PembayaranController::class, 'handleCallback']);
-    
+
+
+    Route::post('/download-pdf', [PdfDownloadController::class, 'store']);
+

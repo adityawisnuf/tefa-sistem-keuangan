@@ -16,13 +16,13 @@
         "mailgun/mailgun-php": "^4.2",
         "royryando/laravel-duitku": "^1.0",
         "setasign/fpdf": "^1.8",
-        "setasign/fpdi": "^2.6",
         "setasign/fpdi-tcpdf": "^2.3",
         "symfony/http-client": "^7.1",
         "symfony/mailer": "^6.4",
         "symfony/mailgun-mailer": "^7.1",
         "symfony/postmark-mailer": "^7.1",
-        "tymon/jwt-auth": "2.1.1"
+        "tymon/jwt-auth": "2.1.1",
+        "webklex/laravel-pdfmerger": "^1.3"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",
