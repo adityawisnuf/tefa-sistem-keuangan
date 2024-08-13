@@ -24,7 +24,6 @@ class LaundryPengajuanController extends Controller
         try {
             $laundry = Auth::user()->laundry->first();
 
-            // Validasi apakah saldo mencukupi
             if ($laundry->saldo < $fields['jumlah_pengajuan']) {
                 return response()->json([
                     'message' => 'Saldo tidak mencukupi untuk pengajuan ini.',
@@ -32,7 +31,14 @@ class LaundryPengajuanController extends Controller
             }
 
             $fields['laundry_id'] = $laundry->id;
+            $fields['status'] = 'pending'; // Set status default ke 'pending'
+
+            // Buat pengajuan
             $item = LaundryPengajuan::create($fields);
+
+            // Kurangi saldo jika pengajuan berhasil dibuat
+            $laundry->saldo -= $fields['jumlah_pengajuan'];
+            $laundry->save();
 
             return response()->json(['data' => $item], Response::HTTP_CREATED);
         } catch (Exception $e) {
@@ -51,6 +57,12 @@ class LaundryPengajuanController extends Controller
         // Ambil data laundry
         $laundry = $pengajuan->laundry;
 
+        if (!$laundry) {
+            return response()->json([
+                'message' => 'laundry tidak ditemukan.',
+            ], Response::HTTP_NOT_FOUND);
+        }
+
         // Periksa apakah pengajuan sudah diproses
         if (in_array($pengajuan->status, ['disetujui', 'ditolak'])) {
             return response()->json([
@@ -65,24 +77,15 @@ class LaundryPengajuanController extends Controller
                 break;
 
             case 'disetujui':
-                if ($laundry->saldo >= $pengajuan->jumlah_pengajuan) {
-                    $laundry->saldo -= $pengajuan->jumlah_pengajuan;
-                    $laundry->save();
-
-                    $pengajuan->update([
-                        'status' => 'disetujui',
-                        'tanggal_selesai' => now(),
-                    ]);
-                    return response()->json([
-                        'message' => 'Pengajuan telah disetujui.',
-                        'data' => $pengajuan,
-                    ], Response::HTTP_OK);
-                } else {
-                    return response()->json([
-                        'message' => 'Saldo tidak mencukupi untuk pengajuan ini.',
-                    ], Response::HTTP_BAD_REQUEST);
-                }
-                break;
+                // Tidak perlu mengurangi saldo lagi, karena sudah dikurangi saat status 'pending'
+                $pengajuan->update([
+                    'status' => 'disetujui',
+                    'tanggal_selesai' => now(),
+                ]);
+                return response()->json([
+                    'message' => 'Pengajuan telah disetujui.',
+                    'data' => $pengajuan,
+                ], Response::HTTP_OK);
 
             case 'ditolak':
                 // Validasi alasan penolakan
@@ -105,7 +108,6 @@ class LaundryPengajuanController extends Controller
                     'message' => 'Pengajuan telah ditolak dan saldo dikembalikan.',
                     'data' => $pengajuan,
                 ], Response::HTTP_OK);
-                break;
 
             default:
                 return response()->json([
