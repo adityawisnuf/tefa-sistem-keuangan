@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\EmailVerificationController;
+use App\Http\Controllers\IndoRegionController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\LoginController;
@@ -12,7 +13,6 @@ use App\Http\Controllers\PendaftaranAkademikController;
 use App\Http\Controllers\PendaftarKomplitController;
 use App\Http\Controllers\PembayaranController;
 use App\Http\Controllers\PpdbController;
-use App\Http\Controllers\LaporanKeuanganController;
 
 Route::post('register', [RegisterController::class, 'register']);
 Route::post('login', [LoginController::class, 'login']);
@@ -56,20 +56,19 @@ Route::middleware('auth:api')->group(function () {
 
     // Pembayaran Routes
 
+    Route::group(['prefix' => 'ppdb'], function () {
+        Route::get('/track/{ppdbId}', [TrackingPendaftaran::class, 'trackPendaftaran']);
+        Route::get('/all/pendaftaran', [TrackingPendaftaran::class, 'getAllPendaftarans']);
+    });
+
+
 
 });
-
 // Route for Pendaftar Komplit (no auth required)
 Route::post('pendaftar-komplit', [PendaftarKomplitController::class, 'store']);
-Route::get('/download-pdf/{id}', [PdfDownloadController::class, 'downloadPDF']);
 
 Route::post('/payment', [PembayaranController::class, 'createTransaction']);
 Route::post('/payment-method', [PembayaranController::class, 'getPeymentMethod']);
 Route::post('/payment-callback', [PembayaranController::class, 'handleCallback']);
 Route::post('/payment-get', [PembayaranController::class, 'getPaymentMethod']);
-
-Route::get('/laporan-keuangan', [LaporanKeuanganController::class, 'laporanKeuangan']);
-// Jika menggunakan routes/web.php
-Route::get('/download-pendaftar-dokumen/{id}', [PendaftarDokumenController::class, 'downloadPdf']);
-
 

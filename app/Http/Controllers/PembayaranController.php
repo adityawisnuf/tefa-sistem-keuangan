@@ -20,70 +20,77 @@ class PembayaranController extends Controller
 
     public function getPaymentMethod(Request $request)
     {
-        // Validasi input dari request
+        // Validate input from request
         $request->validate([
             'merchantCode' => 'string',
             'apiKey' => 'string',
-            'paymentAmount' => 'required|numeric'
+            'paymentAmount' => 'numeric',
+            'paymentMethod' => 'nullable|string', // Allow optional paymentMethod param
         ]);
-
-        // Ambil data dari request
+    
         $merchantCode = "DS19869";
         $apiKey ="8093b2c02b8750e4e73845f307325566";
-        $paymentAmount = $request->input('paymentAmount');
+        $paymentAmount = 10000;
+        $paymentMethod = $request->get('paymentMethod'); 
         $datetime = now()->format('Y-m-d H:i:s');
         $signature = hash('sha256', $merchantCode . $paymentAmount . $datetime . $apiKey);
-
+    
+        // Generate signature
+        $signature = hash('sha256', $merchantCode . $paymentAmount . $datetime . $apiKey);
+    
+        // Prepare request parameters
         $params = [
             'merchantcode' => $merchantCode,
             'amount' => $paymentAmount,
             'datetime' => $datetime,
-            'signature' => $signature
+            'signature' => $signature,
+            'paymentMethod' => $paymentMethod
         ];
-
-        $paramsString = json_encode($params);
+    
+        // Build the API URL with optional payment method parameter
         $url = 'https://sandbox.duitku.com/webapi/api/merchant/paymentmethod/getpaymentmethod';
-
+    
         $client = new Client();
-
+    
         try {
             $response = $client->post($url, [
                 'headers' => [
                     'Content-Type' => 'application/json',
-                    'Content-Length' => strlen($paramsString),
+                    'Content-Length' => strlen(json_encode($params)),
                 ],
-                'body' => $paramsString,
+                'body' => json_encode($params),
                 'verify' => false,
             ]);
-
+    
             $statusCode = $response->getStatusCode();
             $responseBody = json_decode($response->getBody(), true);
-
+    
             if ($statusCode == 200) {
                 return response()->json($responseBody, 200);
             } else {
                 return response()->json([
                     'error' => 'Server Error',
-                    'message' => $responseBody['Message'] ?? 'An error occurred'
+                    'message' => $responseBody['Message'] ?? 'An error occurred',
                 ], $statusCode);
             }
         } catch (\Exception $e) {
             Log::error('Error retrieving payment methods from Duitku', ['message' => $e->getMessage()]);
             return response()->json([
                 'error' => 'Request Error',
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
+    
     // Method untuk membuat transaksi
     public function createTransaction(Request $request)
     {
         // Ambil data dari request
-        $merchantCode = $request->input('merchantCode');
-        $apiKey = $request->input('apiKey');
+        $merchantCode = "DS19869";
+        $apiKey ="8093b2c02b8750e4e73845f307325566";
+        $paymentAmount = 10000;
         $first_name = $request->input('nama_depan');
         $last_name = $request->input('nama_belakang');
-        $paymentAmount = $request->input('paymentAmount');
         $paymentMethod = $request->input('paymentMethod');
         $merchantOrderId = Str::uuid();
         $callbackUrl = $request->input('callbackUrl');

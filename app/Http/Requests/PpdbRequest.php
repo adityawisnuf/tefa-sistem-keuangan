@@ -22,28 +22,29 @@ class PpdbRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'ppdb_id'         => 'required|integer|exists:ppdb,id',
-            'nama_depan'      => 'required|string|max:255',
-            'nama_belakang'   => 'required|string|max:255',
-            'jenis_kelamin'   => 'required|string|max:10',
-            'nik'             => 'required|integer|unique:pendaftar',
-            'email'           => 'required|string|email|max:255',
-            'nisn'            => 'required|integer|unique:pendaftar',
-            'tempat_lahir'    => 'required|string|max:255',
-            'tgl_lahir'       => 'required|date',
-            'alamat'          => 'required|string',
-            'village_id'      => 'required|integer|exists:villages,id',
-            'nama_ayah'       => 'required|string|max:255',
-            'nama_ibu'        => 'required|string|max:255',
-            'tgl_lahir_ayah'  => 'required|date',
-            'tgl_lahir_ibu'   => 'required|date',
-            'akte_kelahiran'  => 'required|file|mimes:pdf|max:2048', // hanya file PDF, maksimal 2MB
-            'kartu_keluarga'  => 'required|file|mimes:pdf|max:2048', // hanya file PDF, maksimal 2MB
-            'ijazah'          => 'required|file|mimes:pdf|max:2048', // hanya file PDF, maksimal 2MB
-            'raport'          => 'required|file|mimes:pdf|max:2048', // hanya file PDF, maksimal 2MB
-            'sekolah_asal'    => 'nullable|string|max:255',
-            'tahun_lulus'     => 'nullable|date',
-            'jurusan_tujuan'  => 'nullable|string|max:255',
+            'ppdb_id'   => 'integer|exists:ppdb,id',
+            'nama_depan' => 'required|string|max:255',
+             'nama_belakang' => 'required|string|max:255',
+             'jenis_kelamin' => 'required|string|max:10',
+             'nik' => 'required|integer|unique:pendaftar',
+             'email' => 'required|string|email|max:255',
+             'nisn' => 'required|integer|unique:pendaftar',
+             'tempat_lahir' => 'required|string|max:255',
+             'tgl_lahir' => 'required|date',
+             'alamat' => 'required|string',
+             'village_id' => 'required|integer|exists:villages,id',
+             'nama_ayah' => 'required|string|max:255',
+             'nama_ibu' => 'required|string|max:255',
+             'tgl_lahir_ayah' => 'required|date',
+             'tgl_lahir_ibu' => 'required|date',
+             'akte_kelahiran' => 'required|',
+             'kartu_keluarga' => 'required|',
+             'ijazah' => 'required|',
+             'raport' => 'required|',
+             'sekolah_asal' => 'string|max:255',
+             'tahun_lulus' => 'string|date',
+             'jurusan_tujuan' => 'string|max:255',
+
         ];
     }
 }

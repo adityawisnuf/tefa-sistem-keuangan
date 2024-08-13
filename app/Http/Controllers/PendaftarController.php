@@ -152,4 +152,5 @@ class PendaftarController extends Controller
         return response()->json(['message' => 'Pendaftar deleted successfully']);
     }
 
+    
 }
