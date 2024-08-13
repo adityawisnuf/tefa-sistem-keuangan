@@ -6,6 +6,10 @@ use App\Models\PendaftarDokumen;
 use App\Models\Ppdb;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Barryvdh\DomPDF\Facade\Pdf;
+use FPDF;
+use Illuminate\Support\Facades\Storage;
+
 
 class PendaftarDokumenController extends Controller
 {
@@ -14,6 +18,38 @@ class PendaftarDokumenController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
+
+
+     public function downloadPdf($id)
+     {
+         $data = PendaftarDokumen::find($id);
+
+         // Inisialisasi FPDF
+         $pdf = new FPDF();
+         $pdf->AddPage();
+
+         // Fungsi untuk menambahkan halaman PDF dari file
+         function addPDF($pdf, $filename) {
+             $pageCount = $pdf->setSourceFile($filename);
+             for ($pageNo = 1; $pageNo <= $pageCount; $pageNo++) {
+                 $pdf->AddPage();
+                 $tplIdx = $pdf->importPage($pageNo);
+                 $pdf->useTemplate($tplIdx);
+
+             }
+         }
+
+         // Tambahkan file PDF ke dalam dokumen baru
+         addPDF($pdf, storage_path('app/public/' . $data->akte_kelahiran));
+         addPDF($pdf, storage_path('app/public/' . $data->kartu_keluarga));
+         addPDF($pdf, storage_path('app/public/' . $data->ijazah));
+         addPDF($pdf, storage_path('app/public/' . $data->raport));
+
+         // Output PDF
+         $pdf->Output('I', 'gabungan_dokumen.pdf');
+     }
+
     public function index()
     {
         $pendaftarDokumens = PendaftarDokumen::all();
