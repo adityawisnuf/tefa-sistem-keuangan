@@ -93,9 +93,9 @@ class PembayaranController extends Controller
         $last_name = $request->input('nama_belakang');
         $paymentMethod = $request->input('paymentMethod');
         $merchantOrderId = Str::uuid();
-        $callbackUrl = $request->input('callbackUrl');
-        $returnUrl = $request->input('returnUrl');
-        $expiryPeriod = $request->input('expiryPeriod');
+        $callbackUrl = 'https://c127-180-244-134-195.ngrok-free.app/api/payment-callback';
+        $returnUrl = 'http://localhost:5173/';
+        $expiryPeriod = 60;
         $customerEmail = $request->input('email');
         $customerVaName = $first_name . ' ' . $last_name;
         $signature = md5($merchantCode . $merchantOrderId . $paymentAmount . $apiKey);
@@ -150,7 +150,7 @@ class PembayaranController extends Controller
                 ]);
     
                 $ppdb = Ppdb::create([
-                    'status' => 1, // Misalnya, set status sebagai 'active'
+                    'status' => 1,
                     'merchant_order_id' => $merchantOrderId,
                 ]);
     
@@ -162,10 +162,9 @@ class PembayaranController extends Controller
                     'nominal' => $paymentAmount,
                     'status' => 0,
                     'kelas_id' => null,
-                    'ppdb_id' => $ppdb->id // Simpan ppdb_id
+                    'ppdb_id' => $ppdb->id 
                 ]);
-    
-                // Membuat entri di PembayaranPpdb
+
                 PembayaranPpdb::create([
                     'ppdb_id' => $ppdb->id,
                     'pembayaran_id' => $pembayaran->id,
@@ -200,24 +199,24 @@ class PembayaranController extends Controller
         try {
             $apiKey = '8093b2c02b8750e4e73845f307325566';
             $merchantCode = $request->input('merchantCode');
-            $amount = $request->input('amount');
+            $PaymentAmount = $request->input('PaymentAmount');
             $merchantOrderId = $request->input('merchantOrderId');
             $signature = $request->input('signature');
 
             Log::info('Data received from Duitku', [
                 'merchantCode' => $merchantCode,
-                'amount' => $amount,
+                'PaymentAmount' => $PaymentAmount,
                 'merchantOrderId' => $merchantOrderId,
                 'signature' => $signature,
             ]);
 
-            $params = $merchantCode . $amount . $merchantOrderId . $apiKey;
+            $params = $merchantCode . $PaymentAmount . $merchantOrderId . $apiKey;
             $calcSignature = md5($params);
 
             Log::info('Calculated Signature', ['calcSignature' => $calcSignature]);
 
             if ($signature == $calcSignature) {
-                Log::info("Callback valid untuk Order ID: $merchantOrderId, Amount: $amount");
+                Log::info("Callback valid untuk Order ID: $merchantOrderId, PaymentAmount: $PaymentAmount");
 
                 $pembayaran = PembayaranDuitku::where('merchant_order_id', $merchantOrderId)->first();
 

@@ -70,6 +70,8 @@ Route::get('get-regency/{provinceId}', [IndoRegionController::class, 'getRegenci
 Route::get('get-district/{regencyId}', [IndoRegionController::class, 'getDistrictsByRegency']);
 Route::get('get-village/{districtId}', [IndoRegionController::class, 'getVillagesByDistrict']);
     Route::post('pendaftar-komplit', [PendaftarKomplitController::class, 'store']);
+
+    Route::post('/update-status', [PpdbController::class, 'updateStatus']);
     
     Route::get('/payment-get', [PembayaranController::class, 'getPaymentMethod']);
     Route::post('/payment', [PembayaranController::class, 'createTransaction']);
