@@ -69,7 +69,7 @@ Route::group([
         'prefix' => 'kantin',
         'middleware' => 'checkrole:Kantin'
     ], function () {
-        Route::get('/produk', [KantinProdukController::class, 'index']);
+        Route::get('/   ', [KantinProdukController::class, 'index']);
         Route::post('/produk', [KantinProdukController::class, 'create']);
         Route::put('/produk/{produk}', [KantinProdukController::class, 'update']);
         Route::delete('/produk/{produk}', [KantinProdukController::class, 'destroy']);

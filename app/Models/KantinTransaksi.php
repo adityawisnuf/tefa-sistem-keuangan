@@ -13,6 +13,7 @@ class KantinTransaksi extends Model
 
     protected $fillable = [
         'siswa_id',
+        'kantin_id',
         'kantin_produk_id',
         'jumlah',
         'harga',
@@ -30,5 +31,10 @@ class KantinTransaksi extends Model
     public function siswa()
     {
         return $this->belongsTo(Siswa::class, 'siswa_id');
+    }
+
+    public function kantin()
+    {
+        return $this->belongsTo(Kantin::class, 'kantin_id');
     }
 }

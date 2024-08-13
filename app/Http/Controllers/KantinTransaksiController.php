@@ -31,6 +31,7 @@ class KantinTransaksiController extends Controller
 
         $produk = KantinProduk::find($fields['kantin_produk_id']);
         $fields['harga'] = $produk->harga;
+        $fields['kantin_id'] = $produk->kantin_id;
         $fields['harga_total'] = $fields['harga'] * $fields['jumlah'];
         try {
             $transaksi = KantinTransaksi::create($fields);
@@ -40,7 +41,7 @@ class KantinTransaksiController extends Controller
         }
     }
 
-    public function update(KantinTransaksi $transaksi)
+        public function update(KantinTransaksi $transaksi)
     {
         $result = $this->statusService->update($transaksi);
         return response()->json($result['message'], $result['statusCode']);

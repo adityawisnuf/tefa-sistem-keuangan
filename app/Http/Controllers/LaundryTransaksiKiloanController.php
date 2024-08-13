@@ -30,9 +30,10 @@ class LaundryTransaksiKiloanController extends Controller
     public function create(LaundryTransaksiKiloanRequest $request)
     {
         $fields = $request->validated();
-        
+
         $layanan = LaundryLayanan::find($fields['laundry_layanan_id']);
         $fields['harga'] = $layanan->harga_per_kilo;
+        $fields['laundry_id'] = $layanan->laundry_id;
         $fields['harga_total'] = $fields['harga'] * $fields['berat'];
         try {
             $transaksi = LaundryTransaksiKiloan::create($fields);
@@ -47,7 +48,7 @@ class LaundryTransaksiKiloanController extends Controller
         $result = $this->statusService->update($transaksi);
         return response()->json($result['message'], $result['statusCode']);
     }
-    
+
     public function confirmInitialTransaction(LaundryTransaksiKiloanRequest $request, LaundryTransaksiKiloan $transaksi)
     {
         $fields = $request->validated();

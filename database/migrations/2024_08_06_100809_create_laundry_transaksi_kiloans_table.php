@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('laundry_transaksi_kiloan', function (Blueprint $table) {
             $table->id();
             $table->bigInteger('siswa_id');
+            $table->unsignedBigInteger('laundry_id');
             $table->unsignedBigInteger('laundry_layanan_id');
             $table->unsignedInteger('berat');
             $table->unsignedInteger('harga');
@@ -24,6 +25,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->foreign('siswa_id')->references('id')->on('siswa');
+            $table->foreign('laundry_id')->references('id')->on('laundry');
             $table->foreign('laundry_layanan_id')->references('id')->on('laundry_layanan');
         });
     }

@@ -24,7 +24,8 @@ class LaundryTransaksiSatuanController extends Controller
 
         $layanan = LaundryItem::find($fields['laundry_item_id']);
         $fields['harga'] = $layanan->harga;
-        $fields['harga_total'] = $fields['harga'] * $fields['jumlah'];
+        $fields['laundry_id'] = $layanan->laundry_id;
+        $fields['harga_total'] = $fields['harga'] * $fields['jumlah_item'];
         try {
             $transaksi = LaundryTransaksiSatuan::create($fields);
             return response()->json(['data' => $transaksi], Response::HTTP_CREATED);

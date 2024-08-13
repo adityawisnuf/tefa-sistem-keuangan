@@ -12,7 +12,7 @@ class LaundryTransaksiSatuanRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -33,7 +33,7 @@ class LaundryTransaksiSatuanRequest extends FormRequest
         return [
             'siswa_id' => ['required', 'exists:siswa,id'],
             'laundry_item_id' => ['required', 'exists:laundry_item,id'],
-            'jumlah' => ['required', 'integer', 'min:1'],
+            'jumlah_item' => ['required', 'integer', 'min:1'],
         ];
     }
 

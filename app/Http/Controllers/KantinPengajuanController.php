@@ -17,6 +17,7 @@ class KantinPengajuanController extends Controller
         $items = KantinPengajuan::latest()->paginate($perPage);
         return response()->json(['data' => $items], Response::HTTP_OK);
     }
+
     public function create(KantinPengajuanRequest $request)
     {
         $fields = $request->validated();
@@ -24,7 +25,6 @@ class KantinPengajuanController extends Controller
         try {
             $kantin = Auth::user()->kantin->first();
 
-            // Validasi apakah saldo mencukupi
             if ($kantin->saldo < $fields['jumlah_pengajuan']) {
                 return response()->json([
                     'message' => 'Saldo tidak mencukupi untuk pengajuan ini.',
@@ -32,7 +32,14 @@ class KantinPengajuanController extends Controller
             }
 
             $fields['kantin_id'] = $kantin->id;
+            $fields['status'] = 'pending'; // Set status default ke 'pending'
+
+            // Buat pengajuan
             $item = KantinPengajuan::create($fields);
+
+            // Kurangi saldo jika pengajuan berhasil dibuat
+            $kantin->saldo -= $fields['jumlah_pengajuan'];
+            $kantin->save();
 
             return response()->json(['data' => $item], Response::HTTP_CREATED);
         } catch (Exception $e) {
@@ -51,6 +58,12 @@ class KantinPengajuanController extends Controller
         // Ambil data kantin
         $kantin = $pengajuan->kantin;
 
+        if (!$kantin) {
+            return response()->json([
+                'message' => 'Kantin tidak ditemukan.',
+            ], Response::HTTP_NOT_FOUND);
+        }
+
         // Periksa apakah pengajuan sudah diproses
         if (in_array($pengajuan->status, ['disetujui', 'ditolak'])) {
             return response()->json([
@@ -65,24 +78,15 @@ class KantinPengajuanController extends Controller
                 break;
 
             case 'disetujui':
-                if ($kantin->saldo >= $pengajuan->jumlah_pengajuan) {
-                    $kantin->saldo -= $pengajuan->jumlah_pengajuan;
-                    $kantin->save();
-
-                    $pengajuan->update([
-                        'status' => 'disetujui',
-                        'tanggal_selesai' => now(),
-                    ]);
-                    return response()->json([
-                        'message' => 'Pengajuan telah disetujui.',
-                        'data' => $pengajuan,
-                    ], Response::HTTP_OK);
-                } else {
-                    return response()->json([
-                        'message' => 'Saldo tidak mencukupi untuk pengajuan ini.',
-                    ], Response::HTTP_BAD_REQUEST);
-                }
-                break;
+                // Tidak perlu mengurangi saldo lagi, karena sudah dikurangi saat status 'pending'
+                $pengajuan->update([
+                    'status' => 'disetujui',
+                    'tanggal_selesai' => now(),
+                ]);
+                return response()->json([
+                    'message' => 'Pengajuan telah disetujui.',
+                    'data' => $pengajuan,
+                ], Response::HTTP_OK);
 
             case 'ditolak':
                 // Validasi alasan penolakan
@@ -105,7 +109,6 @@ class KantinPengajuanController extends Controller
                     'message' => 'Pengajuan telah ditolak dan saldo dikembalikan.',
                     'data' => $pengajuan,
                 ], Response::HTTP_OK);
-                break;
 
             default:
                 return response()->json([
@@ -113,7 +116,5 @@ class KantinPengajuanController extends Controller
                 ], Response::HTTP_UNAUTHORIZED);
         }
     }
-
-
 
 }
