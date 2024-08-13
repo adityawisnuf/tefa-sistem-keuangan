@@ -23,7 +23,7 @@ class KantinTransaksiController extends Controller
         $perPage = request()->input('per_page', 10);
         $transaksi = KantinTransaksi::paginate($perPage);
         return response()->json(['data' => $transaksi], Response::HTTP_OK);
-    }
+    }   
 
     public function create(KantinTransaksiRequest $request)
     {
@@ -45,7 +45,7 @@ class KantinTransaksiController extends Controller
         $result = $this->statusService->update($transaksi);
         return response()->json($result['message'], $result['statusCode']);
     }
-    
+
     public function confirmInitialTransaction(KantinTransaksiRequest $request, KantinTransaksi $transaksi)
     {
         $fields = $request->validated();

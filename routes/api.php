@@ -61,6 +61,7 @@ Route::group([
 
         Route::get('/pengajuan', [LaundryPengajuanController::class, 'index']);
         Route::post('/pengajuan', [LaundryPengajuanController::class, 'create']);
+        Route::put('/pengajuan/{pengajuan}', [LaundryPengajuanController::class, 'update']);
     });
 
 

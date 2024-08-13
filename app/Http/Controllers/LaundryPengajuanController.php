@@ -20,11 +20,20 @@ class LaundryPengajuanController extends Controller
     public function create(LaundryPengajuanRequest $request)
     {
         $fields = $request->validated();
-        
+
         try {
             $laundry = Auth::user()->laundry->first();
+
+            // Validasi apakah saldo mencukupi
+            if ($laundry->saldo < $fields['jumlah_pengajuan']) {
+                return response()->json([
+                    'message' => 'Saldo tidak mencukupi untuk pengajuan ini.',
+                ], Response::HTTP_BAD_REQUEST);
+            }
+
             $fields['laundry_id'] = $laundry->id;
             $item = LaundryPengajuan::create($fields);
+
             return response()->json(['data' => $item], Response::HTTP_CREATED);
         } catch (Exception $e) {
             return response()->json(['message' => 'Gagal mengirim pengajuan: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
@@ -52,7 +61,7 @@ class LaundryPengajuanController extends Controller
                     $laundry->save();
 
                     if ($request->status === 'disetujui') {
-                        $pengajuan->update(['status' => 'disetujui']);
+                        $pengajuan->update(['status' => 'disetujui', 'tanggal_selesai' => now()]);
                         return response()->json([
                             'message' => 'Pengajuan telah disetujui.',
                             'data' => $pengajuan,
@@ -61,7 +70,7 @@ class LaundryPengajuanController extends Controller
 
                         $laundry->saldo += $pengajuan->jumlah_pengajuan;
                         $laundry->save();
-                        $pengajuan->update(['status' => 'ditolak']);
+                        $pengajuan->update(['status' => 'ditolak', 'tanggal_selesai' => now()]);
                         return response()->json([
                             'message' => 'Pengajuan telah ditolak dan saldo dikembalikan.',
                             'data' => $pengajuan,
