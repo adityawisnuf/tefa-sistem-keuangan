@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\EmailVerificationController;
 use App\Http\Controllers\IndoRegionController;
+use App\Http\Controllers\LaporanKeuanganController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\LoginController;
@@ -14,6 +15,7 @@ use App\Http\Controllers\PendaftarKomplitController;
 use App\Http\Controllers\PembayaranController;
 use App\Http\Controllers\PpdbController;
 use App\Http\Controllers\TrackingPendaftaran;
+
 
 Route::post('register', [RegisterController::class, 'register']);
 Route::post('login', [LoginController::class, 'login']);
@@ -70,15 +72,23 @@ Route::get('get-province', [IndoRegionController::class, 'getAllProvinces']);
 Route::get('get-regency/{provinceId}', [IndoRegionController::class, 'getRegenciesByProvince']);
 Route::get('get-district/{regencyId}', [IndoRegionController::class, 'getDistrictsByRegency']);
 Route::get('get-village/{districtId}', [IndoRegionController::class, 'getVillagesByDistrict']);
-    Route::post('pendaftar-komplit', [PendaftarKomplitController::class, 'store']);
+Route::post('pendaftar-komplit', [PendaftarKomplitController::class, 'store']);
 
-    Route::post('/update-status', [PpdbController::class, 'updateStatus']);
+Route::post('/update-status', [PpdbController::class, 'updateStatus']);
 
-    Route::get('/payment-get', [PembayaranController::class, 'getPaymentMethod']);
-    Route::post('/payment', [PembayaranController::class, 'createTransaction']);
-    Route::post('/payment-method', [PembayaranController::class, 'getPaymentMethod']);
-    Route::post('/payment-callback', [PembayaranController::class, 'handleCallback']);
+Route::get('/payment-get', [PembayaranController::class, 'getPaymentMethod']);
+Route::post('/payment', [PembayaranController::class, 'createTransaction']);
+Route::post('/payment-method', [PembayaranController::class, 'getPaymentMethod']);
+Route::post('/payment-callback', [PembayaranController::class, 'handleCallback']);
+Route::get('/laporan', [LaporanKeuanganController::class, 'LaporanKeuangan']);
 
 
-    Route::post('/download-pdf', [PdfDownloadController::class, 'store']);
+Route::post('/download-pdf', [PdfDownloadController::class, 'store']);
+// api.php atau web.php
+// api.php atau web.php
+Route::get('/merge-pdf/{id}', [PdfDownloadController::class, 'mergePdfById']);
+Route::get('/download-pdf/{id}', [PendaftarDokumenController::class, 'downloadCombinedPdf']);
+
+
+
 

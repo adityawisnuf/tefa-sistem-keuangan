@@ -13,6 +13,10 @@ class LaporanKeuanganController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
+
+
+
+     
     public function laporanKeuangan(Request $request)
     {
         // Mengambil laporan keuangan berdasarkan ppdb_id dan status, termasuk nama depan dan nama belakang dari tabel pendaftar

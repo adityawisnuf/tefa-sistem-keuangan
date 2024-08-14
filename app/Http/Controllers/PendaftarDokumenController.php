@@ -3,13 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\PendaftarDokumen;
-use App\Models\Ppdb;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Barryvdh\DomPDF\Facade\Pdf;
-use FPDF;
-use Illuminate\Support\Facades\Storage;
-
 
 class PendaftarDokumenController extends Controller
 {
@@ -19,9 +14,6 @@ class PendaftarDokumenController extends Controller
      * @return \Illuminate\Http\Response
      */
 
-
-
-    
     public function index()
     {
         $pendaftarDokumens = PendaftarDokumen::all();
@@ -39,10 +31,10 @@ class PendaftarDokumenController extends Controller
         // Validasi data input
         $request->validate([
             'ppdb_id' => 'required|integer|exists:ppdb,id',
-            'akte_kelahiran' => 'required|file|mimes:pdf|max:2048',
-            'kartu_keluarga' => 'required|file|mimes:pdf|max:2048',
-            'ijazah' => 'required|file|mimes:pdf|max:2048',
-            'raport' => 'required|file|mimes:pdf|max:2048',
+            'akte_kelahiran' => 'required|file|mimes:pdf,max:2048',
+            'kartu_keluarga' => 'required|file|mimes:pdf,max:2048',
+            'ijazah' => 'required|file|mimes:pdf,max:2048',
+            'raport' => 'required|file|mimes:pdf,max:2048',
         ]);
 
         // Upload file dan simpan pathnya
