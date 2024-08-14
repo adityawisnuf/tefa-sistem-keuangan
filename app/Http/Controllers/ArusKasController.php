@@ -10,6 +10,7 @@ use App\Models\Pengeluaran;
 use App\Models\PengeluaranKategori;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class ArusKasController extends Controller
 {
@@ -102,12 +103,17 @@ class ArusKasController extends Controller
         // Calculate totals
         $totalIncome = PembayaranSiswa::where('status', 1)->sum('nominal') + PembayaranPpdb::where('status', 1)->sum('nominal');
         $totalExpense = Pengeluaran::all()->sum('nominal');
+        $totalPaymentNow = $paymentsPpdb->sum('nominal') + $payments->sum('nominal');
+        $totalExpensesNow = $expenses->sum('nominal');
 
         $total = [];
         if ($totalIncome > 0 || $totalExpense > 0) {
             $total = [
                 'total_pemasukan' => $totalIncome,
                 'total_pengeluaran' => $totalExpense,
+                'total_pembayaran_sekarang' => $totalPaymentNow,
+                'total_pengeluaran_sekarang' => $totalExpensesNow,
+                'saldo_akhir'   => $totalIncome - $totalExpense
             ];
         }
 
