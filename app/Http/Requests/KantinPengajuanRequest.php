@@ -31,8 +31,16 @@ class KantinPengajuanRequest extends FormRequest
     public function store()
     {
         return [
-          
+
             'jumlah_pengajuan' => ['required', 'integer', 'min:0'],
+        ];
+    }
+
+    public function update()
+    {
+        return [
+            'alasan_penolakan' => ['nullable', 'string'],
+            'status' => ['required', Rule::in('disetujui', 'ditolak')],
         ];
     }
 }

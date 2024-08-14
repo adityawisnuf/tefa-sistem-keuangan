@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Laundry extends Model
 {
@@ -40,5 +39,15 @@ class Laundry extends Model
     public function laundry_pengajuan()
     {
         return $this->hasMany(LaundryPengajuan::class, 'laundry_id');
+    }
+
+    public function laundry_transaksi_kiloan()
+    {
+        return $this->hasMany(LaundryTransaksiKiloan::class, 'laundry_id');
+    }
+
+    public function laundry_transaksi_satuan()
+    {
+        return $this->hasMany(LaundryTransaksiSatuan::class, 'laundry_id');
     }
 }

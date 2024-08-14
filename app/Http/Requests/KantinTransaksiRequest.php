@@ -30,7 +30,6 @@ class KantinTransaksiRequest extends FormRequest
     public function store()
     {
         return [
-            'siswa_id' => ['required', 'exists:siswa,id'],
             'kantin_produk_id' => ['required', 'exists:kantin_produk,id'],
             'jumlah' => ['required', 'integer', 'min:1'],
         ];

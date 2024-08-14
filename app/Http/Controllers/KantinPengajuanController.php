@@ -21,11 +21,10 @@ class KantinPengajuanController extends Controller
 
     public function create(KantinPengajuanRequest $request)
     {
+        $kantin = Auth::user()->kantin->first();
         $fields = $request->validated();
 
         try {
-            $kantin = Auth::user()->kantin->first();
-
             if ($kantin->saldo < $fields['jumlah_pengajuan']) {
                 return response()->json([
                     'message' => 'Saldo tidak mencukupi untuk pengajuan ini.',
@@ -36,37 +35,23 @@ class KantinPengajuanController extends Controller
 
             // Buat pengajuan
             DB::beginTransaction();
-            $item = KantinPengajuan::create($fields);
-
-            // Kurangi saldo jika pengajuan berhasil dibuat
+            $pengajuan = KantinPengajuan::create($fields);
             $kantin->saldo -= $fields['jumlah_pengajuan'];
             $kantin->save();
             DB::commit();
 
-            return response()->json(['data' => $item], Response::HTTP_CREATED);
+            return response()->json(['data' => $pengajuan], Response::HTTP_CREATED);
         } catch (Exception $e) {
             DB::rollBack();
             return response()->json(['message' => 'Gagal mengirim pengajuan: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
-    public function update(Request $request, KantinPengajuan $pengajuan)
+    public function update(KantinPengajuanRequest $request, KantinPengajuan $pengajuan)
     {
-        // Validasi input
-        $request->validate([
-            'status' => 'required|in:disetujui,ditolak',
-            'alasan_penolakan' => 'nullable|string'
-        ]);
-
         // Ambil data kantin
         $kantin = $pengajuan->kantin;
-
-        if (!$kantin) {
-            return response()->json([
-                'message' => 'Kantin tidak ditemukan.',
-            ], Response::HTTP_NOT_FOUND);
-        }
-
+        
         // Periksa apakah pengajuan sudah diproses
         if (in_array($pengajuan->status, ['disetujui', 'ditolak'])) {
             return response()->json([

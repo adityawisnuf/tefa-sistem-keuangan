@@ -6,10 +6,8 @@ use App\Http\Requests\KantinTransaksiRequest;
 use App\Http\Services\StatusTransaksiService;
 use App\Models\KantinProduk;
 use App\Models\KantinTransaksi;
-use App\Models\Siswa;
-use App\Models\Siswa;
+use Auth;
 use Exception;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -24,55 +22,33 @@ class KantinTransaksiController extends Controller
 
     public function index()
     {
+        $kantin = Auth::user()->kantin->first();
+
         $perPage = request()->input('per_page', 10);
-        $transaksi = KantinTransaksi::paginate($perPage);
+        $transaksi = $kantin->kantin_transaksi->paginate($perPage);
         return response()->json(['data' => $transaksi], Response::HTTP_OK);
     }
 
     public function create(KantinTransaksiRequest $request)
     {
         $fields = $request->validated();
+        $siswa = Auth::user()->siswa->first();
+        $siswaWallet = $siswa->siswa_wallet;
 
-        // Ambil data produk terkait
         $produk = KantinProduk::find($fields['kantin_produk_id']);
         $fields['harga'] = $produk->harga;
         $fields['kantin_id'] = $produk->kantin_id;
         $fields['harga_total'] = $fields['harga'] * $fields['jumlah'];
 
         try {
-            // Ambil data siswa terkait melalui relasi di KantinTransaksi
-            $siswa = Siswa::find($fields['siswa_id']);
-            $siswaWallet = $siswa->siswa_wallet;
-
-            // Validasi apakah saldo siswa mencukupi
             if ($siswaWallet->nominal < $fields['harga_total']) {
                 return response()->json([
                     'message' => 'Saldo tidak mencukupi untuk transaksi ini.',
                 ], Response::HTTP_BAD_REQUEST);
             }
 
-            // Buat transaksi
-            DB::beginTransaction();
-        
-        try {
-            $produk = KantinProduk::find($fields['kantin_produk_id']);
-            $siswaWallet = Siswa::find($fields['siswa_id'])->siswa_wallet;
-
-            $fields['harga'] = $produk->harga;
-            $fields['harga_total'] = $fields['harga'] * $fields['jumlah'];
-
-            if ($siswaWallet->nominal < $fields['harga_total']) {
-                return response()->json(['message' => 'Saldo tidak mencukupi'], Response::HTTP_BAD_REQUEST);
-            }
-
             DB::beginTransaction();
             $transaksi = KantinTransaksi::create($fields);
-
-            // Kurangi saldo siswa
-            $siswaWallet->nominal -= $fields['harga_total'];
-            $siswaWallet->save();
-            DB::commit();
-
             $siswaWallet->update([
                 'nominal' => $siswaWallet->nominal - $fields['harga_total']
             ]);
@@ -80,7 +56,6 @@ class KantinTransaksiController extends Controller
 
             return response()->json(['data' => $transaksi], Response::HTTP_CREATED);
         } catch (Exception $e) {
-            DB::rollBack();
             DB::rollBack();
             return response()->json(['message' => 'Gagal membuat transaksi: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
@@ -92,79 +67,23 @@ class KantinTransaksiController extends Controller
         if ($result['statusCode'] === Response::HTTP_OK && $transaksi->status === 'selesai') {
             $transaksi->update(['tanggal_selesai' => now()]);
         }
-
         return response()->json($result['message'], $result['statusCode']);
     }
 
     public function confirmInitialTransaction(KantinTransaksiRequest $request, KantinTransaksi $transaksi)
     {
         $fields = $request->validated();
-
-        // Ambil data siswa terkait melalui relasi di KantinTransaksi
         $siswaWallet = $transaksi->siswa->siswa_wallet;
 
         try {
-            // Handle perubahan status
-            switch ($fields['status']) {
-                case 'proses':
-                    // Update status ke 'proses'
-                    $transaksi->update([
-                        'status' => 'proses',
-
-                    ]);
-                    return response()->json([
-                        'message' => 'Transaksi dalam proses.',
-                        'data' => $transaksi,
-                    ], Response::HTTP_OK);
-
-                case 'dibatalkan':
-                    // Kembalikan saldo siswa
-                    $siswaWallet->nominal += $transaksi->harga_total;
-                    $siswaWallet->save();
-
-                    // Update status ke 'dibatalkan'
-                    $transaksi->update([
-                        'status' => 'dibatalkan',
-                        'tanggal_selesai' => now(), // atau bisa disesuaikan dengan logika bisnis
-                    ]);
-                    return response()->json([
-                        'message' => 'Transaksi telah dibatalkan dan saldo dikembalikan.',
-                        'data' => $transaksi,
-                    ], Response::HTTP_OK);
-
-                default:
-                    return response()->json([
-                        'message' => 'Status tidak valid.',
-                    ], Response::HTTP_UNAUTHORIZED);
+            $result = $this->statusService->confirmInitialTransaction($fields, $transaksi);
+            if ($result['statusCode'] === Response::HTTP_OK && $transaksi->status === 'dibatalkan') {
+                $siswaWallet->update([
+                    'nominal'=> $siswaWallet->nominal + $transaksi->harga_total
+                ]);
             }
         } catch (Exception $e) {
             return response()->json(['message' => 'Gagal mengubah status transaksi: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
-    }
-
-
-        try {
-            if (in_array($transaksi['status'], ['dibatalkan', 'selesai'])) {
-                return response()->json([
-                    'message' => 'Pesanan sudah selesai!',
-                ], Response::HTTP_UNAUTHORIZED);
-            }
-            
-            $siswaWallet = Siswa::find($transaksi['siswa_id'])->siswa_wallet;
-            
-            DB::beginTransaction();
-            $transaksi->update($fields);
-            if ($fields['status'] == 'dibatalkan') {
-                $siswaWallet->update([
-                    'nominal' => $siswaWallet->nominal + $transaksi['harga_total']
-                ]);
-            }
-            DB::commit();
-
-            return response()->json(['data' => $transaksi], Response::HTTP_OK);
-        } catch (Exception $e) {
-            DB::rollBack();
-            return response()->json(['message' => 'Gagal mengkonfirmasi transaksi: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 }

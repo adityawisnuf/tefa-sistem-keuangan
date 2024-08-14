@@ -37,4 +37,9 @@ class Kantin extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+
+    public function kantin_transaksi()
+    {
+        return $this->hasMany(KantinTransaksi::class, 'kantin_id');
+    }
 }
