@@ -20,7 +20,7 @@ class LabaRugiController extends Controller
 
             //default (no parameter), if month only, if year & month
             $this->startDate = Carbon::createFromDate($tahun ?? date('Y'), $bulan ?? date('m'), 1);
-            $this-> endDate = $this->startDate->copy()->endOfMonth();
+            $this->endDate = $this->startDate->copy()->endOfMonth();
 
             //if year only (ngeri bosque)
             if ($tahun && !$bulan) {
@@ -28,38 +28,33 @@ class LabaRugiController extends Controller
                 $this->endDate = Carbon::createFromDate($tahun, 12, 31);
             }
 
-            // if ($bulan && $tahun && $bulan != '') {
-            //     $this->startDate = Carbon::createFromDate($tahun, $bulan, 1);
-            //     $this->endDate = $this->startDate->copy()->endOfMonth();
-            // } elseif ($tahun) {
-            //     $this->startDate = Carbon::createFromDate($tahun, 1, 1);
-            //     $this->endDate = Carbon::createFromDate($tahun, 12, 31);
-            // }
-
             $financialData = $this->retrieveFinancialData();
             $financialMetrics = $this->calculateFinancialMetrics($financialData);
+
+            // Mengubah pengeluaran menjadi array
             $pengeluaranArray = $financialData['expenditures']->map(function ($item) {
                 return [
-                    'keperluan' => $item['keperluan'],
-                    'nominal' => $item['nominal'],
+                    'keperluan' => $item->keperluan,
+                    'nominal' => $item->nominal,
                 ];
-            });
+            })->toArray();
 
             $rasioLabaBersih = $this->formatPercentage($financialMetrics['profit'], $financialMetrics['totalPayment']);
             $rasioBeban = $this->formatPercentage($financialMetrics['totalExpenditure'], $financialMetrics['totalPayment']);
 
-            $data = [];
-
-            if ($financialMetrics['totalPayment'] && $pengeluaranArray) {
-                $data =  [
-                    'pendapatan' => $financialMetrics['totalPayment'],
-                    'pengeluaran' => $pengeluaranArray,
-                    'pengeluaran_total' => $financialMetrics['totalExpenditure'],
-                    'laba_bersih' => $financialMetrics['profit'],
-                    'rasio_laba_bersih' => $rasioLabaBersih,
-                    'rasio_beban_operasional' => $rasioBeban,
-                ];
+            // Jika tidak ada data, kembalikan data kosong
+            if (!$financialMetrics['totalPayment'] && empty($pengeluaranArray)) {
+                return response()->json(['data' => []], 200);
             }
+
+            $data = [
+                'pendapatan' => $financialMetrics['totalPayment'],
+                'pengeluaran' => $pengeluaranArray,
+                'pengeluaran_total' => $financialMetrics['totalExpenditure'],
+                'laba_bersih' => $financialMetrics['profit'],
+                'rasio_laba_bersih' => $rasioLabaBersih,
+                'rasio_beban_operasional' => $rasioBeban,
+            ];
 
             return response()->json(['data' => $data], 200);
         } catch (\Exception $e) {
@@ -102,18 +97,8 @@ class LabaRugiController extends Controller
         // biar keren
         if ($divisor) return ($value / $divisor) * 100;
         return $value > 0 ? 100.0 : 0.0;
-        // if ($divisor === 0) {
-        //     if ($value > 0) {
-        //         return 100.0; // Jika ada pengeluaran, tampilkan 100%
-        //     } else {
-        //         return 0.0; // Jika tidak ada pengeluaran, tampilkan 0%
-        //     }
-        // } else {
-        //     // Gunakan presisi yang cukup untuk menghindari pembulatan yang tidak diinginkan
-        //     return ($value / $divisor) * 100;
-        // }
     }
-        public function getOptions()
+    public function getOptions()
     {
         $data = PembayaranSiswa::selectRaw('DISTINCT YEAR(created_at) as year, MONTHNAME(created_at) as month')
             ->orderBy('year', 'desc')
@@ -153,5 +138,4 @@ class LabaRugiController extends Controller
             'years' => $years,
         ]);
     }
-
 }
