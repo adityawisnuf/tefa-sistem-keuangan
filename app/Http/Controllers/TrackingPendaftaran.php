@@ -23,7 +23,7 @@ class TrackingPendaftaran extends Controller
         'pendaftar',
         'pendaftaran_akademik',
         'pendaftar_dokumen',
-    ])->get();
+    ])->paginate(2);
 
     return response()->json([
         'data' => $ppdbs

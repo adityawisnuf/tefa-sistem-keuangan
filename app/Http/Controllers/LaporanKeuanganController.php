@@ -15,7 +15,6 @@ class LaporanKeuanganController extends Controller
      */
     public function laporanKeuangan(Request $request)
     {
-        // Mengambil laporan keuangan berdasarkan ppdb_id dan status, termasuk nama depan dan nama belakang dari tabel pendaftar
         $laporan = PembayaranPpdb::selectRaw('
                 pembayaran_ppdb.ppdb_id,
                 pembayaran_ppdb.status,
@@ -25,15 +24,15 @@ class LaporanKeuanganController extends Controller
             ')
             ->leftJoin('pendaftar', 'pembayaran_ppdb.ppdb_id', '=', 'pendaftar.ppdb_id')
             ->groupBy('pembayaran_ppdb.ppdb_id', 'pembayaran_ppdb.status', 'pendaftar.nama_depan', 'pendaftar.nama_belakang')
-            ->get();
-
-        // Menghitung total seluruh pembayaran dari tabel pembayaran_ppdb
+            ->paginate(5);
+    
         $totalSemuaPembayaran = PembayaranPpdb::sum('nominal');
-
+    
         // Mengembalikan data dalam format JSON
         return response()->json([
             'laporan_keuangan' => $laporan,
             'total_semua_pembayaran' => $totalSemuaPembayaran
         ], 200);
     }
+    
 }

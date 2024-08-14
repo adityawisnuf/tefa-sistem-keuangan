@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\EmailVerificationController;
 use App\Http\Controllers\IndoRegionController;
+use App\Http\Controllers\LaporanKeuanganController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\LoginController;
@@ -73,9 +74,12 @@ Route::get('get-village/{districtId}', [IndoRegionController::class, 'getVillage
     Route::post('pendaftar-komplit', [PendaftarKomplitController::class, 'store']);
 
     Route::post('/update-status', [PpdbController::class, 'updateStatus']);
-    
+
     Route::get('/payment-get', [PembayaranController::class, 'getPaymentMethod']);
     Route::post('/payment', [PembayaranController::class, 'createTransaction']);
     Route::post('/payment-method', [PembayaranController::class, 'getPaymentMethod']);
     Route::post('/payment-callback', [PembayaranController::class, 'handleCallback']);
-    
+    Route::get('/laporan', [LaporanKeuanganController::class, 'LaporanKeuangan']);
+
+    // Route::post('/download-pdf', [PdfDownloadController::class, 'store']);
+

@@ -37,5 +37,9 @@ class Ppdb extends Model
     {
         return $this->hasOne(PembayaranPpdb::class, 'ppdb_id');
     }
+    public function users()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 
 }

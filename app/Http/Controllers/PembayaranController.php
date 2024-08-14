@@ -27,17 +27,17 @@ class PembayaranController extends Controller
             'paymentAmount' => 'numeric',
             'paymentMethod' => 'nullable|string', // Allow optional paymentMethod param
         ]);
-    
+
         $merchantCode = "DS19869";
         $apiKey ="8093b2c02b8750e4e73845f307325566";
         $paymentAmount = 10000;
-        $paymentMethod = $request->get('paymentMethod'); 
+        $paymentMethod = $request->get('paymentMethod');
         $datetime = now()->format('Y-m-d H:i:s');
         $signature = hash('sha256', $merchantCode . $paymentAmount . $datetime . $apiKey);
-    
+
         // Generate signature
         $signature = hash('sha256', $merchantCode . $paymentAmount . $datetime . $apiKey);
-    
+
         // Prepare request parameters
         $params = [
             'merchantcode' => $merchantCode,
@@ -46,12 +46,12 @@ class PembayaranController extends Controller
             'signature' => $signature,
             'paymentMethod' => $paymentMethod
         ];
-    
+
         // Build the API URL with optional payment method parameter
         $url = 'https://sandbox.duitku.com/webapi/api/merchant/paymentmethod/getpaymentmethod';
-    
+
         $client = new Client();
-    
+
         try {
             $response = $client->post($url, [
                 'headers' => [
@@ -61,10 +61,10 @@ class PembayaranController extends Controller
                 'body' => json_encode($params),
                 'verify' => false,
             ]);
-    
+
             $statusCode = $response->getStatusCode();
             $responseBody = json_decode($response->getBody(), true);
-    
+
             if ($statusCode == 200) {
                 return response()->json($responseBody, 200);
             } else {
@@ -81,7 +81,7 @@ class PembayaranController extends Controller
             ], 500);
         }
     }
-    
+
     // Method untuk membuat transaksi
     public function createTransaction(Request $request)
     {
@@ -94,15 +94,15 @@ class PembayaranController extends Controller
         $last_name = $request->input('nama_belakang');
         $paymentMethod = $request->input('paymentMethod');
         $merchantOrderId = Str::uuid();
-        $callbackUrl = 'https://c127-180-244-134-195.ngrok-free.app/api/payment-callback';
+        $callbackUrl = 'https://0b1e-180-244-129-142.ngrok-free.app/api/payment-callback';
         $returnUrl = 'http://localhost:5173/';
         $expiryPeriod = 60;
         $customerEmail = $request->input('email');
         $customerVaName = $first_name . ' ' . $last_name;
         $signature = md5($merchantCode . $merchantOrderId . $paymentAmount . $apiKey);
-    
+
         Log::info('Signature generated in createTransaction', ['signature' => $signature]);
-    
+
         $params = [
             'merchantCode' => $merchantCode,
             'nama_depan' => $first_name,
@@ -117,79 +117,80 @@ class PembayaranController extends Controller
             'email' => $customerEmail,
             'customerVaName' => $customerVaName
         ];
-    
-        $client = new Client();
-    
-        try {
-            $response = $client->post('https://sandbox.duitku.com/webapi/api/merchant/v2/inquiry', [
-                'headers' => [
-                    'Content-Type' => 'application/json',
-                ],
-                'json' => $params,
-                'verify' => false
-            ]);
-    
-            if ($response->getStatusCode() == 200) {
-                $responseBody = json_decode($response->getBody(), true);
-                $responseBody['signature'] = $signature;
-                $responseBody['merchantOrderId'] = $merchantOrderId;
-    
-                $pembayaranKategori = PembayaranKategori::create([
-                    'nama' => 'ppdb',
-                    'jenis_pembayaran' => 2,
-                    'tanggal_pembayaran' => now(),
-                    'status' => 1
-                ]);
-    
-                $pembayaranDuitku = PembayaranDuitku::create([
-                    'merchant_order_id' => $merchantOrderId,
-                    'reference' => $responseBody['reference'],
-                    'payment_method' => $paymentMethod,
-                    'transaction_response' => json_encode($responseBody),
-                    'callback_response' => null,
-                    'status' => 'pending',
-                ]);
-    
-                $ppdb = Ppdb::create([
-                    'status' => 1,
-                    'merchant_order_id' => $merchantOrderId,
-                ]);
-    
-                $request->session()->put('ppdb_id', $ppdb->id);
-    
-                $pembayaran = Pembayaran::create([
-                    'siswa_id' => null,
-                    'pembayaran_kategori_id' => $pembayaranKategori->id,
-                    'nominal' => $paymentAmount,
-                    'status' => 0,
-                    'kelas_id' => null,
-                    'ppdb_id' => $ppdb->id 
-                ]);
 
-                PembayaranPpdb::create([
-                    'ppdb_id' => $ppdb->id,
-                    'pembayaran_id' => $pembayaran->id,
-                    'nominal' => $paymentAmount,
-                    'merchant_order_id' => $merchantOrderId,
-                    'status' => 0,
-                ]);
-    
-                return response()->json($responseBody);
-            } else {
-                return response()->json([
-                    'error' => 'Server Error',
-                    'message' => json_decode($response->getBody())->Message
-                ], $response->getStatusCode());
-            }
-        } catch (RequestException $e) {
-            Log::error('Request Error in createTransaction', ['message' => $e->getMessage()]);
+        $params_string = json_encode($params);
+        $url = 'https://sandbox.duitku.com/webapi/api/merchant/v2/inquiry'; // Sandbox
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $params_string);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+            'Content-Type: application/json',
+            'Content-Length: ' . strlen($params_string))
+        );
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+
+        // Execute cURL request
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($httpCode == 200) {
+            $responseBody = json_decode($response, true);
+            $responseBody['signature'] = $signature;
+            $responseBody['merchantOrderId'] = $merchantOrderId;
+
+            $pembayaranKategori = PembayaranKategori::create([
+                'nama' => 'ppdb',
+                'jenis_pembayaran' => 1,
+                'tanggal_pembayaran' => now(),
+                'status' => 1
+            ]);
+
+            $pembayaranDuitku = PembayaranDuitku::create([
+                'merchant_order_id' => $merchantOrderId,
+                'reference' => $responseBody['reference'],
+                'payment_method' => $paymentMethod,
+                'transaction_response' => json_encode($responseBody),
+                'callback_response' => null,
+                'status' => 'pending',
+            ]);
+
+            $ppdb = Ppdb::create([
+                'status' => 1,
+                'merchant_order_id' => $merchantOrderId,
+            ]);
+
+            $request->session()->put('ppdb_id', $ppdb->id);
+
+            $pembayaran = Pembayaran::create([
+                'siswa_id' => null,
+                'pembayaran_kategori_id' => $pembayaranKategori->id,
+                'nominal' => $paymentAmount,
+                'status' => 0,
+                'kelas_id' => null,
+                'ppdb_id' => $ppdb->id
+            ]);
+
+            PembayaranPpdb::create([
+                'ppdb_id' => $ppdb->id,
+                'pembayaran_id' => $pembayaran->id,
+                'nominal' => $paymentAmount,
+                'merchant_order_id' => $merchantOrderId,
+                'status' => 0,
+            ]);
+
+            return response()->json($responseBody);
+        } else {
             return response()->json([
-                'error' => 'Request Error',
-                'message' => $e->getMessage()
-            ], $e->getCode());
+                'error' => 'Server Error',
+                'message' => json_decode($response)->Message ?? 'Unknown error'
+            ], $httpCode);
         }
     }
-    
+
 
 
 
@@ -200,24 +201,24 @@ class PembayaranController extends Controller
         try {
             $apiKey = '8093b2c02b8750e4e73845f307325566';
             $merchantCode = $request->input('merchantCode');
-            $PaymentAmount = $request->input('PaymentAmount');
+            $amount = $request->input('amount');
             $merchantOrderId = $request->input('merchantOrderId');
             $signature = $request->input('signature');
 
             Log::info('Data received from Duitku', [
                 'merchantCode' => $merchantCode,
-                'PaymentAmount' => $PaymentAmount,
+                'amount' => $amount,
                 'merchantOrderId' => $merchantOrderId,
                 'signature' => $signature,
             ]);
 
-            $params = $merchantCode . $PaymentAmount . $merchantOrderId . $apiKey;
+            $params = $merchantCode . $amount . $merchantOrderId . $apiKey;
             $calcSignature = md5($params);
 
             Log::info('Calculated Signature', ['calcSignature' => $calcSignature]);
 
             if ($signature == $calcSignature) {
-                Log::info("Callback valid untuk Order ID: $merchantOrderId, PaymentAmount: $PaymentAmount");
+                Log::info("Callback valid untuk Order ID: $merchantOrderId, PaymentAmount: $amount");
 
                 $pembayaran = PembayaranDuitku::where('merchant_order_id', $merchantOrderId)->first();
 
