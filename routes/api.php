@@ -18,11 +18,25 @@ Route::post('login', [LoginController::class, 'login']);
 Route::group([
     'middleware' => ['auth:api']
 ], function () {
+    Route::post('logout', [LogoutController::class, 'logout']);
+});
+
+Route::group([
+    'middleware' => ['auth:api', 'checkrole:KepalaSekolah']
+], function () {
     Route::get('neraca', [NeracaController::class, 'index']);
     Route::get('laba-rugi', [LabaRugiController::class, 'index']);
     Route::get('arus-kas', [ArusKasController::class, 'index']);
     Route::get('rasio-keuangan', [RasioKeuanganController::class, 'retrieveFinancialData']);
     Route::get('get-options', [LabaRugiController::class, 'getOptions']);
-    Route::post('logout', [LogoutController::class, 'logout']);
+});
 
+Route::group([
+    'middleware' => ['auth:api', 'checkrole:Bendahara']
+], function () {
+    Route::get('neraca', [NeracaController::class, 'index']);
+    Route::get('laba-rugi', [LabaRugiController::class, 'index']);
+    Route::get('arus-kas', [ArusKasController::class, 'index']);
+    Route::get('rasio-keuangan', [RasioKeuanganController::class, 'retrieveFinancialData']);
+    Route::get('get-options', [LabaRugiController::class, 'getOptions']);
 });
