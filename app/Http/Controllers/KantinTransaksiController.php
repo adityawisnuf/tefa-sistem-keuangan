@@ -8,6 +8,7 @@ use App\Models\KantinProduk;
 use App\Models\KantinTransaksi;
 use App\Models\Siswa;
 use Exception;
+use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 
 class KantinTransaksiController extends Controller
@@ -49,22 +50,28 @@ class KantinTransaksiController extends Controller
             }
 
             // Buat transaksi
+            DB::beginTransaction();
             $transaksi = KantinTransaksi::create($fields);
 
             // Kurangi saldo siswa
             $siswaWallet->nominal -= $fields['harga_total'];
             $siswaWallet->save();
+            DB::commit();
 
             return response()->json(['data' => $transaksi], Response::HTTP_CREATED);
         } catch (Exception $e) {
+            DB::rollBack();
             return response()->json(['message' => 'Gagal membuat transaksi: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
-
     public function update(KantinTransaksi $transaksi)
     {
         $result = $this->statusService->update($transaksi);
+        if ($result['statusCode'] === Response::HTTP_OK && $transaksi->status === 'selesai') {
+            $transaksi->update(['tanggal_selesai' => now()]);
+        }
+
         return response()->json($result['message'], $result['statusCode']);
     }
 
@@ -82,7 +89,7 @@ class KantinTransaksiController extends Controller
                     // Update status ke 'proses'
                     $transaksi->update([
                         'status' => 'proses',
-                        'tanggal_selesai' => now(), // atau bisa disesuaikan dengan logika bisnis
+
                     ]);
                     return response()->json([
                         'message' => 'Transaksi dalam proses.',

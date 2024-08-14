@@ -37,4 +37,9 @@ class KantinTransaksi extends Model
     {
         return $this->belongsTo(Kantin::class, 'kantin_id');
     }
+
+    public function getTanggalSelesaiDayAttribute()
+    {
+        return $this->tanggal_selesai ? \Carbon\Carbon::parse($this->tanggal_selesai)->format('l') : null;
+    }
 }

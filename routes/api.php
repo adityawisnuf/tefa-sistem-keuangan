@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BendaharaController;
 use App\Http\Controllers\KantinPengajuanController;
 use App\Http\Controllers\KantinProdukController;
 use App\Http\Controllers\KantinProdukKategoriController;
@@ -62,6 +63,16 @@ Route::group([
         Route::get('/pengajuan', [LaundryPengajuanController::class, 'index']);
         Route::post('/pengajuan', [LaundryPengajuanController::class, 'create']);
         Route::put('/pengajuan/{pengajuan}', [LaundryPengajuanController::class, 'update']);
+    });
+    Route::group([
+        'prefix' => 'bendahara',
+        'middleware' => 'checkrole:Bendahara'
+    ], function () {
+        Route::get('/laporan-penjualan', [BendaharaController::class, 'index']);
+        Route::get('/laporan-penjualan/kantin', [BendaharaController::class, 'getKantinTransaksi']);
+        Route::get('/laporan-penjualan/laundry-satuan', [BendaharaController::class, 'getLaundryTransaksiSatuan']);
+        Route::get('/laporan-penjualan/laundry-kiloan', [BendaharaController::class, 'getLaundryTransaksiKiloan']);
+
     });
 
 

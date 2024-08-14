@@ -8,6 +8,7 @@ use App\Models\LaundryItem;
 use App\Models\LaundryTransaksiSatuan;
 use App\Models\Siswa;
 use Exception;
+use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 
 class LaundryTransaksiSatuanController extends Controller
@@ -18,6 +19,7 @@ class LaundryTransaksiSatuanController extends Controller
     {
         $this->statusService = new StatusTransaksiService();
     }
+
     public function index()
     {
         $perPage = request()->input('per_page', 10);
@@ -48,14 +50,17 @@ class LaundryTransaksiSatuanController extends Controller
             }
 
             // Buat transaksi
+            DB::beginTransaction();
             $transaksi = LaundryTransaksiSatuan::create($fields);
 
             // Kurangi saldo siswa
             $siswaWallet->nominal -= $fields['harga_total'];
             $siswaWallet->save();
+            DB::commit();
 
             return response()->json(['data' => $transaksi], Response::HTTP_CREATED);
         } catch (Exception $e) {
+            DB::rollBack();
             return response()->json(['message' => 'Gagal membuat transaksi: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -84,10 +89,15 @@ class LaundryTransaksiSatuanController extends Controller
         }
     }
 
-
     public function update(LaundryTransaksiSatuan $transaksi)
     {
         $result = $this->statusService->update($transaksi);
+
+        // Set tanggal_selesai only if status is 'selesai'
+        if ($result['statusCode'] === Response::HTTP_OK && $transaksi->status === 'selesai') {
+            $transaksi->update(['tanggal_selesai' => now()]);
+        }
+
         return response()->json($result['message'], $result['statusCode']);
     }
 }

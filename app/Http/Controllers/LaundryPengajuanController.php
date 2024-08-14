@@ -7,6 +7,7 @@ use App\Models\LaundryPengajuan;
 use Illuminate\Http\Request;
 use Exception;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 class LaundryPengajuanController extends Controller
 {
@@ -31,17 +32,20 @@ class LaundryPengajuanController extends Controller
             }
 
             $fields['laundry_id'] = $laundry->id;
-            $fields['status'] = 'pending'; // Set status default ke 'pending'
 
             // Buat pengajuan
+            DB::beginTransaction();
+
             $item = LaundryPengajuan::create($fields);
 
             // Kurangi saldo jika pengajuan berhasil dibuat
             $laundry->saldo -= $fields['jumlah_pengajuan'];
             $laundry->save();
+            DB::commit();
 
             return response()->json(['data' => $item], Response::HTTP_CREATED);
         } catch (Exception $e) {
+            DB::rollBack();
             return response()->json(['message' => 'Gagal mengirim pengajuan: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -50,7 +54,7 @@ class LaundryPengajuanController extends Controller
     {
         // Validasi input
         $request->validate([
-            'status' => 'required|in:pending,disetujui,ditolak',
+            'status' => 'required|in:disetujui,ditolak',
             'alasan_penolakan' => 'nullable|string'
         ]);
 
@@ -72,10 +76,7 @@ class LaundryPengajuanController extends Controller
 
         // Logika untuk mengupdate status
         switch ($request->status) {
-            case 'pending':
-                // Tidak perlu penanganan khusus jika statusnya 'pending'
-                break;
-
+        
             case 'disetujui':
                 // Tidak perlu mengurangi saldo lagi, karena sudah dikurangi saat status 'pending'
                 $pengajuan->update([

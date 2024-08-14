@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Exception;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class KantinPengajuanController extends Controller
 {
@@ -32,17 +33,19 @@ class KantinPengajuanController extends Controller
             }
 
             $fields['kantin_id'] = $kantin->id;
-            $fields['status'] = 'pending'; // Set status default ke 'pending'
 
             // Buat pengajuan
+            DB::beginTransaction();
             $item = KantinPengajuan::create($fields);
 
             // Kurangi saldo jika pengajuan berhasil dibuat
             $kantin->saldo -= $fields['jumlah_pengajuan'];
             $kantin->save();
+            DB::commit();
 
             return response()->json(['data' => $item], Response::HTTP_CREATED);
         } catch (Exception $e) {
+            DB::rollBack();
             return response()->json(['message' => 'Gagal mengirim pengajuan: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -51,7 +54,7 @@ class KantinPengajuanController extends Controller
     {
         // Validasi input
         $request->validate([
-            'status' => 'required|in:pending,disetujui,ditolak',
+            'status' => 'required|in:disetujui,ditolak',
             'alasan_penolakan' => 'nullable|string'
         ]);
 
@@ -73,10 +76,6 @@ class KantinPengajuanController extends Controller
 
         // Logika untuk mengupdate status
         switch ($request->status) {
-            case 'pending':
-                // Tidak perlu penanganan khusus jika statusnya 'pending'
-                break;
-
             case 'disetujui':
                 // Tidak perlu mengurangi saldo lagi, karena sudah dikurangi saat status 'pending'
                 $pengajuan->update([
