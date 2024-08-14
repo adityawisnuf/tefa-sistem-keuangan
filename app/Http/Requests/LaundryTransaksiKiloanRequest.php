@@ -12,7 +12,7 @@ class LaundryTransaksiKiloanRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -34,6 +34,7 @@ class LaundryTransaksiKiloanRequest extends FormRequest
             'siswa_id' => ['required', 'exists:siswa,id'],
             'laundry_layanan_id' => ['required', 'exists:laundry_layanan,id'],
             'berat' => ['required', 'integer', 'min:1'],
+
         ];
     }
 

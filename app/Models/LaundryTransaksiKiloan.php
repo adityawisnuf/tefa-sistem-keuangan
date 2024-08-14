@@ -13,6 +13,7 @@ class LaundryTransaksiKiloan extends Model
 
     protected $fillable = [
         'siswa_id',
+        'laundry_id',
         'laundry_layanan_id',
         'berat',
         'harga',
@@ -21,7 +22,7 @@ class LaundryTransaksiKiloan extends Model
         'tanggal_pemesanan',
         'tanggal_selesai',
     ];
-    
+
     public function siswa()
     {
         return $this->belongsTo(Siswa::class, 'siswa_id');
@@ -30,5 +31,9 @@ class LaundryTransaksiKiloan extends Model
     public function laundry_layanan()
     {
         return $this->belongsTo(LaundryLayanan::class, 'laundry_layanan_id');
+    }
+    public function laundry()
+    {
+        return $this->belongsTo(Laundry::class, 'laundry_id');
     }
 }
