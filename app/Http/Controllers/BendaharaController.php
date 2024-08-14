@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\KantinPengajuan;
 use App\Models\KantinTransaksi;
+use App\Models\LaundryPengajuan;
 use App\Models\LaundryTransaksiSatuan;
 use App\Models\LaundryTransaksiKiloan;
 use DateTime;
@@ -49,5 +51,14 @@ class BendaharaController extends Controller
         $perPage = request()->input('per_page', 10);
         return LaundryTransaksiKiloan::whereBetween('tanggal_selesai', [$this->startOfWeek, $this->endOfWeek])->paginate($perPage);
 
+    }
+
+    public function getKantinPengajuan() {
+        $perPage = request()->input('per_page', 10);
+        return KantinPengajuan::paginate($perPage);
+    }
+    public function getLaundryPengajuan() {
+        $perPage = request()->input('per_page', 10);
+        return LaundryPengajuan::paginate($perPage);
     }
 }
