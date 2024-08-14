@@ -106,16 +106,26 @@ class ArusKasController extends Controller
         $totalPaymentNow = $paymentsPpdb->sum('nominal') + $payments->sum('nominal');
         $totalExpensesNow = $expenses->sum('nominal');
 
+
         $total = [];
         if ($totalIncome > 0 || $totalExpense > 0) {
             $total = [
-                'total_pemasukan' => $totalIncome,
-                'total_pengeluaran' => $totalExpense,
-                'total_pembayaran_sekarang' => $totalPaymentNow,
-                'total_pengeluaran_sekarang' => $totalExpensesNow,
-                'saldo_akhir'   => $totalIncome - $totalExpense
+                'total_pemasukan' => number_format($totalIncome, 0, ',', '.'),
+                'total_pengeluaran' => number_format($totalExpense, 0, ',', '.'),
+                'total_pembayaran_sekarang' => number_format($totalPaymentNow, 0, ',', '.'),
+                'total_pengeluaran_sekarang' => number_format($totalExpensesNow, 0, ',', '.'),
+                'saldo_akhir'   => number_format($totalIncome - $totalExpense, 0, ',', '.')
             ];
         }
+        foreach ($profit as &$item) {
+            if ($item['pemasukan'] !== '-') {
+                $item['pemasukan'] = number_format($item['pemasukan'], 0, ',', '.');
+            }
+            if ($item['pengeluaran'] !== '-') {
+                $item['pengeluaran'] = number_format($item['pengeluaran'], 0, ',', '.');
+            }
+        }
+
 
         $data = [
             'profit' => $profit,
