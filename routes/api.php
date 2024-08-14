@@ -41,8 +41,8 @@ Route::group([
 
         Route::get('/laundry/kiloan', [LaundryTransaksiKiloanController::class, 'index']);
         Route::post('/laundry/kiloan', [LaundryTransaksiKiloanController::class, 'create']);
-        Route::post('/laundry/kiloan/{transaksi}/konfirmasi', [LaundryTransaksiKiloanController::class, 'confirmInitialTransaction']);
-        Route::post('/laundry/kiloan/{transaksi}', [LaundryTransaksiKiloanController::class, 'update']);
+        Route::put('/laundry/kiloan/{transaksi}/konfirmasi', [LaundryTransaksiKiloanController::class, 'confirmInitialTransaction']);
+        Route::put('/laundry/kiloan/{transaksi}', [LaundryTransaksiKiloanController::class, 'update']);
 
         Route::get('/laundry/satuan', [LaundryTransaksiSatuanController::class, 'index']);
         Route::post('/laundry/satuan', [LaundryTransaksiSatuanController::class, 'create']);
