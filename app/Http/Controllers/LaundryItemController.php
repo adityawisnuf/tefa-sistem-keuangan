@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\LaundryItemRequest;
 use App\Models\LaundryItem;
+use Auth;
 use Exception;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,18 +15,22 @@ class LaundryItemController extends Controller
 
     public function index()
     {
+        $laundry = Auth::user()->laundry->first();
+
         $perPage = request()->input('per_page', 10);
-        $items = LaundryItem::latest()->paginate($perPage);
+        $items = $laundry->laundry_item->latest()->paginate($perPage);
         return response()->json(['data' => $items], Response::HTTP_OK);
     }
 
     public function create(LaundryItemRequest $request)
     {
+        $laundry = Auth::user()->laundry->first();
         $fields = $request->validated();
-
+        
         try {
             $path = Storage::putFile(self::IMAGE_STORAGE_PATH, $fields['foto_item']);
             $fields['foto_item'] = basename($path);
+            $fields['laundry_id'] = $laundry->id;
             $item = LaundryItem::create($fields);
             return response()->json(['data' => $item], Response::HTTP_CREATED);
         } catch (Exception $e) {
@@ -33,10 +38,15 @@ class LaundryItemController extends Controller
         }
     }
 
+    public function show(LaundryItem $item)
+    {
+        return response()->json(['data' => $item], Response::HTTP_OK);
+    }
+    
     public function update(LaundryItemRequest $request, LaundryItem $item)
     {
         $fields = array_filter($request->validated());
-
+        
         try {
             if (isset($fields['foto_item'])) {
                 $path = Storage::putFile(self::IMAGE_STORAGE_PATH, $fields['foto_item']);

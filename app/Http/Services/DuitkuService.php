@@ -80,16 +80,16 @@ class DuitkuService
         $productDetails = 'Tes pembayaran menggunakan Duitku';
         $email = $data['email'];
         $additionalParam = $data['additionalParam'];
-        $phoneNumber = $data['phoneNumber'];
-        $firstName = $data['firstName'];
-        $lastName = $data['lastName'];
+        $phoneNumber = '088888888888';
+        $firstName = 'Anjasmara';
+        $lastName = 'Tahu Bulat';
         $customerVaName = $firstName . ' ' . $lastName;
-        $callbackUrl = 'https://8c18-180-244-135-171.ngrok-free.app/api/duitku/callback';
-        $returnUrl = 'https://8c18-180-244-135-171.ngrok-free.app/return';
+        $callbackUrl = 'https://fb4b-2001-448a-3021-508b-dc22-87a1-ef0e-ad31.ngrok-free.app/api/duitku/callback';
+        $returnUrl = 'https://fb4b-2001-448a-3021-508b-dc22-87a1-ef0e-ad31.ngrok-free.app/return';
         $expiryPeriod = 10;
         $signature = md5($this->merchantCode . $merchantOrderId . $paymentAmount . $this->apiKey);
 
-        $alamat = $data['alamat'];
+        $alamat = 'Cijedil';
         $city = "Jakarta";
         $postalCode = "11530";
         $countryCode = "ID";

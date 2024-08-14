@@ -12,20 +12,22 @@ class LaundryPengajuanController extends Controller
 {
     public function index()
     {
+        $laundry = Auth::user()->laundry->first();
+
         $perPage = request()->input('per_page', 10);
-        $items = LaundryPengajuan::latest()->paginate($perPage);
-        return response()->json(['data' => $items], Response::HTTP_OK);
+        $pengajuan = $laundry->laundry_pengajuan->latest()->paginate($perPage);
+        return response()->json(['data' => $pengajuan], Response::HTTP_OK);
     }
 
     public function create(LaundryPengajuanRequest $request)
     {
+        $laundry = Auth::user()->laundry->first();
         $fields = $request->validated();
         
         try {
-            $laundry = Auth::user()->laundry->first();
             $fields['laundry_id'] = $laundry->id;
-            $item = LaundryPengajuan::create($fields);
-            return response()->json(['data' => $item], Response::HTTP_CREATED);
+            $pengajuan = LaundryPengajuan::create($fields);
+            return response()->json(['data' => $pengajuan], Response::HTTP_CREATED);
         } catch (Exception $e) {
             return response()->json(['message' => 'Gagal mengirim pengajuan: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }

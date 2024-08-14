@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class LaundryItemRequest extends FormRequest
+class LaundryLayananRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -31,20 +31,20 @@ class LaundryItemRequest extends FormRequest
     public function store()
     {
         return [
-            'nama_item' => ['required', 'string', 'max:255'],
-            'foto_item' => ['required', 'image', 'mimes:png,jpg,jpeg', 'max:2048'],
+            'nama_layanan' => ['required', 'string', 'max:255'],
+            'foto_layanan' => ['required', 'image', 'mimes:png,jpg,jpeg', 'max:2048'],
             'deskripsi' => ['required', 'string'],
-            'harga' => ['required', 'integer', 'min:0'],
+            'harga_per_kilo' => ['required', 'integer', 'min:0'],
         ];
     }
 
     public function update()
     {
         return [
-            'nama_item' => ['required', 'string', 'max:255'],
-            'foto_item' => ['nullable', 'image', 'mimes:png,jpg,jpeg', 'max:2048'],
+            'nama_layanan' => ['required', 'string', 'max:255'],
+            'foto_layanan' => ['nullable', 'image', 'mimes:png,jpg,jpeg', 'max:2048'],
             'deskripsi' => ['required', 'string'],
-            'harga' => ['required', 'integer', 'min:0'],
+            'harga_per_kilo' => ['required', 'integer', 'min:0'],
             'status' => ['nullable', Rule::in('aktif', 'tidak_aktif')],
         ];
     }

@@ -5,10 +5,12 @@ use App\Http\Controllers\KantinProdukController;
 use App\Http\Controllers\KantinProdukKategoriController;
 use App\Http\Controllers\KantinTransaksiController;
 use App\Http\Controllers\LaundryItemController;
+use App\Http\Controllers\LaundryLayananController;
 use App\Http\Controllers\LaundryPengajuanController;
 use App\Http\Controllers\LaundryTransaksiKiloanController;
 use App\Http\Controllers\LaundryTransaksiSatuanController;
 use App\Http\Controllers\TopUpController;
+use App\Models\Siswa;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RegisterController;
@@ -56,9 +58,16 @@ Route::group([
     ], function () {
         Route::get('/item', [LaundryItemController::class, 'index']);
         Route::post('/item', [LaundryItemController::class, 'create']);
+        Route::get('/item/{item}', [LaundryItemController::class, 'show']);
         Route::put('/item/{item}', [LaundryItemController::class, 'update']);
         Route::delete('/item/{item}', [LaundryItemController::class, 'destroy']);
 
+        Route::get('/layanan', [LaundryLayananController::class, 'index']);
+        Route::post('/layanan', [LaundryLayananController::class, 'create']);
+        Route::get('/layanan/{layanan}', [LaundryLayananController::class, 'show']);
+        Route::put('/layanan/{layanan}', [LaundryLayananController::class, 'update']);
+        Route::delete('/layanan/{layanan}', [LaundryLayananController::class, 'destroy']);
+        
         Route::get('/pengajuan', [LaundryPengajuanController::class, 'index']);
         Route::post('/pengajuan', [LaundryPengajuanController::class, 'create']);
     });
@@ -84,6 +93,5 @@ Route::group([
 });
 
 Route::get('/test', function () {
-    return Auth::user()->laundry->first()->id;
-})
-    ->middleware('auth:api');
+    return Siswa::find(1)->siswa_wallet->nominal;
+});

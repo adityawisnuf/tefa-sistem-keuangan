@@ -24,12 +24,6 @@ class TransactionRequest extends FormRequest
         return [
             'paymentAmount' => ['required', 'numeric', 'min:1'],
             'paymentMethod' => ['required'],
-            'email' => ['required', 'email'],
-            'alamat' => ['required'],
-            'phoneNumber' => ['required'],
-            'firstName' => ['required'],
-            'lastName' => ['required'],
-            'additionalParam' => ['required', 'email', 'exists:users,email'],
         ];
     }
 }
