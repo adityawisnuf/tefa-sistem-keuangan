@@ -27,7 +27,7 @@ class LaundryLayananController extends Controller
     {
         $laundry = Auth::user()->laundry->first();
         $fields = $request->validated();
-        
+
         try {
             $path = Storage::putFile(self::IMAGE_STORAGE_PATH, $fields['foto_layanan']);
             $fields['foto_layanan'] = basename($path);
