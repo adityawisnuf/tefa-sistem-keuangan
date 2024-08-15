@@ -11,7 +11,9 @@ use App\Http\Controllers\LaundryPengajuanController;
 use App\Http\Controllers\LaundryTransaksiKiloanController;
 use App\Http\Controllers\LaundryTransaksiSatuanController;
 use App\Http\Controllers\TopUpController;
+use App\Models\KantinProduk;
 use App\Models\Siswa;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RegisterController;
@@ -94,9 +96,9 @@ Route::group([
 
     Route::group([
         'prefix' => 'kantin',
-        'middleware' => 'checkrole:Kantin'
+        'middleware' => 'checkrole:Kantin,Siswa'
     ], function () {
-        Route::get('/', [KantinProdukController::class, 'index']);
+        Route::get('/produk', [KantinProdukController::class, 'index']);
         Route::post('/produk', [KantinProdukController::class, 'create']);
         Route::put('/produk/{produk}', [KantinProdukController::class, 'update']);
         Route::delete('/produk/{produk}', [KantinProdukController::class, 'destroy']);
@@ -115,7 +117,7 @@ Route::group([
     });
 });
 
-Route::get('/test', function () {
-    return Auth::user()->laundry->first()->id;
-})
-    ->middleware('auth:api');
+Route::post('/test', function (Request $request) {
+    $fields = $request->all();
+    dd($fields['image']);
+});
