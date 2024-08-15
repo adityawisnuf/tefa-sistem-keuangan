@@ -94,6 +94,7 @@ class LabaRugiController extends Controller
 
     private function formatPercentage($value, $divisor)
     {
+        
         // biar keren
         if ($divisor) return ($value / $divisor) * 100;
         return $value > 0 ? 100.0 : 0.0;
