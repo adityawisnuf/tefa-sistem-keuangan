@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\PembayaranPpdb;
 use App\Models\PembayaranSiswa;
 use App\Models\Pengeluaran;
 use Carbon\Carbon;
@@ -69,9 +70,11 @@ class LabaRugiController extends Controller
     {
         // Mengambil data Pembayaran dan Pengeluaran
         $payments = PembayaranSiswa::whereBetween('created_at', [$this->startDate, $this->endDate])->where('status', 1);
-        $expenditures = Pengeluaran::whereBetween('disetujui_pada', [$this->startDate, $this->endDate])->paginate(20);
+        $paymentsPpdb = PembayaranPpdb::whereBetween('created_at', [$this->startDate, $this->endDate])->where('status', 1);
+        $expenditures = Pengeluaran::whereBetween('disetujui_pada', [$this->startDate, $this->endDate])->get();
         return [
             'payments' => $payments,
+            'paymentsPpdb' => $paymentsPpdb,
             'expenditures' => $expenditures,
         ];
     }
@@ -79,8 +82,9 @@ class LabaRugiController extends Controller
     private function calculateFinancialMetrics(array $financialData)
     {
         // Hitung laba kotor, total pengeluaran, dan laba bersih
-        $totalPayment = $financialData['payments']->sum('nominal');
-        $totalExpenditure = Pengeluaran::whereBetween('disetujui_pada', [$this->startDate, $this->endDate])->sum('nominal');
+        $totalPayment = $financialData['payments']->sum('nominal') + $financialData['paymentsPpdb']->sum('nominal');
+        // $totalExpenditure = Pengeluaran::whereBetween('disetujui_pada', [$this->startDate, $this->endDate])->sum('nominal');
+        $totalExpenditure = $financialData['expenditures']->sum('nominal');
         $profit = $totalPayment - $totalExpenditure;
         if ($profit < 0) {
             $profit = 0;
