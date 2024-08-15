@@ -27,7 +27,7 @@ class SiswaController extends Controller
         $this->statusService = new StatusTransaksiService();
     }
 
-    public function getKantinProduk()
+    public function indexKantin()
     {
         $siswa = Auth::user()->siswa->first();
 
@@ -36,10 +36,11 @@ class SiswaController extends Controller
         return response()->json(['data' => $transaksi], Response::HTTP_OK);
     }
 
-    public function showKantinProduk($id)
+    public function showKantin($id)
     {
         $siswa = Auth::user()->siswa->first();
 
+        // Ensure that the requested transaksi belongs to the authenticated siswa
         $transaksi = KantinTransaksi::where('siswa_id', $siswa->id)
             ->where('id', $id)
             ->first();
@@ -53,7 +54,7 @@ class SiswaController extends Controller
         return response()->json(['data' => $transaksi], Response::HTTP_OK);
     }
 
-    public function kantinTransaksi(KantinTransaksiRequest $request)
+    public function createKantin(KantinTransaksiRequest $request)
     {
         $siswa = Auth::user()->siswa->first();
         $fields = $request->validated();
@@ -100,7 +101,7 @@ class SiswaController extends Controller
         }
     }
 
-    public function getLaundrySatuan()
+    public function indexLaundrySatuan()
     {
         $siswa = Auth::user()->siswa->first();
 
@@ -108,7 +109,7 @@ class SiswaController extends Controller
         $transaksi = $siswa->laundry_transaksi_satuan()->paginate($perPage);
         return response()->json(['data' => $transaksi], Response::HTTP_OK);
     }
-    public function getLaundryKiloan()
+    public function indexLaundryKiloan()
     {
         $siswa = Auth::user()->siswa->first();
 
@@ -239,24 +240,4 @@ class SiswaController extends Controller
         }
     }
 
-    public function getKantinProduk()
-    {
-        $perPage = request()->input('per_page', 10);
-        $items = KantinProduk::latest()->paginate($perPage);
-        return response()->json(['data' => $items], Response::HTTP_OK);
-    }
-
-    public function getLaundryLayanan()
-    {
-        $perPage = request()->input('per_page', 10);
-        $items = LaundryLayanan::latest()->paginate($perPage);
-        return response()->json(['data' => $items], Response::HTTP_OK);
-    }
-
-    public function getLaundryItem()
-    {
-        $perPage = request()->input('per_page', 10);
-        $items = LaundryItem::latest()->paginate($perPage);
-        return response()->json(['data' => $items], Response::HTTP_OK);
-    }
 }

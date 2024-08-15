@@ -10,6 +10,8 @@ use App\Http\Controllers\LaundryLayananController;
 use App\Http\Controllers\LaundryPengajuanController;
 use App\Http\Controllers\LaundryTransaksiKiloanController;
 use App\Http\Controllers\LaundryTransaksiSatuanController;
+use App\Http\Controllers\SiswaKantinController;
+use App\Http\Controllers\SiswaWalletController;
 use App\Http\Controllers\TopUpController;
 use App\Models\KantinProduk;
 use App\Models\Siswa;
@@ -40,25 +42,27 @@ Route::group([
         'middleware' => 'checkrole:Siswa'
     ], function() {
         Route::group(['prefix' => 'wallet'], function() {
-            Route::get('/saldo'); //show saldo siswa
-            Route::post('/riwayat'); //show riwayat saldo siswa
+            Route::get('/saldo', [SiswaWalletController::class, 'getSaldo']); //show saldo siswa
+            Route::get('/riwayat', [SiswaWalletController::class, 'getRiwayat']); //show riwayat saldo siswa
         });
 
         Route::group(['prefix' => 'kantin'], function() {
-            Route::get('/produk'); //show all menu
-            Route::get('/produk/{produk}/detail'); //show specific menu
-            Route::post('/produk/{produk}/transaksi'); //create transaction
-            Route::get('/riwayat'); //show riwayat kantin siswa
+            Route::group(['prefix' => 'produk'], function() {
+                Route::get('/', [SiswaKantinController::class, 'getProduk']); //show all menu
+                Route::get('/riwayat', [SiswaKantinController::class, 'getKantinRiwayat']); //show riwayat kantin siswa
+                Route::get('/{produk}', [SiswaKantinController::class, 'getProdukDetail']); //show specific menu
+                Route::post('/{produk}/transaksi', [SiswaKantinController::class, 'createProdukTransaksi']); //create transaction
+            });
         });
         
         Route::group(['prefix' => 'laundry'], function() {
             Route::get('/satuan'); //show all satuan
-            Route::get('/satuan/{satuan}/detail'); //show specific satuan
+            Route::get('/satuan/{satuan}'); //show specific satuan  
             Route::post('/satuan/{satuan}/transaksi'); //create transaction
             Route::get('/satuan/riwayat'); //show riwayat satuan siswa
             
             Route::get('/layanan'); //show all layanan
-            Route::get('/layanan/{layanan}/detail'); //show specific layanan
+            Route::get('/layanan/{layanan}'); //show specific layanan
             Route::post('/layanan/{layanan}/transaksi'); //create transaction
             Route::get('/layanan/riwayat'); //show riwayat layanan siswa
         });
@@ -141,7 +145,7 @@ Route::group([
             Route::get('/riwayat', [LaundryPengajuanController::class, 'index']);
         });
     });
-    
+
     Route::group([
         'prefix' => 'bendahara',
         'middleware' => 'checkrole:Bendahara'

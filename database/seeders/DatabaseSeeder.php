@@ -107,15 +107,15 @@ class DatabaseSeeder extends Seeder
         //     'status_buka' => 'tutup'
         // ]);
 
-        \App\Models\Kantin::create([
-            'user_id' => '3',
-            'nama_kantin' => 'Kantin Ega',
-            'alamat' => 'Cimahi',
-            'no_telepon' => '088888888888',
-            'no_rekening' => '4000000000000044',
-            'saldo' => 0,
-            'status_buka' => 'tutup'
-        ]);
+        // \App\Models\Kantin::create([
+        //     'user_id' => '3',
+        //     'nama_kantin' => 'Kantin Ega',
+        //     'alamat' => 'Cimahi',
+        //     'no_telepon' => '088888888888',
+        //     'no_rekening' => '4000000000000044',
+        //     'saldo' => 0,
+        //     'status_buka' => 'tutup'
+        // ]);
 
         
     }
