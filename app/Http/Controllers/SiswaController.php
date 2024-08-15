@@ -27,7 +27,7 @@ class SiswaController extends Controller
         $this->statusService = new StatusTransaksiService();
     }
 
-    public function indexKantin()
+    public function getKantinProduk()
     {
         $siswa = Auth::user()->siswa->first();
 
@@ -36,7 +36,7 @@ class SiswaController extends Controller
         return response()->json(['data' => $transaksi], Response::HTTP_OK);
     }
 
-    public function showKantin($id)
+    public function showKantinProduk($id)
     {
         $siswa = Auth::user()->siswa->first();
 
@@ -53,7 +53,7 @@ class SiswaController extends Controller
         return response()->json(['data' => $transaksi], Response::HTTP_OK);
     }
 
-    public function createKantin(KantinTransaksiRequest $request)
+    public function kantinTransaksi(KantinTransaksiRequest $request)
     {
         $siswa = Auth::user()->siswa->first();
         $fields = $request->validated();
@@ -100,7 +100,7 @@ class SiswaController extends Controller
         }
     }
 
-    public function indexLaundrySatuan()
+    public function getLaundrySatuan()
     {
         $siswa = Auth::user()->siswa->first();
 
@@ -108,7 +108,7 @@ class SiswaController extends Controller
         $transaksi = $siswa->laundry_transaksi_satuan()->paginate($perPage);
         return response()->json(['data' => $transaksi], Response::HTTP_OK);
     }
-    public function indexLaundryKiloan()
+    public function getLaundryKiloan()
     {
         $siswa = Auth::user()->siswa->first();
 
