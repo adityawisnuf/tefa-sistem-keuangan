@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\KantinProdukRequest;
 use App\Models\KantinProduk;
-use Auth;
+use illuminate\Support\Facades\Auth;
 use Exception;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,9 +15,11 @@ class KantinProdukController extends Controller
 
     public function index()
     {
+        $kantin = Auth::user()->kantin->first();
+
         $perPage = request()->input('per_page', 10);
-        $items = KantinProduk::latest()->paginate($perPage);
-        return response()->json(['data' => $items], Response::HTTP_OK);
+        $produk = $kantin->kantin_produk()->latest()->paginate($perPage);
+        return response()->json(['data' => $produk], Response::HTTP_OK);
     }
 
     public function create(KantinProdukRequest $request)

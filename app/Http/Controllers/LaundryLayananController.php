@@ -4,10 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\LaundryLayananRequest;
 use App\Models\LaundryLayanan;
-use Auth;
+use illuminate\Support\Facades\Auth;
 use Exception;
 use Illuminate\Http\Request;
-use Storage;
+use Illuminate\Support\Facades\Storage;
+
 use Symfony\Component\HttpFoundation\Response;
 
 class LaundryLayananController extends Controller
