@@ -33,16 +33,28 @@ class UserSeeder extends Seeder
                 'password' => password_hash('bendahara123', PASSWORD_DEFAULT),
             ],
             [
-                'name' => 'Orang Tua',
-                'email' => 'ortu@gmail.com',
+                'name' => 'Budi Santoso',
+                'email' => 'budi@gmail.com',
                 'role' => 'OrangTua',
-                'password' => password_hash('ortu123', PASSWORD_DEFAULT),
+                'password' => password_hash('budi123', PASSWORD_DEFAULT),
             ],
             [
-                'name' => 'Siswa',
-                'email' => 'siswa@gmail.com',
+                'name' => 'Siti Aminah',
+                'email' => 'siti@gmail.com',
+                'role' => 'OrangTua',
+                'password' => password_hash('siti123', PASSWORD_DEFAULT),
+            ],
+            [
+                'name' => 'Ahmad Fauzi',
+                'email' => 'ahmad@gmail.com',
                 'role' => 'Siswa',
-                'password' => password_hash('siswa123', PASSWORD_DEFAULT),
+                'password' => password_hash('ahmad123', PASSWORD_DEFAULT),
+            ],
+            [
+                'name' => 'Dewi Lestari',
+                'email' => 'dewi@gmail.com',
+                'role' => 'Siswa',
+                'password' => password_hash('dewi123', PASSWORD_DEFAULT),
             ],
         ];
 
