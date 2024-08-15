@@ -240,4 +240,19 @@ class SiswaController extends Controller
         }
     }
 
+
+
+    public function getLaundryLayanan()
+    {
+        $perPage = request()->input('per_page', 10);
+        $items = LaundryLayanan::latest()->paginate($perPage);
+        return response()->json(['data' => $items], Response::HTTP_OK);
+    }
+
+    public function getLaundryItem()
+    {
+        $perPage = request()->input('per_page', 10);
+        $items = LaundryItem::latest()->paginate($perPage);
+        return response()->json(['data' => $items], Response::HTTP_OK);
+    }
 }
