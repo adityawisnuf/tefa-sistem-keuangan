@@ -239,12 +239,7 @@ class SiswaController extends Controller
         }
     }
 
-    public function getKantinProduk()
-    {
-        $perPage = request()->input('per_page', 10);
-        $items = KantinProduk::latest()->paginate($perPage);
-        return response()->json(['data' => $items], Response::HTTP_OK);
-    }
+
 
     public function getLaundryLayanan()
     {
