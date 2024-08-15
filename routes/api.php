@@ -27,8 +27,8 @@ Route::group([
     Route::get('neraca', [NeracaController::class, 'index']);
     Route::get('laba-rugi', [LabaRugiController::class, 'index']);
     Route::get('arus-kas', [ArusKasController::class, 'index']);
-    Route::get('rasio-keuangan', [RasioKeuanganController::class, 'retrieveFinancialData']);
     Route::get('get-options', [LabaRugiController::class, 'getOptions']);
+    Route::get('rasio-keuangan', [RasioKeuanganController::class, 'index']);
 });
 
 Route::group([
@@ -37,6 +37,6 @@ Route::group([
     Route::get('neraca', [NeracaController::class, 'index']);
     Route::get('laba-rugi', [LabaRugiController::class, 'index']);
     Route::get('arus-kas', [ArusKasController::class, 'index']);
-    Route::get('rasio-keuangan', [RasioKeuanganController::class, 'retrieveFinancialData']);
     Route::get('get-options', [LabaRugiController::class, 'getOptions']);
+    Route::get('rasio-keuangan', [RasioKeuanganController::class, 'index']);
 });

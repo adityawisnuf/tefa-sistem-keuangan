@@ -110,10 +110,10 @@ class ArusKasController extends Controller
         $total = [];
         if ($totalIncome > 0 || $totalExpense > 0) {
             $total = [
-                'total_pemasukan' => number_format($totalIncome, 0, ',', '.'),
-                'total_pengeluaran' => number_format($totalExpense, 0, ',', '.'),
-                'total_pembayaran_sekarang' => number_format($totalPaymentNow, 0, ',', '.'),
-                'total_pengeluaran_sekarang' => number_format($totalExpensesNow, 0, ',', '.'),
+                'pemasukan' => number_format($totalIncome, 0, ',', '.'),
+                'pengeluaran' => number_format($totalExpense, 0, ',', '.'),
+                'pemasukan_sekarang' => number_format($totalPaymentNow, 0, ',', '.'),
+                'pengeluaran_sekarang' => number_format($totalExpensesNow, 0, ',', '.'),
                 'saldo_akhir'   => number_format($totalIncome - $totalExpense, 0, ',', '.')
             ];
         }
