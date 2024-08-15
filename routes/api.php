@@ -45,13 +45,13 @@ Route::middleware('auth:api')->group(function () {
     });
 
     // Pendaftar Dokumen Routes
-    Route::prefix('pendaftar-dokumen')->group(function () {
-        Route::post('/', [PendaftarDokumenController::class, 'store']);
-        Route::get('/', [PendaftarDokumenController::class, 'index']);
-        Route::get('{id}', [PendaftarDokumenController::class, 'show']);
-        Route::put('{id}', [PendaftarDokumenController::class, 'update']);
-        Route::delete('{id}', [PendaftarDokumenController::class, 'destroy']);
-    });
+    // Route::prefix('pendaftar-dokumen')->group(function () {
+    //     Route::post('/', [PendaftarDokumenController::class, 'store']);
+    //     Route::get('/', [PendaftarDokumenController::class, 'index']);
+    //     Route::get('{id}', [PendaftarDokumenController::class, 'show']);
+    //     Route::put('{id}', [PendaftarDokumenController::class, 'update']);
+    //     Route::delete('{id}', [PendaftarDokumenController::class, 'destroy']);
+    // });
 
     // Email Verification Routes
     Route::post('email-verification', [EmailVerificationController::class, 'email_verification']);
@@ -76,19 +76,11 @@ Route::post('pendaftar-komplit', [PendaftarKomplitController::class, 'store']);
 
 Route::post('/update-status', [PpdbController::class, 'updateStatus']);
 
-Route::get('/payment-get', [PembayaranController::class, 'getPaymentMethod']);
-Route::post('/payment', [PembayaranController::class, 'createTransaction']);
-Route::post('/payment-method', [PembayaranController::class, 'getPaymentMethod']);
-Route::post('/payment-callback', [PembayaranController::class, 'handleCallback']);
-Route::get('/laporan', [LaporanKeuanganController::class, 'LaporanKeuangan']);
+    Route::get('/payment-get', [PembayaranController::class, 'getPaymentMethod']);
+    Route::post('/payment', [PembayaranController::class, 'createTransaction']);
+    Route::post('/payment-method', [PembayaranController::class, 'getPaymentMethod']);
+    Route::post('/payment-callback', [PembayaranController::class, 'handleCallback']);
 
 
-Route::post('/download-pdf', [PdfDownloadController::class, 'store']);
-// api.php atau web.php
-// api.php atau web.php
-Route::get('/merge-pdf/{id}', [PdfDownloadController::class, 'mergePdfById']);
-Route::get('/download-pdf/{id}', [PendaftarDokumenController::class, 'downloadCombinedPdf']);
-
-
-
+    Route::post('/download-pdf', [PdfDownloadController::class, 'store']);
 

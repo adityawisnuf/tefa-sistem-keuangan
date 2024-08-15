@@ -5,6 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\PendaftarDokumen;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Barryvdh\DomPDF\Facade\Pdf;
+use FPDF;
+use Illuminate\Support\Facades\Storage;
+
 
 class PendaftarDokumenController extends Controller
 {

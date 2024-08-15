@@ -73,6 +73,10 @@ class Kernel extends HttpKernel
         // 'checkrole' => \App\Http\Middleware\CheckRole::class,
     ];
 
+    protected $commands = [
+        \Ichtrojan\Otp\Commands\CleanOtps::class,
+    ];
+    
     protected function schedule(Schedule $schedule)
 {
     $schedule->command('otp:clean')->daily();

@@ -166,13 +166,13 @@ return [
         App\Providers\AppServiceProvider::class,
         Barryvdh\Dompdf\ServiceProvider::class,
         App\Providers\AuthServiceProvider::class,
-        Barryvdh\DomPDF\ServiceProvider::class,
+        // Barryvdh\DomPDF\ServiceProvider::class,
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         Ichtrojan\Otp\OtpServiceProvider::class,
         Illuminate\Mail\MailServiceProvider::class,
-        Webklex\PDFMerger\Providers\PDFMergerServiceProvider::class
+        // Webklex\PDFMerger\Providers\PDFMergerServiceProvider::class
     ])->toArray(),
 
     /*
@@ -189,6 +189,7 @@ return [
     'aliases' => Facade::defaultAliases()->merge([
         // 'Example' => App\Facades\Example::class,
         'Otp' => Ichtrojan\Otp\Otp::class,
+        'PDFMerger' => Webklex\PDFMerger\Facades\PDFMergerFacade::class
 
 
     ])->toArray(),

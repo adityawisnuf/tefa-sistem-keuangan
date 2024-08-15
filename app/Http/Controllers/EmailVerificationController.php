@@ -12,7 +12,7 @@ use App\Models\Pendaftar;
 use App\Notifications\EmailVerificationNotification;
 use Ichtrojan\Otp\Commands\CleanOtps;
 use Ichtrojan\Otp\Otp;
-
+use Illuminate\Support\Facades\Artisan;
 
 class EmailVerificationController extends Controller
 {
@@ -21,20 +21,20 @@ class EmailVerificationController extends Controller
     public function __construct(){
         $this->otp = new Otp;
     }
+    
     public function email_verification(EmailVerificationRequest $request){
+        Artisan::call('otp:clean');
         $otp2 = $this->otp->validate($request->email, $request->otp);
-        //jika data error
         if(!$otp2->status){
             return response()->json(['error' => $otp2], 401);
         }
         Email::where('email', $request->email)->first();
-        //jika data sukses
         $success['success'] = true;
         return response()->json($success,200);
     }
 
     
-    public function sendEmailVerification(Request $request)
+public function sendEmailVerification(Request $request)
     {
         $request->validate([
             'email' => 'required|string|email|max:255',
@@ -42,16 +42,15 @@ class EmailVerificationController extends Controller
     
         $email = $request->input('email');
     
-        try {
-            $pendaftar = Email::where('email', $email)->firstOrFail();
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            $pendaftar = Email::create(['email' => $email]);
-        }
+        $pendaftar = Email::where('email', $email)->first();
     
-        
-    
+        if (!$pendaftar) {
+            $pendaftar = new Pendaftar();
+            $pendaftar->email = $email;
+        }    
         $pendaftar->notify(new EmailVerificationNotification());
     
         return response()->json(['message' => 'Email verifikasi telah dikirim'], 200);
     }
 }
+
