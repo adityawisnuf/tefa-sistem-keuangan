@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "984f33ed5f07fb056936aedc9aedbf1b",
+    "content-hash": "22afaa72542528c0673cff1ecc3a8564",
     "packages": [
         {
             "name": "azishapidin/indoregion",
@@ -1371,6 +1371,56 @@
                 "source": "https://github.com/ichtrojan/laravel-otp/tree/v2.0.0"
             },
             "time": "2023-12-24T22:16:55+00:00"
+        },
+        {
+            "name": "irsyadulibad/nik-validator",
+            "version": "2.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/irsyadulibad/nik-validator.git",
+                "reference": "caccd90608f4d9deedd71f34c727fab306df98a3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/irsyadulibad/nik-validator/zipball/caccd90608f4d9deedd71f34c727fab306df98a3",
+                "reference": "caccd90608f4d9deedd71f34c727fab306df98a3",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.1"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "src/helpers.php"
+                ],
+                "psr-4": {
+                    "Irsyadulibad\\NIKValidator\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Ahmad Irsyadul Ibad",
+                    "email": "ahmadirsyadulibad7@gmail.com",
+                    "homepage": "http://irsyadulibad.my.id",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Indonesian citizenship identification number validator",
+            "keywords": [
+                "NIK Validator",
+                "nik",
+                "validator"
+            ],
+            "support": {
+                "issues": "https://github.com/irsyadulibad/nik-validator/issues",
+                "source": "https://github.com/irsyadulibad/nik-validator/tree/2.0.0"
+            },
+            "time": "2024-01-08T14:48:36+00:00"
         },
         {
             "name": "laravel/framework",
@@ -4545,6 +4595,49 @@
                 }
             ],
             "time": "2023-12-11T16:03:32+00:00"
+        },
+        {
+            "name": "setasign/fpdi-fpdf",
+            "version": "v2.3.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Setasign/FPDI-FPDF.git",
+                "reference": "f2fdc44e4d5247a3bb55ed2c2c1396ef05c02357"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Setasign/FPDI-FPDF/zipball/f2fdc44e4d5247a3bb55ed2c2c1396ef05c02357",
+                "reference": "f2fdc44e4d5247a3bb55ed2c2c1396ef05c02357",
+                "shasum": ""
+            },
+            "require": {
+                "setasign/fpdf": "^1.8.2",
+                "setasign/fpdi": "^2.3"
+            },
+            "type": "library",
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jan Slabon",
+                    "email": "jan.slabon@setasign.com",
+                    "homepage": "https://www.setasign.com"
+                }
+            ],
+            "description": "Kind of metadata package for dependencies of the latest versions of FPDI and FPDF.",
+            "homepage": "https://www.setasign.com/fpdi",
+            "keywords": [
+                "fpdf",
+                "fpdi",
+                "pdf"
+            ],
+            "support": {
+                "source": "https://github.com/Setasign/FPDI-FPDF/tree/v2.3.0"
+            },
+            "abandoned": true,
+            "time": "2020-02-19T12:21:53+00:00"
         },
         {
             "name": "setasign/fpdi-tcpdf",

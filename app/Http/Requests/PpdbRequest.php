@@ -22,7 +22,6 @@ class PpdbRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'ppdb_id'   => 'integer|exists:ppdb,id',
             'nama_depan' => 'required|string|max:255',
              'nama_belakang' => 'required|string|max:255',
              'jenis_kelamin' => 'required|string|max:10',
@@ -37,10 +36,10 @@ class PpdbRequest extends FormRequest
              'nama_ibu' => 'required|string|max:255',
              'tgl_lahir_ayah' => 'required|date',
              'tgl_lahir_ibu' => 'required|date',
-             'akte_kelahiran' => 'required|',
-             'kartu_keluarga' => 'required|',
-             'ijazah' => 'required|',
-             'raport' => 'required|',
+             'akte_kelahiran' => 'required|mimes:pdf|max:2048',
+             'kartu_keluarga' => 'required|mimes:pdf|max:2048',
+             'ijazah' => 'required|mimes:pdf|max:2048',
+             'raport' => 'required|mimes:pdf|max:2048',
              'sekolah_asal' => 'string|max:255',
              'tahun_lulus' => 'string|date',
              'jurusan_tujuan' => 'string|max:255',

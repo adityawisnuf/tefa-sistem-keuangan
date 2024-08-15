@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Http\Requests\PpdbRequest;
@@ -8,6 +7,7 @@ use App\Models\Ppdb;
 use App\Models\PendaftarDokumen;
 use App\Models\PendaftarAkademik;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -18,11 +18,16 @@ class PpdbController extends Controller
         DB::beginTransaction();
     
         try {
+            // Mendapatkan ID pengguna yang sedang login
+            $userId = Auth::id();
+    
             // Retrieve ppdb_id from session
             $ppdbId = $request->session()->get('ppdb_id');
     
-            // Fetch the ppdb record using the id from the session
-            $ppdb = Ppdb::findOrFail($ppdbId);
+            // Fetch the ppdb record using the id from the session and verify ownership
+            $ppdb = Ppdb::where('id', $ppdbId)
+                         ->where('user_id', $userId)
+                         ->firstOrFail();
     
             // Create `pendaftar`
             $pendaftar = Pendaftar::create([
