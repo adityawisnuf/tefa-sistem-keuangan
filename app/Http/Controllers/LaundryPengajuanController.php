@@ -16,7 +16,7 @@ class LaundryPengajuanController extends Controller
         $laundry = Auth::user()->laundry->first();
 
         $perPage = request()->input('per_page', 10);
-        $pengajuan = $laundry->laundry_pengajuan->latest()->paginate($perPage);
+        $pengajuan = $laundry->laundry_pengajuan()->latest()->paginate($perPage);
         return response()->json(['data' => $pengajuan], Response::HTTP_OK);
     }
 

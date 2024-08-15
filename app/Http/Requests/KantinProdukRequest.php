@@ -31,7 +31,6 @@ class KantinProdukRequest extends FormRequest
     public function store()
     {
         return [
-            'kantin_id' => ['required', 'exists:kantin,id'],
             'kantin_produk_kategori_id' => ['required', 'exists:kantin_produk_kategori,id'],
             'nama_produk' => ['required', 'string', 'max:255'],
             'foto_produk' => ['required', 'image', 'mimes:png,jpg,jpeg', 'max:2048'],

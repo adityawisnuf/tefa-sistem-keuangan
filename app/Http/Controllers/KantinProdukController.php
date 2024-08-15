@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\KantinProdukRequest;
 use App\Models\KantinProduk;
+use Auth;
 use Exception;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\Response;
@@ -21,11 +22,13 @@ class KantinProdukController extends Controller
 
     public function create(KantinProdukRequest $request)
     {
+        $kantin = Auth::user()->kantin->first();
         $fields = $request->validated();
 
         try {
             $path = Storage::putFile(self::IMAGE_STORAGE_PATH, $fields['foto_produk']);
             $fields['foto_produk'] = basename($path);
+            $fields['kantin_id'] = $kantin->id;
             $item = KantinProduk::create($fields);
             return response()->json(['data' => $item], Response::HTTP_CREATED);
         } catch (Exception $e) {

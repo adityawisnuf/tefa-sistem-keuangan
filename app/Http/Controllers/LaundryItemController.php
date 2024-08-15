@@ -18,7 +18,7 @@ class LaundryItemController extends Controller
         $laundry = Auth::user()->laundry->first();
 
         $perPage = request()->input('per_page', 10);
-        $items = $laundry->laundry_item->latest()->paginate($perPage);
+        $items = $laundry->laundry_item()->latest()->paginate($perPage);
         return response()->json(['data' => $items], Response::HTTP_OK);
     }
 

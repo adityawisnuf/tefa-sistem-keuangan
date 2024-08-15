@@ -19,7 +19,7 @@ class LaundryLayananController extends Controller
         $laundry = Auth::user()->laundry->first();
 
         $perPage = request()->input('per_page', 10);
-        $layanan = $laundry->laundry_layanan->latest()->paginate($perPage);
+        $layanan = $laundry->laundry_layanan()->latest()->paginate($perPage);
         return response()->json(['data' => $layanan], Response::HTTP_OK);
     }
 

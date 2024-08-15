@@ -25,7 +25,7 @@ class KantinTransaksiController extends Controller
         $kantin = Auth::user()->kantin->first();
 
         $perPage = request()->input('per_page', 10);
-        $transaksi = $kantin->kantin_transaksi->paginate($perPage);
+        $transaksi = $kantin->kantin_transaksi()->paginate($perPage);
         return response()->json(['data' => $transaksi], Response::HTTP_OK);
     }
 
@@ -69,12 +69,12 @@ class KantinTransaksiController extends Controller
         }
         return response()->json($result['message'], $result['statusCode']);
     }
-
+    
     public function confirmInitialTransaction(KantinTransaksiRequest $request, KantinTransaksi $transaksi)
     {
         $fields = $request->validated();
         $siswaWallet = $transaksi->siswa->siswa_wallet;
-
+        
         try {
             $result = $this->statusService->confirmInitialTransaction($fields, $transaksi);
             if ($result['statusCode'] === Response::HTTP_OK && $transaksi->status === 'dibatalkan') {
@@ -82,6 +82,7 @@ class KantinTransaksiController extends Controller
                     'nominal'=> $siswaWallet->nominal + $transaksi->harga_total
                 ]);
             }
+            return response()->json($result['message'], $result['statusCode']);
         } catch (Exception $e) {
             return response()->json(['message' => 'Gagal mengubah status transaksi: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }

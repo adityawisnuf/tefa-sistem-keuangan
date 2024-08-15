@@ -35,7 +35,6 @@ class TopUpController extends Controller
 
         $fields = $request->validated();
         $fields['email'] = $user->email;
-        $fields['additionalParam'] = $user->email;
         $result = $this->duitkuService->requestTransaction($fields);
         return response()->json($result['data'], $result['statusCode']);
     }
