@@ -5,6 +5,7 @@ use App\Http\Controllers\KantinPengajuanController;
 use App\Http\Controllers\KantinProdukController;
 use App\Http\Controllers\KantinProdukKategoriController;
 use App\Http\Controllers\KantinTransaksiController;
+use App\Http\Controllers\KepsekController;
 use App\Http\Controllers\LaundryItemController;
 use App\Http\Controllers\LaundryLayananController;
 use App\Http\Controllers\LaundryPengajuanController;
@@ -55,20 +56,20 @@ Route::group([
                 Route::post('/{produk}/transaksi', [SiswaKantinController::class, 'createProdukTransaksi']); //create transaction
             });
         });
-        
+
         Route::group(['prefix' => 'laundry'], function() {
             Route::get('/satuan'); //show all satuan
-            Route::get('/satuan/{satuan}'); //show specific satuan  
+            Route::get('/satuan/{satuan}'); //show specific satuan
             Route::post('/satuan/{satuan}/transaksi'); //create transaction
             Route::get('/satuan/riwayat'); //show riwayat satuan siswa
-            
+
             Route::get('/layanan'); //show all layanan
             Route::get('/layanan/{layanan}'); //show specific layanan
             Route::post('/layanan/{layanan}/transaksi'); //create transaction
             Route::get('/layanan/riwayat'); //show riwayat layanan siswa
         });
     });
-    
+
     Route::group([
         'prefix' => 'kantin',
         'middleware' => 'checkrole:Kantin'
@@ -81,7 +82,7 @@ Route::group([
             Route::put('/{produk}', [KantinProdukController::class, 'update']);
             Route::delete('/{produk}', [KantinProdukController::class, 'destroy']);
         });
-        
+
         //kategori crud
         Route::group(['prefix' => 'kategori'], function() {
             Route::get('/', [KantinProdukKategoriController::class, 'index']);
@@ -90,7 +91,7 @@ Route::group([
             Route::put('/{kategori}', [KantinProdukKategoriController::class, 'update']);
             Route::delete('/{kategori}', [KantinProdukKategoriController::class, 'destroy']);
         });
-        
+
         //transaksi
         Route::group(['prefix' => 'transaksi'], function() {
             Route::get('/', [KantinTransaksiController::class, 'index']);
@@ -140,7 +141,7 @@ Route::group([
                 Route::put('/{transaksi}');
             });
         });
-        
+
         Route::group(['prefix' => 'pengajuan'], function() {
             Route::post('/', [LaundryPengajuanController::class, 'create']);
             Route::get('/riwayat', [LaundryPengajuanController::class, 'index']);
@@ -151,20 +152,34 @@ Route::group([
         'prefix' => 'bendahara',
         'middleware' => 'checkrole:Bendahara'
     ], function () {
-        Route::get('/laporan-penjualan', [BendaharaController::class, 'index']);
-        
-        Route::get('/laporan-penjualan/kantin', [BendaharaController::class, 'getKantinTransaksi']);
-        Route::get('/laporan-penjualan/laundry-satuan', [BendaharaController::class, 'getLaundryTransaksiSatuan']);
-        Route::get('/laporan-penjualan/laundry-kiloan', [BendaharaController::class, 'getLaundryTransaksiKiloan']);
+        Route::get('/penjualan', [BendaharaController::class, 'index']);
 
-        Route::get('/laporan-pengajuan/kantin', [BendaharaController::class, 'getKantinPengajuan']);
-        Route::put('/laporan-pengajuan/kantin/{pengajuan}', [KantinPengajuanController::class, 'update']);
-        
-        Route::get('/laporan-pengajuan/laundry', [BendaharaController::class, 'getLaundryPengajuan']);
-        Route::put('/laporan-pengajuan/laundry/{pengajuan}', [LaundryPengajuanController::class, 'update']);
+        Route::get('/penjualan/kantin', [BendaharaController::class, 'getKantinTransaksi']);
+        Route::get('/penjualan/laundry-satuan', [BendaharaController::class, 'getLaundryTransaksiSatuan']);
+        Route::get('/penjualan/laundry-kiloan', [BendaharaController::class, 'getLaundryTransaksiKiloan']);
+
+        Route::get('/pengajuan/kantin', [BendaharaController::class, 'getKantinPengajuan']);
+        Route::put('/pengajuan/kantin/{pengajuan}', [KantinPengajuanController::class, 'update']);
+
+        Route::get('/pengajuan/laundry', [BendaharaController::class, 'getLaundryPengajuan']);
+        Route::put('/pengajuan/laundry/{pengajuan}', [LaundryPengajuanController::class, 'update']);
 
     });
+
+    Route::group([
+        'prefix' => 'kepsek',
+        'middleware' => 'checkrole:KepalaSekolah'
+    ], function () {
+        Route::get('/penjualan/kantin', [KepsekController::class, 'getKantinTransaksi']);
+        Route::get('/penjualan/laundry-satuan', [KepsekController::class, 'getLaundryTransaksiSatuan']);
+        Route::get('/penjualan/laundry-kiloan', [KepsekController::class, 'getLaundryTransaksiKiloan']);
+
+        Route::get('/pengajuan/kantin', [KepsekController::class, 'getKantinPengajuan']);
+
+        Route::get('/pengajuan/laundry', [KepsekController::class, 'getLaundryPengajuan']);
+    });
 });
+
 
 Route::post('/test', function (Request $request) {
     $fields = $request->all();

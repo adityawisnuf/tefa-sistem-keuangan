@@ -46,7 +46,4 @@ class KantinPengajuanController extends Controller
             return response()->json(['message' => 'Gagal mengirim pengajuan: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
-
-    
-
 }
