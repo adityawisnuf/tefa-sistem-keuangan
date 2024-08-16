@@ -84,6 +84,6 @@ Route::post('/update-status', [PpdbController::class, 'updateStatus']);
 
 Route::get('/download-berkas/{id}', [PendaftarDokumenController::class, 'mergePendaftarDokumen']);
 Route::post('/validate-nik', [NIKController::class, 'validateNik']);
-
+Route::get('/laporan', [LaporanKeuanganController::class, 'laporanKeuangan']);
     // Route::post('/download-pdf', [PdfDownloadController::class, 'store']);
 

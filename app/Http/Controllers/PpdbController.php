@@ -16,19 +16,19 @@ class PpdbController extends Controller
     public function store(PpdbRequest $request)
     {
         DB::beginTransaction();
-    
+
         try {
             // Mendapatkan ID pengguna yang sedang login
             $userId = Auth::id();
-    
+
             // Retrieve ppdb_id from session
             $ppdbId = $request->session()->get('ppdb_id');
-    
+
             // Fetch the ppdb record using the id from the session and verify ownership
             $ppdb = Ppdb::where('id', $ppdbId)
                          ->where('user_id', $userId)
                          ->firstOrFail();
-    
+
             // Create `pendaftar`
             $pendaftar = Pendaftar::create([
                 'ppdb_id'   => $ppdb->id,
@@ -47,7 +47,7 @@ class PpdbController extends Controller
                 'tgl_lahir_ayah' => $request->input('tgl_lahir_ayah'),
                 'tgl_lahir_ibu' => $request->input('tgl_lahir_ibu'),
             ]);
-    
+
             // Simpan data dokumen
             PendaftarDokumen::create([
                 'ppdb_id' => $ppdb->id,
@@ -56,7 +56,7 @@ class PpdbController extends Controller
                 'ijazah' => $request->file('ijazah')->store('documents'),
                 'raport' => $request->file('raport')->store('documents'),
             ]);
-    
+
             // Simpan data akademik
             PendaftarAkademik::create([
                 'ppdb_id' => $ppdb->id,
@@ -64,21 +64,21 @@ class PpdbController extends Controller
                 'tahun_lulus' => $request->tahun_lulus,
                 'jurusan_tujuan' => $request->jurusan_tujuan,
             ]);
-    
+
             DB::commit();
-    
+
             return response()->json([
                 'message' => 'Pendaftaran berhasil!',
                 'pendaftar' => $pendaftar,
             ], 201);
         } catch (\Exception $e) {
             DB::rollback();
-    
+
             Log::error('Pendaftaran gagal:', [
                 'exception' => $e,
                 'request_data' => $request->all(),
             ]);
-    
+
             return response()->json([
                 'message' => 'Terjadi kesalahan saat pendaftaran. Silakan coba lagi.',
             ], 500);
@@ -91,16 +91,16 @@ class PpdbController extends Controller
         $validated = $request->validate([
             'id' => 'required|exists:ppdb,id',
             'status' => 'required|integer|'
-        ]);
+        ]);      
 
         $ppdbId = $validated['id'];
         $status = $validated['status'];
-    
+
         try {
             $ppdb = Ppdb::findOrFail($ppdbId);
             $ppdb->status = $status;
             $ppdb->save();
-    
+
             // Return a success response
             return response()->json([
                 'success' => true,
@@ -114,7 +114,7 @@ class PpdbController extends Controller
                 'id' => $ppdbId,
                 'status' => $status,
             ]);
-    
+
             // Return an error response
             return response()->json([
                 'success' => false,

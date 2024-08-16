@@ -9,13 +9,14 @@ class PembayaranPpdb extends Model
 {
     use HasFactory;
 
-    protected $table = 'pembayaran_ppdb'; 
+    protected $table = 'pembayaran_ppdb';
     protected $fillable = [
         'ppdb_id',
         'pembayaran_id',
         'nominal',
         'merchant_order_id',
         'status',
+        
     ];
 
 
