@@ -74,7 +74,7 @@ class User extends Authenticatable implements JWTSubject
     }
     public function ppdb()
     {
-        return $this->hasOne(Ppdb::class);
+        return $this->hasOne(Ppdb::class, 'user_id');
     }
 
 }

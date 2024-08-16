@@ -8,6 +8,7 @@ use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\PendaftarController;
 use App\Http\Controllers\LogoutController;
+use App\Http\Controllers\NIKController;
 use App\Http\Controllers\PdfDownloadController;
 use App\Http\Controllers\PendaftarDokumenController;
 use App\Http\Controllers\PendaftaranAkademikController;
@@ -15,6 +16,7 @@ use App\Http\Controllers\PendaftarKomplitController;
 use App\Http\Controllers\PembayaranController;
 use App\Http\Controllers\PpdbController;
 use App\Http\Controllers\TrackingPendaftaran;
+use App\Models\PendaftarDokumen;
 
 
 Route::post('register', [RegisterController::class, 'register']);
@@ -44,14 +46,13 @@ Route::middleware('auth:api')->group(function () {
         Route::delete('{id}', [PendaftaranAkademikController::class, 'destroy']);
     });
 
-    // Pendaftar Dokumen Routes
-    // Route::prefix('pendaftar-dokumen')->group(function () {
-    //     Route::post('/', [PendaftarDokumenController::class, 'store']);
-    //     Route::get('/', [PendaftarDokumenController::class, 'index']);
-    //     Route::get('{id}', [PendaftarDokumenController::class, 'show']);
-    //     Route::put('{id}', [PendaftarDokumenController::class, 'update']);
-    //     Route::delete('{id}', [PendaftarDokumenController::class, 'destroy']);
-    // });
+    Route::prefix('pendaftar-dokumen')->group(function () {
+        Route::post('/', [PendaftarDokumenController::class, 'store']);
+        Route::get('/', [PendaftarDokumenController::class, 'index']);
+        Route::get('{id}', [PendaftarDokumenController::class, 'show']);
+        Route::put('{id}', [PendaftarDokumenController::class, 'update']);
+        Route::delete('{id}', [PendaftarDokumenController::class, 'destroy']);
+    });
 
     // Email Verification Routes
     Route::post('email-verification', [EmailVerificationController::class, 'email_verification']);
@@ -60,11 +61,12 @@ Route::middleware('auth:api')->group(function () {
     // Pembayaran Routes
 
     Route::group(['prefix' => 'ppdb'], function () {
-        Route::get('/track/{ppdbId}', [TrackingPendaftaran::class, 'trackPendaftaran']);
+        Route::get('/track', [TrackingPendaftaran::class, 'trackPendaftaran']);
         Route::get('/all/pendaftaran', [TrackingPendaftaran::class, 'getAllPendaftarans']);
     });
 
 
+    Route::post('/payment', [PembayaranController::class, 'createTransaction']);
 
 });
 // Route for Pendaftar Komplit (no auth required)
@@ -77,10 +79,11 @@ Route::post('pendaftar-komplit', [PendaftarKomplitController::class, 'store']);
 Route::post('/update-status', [PpdbController::class, 'updateStatus']);
 
     Route::get('/payment-get', [PembayaranController::class, 'getPaymentMethod']);
-    Route::post('/payment', [PembayaranController::class, 'createTransaction']);
     Route::post('/payment-method', [PembayaranController::class, 'getPaymentMethod']);
     Route::post('/payment-callback', [PembayaranController::class, 'handleCallback']);
 
+Route::get('/download-berkas/{id}', [PendaftarDokumenController::class, 'mergePendaftarDokumen']);
+Route::post('/validate-nik', [NIKController::class, 'validateNik']);
 
-    Route::post('/download-pdf', [PdfDownloadController::class, 'store']);
+    // Route::post('/download-pdf', [PdfDownloadController::class, 'store']);
 

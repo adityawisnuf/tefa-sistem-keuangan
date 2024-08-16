@@ -7,6 +7,7 @@ use App\Models\PembayaranPpdb;
 use App\Models\Pembayaran;
 use App\Models\Ppdb;
 use App\Models\PembayaranKategori;
+use Illuminate\Support\Facades\Auth;
 use GrahamCampbell\ResultType\Success;
 use Illuminate\Http\Request;
 use GuzzleHttp\Client;
@@ -83,25 +84,29 @@ class PembayaranController extends Controller
     }
 
     // Method untuk membuat transaksi
+
     public function createTransaction(Request $request)
     {
-        
         // Ambil data dari request
         $merchantCode = "DS19869";
-        $apiKey ="8093b2c02b8750e4e73845f307325566";
+        $apiKey = "8093b2c02b8750e4e73845f307325566";
         $paymentAmount = 10000;
         $first_name = $request->input('nama_depan');
         $last_name = $request->input('nama_belakang');
         $paymentMethod = $request->input('paymentMethod');
         $merchantOrderId = Str::uuid();
         $callbackUrl = 'https://0b1e-180-244-129-142.ngrok-free.app/api/payment-callback';
-        $returnUrl = 'http://localhost:5173/';
+        $returnUrl = 'http://localhost:5173/orang-tua/cek-pembayaran';
         $expiryPeriod = 60;
         $customerEmail = $request->input('email');
         $customerVaName = $first_name . ' ' . $last_name;
         $signature = md5($merchantCode . $merchantOrderId . $paymentAmount . $apiKey);
 
         Log::info('Signature generated in createTransaction', ['signature' => $signature]);
+
+        // Debug Auth
+        $userId = Auth::id();
+        Log::info('Authenticated User ID:', ['user_id' => $userId]);
 
         $params = [
             'merchantCode' => $merchantCode,
@@ -142,12 +147,10 @@ class PembayaranController extends Controller
             $responseBody['signature'] = $signature;
             $responseBody['merchantOrderId'] = $merchantOrderId;
 
-            $pembayaranKategori = PembayaranKategori::create([
-                'nama' => 'ppdb',
-                'jenis_pembayaran' => 1,
-                'tanggal_pembayaran' => now(),
-                'status' => 1
-            ]);
+            // Debug Response
+            Log::info('Response from Duitku API:', ['response' => $responseBody]);
+
+            // Create records
 
             $pembayaranDuitku = PembayaranDuitku::create([
                 'merchant_order_id' => $merchantOrderId,
@@ -161,13 +164,14 @@ class PembayaranController extends Controller
             $ppdb = Ppdb::create([
                 'status' => 1,
                 'merchant_order_id' => $merchantOrderId,
+                'user_id' => $userId // Menambahkan user_id di sini
             ]);
 
             $request->session()->put('ppdb_id', $ppdb->id);
 
             $pembayaran = Pembayaran::create([
                 'siswa_id' => null,
-                'pembayaran_kategori_id' => $pembayaranKategori->id,
+                'pembayaran_kategori_id' => 1,
                 'nominal' => $paymentAmount,
                 'status' => 0,
                 'kelas_id' => null,
