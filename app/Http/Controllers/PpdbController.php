@@ -85,5 +85,41 @@ class PpdbController extends Controller
             ], 500);
         }
     }
+    public function updateStatus(Request $request)
+    {
+        // Validate incoming request
+        $validated = $request->validate([
+            'id' => 'required|exists:ppdb,id',
+            'status' => 'required|integer|'
+        ]);
+
+        $ppdbId = $validated['id'];
+        $status = $validated['status'];
     
+        try {
+            $ppdb = Ppdb::findOrFail($ppdbId);
+            $ppdb->status = $status;
+            $ppdb->save();
+    
+            // Return a success response
+            return response()->json([
+                'success' => true,
+                'message' => 'Status updated successfully.',
+                'data' => $ppdb
+            ]);
+        } catch (\Exception $e) {
+            // Handle exception (e.g., log it)
+            Log::error('Status update failed:', [
+                'exception' => $e->getMessage(),
+                'id' => $ppdbId,
+                'status' => $status,
+            ]);
+    
+            // Return an error response
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update status. Please try again later.'
+            ], 500);
+        }
+    }
 }
