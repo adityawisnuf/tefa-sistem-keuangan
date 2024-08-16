@@ -15,6 +15,7 @@
         "laravel/sanctum": "^3.3",
         "laravel/tinker": "^2.8",
         "mailgun/mailgun-php": "^4.2",
+        "mpdf/mpdf": "*",
         "royryando/laravel-duitku": "^1.0",
         "setasign/fpdf": "^1.8",
         "setasign/fpdi-fpdf": "^2.3",
@@ -79,4 +80,4 @@
     },
     "minimum-stability": "stable",
     "prefer-stable": true
-}
+} 

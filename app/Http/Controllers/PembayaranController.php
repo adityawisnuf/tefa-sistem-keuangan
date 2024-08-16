@@ -23,7 +23,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class PembayaranController extends Controller
 {
-    
+
     const PDF_STORAGE_PATH = 'storage/app/documents/';
 
     public function getPaymentMethod(Request $request)
@@ -280,7 +280,7 @@ public function handleCallback(Request $request)
                                     'ijazah' => $dataUserResponse['ijazah'],
                                     'raport' => $dataUserResponse['raport'],
                                 ]);
-            
+
 
                                 // Insert PendaftarAkademik
                                 PendaftarAkademik::create([

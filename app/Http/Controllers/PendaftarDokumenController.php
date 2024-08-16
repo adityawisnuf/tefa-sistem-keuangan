@@ -7,6 +7,8 @@ use App\Models\Ppdb;
 use setasign\Fpdi\Fpdi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Barryvdh\DomPDF\Facade\Pdf;
+use FPDF;
 use Illuminate\Support\Facades\Storage;
 
 
@@ -19,52 +21,8 @@ class PendaftarDokumenController extends Controller
      */
 
 
-   public function mergePendaftarDokumen($id)
-{
-    // Temukan dokumen berdasarkan ID
-    $pendaftarDokumen = PendaftarDokumen::find($id);
-
-    if (is_null($pendaftarDokumen)) {
-        return response()->json(['message' => 'Pendaftar Dokumen not found'], 404);
-    }
-
-    // Inisialisasi FPDI
-    $pdf = new Fpdi();
-
-    // Daftar file yang akan digabungkan
-    $files = [
-        $pendaftarDokumen->akte_kelahiran,
-        $pendaftarDokumen->kartu_keluarga,
-        $pendaftarDokumen->ijazah,
-        $pendaftarDokumen->raport
-    ];
-
-    foreach ($files as $file) {
-        if (Storage::exists($file)) {
-            $filePath = storage_path('app/' . $file);
-            $pdf->setSourceFile($filePath);
-
-            // Tambahkan halaman dari file PDF ke dokumen output
-            $pageCount = $pdf->setSourceFile($filePath);
-            for ($pageNo = 1; $pageNo <= $pageCount; $pageNo++) {
-                $tplIdx = $pdf->importPage($pageNo);
-                $pdf->AddPage();
-                $pdf->useTemplate($tplIdx);
-            }
-        }
-    }
-
-    // Output file gabungan
-    $outputPath = storage_path('app/merged_' . $id . '.pdf');
-    $pdf->Output('F', $outputPath);
-
-    // Akses file gabungan untuk di-download
-    return response()->download($outputPath);
-}
 
 
-
-    
     public function index()
     {
         $pendaftarDokumens = PendaftarDokumen::all();
@@ -82,10 +40,10 @@ class PendaftarDokumenController extends Controller
         // Validasi data input
         $request->validate([
             'ppdb_id' => 'required|integer|exists:ppdb,id',
-            'akte_kelahiran' => 'required|file|mimes:pdf|max:2048',
-            'kartu_keluarga' => 'required|file|mimes:pdf|max:2048',
-            'ijazah' => 'required|file|mimes:pdf|max:2048',
-            'raport' => 'required|file|mimes:pdf|max:2048',
+            'akte_kelahiran' => 'required|file|mimes:pdf,max:2048',
+            'kartu_keluarga' => 'required|file|mimes:pdf,max:2048',
+            'ijazah' => 'required|file|mimes:pdf,max:2048',
+            'raport' => 'required|file|mimes:pdf,max:2048',
         ]);
 
         // Upload file dan simpan pathnya

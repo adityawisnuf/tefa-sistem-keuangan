@@ -18,6 +18,7 @@ use App\Http\Controllers\PpdbController;
 use App\Http\Controllers\TrackingPendaftaran;
 use App\Models\PendaftarDokumen;
 
+
 Route::post('register', [RegisterController::class, 'register']);
 Route::post('login', [LoginController::class, 'login']);
 
@@ -73,17 +74,16 @@ Route::get('get-province', [IndoRegionController::class, 'getAllProvinces']);
 Route::get('get-regency/{provinceId}', [IndoRegionController::class, 'getRegenciesByProvince']);
 Route::get('get-district/{regencyId}', [IndoRegionController::class, 'getDistrictsByRegency']);
 Route::get('get-village/{districtId}', [IndoRegionController::class, 'getVillagesByDistrict']);
-    Route::post('pendaftar-komplit', [PendaftarKomplitController::class, 'store']);
+Route::post('pendaftar-komplit', [PendaftarKomplitController::class, 'store']);
 
-    Route::post('/update-status', [PpdbController::class, 'updateStatus']);
+Route::post('/update-status', [PpdbController::class, 'updateStatus']);
 
     Route::get('/payment-get', [PembayaranController::class, 'getPaymentMethod']);
     Route::post('/payment-method', [PembayaranController::class, 'getPaymentMethod']);
     Route::post('/payment-callback', [PembayaranController::class, 'handleCallback']);
-    Route::get('/laporan', [LaporanKeuanganController::class, 'LaporanKeuangan']);
 
 Route::get('/download-berkas/{id}', [PendaftarDokumenController::class, 'mergePendaftarDokumen']);
 Route::post('/validate-nik', [NIKController::class, 'validateNik']);
-
+Route::get('/laporan', [LaporanKeuanganController::class, 'laporanKeuangan']);
     // Route::post('/download-pdf', [PdfDownloadController::class, 'store']);
 

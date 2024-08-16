@@ -164,6 +164,7 @@ return [
          * Application Service Providers...
          */
         App\Providers\AppServiceProvider::class,
+        Barryvdh\Dompdf\ServiceProvider::class,
         App\Providers\AuthServiceProvider::class,
         // Barryvdh\DomPDF\ServiceProvider::class,
         // App\Providers\BroadcastServiceProvider::class,
@@ -188,7 +189,7 @@ return [
     'aliases' => Facade::defaultAliases()->merge([
         // 'Example' => App\Facades\Example::class,
         'Otp' => Ichtrojan\Otp\Otp::class,
-        // 'PDFMerger' => Webklex\PDFMerger\Facades\PDFMergerFacade::class
+        'PDFMerger' => Webklex\PDFMerger\Facades\PDFMergerFacade::class
 
 
     ])->toArray(),
