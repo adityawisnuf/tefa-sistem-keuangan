@@ -80,9 +80,9 @@ class SiswaKantinController extends Controller
         }
     }
 
-    public function getKantinRiwayat() 
+    public function getKantinRiwayat()
     {
-        $siswa = Auth::user()->siswa()->first();
+        $siswa = Auth::user()->siswa->first();
         $perPage = request()->input('per_page', 10);
         $riwayat = $siswa->kantin_transaksi()->paginate($perPage);
         return response()->json(['data' => $riwayat], Response::HTTP_OK);
