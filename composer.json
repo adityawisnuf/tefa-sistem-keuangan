@@ -19,6 +19,7 @@
         "setasign/fpdf": "^1.8",
         "setasign/fpdi-fpdf": "^2.3",
         "setasign/fpdi-tcpdf": "^2.3",
+        "spatie/laravel-permission": "^6.9",
         "symfony/http-client": "^7.1",
         "symfony/mailer": "^6.4",
         "symfony/mailgun-mailer": "^7.1",
