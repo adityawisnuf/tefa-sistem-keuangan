@@ -1,12 +1,15 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Http\Requests\PpdbRequest;
+use App\Models\PembayaranDuitku;
 use App\Models\Pendaftar;
 use App\Models\Ppdb;
 use App\Models\PendaftarDokumen;
 use App\Models\PendaftarAkademik;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -68,9 +71,11 @@ class PpdbController extends Controller
             DB::commit();
 
             return response()->json([
-                'message' => 'Pendaftaran berhasil!',
-                'pendaftar' => $pendaftar,
+                'message' => 'Data berhasil disimpan di PembayaranDuitku!',
+                'pendaftar' => $pembayaranDuitku->toArray(),  // Use toArray() to check serialized data
             ], 201);
+
+
         } catch (\Exception $e) {
             DB::rollback();
 
@@ -91,7 +96,7 @@ class PpdbController extends Controller
         $validated = $request->validate([
             'id' => 'required|exists:ppdb,id',
             'status' => 'required|integer|'
-        ]);      
+        ]);
 
         $ppdbId = $validated['id'];
         $status = $validated['status'];
