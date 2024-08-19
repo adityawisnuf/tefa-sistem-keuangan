@@ -22,17 +22,7 @@ Route::group([
 });
 
 Route::group([
-    'middleware' => ['auth:api', 'checkrole:KepalaSekolah']
-], function () {
-    Route::get('neraca', [NeracaController::class, 'index']);
-    Route::get('laba-rugi', [LabaRugiController::class, 'index']);
-    Route::get('arus-kas', [ArusKasController::class, 'index']);
-    Route::get('get-options', [LabaRugiController::class, 'getOptions']);
-    Route::get('rasio-keuangan', [RasioKeuanganController::class, 'index']);
-});
-
-Route::group([
-    'middleware' => ['auth:api', 'checkrole:Bendahara']
+    'middleware' => ['auth:api', 'checkrole:KepalaSekolah,Bendahara']
 ], function () {
     Route::get('neraca', [NeracaController::class, 'index']);
     Route::get('laba-rugi', [LabaRugiController::class, 'index']);
