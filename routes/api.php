@@ -103,8 +103,8 @@ Route::group([
 
         //transaksi
         Route::group(['prefix' => 'transaksi'], function() {
-            Route::get('/', [KantinTransaksiController::class, 'index']);
-            Route::get('/riwayat');
+            Route::get('/', [KantinTransaksiController::class, 'getActiveTransaction']);
+            Route::get('/riwayat', [KantinTransaksiController::class, 'getCompletedTransaction']);
             Route::put('/{transaksi}/konfirmasi', [KantinTransaksiController::class, 'confirmInitialTransaction']);
             Route::put('/{transaksi}', [KantinTransaksiController::class, 'update']);
         });

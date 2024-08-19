@@ -16,12 +16,14 @@ return new class extends Migration
         Schema::create('kantin_transaksi', function (Blueprint $table) {
             $table->id();
             $table->bigInteger('siswa_id');
+            $table->bigInteger('usaha_id');
             $table->enum('status',['pending','proses', 'siap_diambil', 'selesai','dibatalkan'])->default('pending');
             $table->dateTime('tanggal_pemesanan')->default(now());
             $table->dateTime('tanggal_selesai')->nullable();
             $table->timestamps();
 
             $table->foreign('siswa_id')->references('id')->on('siswa');
+            $table->foreign('usaha_id')->references('id')->on('usaha');
         });
     }
 

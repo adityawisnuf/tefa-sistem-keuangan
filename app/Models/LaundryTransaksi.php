@@ -13,6 +13,7 @@ class LaundryTransaksi extends Model
 
     protected $fillable = [
         'siswa_id',
+        'usaha_id',
         'status',
         'tanggal_pemesanan',
         'tanggal_selesai',
@@ -22,6 +23,12 @@ class LaundryTransaksi extends Model
     {
         return $this->hasMany(LaundryLayanan::class, 'siswa_id');
     }
+
+    public function usaha()
+    {
+        return $this->belongsTo(Usaha::class, 'usaha_id');
+    }
+    
     public function siswa ()
     {
         return $this->belongsTo(LaundryLayanan::class, 'siswa_id');

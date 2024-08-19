@@ -13,6 +13,7 @@ class KantinTransaksi extends Model
 
     protected $fillable = [
         'siswa_id',
+        'usaha_id',
         'status',
         'tanggal_pemesanan',
         'tanggal_selesai',
@@ -23,6 +24,12 @@ class KantinTransaksi extends Model
     {
         return $this->hasMany(KantinProduk::class, 'kantin_transaksi_id');
     }
+
+    public function usaha()
+    {
+        return $this->belongsTo(Usaha::class, 'usaha_id');
+    }
+    
     public function siswa()
     {
         return $this->belongsTo(Siswa::class, 'siswa_id');
