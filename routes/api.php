@@ -152,8 +152,8 @@ Route::group([
         });
 
         Route::group(['prefix' => 'pengajuan'], function() {
-            Route::post('/', [LaundryPengajuanController::class, 'create']);
-            Route::get('/riwayat', [LaundryPengajuanController::class, 'index']);
+            Route::post('/', [UsahaPengajuanController::class, 'create']);
+            Route::get('/riwayat', [UsahaPengajuanController::class, 'index']);
         });
     });
 

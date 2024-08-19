@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\LaundryTransaksiKiloanRequest;
 use App\Http\Services\StatusTransaksiService;
 use App\Models\LaundryLayanan;
+use App\Models\LaundryTransaksi;
 use App\Models\LaundryTransaksiKiloan;
 use App\Models\Siswa;
 use Exception;
@@ -12,7 +13,7 @@ use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Auth;
 
-class LaundryTransaksiKiloanController extends Controller
+class LaundryTransaksiController extends Controller
 {
     protected $statusService;
 
@@ -23,10 +24,10 @@ class LaundryTransaksiKiloanController extends Controller
 
     public function index()
     {
-        $laundry = Auth::user()->laundry->first();
+        $usaha = Auth::user()->usaha->first();
 
         $perPage = request()->input('per_page', 10);
-        $transaksi = $laundry->laundry_transaksi_kiloan()->paginate($perPage);
+        $transaksi = $usaha->laundry_transaksi()->paginate($perPage);
         return response()->json(['data' => $transaksi], Response::HTTP_OK);
     }
 
@@ -34,7 +35,7 @@ class LaundryTransaksiKiloanController extends Controller
     {
         $laundry = Auth::user()->laundry->first();
 
-        $transaksi = LaundryTransaksiKiloan::where('laundry_id', $laundry->id)
+        $transaksi = LaundryTransaksi::where('usaha_id', $laundry->id)
             ->where('id', $id)
             ->first();
 
@@ -47,7 +48,7 @@ class LaundryTransaksiKiloanController extends Controller
         return response()->json(['data' => $transaksi], Response::HTTP_OK);
     }
 
-    public function update(LaundryTransaksiKiloan $transaksi)
+    public function update(LaundryTransaksi $transaksi)
     {
         $result = $this->statusService->update($transaksi);
         if ($result['statusCode'] === Response::HTTP_OK && $transaksi->status === 'selesai') {
@@ -56,7 +57,7 @@ class LaundryTransaksiKiloanController extends Controller
         return response()->json($result['message'], $result['statusCode']);
     }
 
-    public function confirmInitialTransaction(LaundryTransaksiKiloanRequest $request, LaundryTransaksiKiloan $transaksi)
+    public function confirmInitialTransaction(LaundryTransaksiKiloanRequest $request, LaundryTransaksi $transaksi)
     {
         $fields = $request->validated();
         $siswaWallet = $transaksi->siswa->siswa_wallet;

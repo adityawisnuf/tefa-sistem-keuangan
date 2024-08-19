@@ -44,6 +44,10 @@ class Usaha extends Model
 
     public function kantin_transaksi()
     {
-        return $this->hasMany(KantinTransaksi::class, 'kantin_id');
+        return $this->hasMany(KantinTransaksi::class, 'usaha_id');
+    }
+    public function laundry_transaksi()
+    {
+        return $this->hasMany(LaundryTransaksi::class, 'usaha_id');
     }
 }
