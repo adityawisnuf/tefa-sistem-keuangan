@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class TransactionRequest extends FormRequest
+class TopUpRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -20,6 +20,21 @@ class TransactionRequest extends FormRequest
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
     public function rules(): array
+    {
+        return match ($this->route()->getName()) {
+            'get-payment-method' => $this->getPaymentMethod(),
+            'request-transaksi' => $this->requestTransaksi(),
+        };
+    }
+
+    public function getPaymentMethod()
+    {
+        return [
+            'paymentAmount' => ['required', 'numeric', 'min:1']
+        ];
+    }
+
+    public function requestTransaksi()
     {
         return [
             'paymentAmount' => ['required', 'numeric', 'min:1'],

@@ -30,7 +30,7 @@ class LaundryLayanan extends Model
 
     public function laundry_transaksi_detail()
     {
-        return $this->hasMany(LaundryTransaksiDetail::class, 'laundry_transaksi_detail');
+        return $this->hasMany(LaundryTransaksiDetail::class, 'laundry_transaksi_detail_id');
     }
 
 }
