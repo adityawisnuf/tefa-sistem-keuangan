@@ -15,22 +15,22 @@ class KantinProdukController extends Controller
 
     public function index()
     {
-        $kantin = Auth::user()->usaha->first();
+        $usaha = Auth::user()->usaha->first();
 
         $perPage = request()->input('per_page', 10);
-        $items = $kantin->kantin_produk()->paginate($perPage);
+        $items = $usaha->kantin_produk()->paginate($perPage);
         return response()->json(['data' => $items], Response::HTTP_OK);
     }
 
     public function create(KantinProdukRequest $request)
     {
-        $kantin = Auth::user()->usaha->first();
+        $usaha = Auth::user()->usaha->first();
         $fields = $request->validated();
 
         try {
             $path = Storage::putFile(self::IMAGE_STORAGE_PATH, $fields['foto_produk']);
             $fields['foto_produk'] = basename($path);
-            $fields['usaha_id'] = $kantin->id;
+            $fields['usaha_id'] = $usaha->id;
             $item = KantinProduk::create($fields);
             return response()->json(['data' => $item], Response::HTTP_CREATED);
         } catch (Exception $e) {

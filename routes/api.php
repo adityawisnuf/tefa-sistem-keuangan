@@ -168,10 +168,10 @@ Route::group([
         Route::get('/penjualan/laundry-kiloan', [BendaharaController::class, 'getLaundryTransaksiKiloan']);
 
         Route::get('/pengajuan/kantin', [BendaharaController::class, 'getKantinPengajuan']);
-        Route::put('/pengajuan/kantin/{pengajuan}', [UsahaPengajuanController::class, 'update']);
+        Route::put('/pengajuan/kantin/{pengajuan}', [BendaharaController::class, 'PengajuanUsaha']);
 
         Route::get('/pengajuan/laundry', [BendaharaController::class, 'getLaundryPengajuan']);
-        Route::put('/pengajuan/laundry/{pengajuan}', [UsahaPengajuanController::class, 'update']);
+        Route::put('/pengajuan/laundry/{pengajuan}', [BendaharaController::class, 'PengajuanUsaha']);
 
     });
 

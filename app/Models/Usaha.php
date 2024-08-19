@@ -32,6 +32,10 @@ class Usaha extends Model
     {
         return $this->hasMany(KantinProduk::class, 'usaha_id');
     }
+    public function laundry_layanan()
+    {
+        return $this->hasMany(LaundryLayanan::class, 'usaha_id');
+    }
 
     public function user()
     {

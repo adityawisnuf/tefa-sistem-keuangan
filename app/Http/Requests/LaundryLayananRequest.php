@@ -34,7 +34,10 @@ class LaundryLayananRequest extends FormRequest
             'nama_layanan' => ['required', 'string', 'max:255'],
             'foto_layanan' => ['required', 'image', 'mimes:png,jpg,jpeg', 'max:2048'],
             'deskripsi' => ['required', 'string'],
-            'harga_per_kilo' => ['required', 'integer', 'min:0'],
+            'harga' => ['required', 'integer', 'min:0'],
+            'tipe' => ['required', Rule::in('satuan', 'kiloan')],
+            'status' => ['nullable', Rule::in('aktif', 'tidak_aktif')],
+
         ];
     }
 
@@ -44,7 +47,8 @@ class LaundryLayananRequest extends FormRequest
             'nama_layanan' => ['required', 'string', 'max:255'],
             'foto_layanan' => ['nullable', 'image', 'mimes:png,jpg,jpeg', 'max:2048'],
             'deskripsi' => ['required', 'string'],
-            'harga_per_kilo' => ['required', 'integer', 'min:0'],
+            'harga' => ['required', 'integer', 'min:0'],
+            'tipe' => ['required', Rule::in('satuan', 'kiloan')],
             'status' => ['nullable', Rule::in('aktif', 'tidak_aktif')],
         ];
     }
