@@ -17,22 +17,23 @@ class LaundryLayananController extends Controller
 
     public function index()
     {
-        $laundry = Auth::user()->laundry->first();
+        $usaha = Auth::user()->usaha->first();
 
         $perPage = request()->input('per_page', 10);
-        $layanan = $laundry->laundry_layanan()->latest()->paginate($perPage);
+        $layanan = $usaha->laundry_layanan()->latest()->paginate($perPage);
         return response()->json(['data' => $layanan], Response::HTTP_OK);
     }
 
     public function create(LaundryLayananRequest $request)
     {
-        $laundry = Auth::user()->laundry->first();
+        $usaha = Auth::user()->usaha->first();
         $fields = $request->validated();
 
         try {
             $path = Storage::putFile(self::IMAGE_STORAGE_PATH, $fields['foto_layanan']);
             $fields['foto_layanan'] = basename($path);
-            $fields['laundry_id'] = $laundry->id;
+            $fields['usaha_id'] = $usaha->id;
+            $fields['satuan'] = $fields['tipe'] == 'satuan' ? 'pcs' : 'kg';
             $layanan = LaundryLayanan::create($fields);
             return response()->json(['data' => $layanan], Response::HTTP_CREATED);
         } catch (Exception $e) {
@@ -55,6 +56,7 @@ class LaundryLayananController extends Controller
                 Storage::delete(self::IMAGE_STORAGE_PATH . $layanan->foto_layanan);
                 $fields['foto_layanan'] = basename($path);
             }
+            $fields['satuan'] = $fields['tipe'] == 'satuan' ? 'pcs' : 'kg';
             $layanan->update($fields);
             return response()->json(['data' => $layanan], Response::HTTP_OK);
         } catch (Exception $e) {
