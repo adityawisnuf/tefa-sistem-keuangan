@@ -15,18 +15,18 @@ class KantinProdukController extends Controller
 
     public function index()
     {
-        $usaha = Auth::user()->usaha->first();
+        $usaha = Auth::user()->usaha->firstOrFail();
         $perPage = request()->input('per_page', 10);
-        
+
         $items = $usaha->kantin_produk()->paginate($perPage);
         return response()->json(['data' => $items], Response::HTTP_OK);
     }
 
     public function create(KantinProdukRequest $request)
     {
-        $usaha = Auth::user()->usaha->first();
+        $usaha = Auth::user()->usaha->firstOrFail();
         $fields = $request->validated();
-
+        
         $path = Storage::putFile(self::IMAGE_STORAGE_PATH, $fields['foto_produk']);
         $fields['foto_produk'] = basename($path);
         $fields['usaha_id'] = $usaha->id;

@@ -22,7 +22,7 @@ class KantinTransaksiController extends Controller
 
     public function getActiveTransaction()
     {
-        $usaha = Auth::user()->usaha->first();
+        $usaha = Auth::user()->usaha->firstOrFail();
 
         $perPage = request()->input('per_page', 10);
         $transaksi = $usaha->kantin_transaksi()->where('status', ['pending', 'proses', 'siap_diambil'])->paginate($perPage);
@@ -41,38 +41,34 @@ class KantinTransaksiController extends Controller
     public function confirmInitialTransaction(KantinTransaksiRequest $request, KantinTransaksi $transaksi)
     {
         $fields = $request->validated();
+
         $siswaWallet = $transaksi->siswa->siswa_wallet;
-        $kantin = $transaksi->kantin;
+        $usaha = $transaksi->usaha;
 
-        try {
-            $result = $this->statusService->confirmInitialTransaction($fields, $transaksi);
+        $result = $this->statusService->confirmInitialTransaction($fields, $transaksi);
 
-            DB::beginTransaction();
-            if ($result['statusCode'] === Response::HTTP_OK) {
-                if ($transaksi->status === 'proses') {
-                    $kantinProduk = $transaksi->kantin_produk;
-                    $kantinProduk->update([
-                        'stok' => $kantinProduk->stok - $transaksi->jumlah
-                    ]);
-                } elseif ($transaksi->status === 'dibatalkan') {
-                    $transaksi->update([
-                        'tanggal_selesai' => now()
-                    ]);
-                    $siswaWallet->update([
-                        'nominal' => $siswaWallet->nominal + $transaksi->harga_total
-                    ]);
-                    $kantin->update([
-                        'saldo' => $kantin->saldo - $transaksi->harga_total
-                    ]);
-                }
+        DB::beginTransaction();
+        if ($result['statusCode'] === Response::HTTP_OK) {
+            if ($transaksi->status === 'proses') {
+                $kantinProduk = $transaksi->kantin_produk;
+                $kantinProduk->update([
+                    'stok' => $kantinProduk->stok - $transaksi->jumlah
+                ]);
+            } else {
+                $transaksi->update([
+                    'tanggal_selesai' => now()
+                ]);
+                $siswaWallet->update([
+                    'nominal' => $siswaWallet->nominal + $transaksi->harga_total
+                ]);
+                $usaha->update([
+                    'saldo' => $usaha->saldo - $transaksi->harga_total
+                ]);
             }
-            DB::commit();
-
-            return response()->json($result['message'], $result['statusCode']);
-        } catch (Exception $e) {
-            DB::rollBack();
-            return response()->json(['message' => 'Gagal mengubah status transaksi: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+        DB::commit();
+
+        return response()->json($result['message'], $result['statusCode']);
     }
 
 

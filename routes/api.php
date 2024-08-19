@@ -182,9 +182,6 @@ Route::group([
 
 
 Route::post('/test', function (Request $request) {
-    $user = Auth::user();
-
-    $siswa = Auth::user()->orangtua->first()->siswa->find(1);
-
+    $siswa = Auth::user()->usaha->firstOrFail();
     return $siswa;
 })->middleware('auth:api');

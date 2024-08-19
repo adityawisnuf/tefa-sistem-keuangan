@@ -19,13 +19,11 @@ class StatusTransaksiService
 
         switch ($model['status']) {
             case 'proses':
-
                 $model->update(['status' => 'siap_diambil']);
                 return [
                     'message' => ['data' => $model],
                     'statusCode' => Response::HTTP_OK
                 ];
-
             case 'siap_diambil':
                 $model->update(['status' => 'selesai']);
                 return [
