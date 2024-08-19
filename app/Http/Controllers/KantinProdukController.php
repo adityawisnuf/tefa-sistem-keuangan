@@ -30,7 +30,7 @@ class KantinProdukController extends Controller
         try {
             $path = Storage::putFile(self::IMAGE_STORAGE_PATH, $fields['foto_produk']);
             $fields['foto_produk'] = basename($path);
-            $fields['kantin_id'] = $kantin->id;
+            $fields['usaha_id'] = $kantin->id;
             $item = KantinProduk::create($fields);
             return response()->json(['data' => $item], Response::HTTP_CREATED);
         } catch (Exception $e) {
