@@ -12,16 +12,18 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('laundry_layanan', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('laundry_id');
+          $table->id();
+            $table->unsignedBigInteger('usaha_id');
             $table->string('nama_layanan');
             $table->string('foto_layanan');
             $table->text('deskripsi');
-            $table->unsignedInteger('harga_per_kilo');
+            $table->unsignedInteger('harga');
+            $table->enum('tipe',['satuan','kiloan']);
+            $table->enum('tipe',['pcs','kg']);
             $table->enum('status',['aktif','tidak_aktif'])->default('tidak_aktif');
             $table->timestamps();
 
-            $table->foreign('laundry_id')->references('id')->on('laundry');
+            $table->foreign('usaha_id')->references('id')->on('usaha');
         });
     }
 

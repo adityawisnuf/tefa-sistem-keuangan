@@ -11,16 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::dropIfExists('laundry');
-        Schema::create('laundry', function (Blueprint $table) {
+        Schema::dropIfExists('usaha');
+
+        Schema::create('usaha', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
-            $table->string('nama_laundry');
+            $table->string('nama_usaha');
             $table->text('alamat');
             $table->string('no_telepon');
             $table->string('no_rekening');
-            $table->double('saldo')->default(0);
-            $table->enum('status_buka',['buka','tutup'])->default('tutup');
+            $table->double('saldo')->default('0');
+            $table->enum('status_buka', ['buka', 'tutup'])->default('tutup');
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users');
@@ -32,6 +33,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('laundry');
+        Schema::dropIfExists('usaha');
     }
 };
