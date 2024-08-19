@@ -5,8 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-
-class LaundryPengajuanRequest extends FormRequest
+class UsahaPengajuanRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -32,7 +31,16 @@ class LaundryPengajuanRequest extends FormRequest
     public function store()
     {
         return [
+
             'jumlah_pengajuan' => ['required', 'integer', 'min:0'],
+        ];
+    }
+
+    public function update()
+    {
+        return [
+            'alasan_penolakan' => ['nullable', 'string'],
+            'status' => ['required', Rule::in('disetujui', 'ditolak')],
         ];
     }
 }

@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\KantinPengajuan;
 use App\Models\KantinTransaksi;
 use App\Models\LaundryPengajuan;
+use App\Models\LaundryTransaksi;
 use App\Models\LaundryTransaksiKiloan;
 use App\Models\LaundryTransaksiSatuan;
+use App\Models\UsahaPengajuan;
 use Illuminate\Http\Request;
 
 class KepsekController extends Controller
@@ -27,31 +29,21 @@ class KepsekController extends Controller
             ->paginate($perPage);
     }
 
-    public function getLaundryTransaksiSatuan()
+    public function getLaundryTransaksi()
     {
         $perPage = request()->input('per_page', 10);
-        return LaundryTransaksiSatuan::whereIn('status', ['dibatalkan', 'selesai'])
+        return LaundryTransaksi::whereIn('status', ['dibatalkan', 'selesai'])
             ->whereBetween('tanggal_selesai', [$this->startOfWeek, $this->endOfWeek])
             ->paginate($perPage);
     }
 
-    public function getLaundryTransaksiKiloan()
+
+
+    public function getUsahaPengajuan()
     {
         $perPage = request()->input('per_page', 10);
-        return LaundryTransaksiKiloan::whereIn('status', ['dibatalkan', 'selesai'])
-            ->whereBetween('tanggal_selesai', [$this->startOfWeek, $this->endOfWeek])
-            ->paginate($perPage);
+        return UsahaPengajuan::whereIn('status', ['disetujui', 'ditolak'])->paginate($perPage);
     }
 
-    public function getKantinPengajuan()
-    {
-        $perPage = request()->input('per_page', 10);
-        return KantinPengajuan::whereIn('status', ['disetujui', 'ditolak'])->paginate($perPage);
-    }
 
-    public function getLaundryPengajuan()
-    {
-        $perPage = request()->input('per_page', 10);
-        return LaundryPengajuan::whereIn('status', ['disetujui', 'ditolak'])->paginate($perPage);
-    }
 }

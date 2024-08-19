@@ -54,7 +54,7 @@ class User extends Authenticatable implements JWTSubject
     public function getJWTCustomClaims()
     {
         $datas = (new LoginController)->getAllDatas($this->id);
-        
+
         return [
             'user_id' => $this->id,
             'email' => $this->email,
@@ -67,20 +67,15 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasMany(Siswa::class, 'user_id');
     }
-    
+
     public function orangtua ()
     {
         return $this->hasMany(Orangtua::class, 'user_id');
     }
 
-    public function kantin ()
+    public function usaha ()
     {
-        return $this->hasMany(Kantin::class, 'user_id');
-    }
-
-    public function laundry ()
-    {
-        return $this->hasMany(Laundry::class, 'user_id');
+        return $this->hasMany(Usaha::class, 'usaha_id');
     }
 
 }

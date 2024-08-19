@@ -59,13 +59,9 @@ class Siswa extends Model
         return $this->hasMany(KantinTransaksi::class, 'siswa_id');
     }
 
-    public function laundry_transaksi_kiloan()
+    public function laundry_transaksi()
     {
-        return $this->hasMany(LaundryTransaksiKiloan::class, 'siswa_id');
+        return $this->hasMany(LaundryTransaksi::class, 'siswa_id');
     }
 
-    public function laundry_transaksi_satuan()
-    {
-        return $this->hasMany(LaundryTransaksiSatuan::class, 'siswa_id');
-    }
 }

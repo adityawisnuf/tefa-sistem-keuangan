@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\BendaharaController;
-use App\Http\Controllers\KantinPengajuanController;
+use App\Http\Controllers\UsahaPengajuanController;
 use App\Http\Controllers\KantinProdukController;
 use App\Http\Controllers\KantinProdukKategoriController;
 use App\Http\Controllers\KantinTransaksiController;
@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\LogoutController;
+use Illuminate\Support\Facades\Auth;
 
 // ROLE : Admin; KepalaSekolah; Bendahara; OrangTua; Siswa; Kantin; Laundry;
 
@@ -110,8 +111,8 @@ Route::group([
 
         //pengajuan
         Route::group(['prefix' => 'pengajuan'], function() {
-            Route::post('/', [KantinPengajuanController::class, 'create']);
-            Route::get('/riwayat', [KantinPengajuanController::class, 'index']);
+            Route::post('/', [UsahaPengajuanController::class, 'create']);
+            Route::get('/riwayat', [UsahaPengajuanController::class, 'index']);
         });
     });
 
@@ -167,10 +168,10 @@ Route::group([
         Route::get('/penjualan/laundry-kiloan', [BendaharaController::class, 'getLaundryTransaksiKiloan']);
 
         Route::get('/pengajuan/kantin', [BendaharaController::class, 'getKantinPengajuan']);
-        Route::put('/pengajuan/kantin/{pengajuan}', [KantinPengajuanController::class, 'update']);
+        Route::put('/pengajuan/kantin/{pengajuan}', [UsahaPengajuanController::class, 'update']);
 
         Route::get('/pengajuan/laundry', [BendaharaController::class, 'getLaundryPengajuan']);
-        Route::put('/pengajuan/laundry/{pengajuan}', [LaundryPengajuanController::class, 'update']);
+        Route::put('/pengajuan/laundry/{pengajuan}', [UsahaPengajuanController::class, 'update']);
 
     });
 
@@ -195,4 +196,4 @@ Route::post('/test', function (Request $request) {
     $siswa = Auth::user()->orangtua->first()->siswa->find(1);
 
     return $siswa;
-})->middleware('auth:api'); 
+})->middleware('auth:api');

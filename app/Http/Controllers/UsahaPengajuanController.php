@@ -3,41 +3,43 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\KantinPengajuanRequest;
+use App\Http\Requests\UsahaPengajuanRequest;
 use App\Models\KantinPengajuan;
+use App\Models\UsahaPengajuan;
 use Illuminate\Http\Request;
 use Exception;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
-class KantinPengajuanController extends Controller
+class UsahaPengajuanController extends Controller
 {
     public function index()
     {
         $perPage = request()->input('per_page', 10);
-        $items = KantinPengajuan::latest()->paginate($perPage);
+        $items = UsahaPengajuan::latest()->paginate($perPage);
         return response()->json(['data' => $items], Response::HTTP_OK);
     }
 
-    public function create(KantinPengajuanRequest $request)
+    public function create(UsahaPengajuanRequest $request)
     {
-        $kantin = Auth::user()->kantin->first();
+        $usaha = Auth::user()->usaha->first();
         $fields = $request->validated();
 
         try {
-            if ($kantin->saldo < $fields['jumlah_pengajuan']) {
+            if ($usaha->saldo < $fields['jumlah_pengajuan']) {
                 return response()->json([
                     'message' => 'Saldo tidak mencukupi untuk pengajuan ini.',
                 ], Response::HTTP_BAD_REQUEST);
             }
 
-            $fields['kantin_id'] = $kantin->id;
+            $fields['usaha_id'] = $usaha->id;
 
             // Buat pengajuan
             DB::beginTransaction();
-            $pengajuan = KantinPengajuan::create($fields);
-            $kantin->saldo -= $fields['jumlah_pengajuan'];
-            $kantin->save();
+            $pengajuan = UsahaPengajuan::create($fields);
+            $usaha->saldo -= $fields['jumlah_pengajuan'];
+            $usaha->save();
             DB::commit();
 
             return response()->json(['data' => $pengajuan], Response::HTTP_CREATED);
