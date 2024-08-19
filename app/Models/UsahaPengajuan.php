@@ -5,14 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class KantinPengajuan extends Model
+class UsahaPengajuan extends Model
 {
     use HasFactory;
 
-    protected $table = 'kantin_pengajuan';
+    protected $table = 'usaha_pengajuan';
 
     protected $fillable = [
-        'kantin_id',
+        'usaha_id',
         'jumlah_pengajuan',
         'status',
         'alasan_penolakan',
@@ -20,8 +20,8 @@ class KantinPengajuan extends Model
         'tanggal_selesai',
     ];
 
-    public function kantin()
+    public function usaha()
     {
-        return $this->belongsTo(Kantin::class, 'kantin_id');
+        return $this->belongsTo(Usaha::class, 'usaha_id');
     }
 }

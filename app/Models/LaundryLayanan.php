@@ -12,23 +12,25 @@ class LaundryLayanan extends Model
     protected $table = 'laundry_layanan';
 
     protected $fillable = [
-        'laundry_id',
+        'usaha_id',
         'nama_layanan',
         'foto_layanan',
         'deskripsi',
-        'harga_per_kilo',
+        'harga',
+        'tipe',
+        'satuan',
         'status',
 
     ];
 
-    public function laundry()
+    public function usaha()
     {
-        return $this->belongsTo(Laundry::class, 'laundry_id');
+        return $this->belongsTo(Usaha::class, 'usaha_id');
     }
-    
-    public function laundry_transaksi_kiloan()
+
+    public function laundry_transaksi_detail()
     {
-        return $this->hasMany(LaundryTransaksiKiloan::class, 'laundry_layanan_id');
+        return $this->hasMany(LaundryTransaksiDetail::class, 'laundry_transaksi_detail');
     }
 
 }

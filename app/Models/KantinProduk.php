@@ -9,27 +9,32 @@ class KantinProduk extends Model
 {
     use HasFactory;
 
-    
+
     protected $table = 'kantin_produk';
 
     protected $fillable = [
-        'kantin_id',
+        'usaha_id',
         'kantin_produk_kategori_id',
         'nama_produk',
         'foto_produk',
         'deskripsi',
-        'harga',
+        'harga_pokok',
+        'harga_jual',
         'stok',
-        'status',        
+        'status',
     ];
 
-    public function kantin()
+    public function usaha()
     {
-        return $this->belongsTo(Kantin::class, 'kantin_id');
+        return $this->belongsTo(Usaha::class, 'usaha_id');
     }
 
-    public function kantin_transaksi()
+    public function kantin_transaksi_detail()
     {
-        return $this->hasMany(KantinTransaksi::class, 'kantin_produk_id');
+        return $this->hasMany(KantinTransaksiDetail::class, 'kantin_produk_id');
+    }
+    public function kantin_produk_kategori()
+    {
+        return $this->belongsTo(KantinProdukKategori::class, 'kantin_produk_kategori_id');
     }
 }

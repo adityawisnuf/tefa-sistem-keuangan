@@ -9,19 +9,21 @@ class LaundryTransaksi extends Model
 {
     use HasFactory;
 
-    protected $table = 'laundry_transaksi';
+    protected $table = 'laundry_transaksi_detail';
 
     protected $fillable = [
-        'laundry_id', 'qty', 'total_harga', 'merchant_order_id',
+        'siswa_id',
+        'status',
+        'tanggal_pemesanan',
+        'tanggal_selesai',
     ];
 
-    public function pembayaran_duitku ()
+    public function kantin_transaksi_detail ()
     {
-        return $this->belongsTo(PembayaranDuitku::class, 'merchant_order_id');
+        return $this->hasMany(LaundryLayanan::class, 'siswa_id');
     }
-
-    public function laundry () 
+    public function siswa ()
     {
-        return $this->belongsTo(Laundry::class, 'laundry_id');
+        return $this->belongsTo(LaundryLayanan::class, 'siswa_id');
     }
 }

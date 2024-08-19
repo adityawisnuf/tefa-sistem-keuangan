@@ -13,33 +13,19 @@ class KantinTransaksi extends Model
 
     protected $fillable = [
         'siswa_id',
-        'kantin_id',
-        'kantin_produk_id',
-        'jumlah',
-        'harga',
-        'harga_total',
         'status',
         'tanggal_pemesanan',
         'tanggal_selesai',
     ];
 
 
-    public function kantin_produk()
+    public function kantin_transaksi_detail()
     {
-        return $this->belongsTo(KantinProduk::class, 'kantin_produk_id');
+        return $this->hasMany(KantinProduk::class, 'kantin_transaksi_id');
     }
     public function siswa()
     {
         return $this->belongsTo(Siswa::class, 'siswa_id');
     }
 
-    public function kantin()
-    {
-        return $this->belongsTo(Kantin::class, 'kantin_id');
-    }
-
-    public function getTanggalSelesaiDayAttribute()
-    {
-        return $this->tanggal_selesai ? \Carbon\Carbon::parse($this->tanggal_selesai)->format('l') : null;
-    }
 }

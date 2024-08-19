@@ -6,15 +6,15 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Kantin extends Model
+class Usaha extends Model
 {
     use HasFactory;
 
-    protected $table = 'kantin';
+    protected $table = 'usaha';
 
     protected $fillable = [
         'user_id',
-        'nama_kantin',
+        'nama_usaha',
         'alamat',
         'no_telepon',
         'no_rekening',
@@ -23,14 +23,14 @@ class Kantin extends Model
     ];
 
 
-    public function kantin_pengajuan()
+    public function usaha_pengajuan()
     {
-        return $this->hasMany(KantinPengajuan::class, 'kantin_id');
+        return $this->hasMany(UsahaPengajuan::class, 'usaha_id');
     }
 
     public function kantin_produk()
     {
-        return $this->hasMany(KantinProduk::class, 'kantin_id');
+        return $this->hasMany(KantinProduk::class, 'usaha_id');
     }
 
     public function user()
