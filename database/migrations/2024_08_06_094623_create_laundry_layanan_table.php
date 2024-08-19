@@ -19,7 +19,7 @@ return new class extends Migration
             $table->text('deskripsi');
             $table->unsignedInteger('harga');
             $table->enum('tipe',['satuan','kiloan']);
-            $table->enum('tipe',['pcs','kg']);
+            $table->enum('satuan',['pcs','kg']);
             $table->enum('status',['aktif','tidak_aktif'])->default('tidak_aktif');
             $table->timestamps();
 
