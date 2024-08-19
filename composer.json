@@ -14,6 +14,7 @@
         "laravel/framework": "^10.10",
         "laravel/sanctum": "^3.3",
         "laravel/tinker": "^2.8",
+        "maatwebsite/excel": "*",
         "mailgun/mailgun-php": "^4.2",
         "mpdf/mpdf": "*",
         "royryando/laravel-duitku": "^1.0",
@@ -80,4 +81,4 @@
     },
     "minimum-stability": "stable",
     "prefer-stable": true
-} 
+}
