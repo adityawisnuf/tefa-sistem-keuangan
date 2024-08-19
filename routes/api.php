@@ -8,20 +8,15 @@ use App\Http\Controllers\KantinTransaksiController;
 use App\Http\Controllers\LaundryItemController;
 use App\Http\Controllers\LaundryLayananController;
 use App\Http\Controllers\LaundryPengajuanController;
-use App\Http\Controllers\LaundryTransaksiKiloanController;
-use App\Http\Controllers\LaundryTransaksiSatuanController;
 use App\Http\Controllers\SiswaKantinController;
+use App\Http\Controllers\SiswaLaundryController;
 use App\Http\Controllers\SiswaWalletController;
 use App\Http\Controllers\TopUpController;
-use App\Models\KantinProduk;
-use App\Models\Siswa;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\LogoutController;
-use App\Http\Controllers\SiswaController;
 
 // ROLE : Admin; KepalaSekolah; Bendahara; OrangTua; Siswa; Kantin; Laundry;
 
@@ -35,37 +30,50 @@ Route::group([
 ], function () {
     Route::post('logout', [LogoutController::class, 'logout']);
 
-    Route::get('/duitku/get-payment-method', [TopUpController::class, 'getPaymentMethod']);
-    Route::post('/duitku/request-transaksi', [TopUpController::class, 'requestTransaction']);
+    Route::post('/duitku/get-payment-method', [TopUpController::class, 'getPaymentMethod'])->name('get-payment-method');
+    Route::post('/duitku/request-transaksi', [TopUpController::class, 'requestTransaction'])->name('request-transaksi');
+
+    Route::group([
+        'prefix' => 'orangtua',
+        'middleware' => 'checkrole:OrangTua'
+    ], function() {
+        Route::group(['prefix' => 'wallet'], function() {
+            Route::get('/saldo');
+        });
+    });
 
     Route::group([
         'prefix' => 'siswa',
         'middleware' => 'checkrole:Siswa'
     ], function() {
         Route::group(['prefix' => 'wallet'], function() {
-            Route::get('/saldo', [SiswaWalletController::class, 'getSaldo']); //show saldo siswa
-            Route::get('/riwayat', [SiswaWalletController::class, 'getRiwayat']); //show riwayat saldo siswa
+            Route::get('/saldo', [SiswaWalletController::class, 'getSaldo']);
+            Route::get('/riwayat', [SiswaWalletController::class, 'getRiwayat']);
         });
 
         Route::group(['prefix' => 'kantin'], function() {
             Route::group(['prefix' => 'produk'], function() {
-                Route::get('/', [SiswaKantinController::class, 'getProduk']); //show all menu
-                Route::get('/riwayat', [SiswaKantinController::class, 'getKantinRiwayat']); //show riwayat kantin siswa
-                Route::get('/{produk}', [SiswaKantinController::class, 'getProdukDetail']); //show specific menu
-                Route::post('/{produk}/transaksi', [SiswaKantinController::class, 'createProdukTransaksi']); //create transaction
+                Route::get('/', [SiswaKantinController::class, 'getProduk']);
+                Route::get('/riwayat', [SiswaKantinController::class, 'getKantinRiwayat']);
+                Route::get('/{produk}', [SiswaKantinController::class, 'getProdukDetail']);
+                Route::post('/{produk}/transaksi', [SiswaKantinController::class, 'createProdukTransaksi']);
             });
         });
         
         Route::group(['prefix' => 'laundry'], function() {
-            Route::get('/satuan'); //show all satuan
-            Route::get('/satuan/{satuan}'); //show specific satuan  
-            Route::post('/satuan/{satuan}/transaksi'); //create transaction
-            Route::get('/satuan/riwayat'); //show riwayat satuan siswa
-            
-            Route::get('/layanan'); //show all layanan
-            Route::get('/layanan/{layanan}'); //show specific layanan
-            Route::post('/layanan/{layanan}/transaksi'); //create transaction
-            Route::get('/layanan/riwayat'); //show riwayat layanan siswa
+            Route::group(['prefix' => 'satuan'], function() {
+                Route::get('/', [SiswaLaundryController::class, 'getItem']);
+                Route::get('/riwayat', [SiswaLaundryController::class, 'getItemRiwayat']);
+                Route::post('/transaksi', [SiswaLaundryController::class, 'createItemTransaksi'])->name('siswa-layanan-transaksi');
+                Route::get('/{item}', [SiswaLaundryController::class, 'getItemDetail']);
+            });
+
+            Route::group(['prefix' => 'kiloan'], function() {
+                Route::get('/', [SiswaLaundryController::class, 'getLayanan']);
+                Route::get('/riwayat', [SiswaLaundryController::class, 'getLayananRiwayat']);
+                Route::get('/{layanan}', [SiswaLaundryController::class, 'getLayananDetail']);
+                Route::post('/{layanan}/transaksi', [SiswaLaundryController::class, 'createLayananTransaksi'])->name('siswa-kiloan-transaksi');
+            });
         });
     });
     
@@ -94,9 +102,9 @@ Route::group([
         //transaksi
         Route::group(['prefix' => 'transaksi'], function() {
             Route::get('/', [KantinTransaksiController::class, 'index']);
+            Route::get('/riwayat');
             Route::put('/{transaksi}/konfirmasi', [KantinTransaksiController::class, 'confirmInitialTransaction']);
             Route::put('/{transaksi}', [KantinTransaksiController::class, 'update']);
-            Route::get('/riwayat');
         });
 
         //pengajuan
@@ -167,6 +175,9 @@ Route::group([
 });
 
 Route::post('/test', function (Request $request) {
-    $fields = $request->all();
-    dd($fields['image']);
-});
+    $user = Auth::user();
+
+    $siswa = Auth::user()->orangtua->first()->siswa->find(1);
+
+    return $siswa;
+})->middleware('auth:api'); 

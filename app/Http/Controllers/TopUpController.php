@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\TransactionRequest;
+use App\Http\Requests\TopUpRequest;
 use App\Http\Services\DuitkuService;
 use App\Models\PembayaranDuitku;
 use App\Models\Siswa;
@@ -12,7 +12,6 @@ use Auth;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Symfony\Component\HttpFoundation\Response;
 
 class TopUpController extends Controller
 {
@@ -23,13 +22,14 @@ class TopUpController extends Controller
         $this->duitkuService = new DuitkuService();
     }
 
-    public function getPaymentMethod()
+    public function getPaymentMethod(TopUpRequest $request)
     {
-        $result = $this->duitkuService->getPaymentMethod();
+        $fields = $request->validated();
+        $result = $this->duitkuService->getPaymentMethod($fields['paymentAmount']);
         return response()->json($result['data'], $result['statusCode']);
     }
 
-    public function requestTransaction(TransactionRequest $request)
+    public function requestTransaction(TopUpRequest $request)
     {
         $user = Auth::user();
 

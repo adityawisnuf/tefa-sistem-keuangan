@@ -15,7 +15,7 @@ class KantinProdukController extends Controller
 
     public function index()
     {
-        $kantin = Auth::user()->kantin->first();
+        $kantin = Auth::user()->usaha()->first();
 
         $perPage = request()->input('per_page', 10);
         $items = $kantin->kantin_produk()->paginate($perPage);
@@ -24,7 +24,7 @@ class KantinProdukController extends Controller
 
     public function create(KantinProdukRequest $request)
     {
-        $kantin = Auth::user()->kantin->first();
+        $kantin = Auth::user()->usaha()->first();
         $fields = $request->validated();
 
         try {

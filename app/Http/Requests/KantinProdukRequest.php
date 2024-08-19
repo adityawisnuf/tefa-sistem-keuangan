@@ -35,8 +35,9 @@ class KantinProdukRequest extends FormRequest
             'nama_produk' => ['required', 'string', 'max:255'],
             'foto_produk' => ['required', 'image', 'mimes:png,jpg,jpeg', 'max:2048'],
             'deskripsi' => ['required', 'string'],
-            'harga' => ['required', 'integer', 'min:0'],
-            'stok' => ['required', 'integer', 'min:0'],
+            'harga_pokok' => ['required', 'integer', 'min:0'],
+            'harga_jual' => ['required', 'integer', 'min:0'],
+            'stok' => ['sometimes', 'integer', 'min:0'],
         ];
     }
 
@@ -48,7 +49,8 @@ class KantinProdukRequest extends FormRequest
             'nama_produk' => ['required', 'string', 'max:255'],
             'foto_produk' => ['nullable', 'image', 'mimes:png,jpg,jpeg', 'max:2048'],
             'deskripsi' => ['required', 'string'],
-            'harga' => ['required', 'integer', 'min:0'],
+            'harga_pokok' => ['required', 'integer', 'min:0'],
+            'harga_jual' => ['required', 'integer', 'min:0'],
             'stok' => ['required', 'integer', 'min:0'],
             'status' => ['nullable', Rule::in('aktif', 'tidak_aktif')],
         ];

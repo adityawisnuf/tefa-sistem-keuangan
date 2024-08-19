@@ -14,7 +14,6 @@ class LaundryTransaksiSatuan extends Model
     protected $fillable = [
         'siswa_id',
         'laundry_id',
-        'laundry_item_detail_id',
         'jumlah_item',
         'harga_total',
         'status',
@@ -27,9 +26,9 @@ class LaundryTransaksiSatuan extends Model
         return $this->belongsTo(Siswa::class, 'siswa_id');
     }
 
-    public function laundryItemDetail()
+    public function laundry_item_detail()
     {
-        return $this->belongsTo(LaundryItemDetail::class, 'laundry_item_detail_id');
+        return $this->hasMany(LaundryItemDetail::class, 'laundry_transaksi_satuan_id');
     }
     public function laundry()
     {
