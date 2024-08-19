@@ -75,7 +75,7 @@ class User extends Authenticatable implements JWTSubject
 
     public function usaha ()
     {
-        return $this->hasMany(Usaha::class, 'usaha_id');
+        return $this->hasMany(Usaha::class, 'user_id');
     }
 
 }

@@ -23,7 +23,15 @@ class UsahaPengajuanController extends Controller
 
     public function create(UsahaPengajuanRequest $request)
     {
+        // Pastikan ini mendapatkan satu instance 'Usaha'
         $usaha = Auth::user()->usaha->first();
+
+        if (!$usaha) {
+            return response()->json([
+                'message' => 'Usaha tidak ditemukan untuk pengguna ini.',
+            ], Response::HTTP_BAD_REQUEST);
+        }
+
         $fields = $request->validated();
 
         try {
@@ -48,4 +56,6 @@ class UsahaPengajuanController extends Controller
             return response()->json(['message' => 'Gagal mengirim pengajuan: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
+
 }
