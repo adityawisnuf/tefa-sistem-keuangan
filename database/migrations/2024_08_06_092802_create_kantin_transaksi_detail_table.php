@@ -11,17 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('laundry_item_detail', function (Blueprint $table) {
+        Schema::dropIfExists('kantin_transaksi_detail');
+
+        Schema::create('kantin_transaksi_detail', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('laundry_item_id');
-            $table->unsignedBigInteger('laundry_transaksi_satuan_id');
+            $table->unsignedBigInteger('kantin_produk_id');
+            $table->unsignedBigInteger('kantin_transaksi_id');
             $table->unsignedInteger('jumlah');
             $table->unsignedInteger('harga');
-            $table->unsignedInteger('harga_total');
             $table->timestamps();
 
-            $table->foreign('laundry_item_id')->references('id')->on('laundry_item');
-            $table->foreign('laundry_transaksi_satuan_id')->references('id')->on('laundry_transaksi_satuan');
+            $table->foreign('kantin_produk_id')->references('id')->on('kantin_produk');
+            $table->foreign('kantin_transaksi_id')->references('id')->on('kantin_transaksi');
         });
     }
 
@@ -30,6 +31,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('laundry_item_detail');
+        Schema::dropIfExists('kantin_transaksi_detail');
+
     }
 };

@@ -11,17 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('kantin_pengajuan', function (Blueprint $table) {
+        Schema::create('usaha_pengajuan', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('kantin_id');
+            $table->unsignedBigInteger('usaha_id');
             $table->unsignedInteger('jumlah_pengajuan');
             $table->enum('status',['pending','disetujui','ditolak'])->default('pending');
             $table->string('alasan_penolakan')->nullable();
             $table->dateTime('tanggal_pengajuan')->default(now());
             $table->dateTime('tanggal_selesai')->nullable();
             $table->timestamps();
-            
-            $table->foreign('kantin_id')->references('id')->on('kantin');
+
+            $table->foreign('usaha_id')->references('id')->on('usaha');
         });
     }
 
@@ -30,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('kantin_pengajuan');
+        Schema::dropIfExists('usaha_pengajuan');
     }
 };

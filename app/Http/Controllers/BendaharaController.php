@@ -35,24 +35,29 @@ class BendaharaController extends Controller
     }
 
     public function getKantinTransaksi()
-    {
-        // Get the current date
-        $perPage = request()->input('per_page', 10);
-        return KantinTransaksi::whereBetween('tanggal_selesai', [$this->startOfWeek, $this->endOfWeek])->paginate($perPage);
-    }
+{
+    $perPage = request()->input('per_page', 10);
+    return KantinTransaksi::whereIn('status', ['dibatalkan', 'selesai'])
+        ->whereBetween('tanggal_selesai', [$this->startOfWeek, $this->endOfWeek])
+        ->paginate($perPage);
+}
 
-    public function getLaundryTransaksiSatuan()
-    {
-        $perPage = request()->input('per_page', 10);
-        return LaundryTransaksiSatuan::whereBetween('tanggal_selesai', [$this->startOfWeek, $this->endOfWeek])->paginate($perPage);
-    }
+public function getLaundryTransaksiSatuan()
+{
+    $perPage = request()->input('per_page', 10);
+    return LaundryTransaksiSatuan::whereIn('status', ['dibatalkan', 'selesai'])
+        ->whereBetween('tanggal_selesai', [$this->startOfWeek, $this->endOfWeek])
+        ->paginate($perPage);
+}
 
-    public function getLaundryTransaksiKiloan()
-    {
-        $perPage = request()->input('per_page', 10);
-        return LaundryTransaksiKiloan::whereBetween('tanggal_selesai', [$this->startOfWeek, $this->endOfWeek])->paginate($perPage);
+public function getLaundryTransaksiKiloan()
+{
+    $perPage = request()->input('per_page', 10);
+    return LaundryTransaksiKiloan::whereIn('status', ['dibatalkan', 'selesai'])
+        ->whereBetween('tanggal_selesai', [$this->startOfWeek, $this->endOfWeek])
+        ->paginate($perPage);
+}
 
-    }
 
     public function getKantinPengajuan() {
         $perPage = request()->input('per_page', 10);
