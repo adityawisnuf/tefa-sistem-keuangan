@@ -34,7 +34,7 @@ class RasioKeuanganController extends Controller
             ->when($bulan, fn($query) => $query->whereMonth('created_at', $bulan))
             ->when($tahun, fn($query) => $query->whereYear('created_at', $tahun))
             ->sum('harga');
-        
+
         // Mengambil data pengeluaran
         $expenses = Pengeluaran::when($bulan, fn($query) => $query->whereMonth('disetujui_pada', $bulan))
             ->when($tahun, fn($query) => $query->whereYear('disetujui_pada', $tahun))
@@ -46,7 +46,7 @@ class RasioKeuanganController extends Controller
         // Menghitung laba bersih
         $profit = $totalPayment - $expenses;
 
-        // Menghitung rasio 
+        // Menghitung rasio
         $npm = $this->netProfitMargin($profit, $totalPayment);
         $roa = $this->returnOnAsset($profit, $asset);
         $toa = $this->turnoverAsset($totalPayment, $asetTetap);
@@ -69,14 +69,14 @@ class RasioKeuanganController extends Controller
         if ($totalPayment == 0) {
             return 'N/A'; // Menghindari pembagian dengan nol
         }
-        return ($profit / $totalPayment)*100 ;
+        return ($profit / $totalPayment) ;
     }
     private function returnOnAsset($profit, $asset)
     {
         if ($asset == 0) {
             return 'N/A'; // Menghindari pembagian dengan nol
         }
-        return ($profit / $asset)*100 ;
+        return ($profit / $asset);
     }
 
     //Rasio efesiensi
