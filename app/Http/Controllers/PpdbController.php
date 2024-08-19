@@ -1,18 +1,16 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Http\Requests\PpdbRequest;
-use App\Models\PembayaranDuitku;
 use App\Models\Pendaftar;
 use App\Models\Ppdb;
 use App\Models\PendaftarDokumen;
 use App\Models\PendaftarAkademik;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class PpdbController extends Controller
 {
@@ -71,11 +69,9 @@ class PpdbController extends Controller
             DB::commit();
 
             return response()->json([
-                'message' => 'Data berhasil disimpan di PembayaranDuitku!',
-                'pendaftar' => $pembayaranDuitku->toArray(),  // Use toArray() to check serialized data
+                'message' => 'Pendaftaran berhasil!',
+                'pendaftar' => $pendaftar,
             ], 201);
-
-
         } catch (\Exception $e) {
             DB::rollback();
 
@@ -89,6 +85,47 @@ class PpdbController extends Controller
             ], 500);
         }
     }
+
+
+    public function downloadDocuments($id)
+{
+    // Mengambil data dokumen berdasarkan ID
+    $pendaftarDokumen = PendaftarDokumen::findOrFail($id);
+
+    // Mengambil data pendaftar berdasarkan ppdb_id yang terdapat pada dokumen
+    $pendaftar = Pendaftar::where('ppdb_id', $pendaftarDokumen->ppdb_id)->firstOrFail();
+
+    // Mengambil nama depan dan nama belakang dari pendaftar
+    $namaDepan = $pendaftar->nama_depan;
+    $namaBelakang = $pendaftar->nama_belakang;
+
+    // Membuat nama folder menggunakan nama depan dan nama belakang
+    $folderName = $namaDepan . '_' . $namaBelakang;
+    $zipFileName = $folderName . '_dokumen_' . $id . '.zip';
+
+    $files = [
+        'akte_kelahiran' => $pendaftarDokumen->akte_kelahiran,
+        'kartu_keluarga' => $pendaftarDokumen->kartu_keluarga,
+        'ijazah' => $pendaftarDokumen->ijazah,
+        'raport' => $pendaftarDokumen->raport,
+    ];
+
+    $zip = new \ZipArchive();
+
+    if ($zip->open(storage_path($zipFileName), \ZipArchive::CREATE | \ZipArchive::OVERWRITE) === TRUE) {
+        foreach ($files as $name => $file) {
+            if (Storage::exists($file)) {
+                $filePath = storage_path('app/' . $file);
+                $zip->addFile($filePath, basename($filePath));
+            }
+        }
+        $zip->close();
+    }
+
+    return response()->download(storage_path($zipFileName))->deleteFileAfterSend(true);
+}
+
+
 
     public function updateStatus(Request $request)
     {
