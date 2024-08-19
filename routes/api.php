@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ArusKasController;
 use App\Http\Controllers\LabaRugiController;
+use App\Http\Controllers\PrediksiPerencanaanKeuanganController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RegisterController;
@@ -29,6 +30,7 @@ Route::group([
     Route::get('arus-kas', [ArusKasController::class, 'index']);
     Route::get('get-options', [LabaRugiController::class, 'getOptions']);
     Route::get('rasio-keuangan', [RasioKeuanganController::class, 'index']);
+    Route::get('prediksi-perencanaan', [PrediksiPerencanaanKeuanganController::class, 'index']);
 });
 
 Route::group([
@@ -39,4 +41,5 @@ Route::group([
     Route::get('arus-kas', [ArusKasController::class, 'index']);
     Route::get('get-options', [LabaRugiController::class, 'getOptions']);
     Route::get('rasio-keuangan', [RasioKeuanganController::class, 'index']);
+    Route::get('prediksi-perencanaan', [PrediksiPerencanaanKeuanganController::class, 'index']);
 });
