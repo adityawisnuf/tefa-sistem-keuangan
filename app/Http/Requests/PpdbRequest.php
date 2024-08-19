@@ -26,7 +26,7 @@ class PpdbRequest extends FormRequest
              'nama_belakang' => 'required|string|max:255',
              'jenis_kelamin' => 'required|string|max:10',
              'nik' => 'required|integer|unique:pendaftar',
-             'email' => 'required|string|email|max:255',
+             'email' => 'required|string|email|max:255|unique:users,email',
              'nisn' => 'required|unique:pendaftar',
              'tempat_lahir' => 'required|string|max:255',
              'tgl_lahir' => 'required|date',

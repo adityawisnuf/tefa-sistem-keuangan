@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Http\Requests\PpdbRequest;
@@ -13,6 +12,8 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use ZipArchive;
 
 class PpdbController extends Controller
 {
@@ -22,15 +23,12 @@ class PpdbController extends Controller
     
         try {
             // Generate a unique merchantOrderId
-            $merchantOrderId = Str::uuid()->toString(); // Generate a UUID
-    
-            // Store files and get their paths
+            $merchantOrderId = Str::uuid()->toString();
             $akteKelahiranPath = $request->file('akte_kelahiran')->store('documents');
             $kartuKeluargaPath = $request->file('kartu_keluarga')->store('documents');
             $ijazahPath = $request->file('ijazah')->store('documents');
             $raportPath = $request->file('raport')->store('documents');
-    
-            // Collect user data, including file paths
+            
             $dataUserResponse = $request->only([
                 'nama_depan',
                 'nama_belakang',
@@ -70,8 +68,6 @@ class PpdbController extends Controller
                 'message' => 'Data berhasil disimpan di PembayaranDuitku!',
                 'pendaftar' => $pembayaranDuitku->toArray(),  // Use toArray() to check serialized data
             ], 201);
-            
-            
         } catch (\Exception $e) {
             DB::rollback();
     
@@ -85,6 +81,58 @@ class PpdbController extends Controller
             ], 500);
         }
     }
+
+
+    public function downloadDocuments($id)
+    {
+        try {
+            // Mengambil data dokumen berdasarkan ID
+            $pendaftarDokumen = PendaftarDokumen::findOrFail($id);
+    
+            // Mengambil data pendaftar berdasarkan ppdb_id yang terdapat pada dokumen
+            $pendaftar = Pendaftar::where('ppdb_id', $pendaftarDokumen->ppdb_id)->firstOrFail();
+    
+            // Mengambil nama depan dan nama belakang dari pendaftar
+            $namaDepan = $pendaftar->nama_depan;
+            $namaBelakang = $pendaftar->nama_belakang;
+    
+            // Membuat nama folder menggunakan nama depan dan nama belakang
+            $folderName = $namaDepan . '_' . $namaBelakang;
+            $zipFileName = $folderName . '_dokumen_' . $id . '.zip';
+    
+            // List of files with their respective document types
+            $files = [
+                'akte_kelahiran' => $pendaftarDokumen->akte_kelahiran,
+                'kartu_keluarga' => $pendaftarDokumen->kartu_keluarga,
+                'ijazah' => $pendaftarDokumen->ijazah,
+                'raport' => $pendaftarDokumen->raport,
+            ];
+    
+            $zip = new ZipArchive();
+    
+            if ($zip->open(storage_path($zipFileName), ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
+                foreach ($files as $type => $file) {
+                    if (Storage::exists($file)) {
+                        // Create a new name for the file using the first and last name plus the document type
+                        $newFileName = $folderName . '_' . $type . '.' . pathinfo($file, PATHINFO_EXTENSION);
+                        $filePath = storage_path('app/' . $file);
+                        $zip->addFile($filePath, $newFileName);
+                    }
+                }
+                $zip->close();
+            }
+    
+            // Download the created ZIP file
+            return response()->download(storage_path($zipFileName))->deleteFileAfterSend(true);
+        } catch (\Exception $e) {
+            // Log the error message
+            Log::error('Error while downloading documents for ID ' . $id . ': ' . $e->getMessage());
+            return response()->json(['error' => 'An error occurred while processing your request.'], 500);
+        }
+    }
+
+
+
     public function updateStatus(Request $request)
     {
         // Validate incoming request

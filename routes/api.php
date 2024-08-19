@@ -9,6 +9,7 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\PendaftarController;
 use App\Http\Controllers\LogoutController;
 use App\Http\Controllers\NIKController;
+use App\Http\Controllers\AmountController;
 use App\Http\Controllers\PdfDownloadController;
 use App\Http\Controllers\PendaftarDokumenController;
 use App\Http\Controllers\PendaftaranAkademikController;
@@ -66,8 +67,17 @@ Route::middleware('auth:api')->group(function () {
     });
 
 
-    Route::post('/payment', [PembayaranController::class, 'createTransaction']);
+    Route::group(['prefix' => 'amounts'], function () {
+        Route::get('/', [AmountController::class, 'index']);
+        Route::post('/get', [AmountController::class, 'store']);
+        Route::get('/{id}', [AmountController::class, 'show']);
+        Route::put('/{id}', [AmountController::class, 'update']);
+        Route::delete('/{id}', [AmountController::class, 'destroy']);
+    });
 
+
+
+    Route::post('/payment', [PembayaranController::class, 'createTransaction']);
 });
 // Route for Pendaftar Komplit (no auth required)
 Route::get('get-province', [IndoRegionController::class, 'getAllProvinces']);
@@ -77,13 +87,13 @@ Route::get('get-village/{districtId}', [IndoRegionController::class, 'getVillage
 Route::post('pendaftar-komplit', [PendaftarKomplitController::class, 'store']);
 
 Route::post('/update-status', [PpdbController::class, 'updateStatus']);
+Route::get('download/{id}', [PpdbController::class, 'downloadDocuments']);
 
-    Route::get('/payment-get', [PembayaranController::class, 'getPaymentMethod']);
-    Route::post('/payment-method', [PembayaranController::class, 'getPaymentMethod']);
-    Route::post('/payment-callback', [PembayaranController::class, 'handleCallback']);
+Route::get('/payment-get', [PembayaranController::class, 'getPaymentMethod']);
+Route::post('/payment-method', [PembayaranController::class, 'getPaymentMethod']);
+Route::post('/payment-callback', [PembayaranController::class, 'handleCallback']);
 
 Route::get('/download-berkas/{id}', [PendaftarDokumenController::class, 'mergePendaftarDokumen']);
 Route::post('/validate-nik', [NIKController::class, 'validateNik']);
 Route::get('/laporan', [LaporanKeuanganController::class, 'laporanKeuangan']);
     // Route::post('/download-pdf', [PdfDownloadController::class, 'store']);
-
