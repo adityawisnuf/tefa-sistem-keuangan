@@ -1,11 +1,8 @@
 <?php
 
-
 namespace App\Http\Resources;
 
-
 use Illuminate\Http\Resources\Json\JsonResource;
-
 
 class AnggaranResource extends JsonResource
 {
@@ -13,7 +10,6 @@ class AnggaranResource extends JsonResource
     public $status;
     public $message;
     public $resource;
-
 
     /**
      * __construct
@@ -29,7 +25,6 @@ class AnggaranResource extends JsonResource
         $this->status  = $status;
         $this->message = $message;
     }
-
 
     /**
      * Transform the resource into an array.
