@@ -33,6 +33,16 @@ class LaundryTransaksiController extends Controller
 
         return response()->json(['data' => $transaksi], Response::HTTP_OK);
     }
+
+    public function getCompletedTransaction()
+    {
+        $usaha = Auth::user()->usaha->firstOrFail();
+
+        $perPage = request()->input('per_page', 10);
+        $transaksi = $usaha->laundry_transaksi()->whereIn('status', ['selesai', 'dibatalkan'])->paginate($perPage);
+
+        return response()->json(['data' => $transaksi], Response::HTTP_OK);
+    }
     //show done
     public function showLaundry($id)
     {
