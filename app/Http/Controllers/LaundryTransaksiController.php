@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\LaundryTransaksiKiloanRequest;
+use App\Http\Requests\LaundryTransaksiRequest;
 use App\Http\Services\StatusTransaksiService;
 use App\Models\LaundryLayanan;
 use App\Models\LaundryTransaksi;
@@ -21,21 +22,22 @@ class LaundryTransaksiController extends Controller
     {
         $this->statusService = new StatusTransaksiService();
     }
+    //get done
+    public function getActiveTransaction()
+    {
+        $usaha = Auth::user()->usaha->firstOrFail();
 
-    public function index()
+        $perPage = request()->input('per_page', 10);
+        $transaksi = $usaha->laundry_transaksi()->where('status', ['pending', 'proses', 'siap_diambil'])->paginate($perPage);
+
+        return response()->json(['data' => $transaksi], Response::HTTP_OK);
+    }
+    //show done
+    public function showLaundryKiloan($id)
     {
         $usaha = Auth::user()->usaha->first();
 
-        $perPage = request()->input('per_page', 10);
-        $transaksi = $usaha->laundry_transaksi()->paginate($perPage);
-        return response()->json(['data' => $transaksi], Response::HTTP_OK);
-    }
-
-    public function showLaundryKiloan($id)
-    {
-        $laundry = Auth::user()->laundry->first();
-
-        $transaksi = LaundryTransaksi::where('usaha_id', $laundry->id)
+        $transaksi = LaundryTransaksi::where('usaha_id', $usaha->id)
             ->where('id', $id)
             ->first();
 
@@ -57,39 +59,30 @@ class LaundryTransaksiController extends Controller
         return response()->json($result['message'], $result['statusCode']);
     }
 
-    public function confirmInitialTransaction(LaundryTransaksiKiloanRequest $request, LaundryTransaksi $transaksi)
+    public function confirmInitialTransaction(LaundryTransaksiRequest $request, LaundryTransaksi $transaksi)
     {
         $fields = $request->validated();
+
         $siswaWallet = $transaksi->siswa->siswa_wallet;
-        $laundry = $transaksi->laundry;
+        $usaha = $transaksi->usaha;
 
-        try {
-            DB::beginTransaction();
+        $result = $this->statusService->confirmInitialTransaction($fields, $transaksi);
 
-            if ($fields['status'] === 'proses') {
-                $transaksi->update(['status' => 'proses']);
-            } elseif ($fields['status'] === 'dibatalkan') {
-                $transaksi->update([
-                    'status' => 'dibatalkan',
-                    'tanggal_selesai' => now(),
-                ]);
-
-                $siswaWallet->update(['nominal' => $siswaWallet->nominal + $transaksi->harga_total]);
-                $laundry->update(['saldo' => $laundry->saldo - $transaksi->harga_total]);
-            } else {
-                return response()->json(['message' => 'Status tidak valid.'], Response::HTTP_BAD_REQUEST);
-            }
-
-            DB::commit();
-
-            return response()->json([
-                'message' => 'Transaksi berhasil diperbarui.',
-                'data' => $transaksi,
-            ], Response::HTTP_OK);
-        } catch (Exception $e) {
-            DB::rollBack();
-            return response()->json(['message' => 'Gagal mengubah status transaksi: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        DB::beginTransaction();
+        if ($result['statusCode'] === Response::HTTP_OK || $transaksi->status === 'dibatalkan') {
+            $transaksi->update([
+                'tanggal_selesai' => now()
+            ]);
+            $siswaWallet->update([
+                'nominal' => $siswaWallet->nominal + $transaksi->harga_total
+            ]);
+            $usaha->update([
+                'saldo' => $usaha->saldo - $transaksi->harga_total
+            ]);
         }
+        DB::commit();
+
+        return response()->json($result['message'], $result['statusCode']);
     }
 
 }
