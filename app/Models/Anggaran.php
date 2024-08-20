@@ -15,3 +15,4 @@ class Anggaran extends Model
         'nama_anggaran', 'nominal', 'deskripsi', 'tanggal_pengajuan', 'target_terealisasikan', 'status', 'pengapprove', 'pengapprove_jabatan', 'catatan'
     ];
 }
+  
