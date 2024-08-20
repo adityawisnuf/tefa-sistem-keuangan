@@ -67,19 +67,19 @@ Route::middleware('auth:api')->group(function () {
     });
 
 
-    Route::group(['prefix' => 'amounts'], function () {
-        Route::get('/', [AmountController::class, 'index']);
-        Route::post('/get', [AmountController::class, 'store']);
-        Route::get('/{id}', [AmountController::class, 'show']);
-        Route::put('/{id}', [AmountController::class, 'update']);
-        Route::delete('/{id}', [AmountController::class, 'destroy']);
-    });
-
-
-
+    
+    
+    
     Route::post('/payment', [PembayaranController::class, 'createTransaction']);
 });
 // Route for Pendaftar Komplit (no auth required)
+Route::group(['prefix' => 'amounts'], function () {
+    Route::get('/', [AmountController::class, 'index']);
+    Route::post('/get', [AmountController::class, 'store']);
+    Route::get('/{id}', [AmountController::class, 'show']);
+    Route::put('/{id}', [AmountController::class, 'update']);
+    Route::delete('/{id}', [AmountController::class, 'destroy']);
+});
 Route::get('get-province', [IndoRegionController::class, 'getAllProvinces']);
 Route::get('get-regency/{provinceId}', [IndoRegionController::class, 'getRegenciesByProvince']);
 Route::get('get-district/{regencyId}', [IndoRegionController::class, 'getDistrictsByRegency']);

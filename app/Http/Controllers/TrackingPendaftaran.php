@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Ppdb;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 
 class TrackingPendaftaran extends Controller
 {
@@ -20,10 +21,19 @@ class TrackingPendaftaran extends Controller
             'pendaftarDokumen',
         ])
         ->where('user_id', $userId)
-        ->get(); // Mengambil semua data yang cocok dengan kriteria
-    
-        return response()->json($ppdbs);
+        ->get();
+
+        // Format tanggal created_at dan tambahkan ke array
+        $ppdb = $ppdbs->map(function($ppdbs) {
+            $ppdbArray = $ppdbs->toArray();
+            $ppdbArray['created_at'] = Carbon::parse($ppdbs->created_at)->format('d-m-Y');
+            return $ppdbArray;
+        });
+
+        return response()->json($ppdb);
     }
+
+
     
     public function getAllPendaftarans()
     {
