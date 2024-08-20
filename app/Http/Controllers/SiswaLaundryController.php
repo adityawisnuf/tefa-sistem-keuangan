@@ -39,7 +39,7 @@ class SiswaLaundryController extends Controller
         return response()->json(['data' => $riwayat], Response::HTTP_OK);
     }
 
-    public function createLayananTransaksi(SiswaLaundryRequest $request, LaundryLayanan $layanan)
+    public function createLayananTransaksi(SiswaLaundryRequest $request)
     {
         $siswa = Auth::user()->siswa()->with('siswa_wallet')->firstOrFail();
         $fields = $request->validated();

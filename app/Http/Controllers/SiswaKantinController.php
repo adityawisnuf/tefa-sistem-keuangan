@@ -30,7 +30,7 @@ class SiswaKantinController extends Controller
         return response()->json(['data' => $produk], Response::HTTP_OK);
     }
 
-    public function createProdukTransaksi(SiswaKantinRequest $request, KantinProduk $produk)
+    public function createProdukTransaksi(SiswaKantinRequest $request)
     {
         $siswa = Auth::user()->siswa()->with('siswa_wallet')->firstOrFail();
         $fields = $request->validated();
@@ -50,7 +50,7 @@ class SiswaKantinController extends Controller
             $qty = $productDetail['jumlah'];
 
             if ($product->stok < $qty) {
-                return response()->json(['message' => 'Stok produk {$product->nama_produk} tidak mencukupi.'], Response::HTTP_BAD_REQUEST);
+                return response()->json(['message' => "Stok produk {$product->nama_produk} tidak mencukupi."], Response::HTTP_BAD_REQUEST);
             }
 
             $product->update([
@@ -100,4 +100,3 @@ class SiswaKantinController extends Controller
         return response()->json(['data' => $riwayat], Response::HTTP_OK);
     }
 }
-

@@ -111,7 +111,6 @@ Route::group([
         'prefix' => 'laundry',
         'middleware' => 'checkrole:Laundry'
     ], function () {
-
         Route::group(['prefix' => 'layanan'], function () {
             Route::get('/', [LaundryLayananController::class, 'index']);
             Route::post('/', [LaundryLayananController::class, 'create']);
@@ -160,11 +159,10 @@ Route::group([
         Route::get('/penjualan/laundry-kiloan', [KepsekController::class, 'getLaundryTransaksiKiloan']);
 
         Route::get('/pengajuan/kantin', [KepsekController::class, 'getKantinPengajuan']);
-
+        
         Route::get('/pengajuan/laundry', [KepsekController::class, 'getLaundryPengajuan']);
     });
 });
-
 
 Route::post('/test', function (Request $request) {
     $siswa = Auth::user()->usaha->firstOrFail();
