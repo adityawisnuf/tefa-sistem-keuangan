@@ -57,8 +57,7 @@ Route::group([
             Route::group(['prefix' => 'produk'], function () {
                 Route::get('/', [SiswaKantinController::class, 'getProduk']);
                 Route::get('/riwayat', [SiswaKantinController::class, 'getKantinRiwayat']);
-                Route::get('/{produk}', [SiswaKantinController::class, 'getProdukDetail']);
-                Route::post('/{produk}/transaksi', [SiswaKantinController::class, 'createProdukTransaksi']);
+                Route::post('/transaksi', [SiswaKantinController::class, 'createProdukTransaksi']);
             });
         });
 

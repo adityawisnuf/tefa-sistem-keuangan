@@ -48,23 +48,16 @@ class KantinTransaksiController extends Controller
         $result = $this->statusService->confirmInitialTransaction($fields, $transaksi);
 
         DB::beginTransaction();
-        if ($result['statusCode'] === Response::HTTP_OK) {
-            if ($transaksi->status === 'proses') {
-                $kantinProduk = $transaksi->kantin_produk;
-                $kantinProduk->update([
-                    'stok' => $kantinProduk->stok - $transaksi->jumlah
-                ]);
-            } else {
-                $transaksi->update([
-                    'tanggal_selesai' => now()
-                ]);
-                $siswaWallet->update([
-                    'nominal' => $siswaWallet->nominal + $transaksi->harga_total
-                ]);
-                $usaha->update([
-                    'saldo' => $usaha->saldo - $transaksi->harga_total
-                ]);
-            }
+        if ($result['statusCode'] === Response::HTTP_OK || $transaksi->status === 'dibatalkan') {
+            $transaksi->update([
+                'tanggal_selesai' => now()
+            ]);
+            $siswaWallet->update([
+                'nominal' => $siswaWallet->nominal + $transaksi->harga_total
+            ]);
+            $usaha->update([
+                'saldo' => $usaha->saldo - $transaksi->harga_total
+            ]);
         }
         DB::commit();
 

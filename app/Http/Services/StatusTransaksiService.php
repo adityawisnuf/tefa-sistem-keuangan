@@ -3,47 +3,41 @@
 namespace App\Http\Services;
 
 use Illuminate\Database\Eloquent\Model;
-use Symfony\Component\HttpFoundation\Response;
 
 class StatusTransaksiService
 {
-    public function update(Model $model)
+    public function update(Model $model): array
     {
-        if (in_array($model['status'], ['dibatalkan', 'selesai'])) {
-            return [
-                'message' => 'Pesanan sudah selesai!',
-                'statusCode' => Response::HTTP_UNAUTHORIZED
-            ];
+        if ($this->isTransactionCompleted($model)) {
+            throw new \Exception('Pesanan sudah selesai!');
         }
-
 
         switch ($model['status']) {
             case 'proses':
                 $model->update(['status' => 'siap_diambil']);
-                return [
-                    'message' => ['data' => $model],
-                    'statusCode' => Response::HTTP_OK
-                ];
+                return ['data' => $model];
+
             case 'siap_diambil':
                 $model->update(['status' => 'selesai']);
-                return [
-                    'message' => ['data' => $model],
-                    'statusCode' => Response::HTTP_OK
-                ];
+                return ['data' => $model];
+
             default:
-                return [
-                    'message' => 'Invalid status',
-                    'statusCode' => Response::HTTP_UNAUTHORIZED
-                ];
+                throw new \InvalidArgumentException('Invalid status');
         }
     }
 
-    public function confirmInitialTransaction(array $data, Model $model)
+    public function confirmInitialTransaction(array $data, Model $model): array
     {
+        if ($this->isTransactionCompleted($model)) {
+            throw new \Exception('Pesanan sudah selesai!');
+        }
+
         $model->update($data);
-        return [
-            'message' => ['data' => $model],
-            'statusCode' => Response::HTTP_OK
-        ];
+        return ['data' => $model];
+    }
+
+    protected function isTransactionCompleted(Model $model): bool
+    {
+        return in_array($model['status'], ['dibatalkan', 'selesai']);
     }
 }

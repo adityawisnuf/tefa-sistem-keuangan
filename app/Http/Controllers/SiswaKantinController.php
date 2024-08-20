@@ -5,9 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\SiswaKantinRequest;
 use App\Models\KantinProduk;
 use App\Models\KantinTransaksi;
+use App\Models\KantinTransaksiDetail;
 use App\Models\SiswaWalletRiwayat;
-use Exception;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,9 +15,13 @@ class SiswaKantinController extends Controller
 {
     public function getProduk()
     {
-        $kategori = request()->input('kategori', 1);
+        $kategori = request()->input('kategori');
         $perPage = request()->input('per_page', 10);
-        $produk = KantinProduk::where('kantin_produk_kategori_id', $kategori)->latest()->paginate($perPage);
+
+        $produk = $kategori
+            ? KantinProduk::where('kantin_produk_kategori_id', $kategori)->paginate($perPage)
+            : KantinProduk::paginate($perPage);
+
         return response()->json(['data' => $produk], Response::HTTP_OK);
     }
 
@@ -29,62 +32,71 @@ class SiswaKantinController extends Controller
 
     public function createProdukTransaksi(SiswaKantinRequest $request, KantinProduk $produk)
     {
-        $siswa = Auth::user()->siswa->first();
+        $siswa = Auth::user()->siswa()->with('siswa_wallet')->firstOrFail();
         $fields = $request->validated();
-
+        
+        $usaha = KantinProduk::find($fields['detail_pesanan'][0]['kantin_produk_id'])->usaha;
         $siswaWallet = $siswa->siswa_wallet;
-
+        
         $fields['siswa_id'] = $siswa->id;
-        $fields['kantin_id'] = $produk->kantin_id;
-        $fields['kantin_produk_id'] = $produk->id;
-        $fields['harga'] = $produk->harga;
-        $fields['harga_total'] = $fields['harga'] * $fields['jumlah'];
+        $fields['usaha_id'] = $usaha->id;
 
-        try {
-            if ($siswaWallet->nominal < $fields['harga_total']) {
-                return response()->json([
-                    'message' => 'Saldo tidak mencukupi untuk transaksi ini.',
-                ], Response::HTTP_BAD_REQUEST);
+        DB::beginTransaction();
+        $kantinTransaksi = KantinTransaksi::create($fields);
+        $totalHarga = 0;
+
+        foreach ($fields['detail_pesanan'] as $productDetail) {
+            $product = $usaha->kantin_produk()->findOrFail($productDetail['kantin_produk_id']);
+            $qty = $productDetail['jumlah'];
+
+            if ($product->stok < $qty) {
+                return response()->json(['message' => 'Stok produk {$product->nama_produk} tidak mencukupi.'], Response::HTTP_BAD_REQUEST);
             }
 
-            if ($fields['jumlah'] > $produk->stok) {
-                return response()->json([
-                    'message' => 'Stok tidak mencukupi untuk jumlah yang dipesan.',
-                ], Response::HTTP_BAD_REQUEST);
-            }
-
-            DB::beginTransaction();
-            $transaksi = KantinTransaksi::create($fields);
-            $kantin = $transaksi->kantin;
-
-            $siswaWallet->update([
-                'nominal' => $siswaWallet->nominal - $fields['harga_total']
+            $product->update([
+                'stok' => $product->stok - $qty
+            ]);
+            
+            KantinTransaksiDetail::create([
+                'kantin_produk_id' => $product->id,
+                'kantin_transaksi_id' => $kantinTransaksi->id,
+                'jumlah' => $qty,
+                'harga' => $product->harga_jual,
             ]);
 
-            $kantin->update([
-                'saldo' => $kantin->saldo + $fields['harga_total']
-            ]);
-
-            SiswaWalletRiwayat::create([
-                'siswa_wallet_id' => $siswaWallet->id,
-                'merchant_order_id' => null,
-                'tipe_transaksi' => 'pengeluaran',
-                'nominal' => $fields['harga_total']
-            ]);
-            DB::commit();
-
-            return response()->json(['data' => $transaksi], Response::HTTP_CREATED);
-        } catch (Exception $e) {
-            DB::rollBack();
-            return response()->json(['message' => 'Gagal membuat transaksi: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+            $totalHarga += $product->harga_jual * $productDetail['jumlah'];
         }
+
+
+        if ($siswaWallet->nominal < $totalHarga) {
+            return response()->json(['message' => 'Saldo tidak mencukupi untuk transaksi ini.'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $usaha->update([
+            'saldo' => $usaha->saldo + $totalHarga,
+        ]);
+
+        $siswaWallet->update([
+            'nominal' => $siswaWallet->nominal - $totalHarga,
+        ]);
+
+        SiswaWalletRiwayat::create([
+            'siswa_wallet_id' => $siswaWallet->id,
+            'merchant_order_id' => null,
+            'tipe_transaksi' => 'pengeluaran',
+            'nominal' => $totalHarga,
+        ]);
+        DB::commit();
+        
+        return response()->json(['data' => $kantinTransaksi], Response::HTTP_CREATED);
     }
 
     public function getKantinRiwayat()
     {
-        $siswa = Auth::user()->siswa->first();
+        $siswa = Auth::user()->siswa->firstOrFail();
         $perPage = request()->input('per_page', 10);
-        $riwayat = $siswa->kantin_transaksi()->paginate($perPage);
+
+        $riwayat = $siswa->kantin_transaksi()->with('kantin_transaksi_detail.kantin_produk')->latest()->paginate($perPage);
         return response()->json(['data' => $riwayat], Response::HTTP_OK);
     }
 }

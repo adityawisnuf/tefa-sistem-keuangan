@@ -22,14 +22,14 @@ class KantinTransaksi extends Model
 
     public function kantin_transaksi_detail()
     {
-        return $this->hasMany(KantinProduk::class, 'kantin_transaksi_id');
+        return $this->hasMany(KantinTransaksiDetail::class, 'kantin_transaksi_id');
     }
 
     public function usaha()
     {
         return $this->belongsTo(Usaha::class, 'usaha_id');
     }
-    
+
     public function siswa()
     {
         return $this->belongsTo(Siswa::class, 'siswa_id');
