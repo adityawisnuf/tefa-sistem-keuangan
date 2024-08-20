@@ -9,7 +9,7 @@ class LaundryTransaksi extends Model
 {
     use HasFactory;
 
-    protected $table = 'laundry_transaksi_detail';
+    protected $table = 'laundry_transaksi';
 
     protected $fillable = [
         'siswa_id',
@@ -19,18 +19,19 @@ class LaundryTransaksi extends Model
         'tanggal_selesai',
     ];
 
-    public function kantin_transaksi_detail ()
+    public function laundry_transaksi_detail ()
     {
-        return $this->hasMany(LaundryLayanan::class, 'siswa_id');
+        return $this->hasMany(LaundryTransaksiDetail::class, 'laundry_transaksi_id');
     }
 
     public function usaha()
     {
         return $this->belongsTo(Usaha::class, 'usaha_id');
     }
-    
+
     public function siswa ()
     {
-        return $this->belongsTo(LaundryLayanan::class, 'siswa_id');
+        return $this->belongsTo(Siswa::class, 'siswa_id');
     }
+
 }

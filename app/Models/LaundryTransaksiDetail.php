@@ -25,6 +25,6 @@ class LaundryTransaksiDetail extends Model
 
     public function laundry_transaksi ()
     {
-        return $this->hasMany(LaundryTransaksi::class, 'laundry_transaksi_id');
+        return $this->belongsTo(LaundryTransaksi::class, 'laundry_transaksi_id');
     }
 }

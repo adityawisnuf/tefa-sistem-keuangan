@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class LaundryTransaksiKiloanRequest extends FormRequest
+class LaundryTransaksiRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,16 +26,6 @@ class LaundryTransaksiKiloanRequest extends FormRequest
             'POST' => $this->store(),
             'PUT' => $this->update(),
         };
-    }
-
-    public function store()
-    {
-        return [
-            'siswa_id' => ['required', 'exists:siswa,id'],
-            'laundry_layanan_id' => ['required', 'exists:laundry_layanan,id'],
-            'berat' => ['required', 'integer', 'min:1'],
-
-        ];
     }
 
     public function update()
