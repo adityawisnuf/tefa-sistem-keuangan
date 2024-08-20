@@ -123,7 +123,7 @@ Route::group([
         Route::group(['prefix' => 'transaksi'], function () {
            Route::get('/', [LaundryTransaksiController::class, 'getActiveTransaction']);
         //    Route::get('/{$id}', [LaundryTransaksiController::class, 'showLaundry']);
-           Route::put('/{transaksi}', [LaundryTransaksiController::class, 'update']);
+           Route::get('/{transaksi}', [LaundryTransaksiController::class, 'update']);
            Route::put('/{transaksi}/konfirmasi', [LaundryTransaksiController::class, 'confirmInitialTransaction']);
         });
 

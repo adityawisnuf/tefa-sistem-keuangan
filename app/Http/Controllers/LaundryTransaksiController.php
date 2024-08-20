@@ -9,6 +9,7 @@ use App\Models\LaundryLayanan;
 use App\Models\LaundryTransaksi;
 use App\Models\LaundryTransaksiKiloan;
 use App\Models\Siswa;
+use App\Models\SiswaWalletRiwayat;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
@@ -28,7 +29,7 @@ class LaundryTransaksiController extends Controller
         $usaha = Auth::user()->usaha->firstOrFail();
 
         $perPage = request()->input('per_page', 10);
-        $transaksi = $usaha->laundry_transaksi()->where('status', ['pending', 'proses', 'siap_diambil'])->paginate($perPage);
+        $transaksi = $usaha->laundry_transaksi()->whereIn('status', ['pending', 'proses', 'siap_diambil'])->paginate($perPage);
 
         return response()->json(['data' => $transaksi], Response::HTTP_OK);
     }
@@ -52,11 +53,11 @@ class LaundryTransaksiController extends Controller
 
     public function update(LaundryTransaksi $transaksi)
     {
-        $result = $this->statusService->update($transaksi);
-        if ($result['statusCode'] === Response::HTTP_OK && $transaksi->status === 'selesai') {
+        $this->statusService->update($transaksi);
+        if ($transaksi->status === 'selesai') {
             $transaksi->update(['tanggal_selesai' => now()]);
         }
-        return response()->json($result['message'], $result['statusCode']);
+        return response()->json(['data' => $transaksi], Response::HTTP_OK);
     }
 
     public function confirmInitialTransaction(LaundryTransaksiRequest $request, LaundryTransaksi $transaksi)
@@ -66,23 +67,35 @@ class LaundryTransaksiController extends Controller
         $siswaWallet = $transaksi->siswa->siswa_wallet;
         $usaha = $transaksi->usaha;
 
-        $result = $this->statusService->confirmInitialTransaction($fields, $transaksi);
-
         DB::beginTransaction();
-        if ($result['statusCode'] === Response::HTTP_OK || $transaksi->status === 'dibatalkan') {
+        $this->statusService->confirmInitialTransaction($fields, $transaksi);
+        if ($transaksi->status === 'dibatalkan') {
+            $harga_total = $transaksi->laundry_transaksi_detail->sum(function ($detail) {
+                return $detail->harga * $detail->jumlah;
+            });
+
             $transaksi->update([
                 'tanggal_selesai' => now()
             ]);
-            $siswaWallet->update([
-                'nominal' => $siswaWallet->nominal + $transaksi->harga_total
-            ]);
+
             $usaha->update([
-                'saldo' => $usaha->saldo - $transaksi->harga_total
+                'saldo' => $usaha->saldo - $harga_total
+            ]);
+
+            $siswaWallet->update([
+                'nominal' => $siswaWallet->nominal + $harga_total
+            ]);
+
+            SiswaWalletRiwayat::create([
+                'siswa_wallet_id' => $siswaWallet->id,
+                'merchant_order_id' => null,
+                'tipe_transaksi' => 'pemasukan',
+                'nominal' => $harga_total,
             ]);
         }
         DB::commit();
 
-        return response()->json($result['message'], $result['statusCode']);
+        return response()->json(['data' => $transaksi], Response::HTTP_OK);
     }
 
 }
