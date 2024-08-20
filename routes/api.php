@@ -96,8 +96,8 @@ Route::group([
         Route::group(['prefix' => 'transaksi'], function () {
             Route::get('/', [KantinTransaksiController::class, 'getActiveTransaction']);
             Route::get('/riwayat', [KantinTransaksiController::class, 'getCompletedTransaction']);
+            Route::get('/{transaksi}', [KantinTransaksiController::class, 'update']);
             Route::put('/{transaksi}/konfirmasi', [KantinTransaksiController::class, 'confirmInitialTransaction']);
-            Route::put('/{transaksi}', [KantinTransaksiController::class, 'update']);
         });
 
         //pengajuan
