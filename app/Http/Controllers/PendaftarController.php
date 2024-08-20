@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\pendaftarExport;
 use App\Models\Pendaftar;
 use App\Notifications\EmailVerificationNotification;
 use Illuminate\Http\Request;
@@ -10,6 +11,8 @@ use App\Mail\PendaftarCreated;
 use App\Models\Ppdb;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
+use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class PendaftarController extends Controller
 {
@@ -30,6 +33,13 @@ class PendaftarController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+
+     public function export()
+     {
+         // Create an instance of the export class without a year parameter
+         return Excel::download(new pendaftarExport, 'pendaftar_data.xlsx');
+     }
+
 
      public function store(Request $request)
      {
@@ -152,5 +162,5 @@ class PendaftarController extends Controller
         return response()->json(['message' => 'Pendaftar deleted successfully']);
     }
 
-    
+
 }
