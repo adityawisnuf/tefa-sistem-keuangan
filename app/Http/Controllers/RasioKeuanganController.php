@@ -7,6 +7,7 @@ use App\Models\PembayaranSiswa;
 use App\Models\PembayaranPpdb;
 use App\Models\Pengeluaran;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 
 
@@ -34,11 +35,42 @@ class RasioKeuanganController extends Controller
             ->when($bulan, fn($query) => $query->whereMonth('created_at', $bulan))
             ->when($tahun, fn($query) => $query->whereYear('created_at', $tahun))
             ->sum('harga');
+        $asetLancar = AsetSekolah::where('tipe', 'lancar') // Filter berdasarkan tipe aset
+            ->when($bulan, fn($query) => $query->whereMonth('created_at', $bulan))
+            ->when($tahun, fn($query) => $query->whereYear('created_at', $tahun))
+            ->sum('harga');
 
         // Mengambil data pengeluaran
-        $expenses = Pengeluaran::when($bulan, fn($query) => $query->whereMonth('disetujui_pada', $bulan))
+        $expenses = Pengeluaran::whereNotNull('disetujui_pada')
+            ->when($bulan, fn($query) => $query->whereMonth('disetujui_pada', $bulan))
             ->when($tahun, fn($query) => $query->whereYear('disetujui_pada', $tahun))
             ->sum('nominal');
+
+        $currentLiability = DB::table('pengeluaran')
+            ->join('pengeluaran_kategori', 'pengeluaran.pengeluaran_kategori_id', '=', 'pengeluaran_kategori.id')
+            ->whereNull('pengeluaran.disetujui_pada')
+            ->where('pengeluaran_kategori.tipe_utang', 'jangka pendek')
+            ->when($bulan, fn($query) => $query->whereMonth('pengeluaran.created_at', $bulan))
+            ->when($tahun, fn($query) => $query->whereYear('pengeluaran.created_at', $tahun))
+            ->sum('pengeluaran.nominal');
+
+        $currentLiability = DB::table('pengeluaran')
+            ->join('pengeluaran_kategori', 'pengeluaran.pengeluaran_kategori_id', '=', 'pengeluaran_kategori.id')
+            ->whereNull('pengeluaran.disetujui_pada')
+            ->where('pengeluaran_kategori.tipe_utang', 'jangka pendek')
+            ->when($bulan, fn($query) => $query->whereMonth('pengeluaran.created_at', $bulan))
+            ->when($tahun, fn($query) => $query->whereYear('pengeluaran.created_at', $tahun))
+            ->sum('pengeluaran.nominal');
+
+        $inventory = DB::table('pengeluaran')
+            ->join('pengeluaran_kategori', 'pengeluaran.pengeluaran_kategori_id', '=', 'pengeluaran_kategori.id')
+            ->where('pengeluaran_kategori.nama', 'Barang Habis Pakai')
+            ->when($bulan, fn($query) => $query->whereMonth('pengeluaran.created_at', $bulan))
+            ->when($tahun, fn($query) => $query->whereYear('pengeluaran.created_at', $tahun))
+            ->sum('pengeluaran.nominal');
+
+
+
 
         // Menghitung total pemasukan
         $totalPayment = $payments + $paymentsPpdb;
@@ -47,10 +79,12 @@ class RasioKeuanganController extends Controller
         $profit = $totalPayment - $expenses;
 
         // Menghitung rasio
-        $npm = $this->netProfitMargin($profit, $totalPayment);
-        $roa = $this->returnOnAsset($profit, $asset);
-        $toa = $this->turnoverAsset($totalPayment, $asetTetap);
-        $oer = $this->operatingExpenseRatio($expenses ,$totalPayment);
+        $npm = $this->netProfitMargin($profit, $totalPayment)*100;
+        $roa = $this->returnOnAsset($profit, $asset)*100;
+        $toa = $this->turnoverAsset($totalPayment, $asetTetap)*100;
+        $oer = $this->operatingExpenseRatio($expenses ,$totalPayment)*100;
+        $cr = $this->currentRatio($asetLancar, $currentLiability) * 100;
+
 
         // Menyiapkan data yang akan dikembalikan
         $data = [
@@ -58,6 +92,7 @@ class RasioKeuanganController extends Controller
             'return_on_asset' => $roa,
             'turnover_aset' => $toa,
             'operating_expense_ratio' => $oer,
+            'current_ratio' => $cr,
         ];
 
         return response()->json(['data' => $data], 200);
@@ -94,5 +129,19 @@ class RasioKeuanganController extends Controller
             return 'N/A'; // Menghindari pembagian dengan nol
         }
         return $expenses / $totalPayment ;
+    }
+
+    //Rasio likuiditas
+    private function currentRatio($asetLancar, $currentLiability){
+        if ($currentLiability == 0) {
+            return 'N/A'; // Menghindari pembagian dengan nol
+        }
+        return $asetLancar / $currentLiability;
+    }
+    private function quickRatio($asetLancar,$inventory, $currentLiability){
+        if ($currentLiability == 0) {
+            return 'N/A'; // Menghindari pembagian dengan nol
+        }
+        return ($asetLancar - $inventory) / $currentLiability;
     }
 }

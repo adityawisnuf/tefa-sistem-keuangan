@@ -37,13 +37,15 @@ class ArusKasController extends Controller
                             })
                             ->paginate(20);
 
-        $expenses = Pengeluaran::when($bulan, function ($query) use ($bulan) {
-                            return $query->whereMonth('disetujui_pada', $bulan);
-                        })
-                        ->when($tahun, function ($query) use ($tahun) {
-                            return $query->whereYear('disetujui_pada', $tahun);
-                        })
-                        ->paginate(20);
+        $expenses = Pengeluaran::whereNotNull('disetujui_pada') // Tambahkan kondisi ini untuk menyaring pengeluaran yang belum disetujui
+                            ->when($bulan, function ($query) use ($bulan) {
+                                return $query->whereMonth('created_at', $bulan); // Sesuaikan dengan kolom yang benar jika diperlukan
+                            })
+                            ->when($tahun, function ($query) use ($tahun) {
+                                return $query->whereYear('created_at', $tahun); // Sesuaikan dengan kolom yang benar jika diperlukan
+                            })
+                            ->paginate(20);
+
 
         // Prepare an array to hold the profit data
         $profit = [];
@@ -102,7 +104,7 @@ class ArusKasController extends Controller
 
         // Calculate totals
         $totalIncome = PembayaranSiswa::where('status', 1)->sum('nominal') + PembayaranPpdb::where('status', 1)->sum('nominal');
-        $totalExpense = Pengeluaran::all()->sum('nominal');
+        $totalExpense = Pengeluaran::whereNotNull('disetujui_pada')->sum('nominal');
         $totalPaymentNow = $paymentsPpdb->sum('nominal') + $payments->sum('nominal');
         $totalExpensesNow = $expenses->sum('nominal');
 
