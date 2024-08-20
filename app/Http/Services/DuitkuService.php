@@ -84,8 +84,8 @@ class DuitkuService
         $firstName = 'Anjasmara';
         $lastName = 'Tahu Bulat';
         $customerVaName = $firstName . ' ' . $lastName;
-        $callbackUrl = 'https://bd01-180-244-129-6.ngrok-free.app/api/duitku/callback';
-        $returnUrl = 'https://bd01-180-244-129-6.ngrok-free.app/return';
+        $callbackUrl = 'https://3e16-180-244-128-216.ngrok-free.app/api/duitku/callback';
+        $returnUrl = 'https://3e16-180-244-128-216.ngrok-free.app/return';
         $expiryPeriod = 10;
         $signature = md5($this->merchantCode . $merchantOrderId . $paymentAmount . $this->apiKey);
 

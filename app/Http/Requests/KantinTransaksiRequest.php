@@ -21,22 +21,6 @@ class KantinTransaksiRequest extends FormRequest
      */
     public function rules(): array
     {
-        return match ($this->method()) {
-            'POST' => $this->store(),
-            'PUT' => $this->update(),
-        };
-    }
-
-    public function store()
-    {
-        return [
-            'kantin_produk_id' => ['required', 'exists:kantin_produk,id'],
-            'jumlah' => ['required', 'integer', 'min:1'],
-        ];
-    }
-
-    public function update()
-    {
         return [
             'status' => ['required', Rule::in('dibatalkan', 'proses')]
         ];

@@ -21,23 +21,8 @@ class SiswaLaundryRequest extends FormRequest
      */
     public function rules(): array
     {
-        return match ($this->route()->getName()) {
-            'siswa-satuan-transaksi' => $this->satuan(),
-            'siswa-kiloan-transaksi' => $this->kiloan(),
-        };
-    }
-
-    public function satuan()
-    {
         return [
-            'item_detail' => ['required', 'array', 'min:1']
-        ];
-    }
-
-    public function kiloan()
-    {
-        return [
-            'berat' => ['required', 'numeric', 'min:1']
+            'detail_pesanan' => ['required', 'array', 'min:1'],
         ];
     }
 }

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class StatusTransaksiService
 {
-    public function update(Model $model): array
+    public function update(Model $model)
     {
         if ($this->isTransactionCompleted($model)) {
             throw new \Exception('Pesanan sudah selesai!');
@@ -15,25 +15,22 @@ class StatusTransaksiService
         switch ($model['status']) {
             case 'proses':
                 $model->update(['status' => 'siap_diambil']);
-                return ['data' => $model];
-
+                break;
             case 'siap_diambil':
                 $model->update(['status' => 'selesai']);
-                return ['data' => $model];
-
+                break;
             default:
-                throw new \InvalidArgumentException('Invalid status');
+                throw new \Exception('Invalid status');
         }
     }
 
-    public function confirmInitialTransaction(array $data, Model $model): array
+    public function confirmInitialTransaction(array $data, Model $model)
     {
         if ($this->isTransactionCompleted($model)) {
             throw new \Exception('Pesanan sudah selesai!');
         }
 
         $model->update($data);
-        return ['data' => $model];
     }
 
     protected function isTransactionCompleted(Model $model): bool
