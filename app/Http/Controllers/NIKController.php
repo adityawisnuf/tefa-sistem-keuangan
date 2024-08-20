@@ -17,7 +17,7 @@ class NIKController extends Controller
     {
         // Validasi input NIK
         $request->validate([
-            'nik' => 'required|string|size:16', // NIK harus berukuran 16 karakter
+            'nik' => 'required|string|size:16',
         ]);
 
         // Ambil NIK dari request
@@ -25,13 +25,12 @@ class NIKController extends Controller
 
         // Validasi NIK
         $validator = new Validator($nik);
-        $result = $validator->parse(); // Menggunakan metode parse() untuk memvalidasi NIK
+        $result = $validator->parse(); 
 
         if ($result->valid) {
             return response()->json([
                 'message' => 'NIK valid',
                 'valid' => true,
-                'data' => $result
             ]);
         } else {
             return response()->json([

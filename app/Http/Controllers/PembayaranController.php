@@ -104,7 +104,7 @@ class PembayaranController extends Controller
         $last_name = $request->input('nama_belakang');
         $paymentMethod = $request->input('paymentMethod');
         $merchantOrderId = $request->input('merchantOrderId');
-        $callbackUrl = 'https://0b1e-180-244-129-142.ngrok-free.app/api/payment-callback';
+        $callbackUrl = 'https://3f00-180-244-128-93.ngrok-free.app/api/payment-callback';
         $returnUrl = 'http://localhost:5173/orang-tua/cek-pembayaran';
         $expiryPeriod = 60;
         $customerEmail = $request->input('email');
@@ -290,6 +290,13 @@ public function handleCallback(Request $request)
                                     'sekolah_asal' => $dataUserResponse['sekolah_asal'],
                                     'tahun_lulus' => $dataUserResponse['tahun_lulus'],
                                     'jurusan_tujuan' => $dataUserResponse['jurusan_tujuan'],
+                                ]);
+
+                                User::create([
+                                    'name'  => $dataUserResponse['nama_depan'] . ' ' . $dataUserResponse['nama_belakang'],
+                                    'email' => $dataUserResponse['email'],
+                                    'password' => Hash::make(Str::random(16)), 
+                                    'role' => 'Siswa',
                                 ]);
 
                                 Log::info("Data user successfully inserted into Pendaftar for Order ID: $merchantOrderId");
