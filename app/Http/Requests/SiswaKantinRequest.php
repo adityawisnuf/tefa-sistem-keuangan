@@ -22,7 +22,7 @@ class SiswaKantinRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'jumlah' => ['required', 'integer', 'min:1'],
+            'detail_pesanan' => ['required', 'array', 'min:1'],
         ];
     }
 }

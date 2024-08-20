@@ -46,6 +46,7 @@ class Usaha extends Model
     {
         return $this->hasMany(KantinTransaksi::class, 'usaha_id');
     }
+
     public function laundry_transaksi()
     {
         return $this->hasMany(LaundryTransaksi::class, 'usaha_id');
