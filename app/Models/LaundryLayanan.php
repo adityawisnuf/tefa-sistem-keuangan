@@ -20,7 +20,6 @@ class LaundryLayanan extends Model
         'tipe',
         'satuan',
         'status',
-
     ];
 
     public function usaha()

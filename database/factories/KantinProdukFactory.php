@@ -14,17 +14,20 @@ class KantinProdukFactory extends Factory
      *
      * @return array<string, mixed>
      */
+
     public function definition(): array
     {
+
         return [
-            'kantin_id' => 1,
-            'kantin_produk_kategori_id' => $this->faker->numberBetween(1, 10),
-            'nama_produk' => $this->faker->word,
-            'foto_produk' => $this->faker->imageUrl(),
-            'deskripsi' => $this->faker->sentence,
-            'harga' => $this->faker->numberBetween(1000, 100000),
-            'stok' => $this->faker->numberBetween(1, 100),
-            'status' => $this->faker->randomElement(['aktif', 'tidak_aktif']),
+            'usaha_id' => 1,
+            'kantin_produk_kategori_id' => $this->faker->numberBetween(1, 2), 
+            'nama_produk' => $this->faker->words(2, true), 
+            'foto_produk' => $this->faker->imageUrl(640, 480, 'makanan', true), 
+            'deskripsi' => $this->faker->sentence(),
+            'harga_pokok' => $this->faker->numberBetween(1000, 10000),
+            'harga_jual' => $this->faker->numberBetween(11000, 20000),
+            'stok' => $this->faker->numberBetween(10, 100),
+            'status' => 'aktif',
         ];
     }
 }

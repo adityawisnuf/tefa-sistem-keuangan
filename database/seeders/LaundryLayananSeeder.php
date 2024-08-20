@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\LaundryLayanan;
 use Illuminate\Database\Seeder;
 
 class LaundryLayananSeeder extends Seeder
@@ -13,6 +14,10 @@ class LaundryLayananSeeder extends Seeder
      */
     public function run()
     {
-        \App\Models\LaundryLayanan::factory(10)->create();
+        for ($usahaId = 6; $usahaId <= 10; $usahaId++) {
+            LaundryLayanan::factory(20)->create([
+                'usaha_id' => $usahaId,
+            ]);
+        }
     }
 }

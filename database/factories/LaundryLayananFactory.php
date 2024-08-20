@@ -20,13 +20,20 @@ class LaundryLayananFactory extends Factory
      */
     public function definition()
     {
+
+        $tipe = $this->faker->randomElement(['satuan', 'kiloan']);
+
+        $satuan = $tipe === 'satuan' ? 'pcs' : 'kg';
+
         return [
-            'laundry_id' => 1, 
-            'nama_layanan' => $this->faker->word,
-            'foto_layanan' => $this->faker->imageUrl(),
-            'deskripsi' => $this->faker->sentence,
-            'harga_per_kilo' => $this->faker->numberBetween(10000, 50000),
-            'status' => $this->faker->randomElement(['aktif', 'tidak_aktif']),
+            'usaha_id' => 6, 
+            'nama_layanan' => $this->faker->words(2, true), 
+            'foto_layanan' => $this->faker->imageUrl(640, 480, 'laundry', true), 
+            'deskripsi' => $this->faker->sentence(), 
+            'harga' => $this->faker->numberBetween(5000, 50000), 
+            'tipe' => $tipe,
+            'satuan' => $satuan, 
+            'status' => 'aktif',
         ];
     }
 }

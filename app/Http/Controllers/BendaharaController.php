@@ -24,17 +24,6 @@ class BendaharaController extends Controller
         $this->endOfWeek = now()->endOfWeek();
     }
 
-    public function index()
-    {
-        return response()->json([
-            'data' => [
-                'kantin_transaksi' => $this->getKantinTransaksi(),
-                'laundry_transaksi_satuan' => $this->getLaundryTransaksiSatuan(),
-                'laundry_transaksi_kiloan' => $this->getLaundryTransaksiKiloan(),
-            ]
-        ], Response::HTTP_OK);
-    }
-
     public function getKantinTransaksi()
 {
     $perPage = request()->input('per_page', 10);
