@@ -33,7 +33,7 @@ class LaundryTransaksiController extends Controller
         return response()->json(['data' => $transaksi], Response::HTTP_OK);
     }
     //show done
-    public function showLaundryKiloan($id)
+    public function showLaundry($id)
     {
         $usaha = Auth::user()->usaha->first();
 
