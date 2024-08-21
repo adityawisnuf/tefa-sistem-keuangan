@@ -99,7 +99,7 @@ class DatabaseSeeder extends Seeder
             'name' => 'orangtua',
             'email' => 'orangtua@example.com',
             'password' => 'orangtua123',
-            'role' => 'Orangtua',
+            'role' => 'OrangTua',
         ]);
 
         \App\Models\User::factory()->create([

@@ -44,6 +44,10 @@ Route::group([
         Route::group(['prefix' => 'wallet'], function () {
             Route::get('/', [OrangTuaController::class, 'getWalletSiswa']);
         });
+        Route::group(['prefix' => 'riwayat'], function () {
+            Route::get('/kantin', [OrangTuaController::class, 'getRiwayatKantin']);
+            Route::get('/laundry', [OrangTuaController::class, 'getRiwayatLaundry']);
+        });
     });
 
     Route::group([
