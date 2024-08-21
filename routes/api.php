@@ -139,7 +139,7 @@ Route::group([
     ], function () {
         Route::group(['prefix' => 'laporan'], function() {
             Route::get('/', [BendaharaController::class, 'index']);
-    
+
             Route::get('/kantin', [BendaharaController::class, 'getKantinTransaksi']);
             Route::get('/laundry-satuan', [BendaharaController::class, 'getLaundryTransaksiSatuan']);
             Route::get('/laundry-kiloan', [BendaharaController::class, 'getLaundryTransaksiKiloan']);
@@ -148,7 +148,7 @@ Route::group([
         Route::group(['prefix' => 'pengajuan'], function() {
             Route::get('/kantin', [BendaharaController::class, 'getKantinPengajuan']);
             Route::put('/kantin/{pengajuan}', [BendaharaController::class, 'PengajuanUsaha']);
-    
+
             Route::get('/laundry', [BendaharaController::class, 'getLaundryPengajuan']);
             Route::put('/laundry/{pengajuan}', [BendaharaController::class, 'PengajuanUsaha']);
         });

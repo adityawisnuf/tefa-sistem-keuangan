@@ -34,10 +34,10 @@ class SiswaKantinController extends Controller
     {
         $siswa = Auth::user()->siswa()->with('siswa_wallet')->firstOrFail();
         $fields = $request->validated();
-        
+
         $usaha = KantinProduk::find($fields['detail_pesanan'][0]['kantin_produk_id'])->usaha;
         $siswaWallet = $siswa->siswa_wallet;
-        
+
         $fields['siswa_id'] = $siswa->id;
         $fields['usaha_id'] = $usaha->id;
 
@@ -56,7 +56,7 @@ class SiswaKantinController extends Controller
             $product->update([
                 'stok' => $product->stok - $qty
             ]);
-            
+
             KantinTransaksiDetail::create([
                 'kantin_produk_id' => $product->id,
                 'kantin_transaksi_id' => $kantinTransaksi->id,
@@ -87,7 +87,7 @@ class SiswaKantinController extends Controller
             'nominal' => $totalHarga,
         ]);
         DB::commit();
-        
+
         return response()->json(['data' => $kantinTransaksi], Response::HTTP_CREATED);
     }
 
