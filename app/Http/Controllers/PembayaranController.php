@@ -13,6 +13,7 @@ use App\Models\Pendaftar;
 use App\Models\PendaftarAkademik;
 use App\Models\PendaftarDokumen;
 use App\Models\User;
+use App\Notifications\CredentialsEmailNotification;
 use GrahamCampbell\ResultType\Success;
 use Illuminate\Http\Request;
 use GuzzleHttp\Client;
@@ -40,7 +41,7 @@ class PembayaranController extends Controller
 
         $merchantCode = "DS19869";
         $apiKey = "8093b2c02b8750e4e73845f307325566";
-        $paymentAmount = 10000;
+        $paymentAmount = $request->input('paymentAmount');
         $paymentMethod = $request->get('paymentMethod');
         $datetime = now()->format('Y-m-d H:i:s');
         $signature = hash('sha256', $merchantCode . $paymentAmount . $datetime . $apiKey);
@@ -99,12 +100,12 @@ class PembayaranController extends Controller
         // Ambil data dari request
         $merchantCode = "DS19869";
         $apiKey = "8093b2c02b8750e4e73845f307325566";
-        $paymentAmount = 10000;
+        $paymentAmount = $request->input('paymentAmount');
         $first_name = $request->input('nama_depan');
         $last_name = $request->input('nama_belakang');
         $paymentMethod = $request->input('paymentMethod');
         $merchantOrderId = $request->input('merchantOrderId');
-        $callbackUrl = 'https://3f00-180-244-128-93.ngrok-free.app/api/payment-callback';
+        $callbackUrl = 'https://e2f7-180-244-128-216.ngrok-free.app/api/payment-callback';
         $returnUrl = 'http://localhost:5173/orang-tua/cek-pembayaran';
         $expiryPeriod = 60;
         $customerEmail = $request->input('email');
@@ -203,9 +204,6 @@ class PembayaranController extends Controller
 
 
 
-
-    // Method untuk menangani callback
-  // Method untuk menangani callback
 public function handleCallback(Request $request)
 {
     try {
@@ -292,13 +290,13 @@ public function handleCallback(Request $request)
                                     'jurusan_tujuan' => $dataUserResponse['jurusan_tujuan'],
                                 ]);
 
-                                User::create([
+                                $user = User::create([
                                     'name'  => $dataUserResponse['nama_depan'] . ' ' . $dataUserResponse['nama_belakang'],
                                     'email' => $dataUserResponse['email'],
-                                    'password' => Hash::make(Str::random(16)), 
+                                    'password' => Hash::make(Str::random(12)), // Generate a random password
                                     'role' => 'Siswa',
                                 ]);
-
+                                $user->notify(new CredentialsEmailNotification($user->password));
                                 Log::info("Data user successfully inserted into Pendaftar for Order ID: $merchantOrderId");
                             } else {
                                 Log::error("Failed to decode data_user_response for Order ID: $merchantOrderId");
