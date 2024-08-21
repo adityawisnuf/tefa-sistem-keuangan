@@ -64,6 +64,7 @@ Route::middleware('auth:api')->group(function () {
     Route::group(['prefix' => 'ppdb'], function () {
         Route::get('/track', [TrackingPendaftaran::class, 'trackPendaftaran']);
         Route::get('/all/pendaftaran', [TrackingPendaftaran::class, 'getAllPendaftarans']);
+        Route::get('/search', [TrackingPendaftaran::class, 'searchPendaftarans']);
     });
 
 

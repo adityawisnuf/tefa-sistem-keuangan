@@ -41,10 +41,50 @@ class TrackingPendaftaran extends Controller
             'pendaftar',
             'pendaftaranAkademik', // Gunakan nama metode relasi yang benar
             'pendaftarDokumen', // Gunakan nama metode relasi yang benar
-        ])->paginate(2);
+        ])->paginate(5);
 
         return response()->json([
             'data' => $ppdbs
         ]);
     }
+    public function searchPendaftarans(Request $request)
+{
+    $query = Ppdb::with([
+        'pendaftar',
+        'pendaftaranAkademik', 
+        'pendaftarDokumen',
+    ]);
+
+    // Apply filters based on query parameters
+    if ($request->has('nama')) {
+        $query->whereHas('pendaftar', function ($q) use ($request) {
+            $q->where('nama_depan', 'like', '%' . $request->input('nama') . '%')
+              ->orWhere('nama_belakang', 'like', '%' . $request->input('nama') . '%');
+        });
+    }
+
+    if ($request->has('nik')) {
+        $query->whereHas('pendaftar', function ($q) use ($request) {
+            $q->where('nik', 'like', '%' . $request->input('nik') . '%');
+        });
+    }
+
+    if ($request->has('jurusan_tujuan')) {
+        $query->whereHas('pendaftaranAkademik', function ($q) use ($request) {
+            $q->where('jurusan_tujuan', 'like', '%' . $request->input('jurusan_tujuan') . '%');
+        });
+    }
+
+    if ($request->has('status')) {
+        $query->where('status', $request->input('status'));
+    }
+
+    // Paginate the results
+    $ppdbs = $query->paginate(5);
+
+    return response()->json([
+        'data' => $ppdbs
+    ]);
+}
+
 }
