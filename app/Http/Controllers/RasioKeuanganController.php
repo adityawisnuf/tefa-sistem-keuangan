@@ -45,6 +45,10 @@ class RasioKeuanganController extends Controller
             ->when($bulan, fn($query) => $query->whereMonth('disetujui_pada', $bulan))
             ->when($tahun, fn($query) => $query->whereYear('disetujui_pada', $tahun))
             ->sum('nominal');
+        $totalLiability = Pengeluaran::whereNull('disetujui_pada')
+            ->when($bulan, fn($query) => $query->whereMonth('disetujui_pada', $bulan))
+            ->when($tahun, fn($query) => $query->whereYear('disetujui_pada', $tahun))
+            ->sum('nominal');
 
         $currentLiability = DB::table('pengeluaran')
             ->join('pengeluaran_kategori', 'pengeluaran.pengeluaran_kategori_id', '=', 'pengeluaran_kategori.id')
@@ -54,13 +58,6 @@ class RasioKeuanganController extends Controller
             ->when($tahun, fn($query) => $query->whereYear('pengeluaran.created_at', $tahun))
             ->sum('pengeluaran.nominal');
 
-        $currentLiability = DB::table('pengeluaran')
-            ->join('pengeluaran_kategori', 'pengeluaran.pengeluaran_kategori_id', '=', 'pengeluaran_kategori.id')
-            ->whereNull('pengeluaran.disetujui_pada')
-            ->where('pengeluaran_kategori.tipe_utang', 'jangka pendek')
-            ->when($bulan, fn($query) => $query->whereMonth('pengeluaran.created_at', $bulan))
-            ->when($tahun, fn($query) => $query->whereYear('pengeluaran.created_at', $tahun))
-            ->sum('pengeluaran.nominal');
 
         $inventory = DB::table('pengeluaran')
             ->join('pengeluaran_kategori', 'pengeluaran.pengeluaran_kategori_id', '=', 'pengeluaran_kategori.id')
@@ -68,6 +65,8 @@ class RasioKeuanganController extends Controller
             ->when($bulan, fn($query) => $query->whereMonth('pengeluaran.created_at', $bulan))
             ->when($tahun, fn($query) => $query->whereYear('pengeluaran.created_at', $tahun))
             ->sum('pengeluaran.nominal');
+
+        $equity = $asset - $totalLiability;
 
 
 
@@ -79,20 +78,26 @@ class RasioKeuanganController extends Controller
         $profit = $totalPayment - $expenses;
 
         // Menghitung rasio
+        $cr = $this->currentRatio($asetLancar, $currentLiability) ;
+        $qr = $this->quickRatio($asetLancar, $inventory, $currentLiability);
         $npm = $this->netProfitMargin($profit, $totalPayment)*100;
         $roa = $this->returnOnAsset($profit, $asset)*100;
-        $toa = $this->turnoverAsset($totalPayment, $asetTetap)*100;
         $oer = $this->operatingExpenseRatio($expenses ,$totalPayment)*100;
-        $cr = $this->currentRatio($asetLancar, $currentLiability) * 100;
+        $toa = $this->turnoverAsset($totalPayment, $asetTetap);
+        $dter = $this->debtToEquityRatio($asset,$equity);
+        $dr = $this->debtRatio($totalLiability,$asset)*100;
 
 
         // Menyiapkan data yang akan dikembalikan
         $data = [
+            'current_ratio' => $cr,
+            'quick_ratio' => $qr,
             'net_profit_margin' => $npm,
             'return_on_asset' => $roa,
-            'turnover_aset' => $toa,
             'operating_expense_ratio' => $oer,
-            'current_ratio' => $cr,
+            'turnover_aset' => $toa,
+            'debt_to_equity_ratio' => $dter,
+            'debt_ratio' => $dr,
         ];
 
         return response()->json(['data' => $data], 200);
@@ -143,5 +148,18 @@ class RasioKeuanganController extends Controller
             return 'N/A'; // Menghindari pembagian dengan nol
         }
         return ($asetLancar - $inventory) / $currentLiability;
+    }
+    //Rasio solvabilitas
+    private function debtToEquityRatio($totalLiability, $equity){
+        if ($equity == 0) {
+            return 'N/A'; // Menghindari pembagian dengan nol
+        }
+        return $totalLiability / $equity;
+    }
+    private function debtRatio($totalLiability, $asset){
+        if ($asset == 0) {
+            return 'N/A'; // Menghindari pembagian dengan nol
+        }
+        return $totalLiability / $asset;
     }
 }
