@@ -1,5 +1,6 @@
 <?php
 
+
 namespace App\Http\Controllers;
 
 use App\Models\PembayaranPpdb;
@@ -27,8 +28,16 @@ class LaporanKeuanganController extends Controller
         $tahunAkhir = $request->input('tahun_akhir');
         $status = $request->input('status');
 
+        // Jika tahun_awal atau tahun_akhir tidak ada, kembalikan data kosong
+        if (!$tahunAwal || !$tahunAkhir) {
+            return response()->json([
+                'laporan_keuangan' => [],
+                'total_semua_pembayaran' => 0
+            ], 200);
+        }
+
         // Mulai query
-            $query = PembayaranPpdb::selectRaw('
+        $query = PembayaranPpdb::selectRaw('
             pembayaran_ppdb.ppdb_id,
             pembayaran_ppdb.status,
             SUM(pembayaran_ppdb.nominal) as total_nominal,
@@ -45,12 +54,6 @@ class LaporanKeuanganController extends Controller
 
         // Filter berdasarkan status jika ada
         if ($status !== null) {
-            $query->where('pembayaran_ppdb.status', $status);
-        }
-
-
-        // Filter berdasarkan status jika ada
-        if ($status) {
             $query->where('pembayaran_ppdb.status', $status);
         }
 
