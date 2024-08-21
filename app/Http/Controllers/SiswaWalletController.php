@@ -2,16 +2,34 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 class SiswaWalletController extends Controller
 {
+    private $startOfMonth;
+    private $endOfMonth;
+
+    public function __construct()
+    {
+        $this->startOfMonth = Carbon::now()->startOfMonth();
+        $this->endOfMonth = Carbon::now()->endOfMonth();
+    }
+
     public function getSaldo()
     {
         $siswaWallet = Auth::user()->siswa->first()->siswa_wallet;
-        return response()->json(['data' => $siswaWallet->nominal], Response::HTTP_OK);
+        $pemasukan = $siswaWallet->siswa_wallet_riwayat()->whereBetween('tanggal_riwayat', [$this->startOfMonth, $this->endOfMonth])->where('tipe_transaksi', 'pemasukan')->sum('nominal');
+        $pengeluaran = $siswaWallet->siswa_wallet_riwayat()->whereBetween('tanggal_riwayat', [$this->startOfMonth, $this->endOfMonth])->where('tipe_transaksi', 'pengeluaran')->sum('nominal');
+        return response()->json([
+            'data' => [
+                'saldo' => $siswaWallet->nominal,
+                'pemasukan' => $pemasukan,
+                'pengeluaran' => $pengeluaran
+            ]
+        ], Response::HTTP_OK);
     }
 
     public function getRiwayat()

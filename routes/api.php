@@ -63,10 +63,11 @@ Route::group([
         });
 
         Route::group(['prefix' => 'laundry'], function () {
-            Route::get('/', [SiswaLaundryController::class, 'getLayanan']);
-            Route::get('/riwayat', [SiswaLaundryController::class, 'getLayananRiwayat']);
-            // Route::get('/{layanan}', [SiswaLaundryController::class, 'getLayananDetail']);
-            Route::post('/transaksi', [SiswaLaundryController::class, 'createLayananTransaksi']);
+            Route::group(['prefix' => 'layanan'], function () {
+                Route::get('/', [SiswaLaundryController::class, 'getLayanan']);
+                Route::get('/riwayat', [SiswaLaundryController::class, 'getLayananRiwayat']);
+                Route::post('/transaksi', [SiswaLaundryController::class, 'createLayananTransaksi']);
+            });
         });
     });
 
@@ -120,13 +121,13 @@ Route::group([
         });
 
         Route::group(['prefix' => 'transaksi'], function () {
-           Route::get('/', [LaundryTransaksiController::class, 'getActiveTransaction']);
-           Route::get('/riwayat', [LaundryTransaksiController::class, 'getCompletedTransaction']);
-           Route::get('/{transaksi}', [LaundryTransaksiController::class, 'update']);
-           Route::put('/{transaksi}/konfirmasi', [LaundryTransaksiController::class, 'confirmInitialTransaction']);
+            Route::get('/', [LaundryTransaksiController::class, 'getActiveTransaction']);
+            Route::get('/riwayat', [LaundryTransaksiController::class, 'getCompletedTransaction']);
+            Route::get('/{transaksi}', [LaundryTransaksiController::class, 'update']);
+            Route::put('/{transaksi}/konfirmasi', [LaundryTransaksiController::class, 'confirmInitialTransaction']);
         });
 
-        Route::group(['prefix' => 'pengajuan'], function() {
+        Route::group(['prefix' => 'pengajuan'], function () {
             Route::post('/', [UsahaPengajuanController::class, 'create']);
             Route::get('/riwayat', [UsahaPengajuanController::class, 'index']);
         });
@@ -136,18 +137,21 @@ Route::group([
         'prefix' => 'bendahara',
         'middleware' => 'checkrole:Bendahara'
     ], function () {
-        Route::get('/penjualan', [BendaharaController::class, 'index']);
+        Route::group(['prefix' => 'laporan'], function() {
+            Route::get('/', [BendaharaController::class, 'index']);
+    
+            Route::get('/kantin', [BendaharaController::class, 'getKantinTransaksi']);
+            Route::get('/laundry-satuan', [BendaharaController::class, 'getLaundryTransaksiSatuan']);
+            Route::get('/laundry-kiloan', [BendaharaController::class, 'getLaundryTransaksiKiloan']);
+        });
 
-        Route::get('/penjualan/kantin', [BendaharaController::class, 'getKantinTransaksi']);
-        Route::get('/penjualan/laundry-satuan', [BendaharaController::class, 'getLaundryTransaksiSatuan']);
-        Route::get('/penjualan/laundry-kiloan', [BendaharaController::class, 'getLaundryTransaksiKiloan']);
-
-        Route::get('/pengajuan/kantin', [BendaharaController::class, 'getKantinPengajuan']);
-        Route::put('/pengajuan/kantin/{pengajuan}', [BendaharaController::class, 'PengajuanUsaha']);
-
-        Route::get('/pengajuan/laundry', [BendaharaController::class, 'getLaundryPengajuan']);
-        Route::put('/pengajuan/laundry/{pengajuan}', [BendaharaController::class, 'PengajuanUsaha']);
-
+        Route::group(['prefix' => 'pengajuan'], function() {
+            Route::get('/kantin', [BendaharaController::class, 'getKantinPengajuan']);
+            Route::put('/kantin/{pengajuan}', [BendaharaController::class, 'PengajuanUsaha']);
+    
+            Route::get('/laundry', [BendaharaController::class, 'getLaundryPengajuan']);
+            Route::put('/laundry/{pengajuan}', [BendaharaController::class, 'PengajuanUsaha']);
+        });
     });
 
     Route::group([
@@ -159,7 +163,7 @@ Route::group([
         Route::get('/penjualan/laundry-kiloan', [KepsekController::class, 'getLaundryTransaksiKiloan']);
 
         Route::get('/pengajuan/kantin', [KepsekController::class, 'getKantinPengajuan']);
-        
+
         Route::get('/pengajuan/laundry', [KepsekController::class, 'getLaundryPengajuan']);
     });
 });
