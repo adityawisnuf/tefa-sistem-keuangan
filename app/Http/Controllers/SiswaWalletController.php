@@ -36,7 +36,26 @@ class SiswaWalletController extends Controller
     {
         $siswaWallet = Auth::user()->siswa->first()->siswa_wallet;
         $perPage = request()->input('per_page', 10);
-        $siswaWalletRiwayat = $siswaWallet->siswa_wallet_riwayat()->latest()->paginate($perPage);
+
+        $tipeTransaksi = request()->input('tipe_transaksi');
+
+        $bulan = request()->input('bulan', Carbon::now()->month);
+        $tahun = request()->input('tahun', Carbon::now()->year);
+
+        $startOfMonth = Carbon::create($tahun, $bulan, 1)->startOfMonth();
+        $endOfMonth = Carbon::create($tahun, $bulan, 1)->endOfMonth();
+
+        $query = $siswaWallet->siswa_wallet_riwayat()
+                    ->whereBetween('tanggal_riwayat', [$startOfMonth, $endOfMonth])
+                    ->latest();
+
+        if ($tipeTransaksi) {
+            $query->where('tipe_transaksi', $tipeTransaksi);
+        }
+
+        $siswaWalletRiwayat = $query->paginate($perPage);
+
         return response()->json(['data' => $siswaWalletRiwayat], Response::HTTP_OK);
     }
+
 }
