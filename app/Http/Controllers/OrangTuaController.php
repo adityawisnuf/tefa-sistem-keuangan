@@ -34,6 +34,7 @@ class OrangTuaController extends Controller
         $perPage = $request->input('per_page', 10);
 
         $riwayat = $siswa->kantin_transaksi()
+            ->whereIn('status', ['dibatalkan', 'selesai'])
             ->with('kantin_transaksi_detail.kantin_produk')
             ->paginate($perPage);
 
@@ -49,6 +50,7 @@ class OrangTuaController extends Controller
         $perPage = $request->input('per_page', 10);
 
         $riwayat = $siswa->laundry_transaksi()
+            ->whereIn('status', ['dibatalkan', 'selesai'])
             ->with('laundry_transaksi_detail.laundry_layanan')
             ->paginate($perPage);
 
