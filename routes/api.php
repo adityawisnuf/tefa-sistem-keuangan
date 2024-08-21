@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\BendaharaController;
 use App\Http\Controllers\LaundryTransaksiController;
+use App\Http\Controllers\OrangTuaController;
 use App\Http\Controllers\UsahaPengajuanController;
 use App\Http\Controllers\KantinProdukController;
 use App\Http\Controllers\KantinProdukKategoriController;
@@ -41,7 +42,7 @@ Route::group([
         'middleware' => 'checkrole:OrangTua'
     ], function () {
         Route::group(['prefix' => 'wallet'], function () {
-            Route::get('/saldo');
+            Route::get('/', [OrangTuaController::class, 'getWalletSiswa']);
         });
     });
 
