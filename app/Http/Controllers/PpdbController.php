@@ -17,10 +17,45 @@ use ZipArchive;
 
 class PpdbController extends Controller
 {
+
+    public function filterByStatusAndYear(Request $request)
+{
+    // Validasi input
+    $request->validate([
+        'status' => 'nullable|integer|in:1,2,3,4',
+        'year' => 'nullable|integer|min:2000|max:' . date('Y'),
+    ]);
+
+    // Ambil parameter status dan tahun dari request
+    $status = $request->input('status');
+    $year = $request->input('year');
+
+    // Query untuk memfilter data
+    $query = Ppdb::query();
+
+    if ($status) {
+        $query->where('status', $status);
+    }
+
+    if ($year) {
+        $query->whereYear('created_at', $year);
+    }
+
+    $results = $query->get();
+
+    // Tidak perlu menambahkan deskripsi status secara manual
+    // karena accessor sudah menangani itu
+
+    return response()->json($results);
+}
+
+
+
+
     public function store(PpdbRequest $request)
     {
         DB::beginTransaction();
-    
+
         try {
             // Generate a unique merchantOrderId
             $merchantOrderId = Str::uuid()->toString();
@@ -28,7 +63,7 @@ class PpdbController extends Controller
             $kartuKeluargaPath = $request->file('kartu_keluarga')->store('documents');
             $ijazahPath = $request->file('ijazah')->store('documents');
             $raportPath = $request->file('raport')->store('documents');
-            
+
             $dataUserResponse = $request->only([
                 'nama_depan',
                 'nama_belakang',
@@ -48,34 +83,34 @@ class PpdbController extends Controller
                 'tahun_lulus',
                 'jurusan_tujuan'
             ]);
-    
+
             // Add file paths to the user data
             $dataUserResponse['akte_kelahiran'] = $akteKelahiranPath;
             $dataUserResponse['kartu_keluarga'] = $kartuKeluargaPath;
             $dataUserResponse['ijazah'] = $ijazahPath;
             $dataUserResponse['raport'] = $raportPath;
-    
+
             // Create `PembayaranDuitku` record with encoded user data
             $pembayaranDuitku = PembayaranDuitku::create([
                 'merchant_order_id' => $merchantOrderId,
                 'status' => 'pending',
                 'data_user_response' => json_encode($dataUserResponse),
             ]);
-    
+
             DB::commit();
-    
+
             return response()->json([
                 'message' => 'Data berhasil disimpan di PembayaranDuitku!',
                 'pendaftar' => $pembayaranDuitku->toArray(),  // Use toArray() to check serialized data
             ], 201);
         } catch (\Exception $e) {
             DB::rollback();
-    
+
             Log::error('Pendaftaran gagal:', [
                 'exception' => $e,
                 'request_data' => $request->all(),
             ]);
-    
+
             return response()->json([
                 'message' => 'Terjadi kesalahan saat pendaftaran. Silakan coba lagi.',
             ], 500);
@@ -88,18 +123,18 @@ class PpdbController extends Controller
         try {
             // Mengambil data dokumen berdasarkan ID
             $pendaftarDokumen = PendaftarDokumen::findOrFail($id);
-    
+
             // Mengambil data pendaftar berdasarkan ppdb_id yang terdapat pada dokumen
             $pendaftar = Pendaftar::where('ppdb_id', $pendaftarDokumen->ppdb_id)->firstOrFail();
-    
+
             // Mengambil nama depan dan nama belakang dari pendaftar
             $namaDepan = $pendaftar->nama_depan;
             $namaBelakang = $pendaftar->nama_belakang;
-    
+
             // Membuat nama folder menggunakan nama depan dan nama belakang
             $folderName = $namaDepan . '_' . $namaBelakang;
             $zipFileName = $folderName . '_dokumen_' . $id . '.zip';
-    
+
             // List of files with their respective document types
             $files = [
                 'akte_kelahiran' => $pendaftarDokumen->akte_kelahiran,
@@ -107,9 +142,9 @@ class PpdbController extends Controller
                 'ijazah' => $pendaftarDokumen->ijazah,
                 'raport' => $pendaftarDokumen->raport,
             ];
-    
+
             $zip = new ZipArchive();
-    
+
             if ($zip->open(storage_path($zipFileName), ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
                 foreach ($files as $type => $file) {
                     if (Storage::exists($file)) {
@@ -121,7 +156,7 @@ class PpdbController extends Controller
                 }
                 $zip->close();
             }
-    
+
             // Download the created ZIP file
             return response()->download(storage_path($zipFileName))->deleteFileAfterSend(true);
         } catch (\Exception $e) {
@@ -143,12 +178,12 @@ class PpdbController extends Controller
 
         $ppdbId = $validated['id'];
         $status = $validated['status'];
-    
+
         try {
             $ppdb = Ppdb::findOrFail($ppdbId);
             $ppdb->status = $status;
             $ppdb->save();
-    
+
             // Return a success response
             return response()->json([
                 'success' => true,
@@ -162,7 +197,7 @@ class PpdbController extends Controller
                 'id' => $ppdbId,
                 'status' => $status,
             ]);
-    
+
             // Return an error response
             return response()->json([
                 'success' => false,
