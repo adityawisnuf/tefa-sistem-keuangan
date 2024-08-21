@@ -27,7 +27,7 @@ class KantinTransaksiController extends Controller
         $usaha = Auth::user()->usaha->firstOrFail();
 
         $perPage = request()->input('per_page', 10);
-        $transaksi = $usaha->kantin_transaksi()->where('status', ['pending', 'proses', 'siap_diambil'])->paginate($perPage);
+        $transaksi = $usaha->kantin_transaksi()->whereIn('status', ['pending', 'proses', 'siap_diambil'])->paginate($perPage);
         return response()->json(['data' => $transaksi], Response::HTTP_OK);
     }
 
