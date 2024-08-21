@@ -67,9 +67,9 @@ Route::middleware('auth:api')->group(function () {
     });
 
 
-    
-    
-    
+
+
+
     Route::post('/payment', [PembayaranController::class, 'createTransaction']);
 });
 // Route for Pendaftar Komplit (no auth required)
@@ -98,6 +98,8 @@ Route::post('/validate-nik', [NIKController::class, 'validateNik']);
 Route::get('/laporan', [LaporanKeuanganController::class, 'laporanKeuangan']);
 // api.php
 Route::get('/export-pendaftar', [PendaftarController::class, 'export']);
+Route::get('export-pembayaran-ppdb', [PembayaranController::class, 'exportPembayaranPpdb']);
+Route::get('filter-ppdb', [PpdbController::class, 'filterByStatusAndYear']);
 Route::get('test');
 
 

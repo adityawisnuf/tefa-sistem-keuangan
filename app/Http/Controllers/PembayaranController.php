@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\PembayaranExport;
 use App\Models\PembayaranDuitku;
 use App\Models\PembayaranPpdb;
 use App\Models\Pembayaran;
@@ -22,6 +23,7 @@ use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\Response;
 
 class PembayaranController extends Controller
@@ -29,6 +31,12 @@ class PembayaranController extends Controller
 
     const PDF_STORAGE_PATH = 'storage/app/documents/';
 
+
+
+    public function exportPembayaranPpdb()
+    {
+        return Excel::download(new PembayaranExport, 'pembayaran_ppdb.xlsx');
+    }
     public function getPaymentMethod(Request $request)
     {
         // Validate input from request
