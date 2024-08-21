@@ -140,7 +140,7 @@ class DatabaseSeeder extends Seeder
 
         \App\Models\SiswaWallet::create([
             'siswa_id' => '1',
-            'nominal' => 0
+            'nominal' => 100000
         ]);
 
         \App\Models\Usaha::create([
@@ -249,6 +249,6 @@ class DatabaseSeeder extends Seeder
             KantinProdukSeeder::class,
             LaundryLayananSeeder::class
         ]);
-        
+
     }
 }
