@@ -37,9 +37,9 @@ class TopUpRequest extends FormRequest
     public function requestTransaksi()
     {
         return [
+            'siswa_id' => ['sometimmes', 'exists:siswa,id'],
             'paymentAmount' => ['required', 'numeric', 'min:1'],
             'paymentMethod' => ['required'],
-            'additionalParam' => ['required', 'email'],
         ];
     }
 }

@@ -31,9 +31,18 @@ class TopUpController extends Controller
 
     public function requestTransaction(TopUpRequest $request)
     {
-        $user = Auth::user();
-
         $fields = $request->validated();
+        
+        
+        if ($fields['siswa_id']) {
+            $orangtua = Auth::user()->orangtua->firstOrFail();
+            $siswa = $orangtua->siswa()->find($fields['siswa_id']);
+
+            $fields['email'] = $siswa->user->email;
+        }
+
+
+        $user = Auth::user();
         $fields['email'] = $user->email;
         $result = $this->duitkuService->requestTransaction($fields);
         return response()->json($result['data'], $result['statusCode']);

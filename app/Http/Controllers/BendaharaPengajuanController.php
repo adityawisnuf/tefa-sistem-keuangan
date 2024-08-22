@@ -11,8 +11,21 @@ class BendaharaPengajuanController extends Controller
 {
     public function getUsahaPengajuan()
     {
+        $role = request('role', '');
         $perPage = request()->input('per_page', 10);
-        return UsahaPengajuan::paginate($perPage);
+
+        $pengajuan = UsahaPengajuan::join('usaha', 'usaha.id', '=', 'usaha_pengajuan.usaha_id')
+        ->join('users', 'users.id', '=', 'usaha.user_id')
+        ->select('usaha_pengajuan.id as usaha_pengajuan_id',
+            'usaha.nama_usaha',
+            'usaha_pengajuan.jumlah_pengajuan',
+            'usaha_pengajuan.status',
+            'usaha_pengajuan.alasan_penolakan',
+            'usaha_pengajuan.tanggal_pengajuan')
+        ->where('users.role', 'like', '%' . $role . '%')
+        ->paginate($perPage);
+
+        return response()->json(['data' => $pengajuan], Response::HTTP_OK);
     }
 
     public function confirmUsahaPengajuan(UsahaPengajuanRequest $request, UsahaPengajuan $pengajuan)

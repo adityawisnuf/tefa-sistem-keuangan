@@ -6,6 +6,7 @@ use App\Http\Controllers\LaundryTransaksiController;
 use App\Http\Controllers\OrangTuaController;
 use App\Http\Controllers\OrangTuaRiwayatController;
 use App\Http\Controllers\OrangTuaSiswaController;
+use App\Http\Controllers\OrangTuaWalletController;
 use App\Http\Controllers\UsahaPengajuanController;
 use App\Http\Controllers\KantinProdukController;
 use App\Http\Controllers\KantinProdukKategoriController;
@@ -23,7 +24,6 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\LogoutController;
-use App\Http\Controllers\OrangTuaWalletController;
 use Illuminate\Support\Facades\Auth;
 
 // ROLE : Admin; KepalaSekolah; Bendahara; OrangTua; Siswa; Kantin; Laundry;
@@ -39,7 +39,7 @@ Route::group([
     Route::post('logout', [LogoutController::class, 'logout']);
 
     Route::post('/duitku/get-payment-method', [TopUpController::class, 'getPaymentMethod'])->name('get-payment-method');
-    Route::post('/duitku/request-transaksi', [TopUpController::class, 'requestTransaction'])->name('request-transaksi');
+    Route::post('/duitku/request-transaksi', [TopUpController::class, 'requestTransaction'])->name('request-transakepseksi');
 
     Route::group([
         'prefix' => 'orangtua',
@@ -51,16 +51,12 @@ Route::group([
 
         Route::group(['prefix' => 'wallet'], function () {
             Route::get('/', [OrangTuaController::class, 'getWalletSiswa']);
-            Route::post('/get-payment-method', [OrangTuaWalletController::class, 'getPaymentMethod'])->name('get-payment-method');
-            Route::post('/request-transaksi', [OrangTuaWalletController::class, 'requestTransaction'])->name('request-transaksi');
+            Route::get('/request-transaksi', [OrangTuaWalletController::class, 'requestTransaction']);
         });
         Route::group(['prefix' => 'riwayat'], function () {
             Route::get('/{id}/kantin', [OrangTuaRiwayatController::class, 'getRiwayatKantinSiswa']);
             Route::get('/{id}/laundry', [OrangTuaRiwayatController::class, 'getRiwayatLaundrySiswa']);
         });
-
-
-
     });
 
     Route::group([
@@ -156,16 +152,13 @@ Route::group([
         'middleware' => 'checkrole:Bendahara'
     ], function () {
         Route::group(['prefix' => 'laporan'], function() {
-            Route::get('/', [BendaharaController::class, 'index']);
-
             Route::get('/kantin', [BendaharaController::class, 'getKantinTransaksi']);
-            Route::get('/laundry-satuan', [BendaharaController::class, 'getLaundryTransaksiSatuan']);
-            Route::get('/laundry-kiloan', [BendaharaController::class, 'getLaundryTransaksiKiloan']);
+            Route::get('/laundry', [BendaharaController::class, 'getKantinTransaksi']);
         });
 
         Route::group(['prefix' => 'pengajuan'], function() {
-            Route::get('/', [BendaharaPengajuanController::class, 'getUsahaPengajuan']);
-            Route::put('/{pengajuan}', [BendaharaPengajuanController::class, 'PengajuanUsaha']);
+                Route::get('/', [BendaharaPengajuanController::class, 'getUsahaPengajuan']);
+                Route::put('/{pengajuan}', [BendaharaPengajuanController::class, 'PengajuanUsaha']);
         });
     });
 
@@ -173,13 +166,15 @@ Route::group([
         'prefix' => 'kepsek',
         'middleware' => 'checkrole:KepalaSekolah'
     ], function () {
-        Route::get('/penjualan/kantin', [KepsekController::class, 'getKantinTransaksi']);
-        Route::get('/penjualan/laundry-satuan', [KepsekController::class, 'getLaundryTransaksiSatuan']);
-        Route::get('/penjualan/laundry-kiloan', [KepsekController::class, 'getLaundryTransaksiKiloan']);
+        Route::group(['prefix' => 'laporan'], function() {
+            Route::get('/kantin', [BendaharaController::class, 'getKantinTransaksi']);
+            Route::get('/laundry', [BendaharaController::class, 'getKantinTransaksi']);
+        });
 
-        Route::get('/pengajuan/kantin', [KepsekController::class, 'getKantinPengajuan']);
-
-        Route::get('/pengajuan/laundry', [KepsekController::class, 'getLaundryPengajuan']);
+        Route::group(['prefix' => 'pengajuan'], function() {
+                Route::get('/', [BendaharaPengajuanController::class, 'getUsahaPengajuan']);
+                Route::put('/{pengajuan}', [BendaharaPengajuanController::class, 'PengajuanUsaha']);
+        });
     });
 });
 
