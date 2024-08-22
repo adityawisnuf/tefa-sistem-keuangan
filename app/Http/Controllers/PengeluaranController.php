@@ -199,7 +199,7 @@ class PengeluaranController extends Controller
             'data' => $pengeluaran
         ]);
     }
-    
+
     public function riwayatPengeluaran(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -246,6 +246,42 @@ class PengeluaranController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Data riwayat pengeluaran berhasil diambil',
+            'data' => $pengeluaran
+        ]);
+    }
+
+    public function rekapitulasiPengeluaran($periode)
+    {
+        if (!in_array($periode, ['hari', 'minggu', 'bulan', 'tahun'])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid periode value',
+            ], 422);
+        }
+
+        $query = Pengeluaran::with('pengeluaran_kategori');
+
+        switch ($periode) {
+            case 'hari':
+                $query->whereDate('created_at', now()->toDateString());
+                break;
+            case 'minggu':
+                $query->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()]);
+                break;
+            case 'bulan':
+                $query->whereMonth('created_at', now()->month)
+                    ->whereYear('created_at', now()->year);
+                break;
+            case 'tahun':
+                $query->whereYear('created_at', now()->year);
+                break;
+        }
+
+        $pengeluaran = $query->get();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Data rekapitulasi pengeluaran berhasil diambil',
             'data' => $pengeluaran
         ]);
     }
