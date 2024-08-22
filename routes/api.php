@@ -100,6 +100,7 @@ Route::get('/laporan', [LaporanKeuanganController::class, 'laporanKeuangan']);
 Route::get('/export-pendaftar', [PendaftarController::class, 'export']);
 Route::get('export-pembayaran-ppdb', [PembayaranController::class, 'exportPembayaranPpdb']);
 Route::get('filter-ppdb', [PpdbController::class, 'filterByStatusAndYear']);
+Route::get('total-pendaftar', [PpdbController::class, 'getTotalPendaftar']);
 Route::get('test');
 
 

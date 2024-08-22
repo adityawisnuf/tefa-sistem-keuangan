@@ -18,17 +18,44 @@ use ZipArchive;
 class PpdbController extends Controller
 {
 
-    public function filterByStatusAndYear(Request $request)
+    public function getTotalPendaftar()
+{
+    try {
+        // Menghitung total pendaftar dari tabel ppdb
+        $totalPendaftar = Ppdb::count();
+
+        // Mengembalikan total pendaftar dalam bentuk JSON
+        return response()->json([
+            'success' => true,
+            'total_pendaftar' => $totalPendaftar
+        ]);
+    } catch (\Exception $e) {
+        // Menangani error
+        Log::error('Error getting total pendaftar:', [
+            'exception' => $e->getMessage(),
+        ]);
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to retrieve total pendaftar. Please try again later.'
+        ], 500);
+    }
+}
+
+
+public function filterByStatusAndYear(Request $request)
 {
     // Validasi input
     $request->validate([
+        'tahun_awal' => 'nullable|integer|min:2000',
+        'tahun_akhir' => 'nullable|integer|min:2000', // Hapus batas maksimum tahun
         'status' => 'nullable|integer|in:1,2,3,4',
-        'year' => 'nullable|integer|min:2000|max:' . date('Y'),
     ]);
 
-    // Ambil parameter status dan tahun dari request
+    // Ambil parameter dari request
+    $tahunAwal = $request->input('tahun_awal');
+    $tahunAkhir = $request->input('tahun_akhir');
     $status = $request->input('status');
-    $year = $request->input('year');
 
     // Query untuk memfilter data
     $query = Ppdb::query();
@@ -37,17 +64,26 @@ class PpdbController extends Controller
         $query->where('status', $status);
     }
 
-    if ($year) {
-        $query->whereYear('created_at', $year);
+    if ($tahunAwal && $tahunAkhir) {
+        $query->where(function($query) use ($tahunAwal, $tahunAkhir) {
+            $query->whereYear('created_at', '>=', $tahunAwal)
+                  ->whereYear('created_at', '<=', $tahunAkhir);
+        });
+    } elseif ($tahunAwal) {
+        $query->whereYear('created_at', '>=', $tahunAwal);
     }
 
     $results = $query->get();
 
-    // Tidak perlu menambahkan deskripsi status secara manual
-    // karena accessor sudah menangani itu
+    // Jika tidak ada data, kembalikan array kosong dengan status 200
+    if ($results->isEmpty()) {
+        return response()->json([], 200);
+    }
 
-    return response()->json($results);
+    // Kembalikan hasil query jika ada data
+    return response()->json($results, 200);
 }
+
 
 
 
