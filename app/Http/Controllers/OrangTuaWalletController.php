@@ -2,21 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use App\Http\Requests\TopUpRequest;
+use App\Http\Requests\TopUpOrangTuaRequest;
 use App\Http\Services\DuitkuService;
 use App\Models\PembayaranDuitku;
 use App\Models\Siswa;
 use App\Models\SiswaWalletRiwayat;
 use App\Models\User;
 use Exception;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class OrangTuaWalletController extends Controller
 {
-    
     protected $duitkuService;
 
     public function __construct()
@@ -27,43 +25,37 @@ class OrangTuaWalletController extends Controller
     public function getDetailWalletSiswa($id)
     {
         $user = Auth::user();
-
         $siswa = $user->orangtua->first()->siswa->find($id);
         $siswaWallet = $siswa->siswa_wallet->nominal;
 
-        return $siswaWallet;
+        return response()->json(['wallet' => $siswaWallet], 200);
     }
 
-    public function getPaymentMethod(TopUpRequest $request)
+    public function getPaymentMethod(TopUpOrangTuaRequest $request)
     {
         $fields = $request->validated();
         $result = $this->duitkuService->getPaymentMethod($fields['paymentAmount']);
         return response()->json($result['data'], $result['statusCode']);
     }
 
-    public function requestTransaction(TopUpRequest $request)
+    public function requestTransaction(TopUpOrangTuaRequest $request)
     {
-        $user = Auth::user();
+        $orangtua = Auth::user()->orangtua->firstOrFail();
 
         $fields = $request->validated();
+        $siswa = $orangtua->siswa()->findOrFail($fields['siswa_id']);
 
-        $siswa = Siswa::where('orangtua_id', $user->id)
-            ->where('id', $fields['siswa_id'])  
-            ->first();
+        $fields['email'] = $siswa->user->email;
 
-        if (!$siswa) {
-            return response()->json(['error' => 'Siswa tidak ditemukan atau tidak terkait dengan orang tua ini'], 404);
-        }
-
-        $fields['email'] = $siswa->user->email; 
-        $fields['additionalParam'] = $siswa->user->email; 
         $result = $this->duitkuService->requestTransaction($fields);
+
         return response()->json($result['data'], $result['statusCode']);
     }
 
     public function callback()
     {
         $callbackData = request()->all();
+
         if (!$this->duitkuService->verifySignature($callbackData)) {
             return;
         }
@@ -72,14 +64,16 @@ class OrangTuaWalletController extends Controller
 
         try {
             $pembayaranDuitku = PembayaranDuitku::where('merchant_order_id', $callbackData['merchantOrderId'])->first();
+
             DB::beginTransaction();
             $pembayaranDuitku->update([
                 'callback_response' => json_encode($callbackData),
-                'status' => $resultCode
+                'status' => $resultCode,
             ]);
 
             if ($resultCode === '00') {
                 $siswaWallet = User::where('email', $callbackData['additionalParam'])->first()->siswa->first()->siswa_wallet;
+
                 SiswaWalletRiwayat::create([
                     'siswa_wallet_id' => $siswaWallet->id,
                     'merchant_order_id' => $callbackData['merchantOrderId'],
@@ -99,4 +93,3 @@ class OrangTuaWalletController extends Controller
         }
     }
 }
-    

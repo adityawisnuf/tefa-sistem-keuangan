@@ -51,9 +51,9 @@ Route::group([
             Route::get('/kantin', [OrangTuaController::class, 'getRiwayatKantin']);
             Route::get('/laundry', [OrangTuaController::class, 'getRiwayatLaundry']);
         });
-        
 
-        
+
+
     });
 
     Route::group([

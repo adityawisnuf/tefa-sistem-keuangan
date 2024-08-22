@@ -46,8 +46,10 @@ class TopUpController extends Controller
             return;
         $resultCode = $callbackData['resultCode'] ?? null;
 
+        Log::info(json_encode($callbackData));
+
         try {
-            $pembayaranDuitku = PembayaranDuitku::where('merchant_order_id', $callbackData['merchantOrderId'])->first();
+            $pembayaranDuitku = PembayaranDuitku::find($callbackData['merchantOrderId'])->first();
             DB::beginTransaction();
             $pembayaranDuitku->update([
                 'callback_response' => json_encode($callbackData),

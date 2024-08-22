@@ -26,7 +26,7 @@ class DuitkuService
         $datetime = date('Y-m-d H:i:s');
         $signatureString = $this->merchantCode . $paymentAmount . $datetime . $this->apiKey; // Gabungkan string
         $signature = hash('sha256', $signatureString);
-        
+
         $params = [
             'merchantcode' => $this->merchantCode,
             'amount' => $paymentAmount,
@@ -79,13 +79,13 @@ class DuitkuService
         $merchantOrderId = time() . '';
         $productDetails = 'Tes pembayaran menggunakan Duitku';
         $email = $data['email'];
-        $additionalParam = $data['additionalParam'];
+        $additionalParam = $data['email'];
         $phoneNumber = '088888888888';
         $firstName = 'Anjasmara';
         $lastName = 'Tahu Bulat';
         $customerVaName = $firstName . ' ' . $lastName;
-        $callbackUrl = 'https://3e16-180-244-128-216.ngrok-free.app/api/duitku/callback';
-        $returnUrl = 'https://3e16-180-244-128-216.ngrok-free.app/return';
+        $callbackUrl = 'https://dda1-180-244-128-162.ngrok-free.app/api/duitku/callback';
+        $returnUrl = 'https://dda1-180-244-128-162.ngrok-free.app/return';
         $expiryPeriod = 10;
         $signature = md5($this->merchantCode . $merchantOrderId . $paymentAmount . $this->apiKey);
 
@@ -151,7 +151,7 @@ class DuitkuService
 
         $request = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        
+
         if ($httpCode == 200) {
             $result = json_decode($request, true);
             PembayaranDuitku::create([
