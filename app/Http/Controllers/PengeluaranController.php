@@ -22,6 +22,25 @@ class PengeluaranController extends Controller
         ]);
     }
 
+    public function getDetailPengeluaran(string $id)
+    {
+        $pengeluaran = Pengeluaran::with('pengeluaran_kategori')->find($id);
+
+        if (!$pengeluaran) {
+            return response()->json([
+                'success' => false,
+                'message' => 'data pengeluaran tidak ditemukan',
+                'data' => $pengeluaran
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'data pengeluaran berhasil diambil',
+            'data' => $pengeluaran
+        ]);
+    }
+
     public function getPengeluaranDisetujui()
     {
         $pengeluaran = Pengeluaran::with('pengeluaran_kategori')->where('disetujui_pada', '!=', null)->get();

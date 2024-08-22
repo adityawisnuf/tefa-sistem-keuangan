@@ -25,10 +25,11 @@ Route::group([
         Route::get('pengeluaran/disetujui', [PengeluaranController::class, 'getPengeluaranDisetujui']);
         Route::get('pengeluaran/belum-disetujui', [PengeluaranController::class, 'getPengeluaranBelumDisetujui']);
         Route::post('pengeluaran', [PengeluaranController::class, 'addPengeluaran']);
+        Route::get('pengeluaran/{id}', [PengeluaranController::class, 'getDetailPengeluaran']);
         Route::delete('pengeluaran/{id}', [PengeluaranController::class, 'deletePengeluaran']);
         Route::patch('pengeluaran/{id}', [PengeluaranController::class, 'updatePengeluaran']);
         Route::get('pengeluaran/riwayat', [PengeluaranController::class, 'riwayatPengeluaran']);
-        Route::get('pengeluaran/{periode}', [PengeluaranController::class, 'rekapitulasiPengeluaran']);
+        Route::get('pengeluaran/periode/{periode}', [PengeluaranController::class, 'rekapitulasiPengeluaran']);
         Route::get('pengeluaran/analisis/{periode}', [PengeluaranAnalysis::class, 'getPengeluaranPeriode']);
     });
 
