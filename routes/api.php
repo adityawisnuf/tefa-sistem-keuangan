@@ -96,8 +96,11 @@ Route::post('/payment-callback', [PembayaranController::class, 'handleCallback']
 
 Route::get('/download-berkas/{id}', [PendaftarDokumenController::class, 'mergePendaftarDokumen']);
 Route::post('/validate-nik', [NIKController::class, 'validateNik']);
-Route::get('/laporan', [LaporanKeuanganController::class, 'laporanKeuangan']);
+Route::post('/validate-nik', [NIKController::class, 'validateNik']);
+Route::get('/laporan-keuangan/search', [LaporanKeuanganController::class, 'searchLaporanKeuangan']);
+Route::get('/laporan-keuangan', [LaporanKeuanganController::class, 'laporanKeuangan']);
 // api.php
+
 Route::get('/export-pendaftar', [PendaftarController::class, 'export']);
 Route::get('export-pembayaran-ppdb', [PembayaranController::class, 'exportPembayaranPpdb']);
 Route::get('filter-ppdb', [PpdbController::class, 'filterByStatusAndYear']);

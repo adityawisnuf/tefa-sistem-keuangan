@@ -24,7 +24,6 @@ class PembayaranExport implements FromCollection, WithHeadings
                     'pembayaran_ppdb.status'
                     )
                     ->get();
-                    $totalTransaksiKeseluruhan = $data->sum('total_transaksi');
                 }
 
     public function headings(): array

@@ -24,6 +24,10 @@ class PembayaranPpdb extends Model
     {
         return $this->belongsTo(Pembayaran::class, 'pembayaran_id');
     }
+    public function pendaftar()
+{
+    return $this->belongsTo(Pendaftar::class, 'ppdb_id', 'ppdb_id');
+}
 
     public function pembayaran_duitku()
     {

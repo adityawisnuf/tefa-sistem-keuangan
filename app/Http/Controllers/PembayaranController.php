@@ -112,12 +112,12 @@ class PembayaranController extends Controller
         $last_name = $request->input('nama_belakang');
         $paymentMethod = $request->input('paymentMethod');
         $merchantOrderId = $request->input('merchantOrderId');
-        $callbackUrl = 'https://8fba-180-244-128-216.ngrok-free.app/api/payment-callback';
+        $callbackUrl = 'https://2b6d-180-244-128-162.ngrok-free.app/api/payment-callback';
         $returnUrl = 'http://localhost:5173/orang-tua/cek-pembayaran';
         $expiryPeriod = 60;
         $customerEmail = $request->input('email');
         $customerVaName = $first_name . ' ' . $last_name;
-         $signature = md5($merchantCode . $merchantOrderId . $paymentAmount . $apiKey);
+        $signature = md5($merchantCode . $merchantOrderId . $paymentAmount . $apiKey);
 
         Log::info('Signature generated in createTransaction', ['signature' => $signature]);
 
@@ -211,140 +211,138 @@ class PembayaranController extends Controller
 
 
 
-public function handleCallback(Request $request)
-{
-    try {
-        $apiKey = '8093b2c02b8750e4e73845f307325566';
-        $merchantCode = 'DS19869';
-        $amount = $request->input('amount');
-        $merchantOrderId = $request->input('merchantOrderId');
-        $signature = $request->input('signature');
+    public function handleCallback(Request $request)
+    {
+        try {
+            $apiKey = '8093b2c02b8750e4e73845f307325566';
+            $merchantCode = 'DS19869';
+            $amount = $request->input('amount');
+            $merchantOrderId = $request->input('merchantOrderId');
+            $signature = $request->input('signature');
 
-        Log::info('Data received from Duitku', [
-            'merchantCode' => $merchantCode,
-            'amount' => $amount,
-            'merchantOrderId' => $merchantOrderId,
-            'signature' => $signature,
-        ]);
+            Log::info('Data received from Duitku', [
+                'merchantCode' => $merchantCode,
+                'amount' => $amount,
+                'merchantOrderId' => $merchantOrderId,
+                'signature' => $signature,
+            ]);
 
-        $params = $merchantCode . $amount . $merchantOrderId . $apiKey;
-        $calcSignature = md5($params);
+            $params = $merchantCode . $amount . $merchantOrderId . $apiKey;
+            $calcSignature = md5($params);
 
-        Log::info('Calculated Signature', ['calcSignature' => $calcSignature]);
+            Log::info('Calculated Signature', ['calcSignature' => $calcSignature]);
 
-        if ($signature == $calcSignature) {
-            Log::info("Callback valid untuk Order ID: $merchantOrderId, PaymentAmount: $amount");
+            if ($signature == $calcSignature) {
+                Log::info("Callback valid untuk Order ID: $merchantOrderId, PaymentAmount: $amount");
 
-            $pembayaran = PembayaranDuitku::where('merchant_order_id', $merchantOrderId)->first();
+                $pembayaran = PembayaranDuitku::where('merchant_order_id', $merchantOrderId)->first();
 
-            if ($pembayaran) {
-                try {
-                    // Update status pembayaran menjadi 'success' dan simpan callback response
-                    $pembayaran->update([
-                        'status' => "Success",
-                        'callback_response' => json_encode($request->all()),
-                    ]);
+                if ($pembayaran) {
+                    try {
+                        // Update status pembayaran menjadi 'success' dan simpan callback response
+                        $pembayaran->update([
+                            'status' => "Success",
+                            'callback_response' => json_encode($request->all()),
+                        ]);
 
-                    // Update status Ppdb menjadi 2
-                    $ppdb = Ppdb::where('merchant_order_id', $merchantOrderId)->first();
-                    if ($ppdb) {
-                        $ppdb->update(['status' => 2]);
-                        Log::info("Ppdb status updated to 2 for Order ID: $merchantOrderId");
+                        // Update status Ppdb menjadi 2
+                        $ppdb = Ppdb::where('merchant_order_id', $merchantOrderId)->first();
+                        if ($ppdb) {
+                            $ppdb->update(['status' => 2]);
+                            Log::info("Ppdb status updated to 2 for Order ID: $merchantOrderId");
 
-                        // Update status PembayaranPpdb menjadi 1
-                        $pembayaranPpdb = PembayaranPpdb::where('merchant_order_id', $merchantOrderId)->first();
-                        if ($pembayaranPpdb) {
-                            $pembayaranPpdb->update(['status' => 1]);
-                            Log::info("PembayaranPpdb status updated to 1 for Order ID: $merchantOrderId");
+                            // Update status PembayaranPpdb menjadi 1
+                            $pembayaranPpdb = PembayaranPpdb::where('merchant_order_id', $merchantOrderId)->first();
+                            if ($pembayaranPpdb) {
+                                $pembayaranPpdb->update(['status' => 1]);
+                                Log::info("PembayaranPpdb status updated to 1 for Order ID: $merchantOrderId");
 
-                            // Decode user data and insert into Pendaftar
-                            $dataUserResponse = json_decode($pembayaran->data_user_response, true);
-                            if ($dataUserResponse) {
+                                // Decode user data and insert into Pendaftar
+                                $dataUserResponse = json_decode($pembayaran->data_user_response, true);
+                                if ($dataUserResponse) {
 
-                                // Insert Pendaftar
-                                Pendaftar::create([
-                                    'ppdb_id' => $ppdb->id,
-                                    'nama_depan' => $dataUserResponse['nama_depan'],
-                                    'nama_belakang' => $dataUserResponse['nama_belakang'],
-                                    'jenis_kelamin' => $dataUserResponse['jenis_kelamin'],
-                                    'nik' => $dataUserResponse['nik'],
-                                    'email' => $dataUserResponse['email'],
-                                    'nisn' => $dataUserResponse['nisn'],
-                                    'tempat_lahir' => $dataUserResponse['tempat_lahir'],
-                                    'tgl_lahir' => $dataUserResponse['tgl_lahir'],
-                                    'alamat' => $dataUserResponse['alamat'],
-                                    'village_id' => $dataUserResponse['village_id'],
-                                    'nama_ayah' => $dataUserResponse['nama_ayah'],
-                                    'nama_ibu' => $dataUserResponse['nama_ibu'],
-                                    'tgl_lahir_ayah' => $dataUserResponse['tgl_lahir_ayah'],
-                                    'tgl_lahir_ibu' => $dataUserResponse['tgl_lahir_ibu'],
-                                ]);
+                                    // Insert Pendaftar
+                                    Pendaftar::create([
+                                        'ppdb_id' => $ppdb->id,
+                                        'nama_depan' => $dataUserResponse['nama_depan'],
+                                        'nama_belakang' => $dataUserResponse['nama_belakang'],
+                                        'jenis_kelamin' => $dataUserResponse['jenis_kelamin'],
+                                        'nik' => $dataUserResponse['nik'],
+                                        'email' => $dataUserResponse['email'],
+                                        'nisn' => $dataUserResponse['nisn'],
+                                        'tempat_lahir' => $dataUserResponse['tempat_lahir'],
+                                        'tgl_lahir' => $dataUserResponse['tgl_lahir'],
+                                        'alamat' => $dataUserResponse['alamat'],
+                                        'village_id' => $dataUserResponse['village_id'],
+                                        'nama_ayah' => $dataUserResponse['nama_ayah'],
+                                        'nama_ibu' => $dataUserResponse['nama_ibu'],
+                                        'tgl_lahir_ayah' => $dataUserResponse['tgl_lahir_ayah'],
+                                        'tgl_lahir_ibu' => $dataUserResponse['tgl_lahir_ibu'],
+                                    ]);
 
-                                PendaftarDokumen::create([
-                                    'ppdb_id' => $ppdb->id,
-                                    'akte_kelahiran' => $dataUserResponse['akte_kelahiran'],
-                                    'kartu_keluarga' => $dataUserResponse['kartu_keluarga'],
-                                    'ijazah' => $dataUserResponse['ijazah'],
-                                    'raport' => $dataUserResponse['raport'],
-                                ]);
+                                    PendaftarDokumen::create([
+                                        'ppdb_id' => $ppdb->id,
+                                        'akte_kelahiran' => $dataUserResponse['akte_kelahiran'],
+                                        'kartu_keluarga' => $dataUserResponse['kartu_keluarga'],
+                                        'ijazah' => $dataUserResponse['ijazah'],
+                                        'raport' => $dataUserResponse['raport'],
+                                    ]);
 
 
-                                // Insert PendaftarAkademik
-                                PendaftarAkademik::create([
-                                    'ppdb_id' => $ppdb->id,
-                                    'sekolah_asal' => $dataUserResponse['sekolah_asal'],
-                                    'tahun_lulus' => $dataUserResponse['tahun_lulus'],
-                                    'jurusan_tujuan' => $dataUserResponse['jurusan_tujuan'],
-                                ]);
+                                    // Insert PendaftarAkademik
+                                    PendaftarAkademik::create([
+                                        'ppdb_id' => $ppdb->id,
+                                        'sekolah_asal' => $dataUserResponse['sekolah_asal'],
+                                        'tahun_lulus' => $dataUserResponse['tahun_lulus'],
+                                        'jurusan_tujuan' => $dataUserResponse['jurusan_tujuan'],
+                                    ]);
 
-                               // Generate a random plain password
-$plainPassword = Str::random(12);
+                                    // Generate a random plain password
+                                    $plainPassword = Str::random(12);
 
-// Create the user with the hashed password
-$user = User::create([
-    'name' => $dataUserResponse['nama_depan'] . ' ' . $dataUserResponse['nama_belakang'],
-    'email' => $dataUserResponse['email'],
-    'password' => Hash::make($plainPassword), // Hash the plain password
-    'role' => 'Siswa',
-]);
+                                    // Create the user with the hashed password
+                                    $user = User::create([
+                                        'name' => $dataUserResponse['nama_depan'] . ' ' . $dataUserResponse['nama_belakang'],
+                                        'email' => $dataUserResponse['email'],
+                                        'password' => Hash::make($plainPassword), // Hash the plain password
+                                        'role' => 'Siswa',
+                                    ]);
 
-// Send an email with the plain password
-$user->notify(new CredentialsEmailNotification($plainPassword));
+                                    // Send an email with the plain password
+                                    $user->notify(new CredentialsEmailNotification($plainPassword));
 
-Log::info("Data user successfully inserted into Pendaftar for Order ID: $merchantOrderId");
+                                    Log::info("Data user successfully inserted into Pendaftar for Order ID: $merchantOrderId");
 
-                                Log::info("Data user successfully inserted into Pendaftar for Order ID: $merchantOrderId");
+                                    Log::info("Data user successfully inserted into Pendaftar for Order ID: $merchantOrderId");
+                                } else {
+                                    Log::error("Failed to decode data_user_response for Order ID: $merchantOrderId");
+                                    return response()->json(['error' => 'Failed to decode user data'], 500);
+                                }
                             } else {
-                                Log::error("Failed to decode data_user_response for Order ID: $merchantOrderId");
-                                return response()->json(['error' => 'Failed to decode user data'], 500);
+                                Log::error("PembayaranPpdb record not found for Order ID: $merchantOrderId");
+                                return response()->json(['error' => 'PembayaranPpdb record not found'], 404);
                             }
                         } else {
-                            Log::error("PembayaranPpdb record not found for Order ID: $merchantOrderId");
-                            return response()->json(['error' => 'PembayaranPpdb record not found'], 404);
+                            Log::error("Ppdb record not found for Order ID: $merchantOrderId");
+                            return response()->json(['error' => 'Ppdb record not found'], 404);
                         }
-                    } else {
-                        Log::error("Ppdb record not found for Order ID: $merchantOrderId");
-                        return response()->json(['error' => 'Ppdb record not found'], 404);
+                    } catch (\Exception $e) {
+                        Log::error("Error updating payment, Ppdb, or PembayaranPpdb record: " . $e->getMessage());
+                        return response()->json(['error' => 'Update Error', 'message' => $e->getMessage()], 500);
                     }
-                } catch (\Exception $e) {
-                    Log::error("Error updating payment, Ppdb, or PembayaranPpdb record: " . $e->getMessage());
-                    return response()->json(['error' => 'Update Error', 'message' => $e->getMessage()], 500);
+                } else {
+                    Log::error("Payment record not found for Order ID: $merchantOrderId");
+                    return response()->json(['error' => 'Payment record not found'], 404);
                 }
+
+                return response()->json(['message' => 'Callback processed successfully', 'merchantOrderId' => $merchantOrderId], 200);
             } else {
-                Log::error("Payment record not found for Order ID: $merchantOrderId");
-                return response()->json(['error' => 'Payment record not found'], 404);
+                Log::error("Bad signature for Order ID: $merchantOrderId");
+                return response()->json(['error' => 'Bad signature'], 400);
             }
-
-            return response()->json(['message' => 'Callback processed successfully', 'merchantOrderId' => $merchantOrderId], 200);
-        } else {
-            Log::error("Bad signature for Order ID: $merchantOrderId");
-            return response()->json(['error' => 'Bad signature'], 400);
+        } catch (\Exception $e) {
+            Log::error('Unexpected error in handleCallback', ['message' => $e->getMessage()]);
+            return response()->json(['error' => 'Unexpected Error', 'message' => $e->getMessage()], 500);
         }
-    } catch (\Exception $e) {
-        Log::error('Unexpected error in handleCallback', ['message' => $e->getMessage()]);
-        return response()->json(['error' => 'Unexpected Error', 'message' => $e->getMessage()], 500);
     }
-}
-
-
 }
