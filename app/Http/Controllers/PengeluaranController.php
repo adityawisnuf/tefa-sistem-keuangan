@@ -252,7 +252,7 @@ class PengeluaranController extends Controller
 
     public function rekapitulasiPengeluaran($periode)
     {
-        if (!in_array($periode, ['hari', 'minggu', 'bulan', 'tahun'])) {
+        if (!in_array($periode, ['harian', 'mingguan', 'bulanan', 'tahunan'])) {
             return response()->json([
                 'success' => false,
                 'message' => 'Invalid periode value',
@@ -262,17 +262,17 @@ class PengeluaranController extends Controller
         $query = Pengeluaran::with('pengeluaran_kategori');
 
         switch ($periode) {
-            case 'hari':
+            case 'harian':
                 $query->whereDate('created_at', now()->toDateString());
                 break;
-            case 'minggu':
+            case 'mingguan':
                 $query->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()]);
                 break;
-            case 'bulan':
+            case 'bulanan':
                 $query->whereMonth('created_at', now()->month)
                     ->whereYear('created_at', now()->year);
                 break;
-            case 'tahun':
+            case 'tahunan':
                 $query->whereYear('created_at', now()->year);
                 break;
         }

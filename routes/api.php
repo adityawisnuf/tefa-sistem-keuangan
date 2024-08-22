@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\LogoutController;
+use App\Http\Controllers\PengeluaranAnalysis;
 use App\Http\Controllers\PengeluaranController;
 use App\Http\Controllers\PengeluaranKategoriController;
 
@@ -28,6 +29,7 @@ Route::group([
         Route::patch('pengeluaran/{id}', [PengeluaranController::class, 'updatePengeluaran']);
         Route::get('pengeluaran/riwayat', [PengeluaranController::class, 'riwayatPengeluaran']);
         Route::get('pengeluaran/{periode}', [PengeluaranController::class, 'rekapitulasiPengeluaran']);
+        Route::get('pengeluaran/analisis/{periode}', [PengeluaranAnalysis::class, 'getPengeluaranPeriode']);
     });
 
     Route::patch('/pengeluaran/{id}/accept', [PengeluaranController::class, 'acceptPengeluaran'])->middleware('checkrole:Bendahara');
