@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\UsahaPengajuanRequest;
 use App\Models\UsahaPengajuan;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class BendaharaPengajuanController extends Controller
 {
@@ -16,10 +17,8 @@ class BendaharaPengajuanController extends Controller
 
     public function confirmUsahaPengajuan(UsahaPengajuanRequest $request, UsahaPengajuan $pengajuan)
     {
-        // Ambil data usaha
         $usaha = $pengajuan->usaha;
 
-        // Periksa apakah pengajuan sudah diproses
         if (in_array($pengajuan->status, ['disetujui', 'ditolak'])) {
             return response()->json([
                 'message' => 'Pengajuan sudah diproses!',
