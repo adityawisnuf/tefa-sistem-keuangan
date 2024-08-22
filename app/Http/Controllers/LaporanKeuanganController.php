@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Http\Controllers;
 
 use App\Models\PembayaranPpdb;
@@ -21,7 +20,7 @@ class LaporanKeuanganController extends Controller
         $request->validate([
             'tahun_awal' => 'nullable|integer|digits:4',
             'tahun_akhir' => 'nullable|integer|digits:4|gte:tahun_awal',
-            'status' => 'nullable|integer|in:0,1', // Sesuaikan dengan nilai status yang ada
+            'status' => 'nullable|integer|in:0,1,', // Sesuaikan dengan nilai status yang ada
         ]);
 
         // Ambil parameter dari request
@@ -31,25 +30,19 @@ class LaporanKeuanganController extends Controller
 
         // Mulai query
         $query = PembayaranPpdb::selectRaw('
-                pembayaran_ppdb.ppdb_id,
-                pembayaran_ppdb.status,
-                SUM(pembayaran_ppdb.nominal) as total_nominal,
-                pendaftar.nama_depan,
-                pendaftar.nama_belakang,
-                CONCAT(
-                    IF(MONTH(pembayaran.created_at) >= 7, YEAR(pembayaran.created_at), YEAR(pembayaran.created_at) - 1),
-                    "/",
-                    IF(MONTH(pembayaran.created_at) >= 7, YEAR(pembayaran.created_at) + 1, YEAR(pembayaran.created_at))
-                ) as tahun_ajaran
-            ')
-            ->leftJoin('pendaftar', 'pembayaran_ppdb.ppdb_id', '=', 'pendaftar.ppdb_id')
-            ->leftJoin('pembayaran', 'pembayaran_ppdb.pembayaran_id', '=', 'pembayaran.id');
-
-        // Filter berdasarkan tahun jika ada
-        if ($tahunAwal && $tahunAkhir) {
-            $query->whereYear('pembayaran.created_at', '>=', $tahunAwal)
-                  ->whereYear('pembayaran.created_at', '<=', $tahunAkhir);
-        }
+            pembayaran_ppdb.ppdb_id,
+            pembayaran_ppdb.status,
+            SUM(pembayaran_ppdb.nominal) as total_nominal,
+            pendaftar.nama_depan,
+            pendaftar.nama_belakang,
+            CONCAT(
+                IF(MONTH(pembayaran.created_at) >= 7, YEAR(pembayaran.created_at), YEAR(pembayaran.created_at) - 1),
+                "/",
+                IF(MONTH(pembayaran.created_at) >= 7, YEAR(pembayaran.created_at) + 1, YEAR(pembayaran.created_at))
+            ) as tahun_ajaran
+        ')
+        ->leftJoin('pendaftar', 'pembayaran_ppdb.ppdb_id', '=', 'pendaftar.ppdb_id')
+        ->leftJoin('pembayaran', 'pembayaran_ppdb.pembayaran_id', '=', 'pembayaran.id');
 
         // Filter berdasarkan status jika ada
         if ($status !== null) {
@@ -63,8 +56,8 @@ class LaporanKeuanganController extends Controller
         $totalNominal = PembayaranPpdb::sum('nominal');
         $totalSemuaPembayaran = number_format($totalNominal, 0, ',', '.');
 
-        // Jika tidak ada data yang ditemukan
-        if ($laporan->isEmpty()) {
+           // Jika tidak ada data yang ditemukan
+           if ($laporan->isEmpty()) {
             return response()->json([
                 'laporan_keuangan' => [],
                 'total_semua_pembayaran' => '0'
