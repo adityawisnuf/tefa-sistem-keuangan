@@ -18,7 +18,6 @@ class KantinTransaksiDetail extends Model
         'harga',
     ];
 
-
     public function kantin_transaksi()
     {
         return $this->belongsTo(KantinTransaksi::class, 'kantin_transaksi_id');

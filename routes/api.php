@@ -1,8 +1,11 @@
 <?php
 
 use App\Http\Controllers\BendaharaController;
+use App\Http\Controllers\BendaharaPengajuanController;
 use App\Http\Controllers\LaundryTransaksiController;
 use App\Http\Controllers\OrangTuaController;
+use App\Http\Controllers\OrangTuaRiwayatController;
+use App\Http\Controllers\OrangTuaSiswaController;
 use App\Http\Controllers\UsahaPengajuanController;
 use App\Http\Controllers\KantinProdukController;
 use App\Http\Controllers\KantinProdukKategoriController;
@@ -41,12 +44,16 @@ Route::group([
         'prefix' => 'orangtua',
         'middleware' => 'checkrole:OrangTua'
     ], function () {
+        Route::group(['prefix' => 'siswa'], function() {
+            Route::get('/', [OrangTuaSiswaController::class, 'getDataSiswa']);
+        });
+
         Route::group(['prefix' => 'wallet'], function () {
             Route::get('/', [OrangTuaController::class, 'getWalletSiswa']);
         });
         Route::group(['prefix' => 'riwayat'], function () {
-            Route::get('/kantin', [OrangTuaController::class, 'getRiwayatKantin']);
-            Route::get('/laundry', [OrangTuaController::class, 'getRiwayatLaundry']);
+            Route::get('/{id}/kantin', [OrangTuaRiwayatController::class, 'getRiwayatKantinSiswa']);
+            Route::get('/{id}/laundry', [OrangTuaRiwayatController::class, 'getRiwayatLaundrySiswa']);
         });
     });
 
@@ -69,7 +76,7 @@ Route::group([
 
         Route::group(['prefix' => 'laundry'], function () {
             Route::group(['prefix' => 'layanan'], function () {
-                Route::get('/', [SiswaLaundryController::class, 'getLayanan']);
+                Route::get('/', [SiswaLaundryController::class, 'getLaundryLayanan']);
                 Route::get('/riwayat', [SiswaLaundryController::class, 'getLayananRiwayat']);
                 Route::post('/transaksi', [SiswaLaundryController::class, 'createLayananTransaksi']);
             });
@@ -151,11 +158,8 @@ Route::group([
         });
 
         Route::group(['prefix' => 'pengajuan'], function() {
-            Route::get('/kantin', [BendaharaController::class, 'getKantinPengajuan']);
-            Route::put('/kantin/{pengajuan}', [BendaharaController::class, 'PengajuanUsaha']);
-
-            Route::get('/laundry', [BendaharaController::class, 'getLaundryPengajuan']);
-            Route::put('/laundry/{pengajuan}', [BendaharaController::class, 'PengajuanUsaha']);
+            Route::get('/', [BendaharaPengajuanController::class, 'getUsahaPengajuan']);
+            Route::put('/{pengajuan}', [BendaharaPengajuanController::class, 'PengajuanUsaha']);
         });
     });
 

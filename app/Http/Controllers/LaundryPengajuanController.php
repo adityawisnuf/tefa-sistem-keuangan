@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\UsahaPengajuanRequest;
 use App\Models\UsahaPengajuan;
-use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class LaundryPengajuanController extends Controller
 {
