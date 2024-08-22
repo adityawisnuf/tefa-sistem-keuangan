@@ -48,6 +48,8 @@ class TopUpController extends Controller
 
         Log::info(json_encode($callbackData));
 
+        Log::info(json_encode($callbackData));
+
         try {
             $pembayaranDuitku = PembayaranDuitku::findOrFail($callbackData['merchantOrderId'])->first();
             DB::beginTransaction();

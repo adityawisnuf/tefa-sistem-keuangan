@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\LogoutController;
+use App\Http\Controllers\OrangTuaWalletController;
 use Illuminate\Support\Facades\Auth;
 
 // ROLE : Admin; KepalaSekolah; Bendahara; OrangTua; Siswa; Kantin; Laundry;
@@ -50,11 +51,16 @@ Route::group([
 
         Route::group(['prefix' => 'wallet'], function () {
             Route::get('/', [OrangTuaController::class, 'getWalletSiswa']);
+            Route::post('/get-payment-method', [OrangTuaWalletController::class, 'getPaymentMethod'])->name('get-payment-method');
+            Route::post('/request-transaksi', [OrangTuaWalletController::class, 'requestTransaction'])->name('request-transaksi');
         });
         Route::group(['prefix' => 'riwayat'], function () {
             Route::get('/{id}/kantin', [OrangTuaRiwayatController::class, 'getRiwayatKantinSiswa']);
             Route::get('/{id}/laundry', [OrangTuaRiwayatController::class, 'getRiwayatLaundrySiswa']);
         });
+
+
+
     });
 
     Route::group([

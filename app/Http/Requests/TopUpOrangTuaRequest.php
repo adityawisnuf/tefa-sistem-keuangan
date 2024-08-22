@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class TopUpRequest extends FormRequest
+class TopUpOrangTuaRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -37,9 +37,9 @@ class TopUpRequest extends FormRequest
     public function requestTransaksi()
     {
         return [
+            'siswa_id' => ['required', 'exists:siswa,id'],
             'paymentAmount' => ['required', 'numeric', 'min:1'],
             'paymentMethod' => ['required'],
-            'additionalParam' => ['required', 'email'],
         ];
     }
 }
