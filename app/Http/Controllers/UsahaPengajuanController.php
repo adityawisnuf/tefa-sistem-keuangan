@@ -23,14 +23,15 @@ class UsahaPengajuanController extends Controller
     {
         $usaha = Auth::user()->usaha->firstOrFail();
         $fields = $request->validated();
-        
+
         if ($usaha->saldo < $fields['jumlah_pengajuan']) {
             return response()->json([
                 'message' => 'Saldo tidak mencukupi untuk pengajuan ini.',
             ], Response::HTTP_BAD_REQUEST);
         }
-        
+
         $fields['usaha_id'] = $usaha->id;
+        $fields['nama_usaha'] = $usaha->nama_usaha;
 
         DB::beginTransaction();
         $pengajuan = UsahaPengajuan::create($fields);
@@ -39,6 +40,6 @@ class UsahaPengajuanController extends Controller
         ]);
         DB::commit();
 
-        return response()->json(['data' => $pengajuan], Response::HTTP_CREATED);
+        return response()->json(['data' => [array_merge(['nama_usaha' => $usaha->nama_usaha], $pengajuan->toArray())]], Response::HTTP_CREATED);
     }
 }
