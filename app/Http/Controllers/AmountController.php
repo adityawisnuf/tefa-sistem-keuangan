@@ -42,7 +42,7 @@ class AmountController extends Controller
             return response()->json(['message' => 'Amount not found'], 404);
         }
 
-        return response()->json($amount);
+        return response()->json(['data' => $amount->toArray()]);
     }
 
     // Show the form for editing the specified amount
