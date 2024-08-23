@@ -53,16 +53,13 @@ class SiswaKantinController extends Controller
 
         foreach ($fields['detail_pesanan'] as $productDetail) {
             $product = $products->firstWhere('id', $productDetail['kantin_produk_id']);
-            return $product;
             $qty = $productDetail['jumlah'];
 
             if ($product->stok < $qty) {
                 return response()->json(['message' => "Stok produk {$product->nama_produk} tidak mencukupi."], Response::HTTP_BAD_REQUEST);
             }
 
-            $product->update([
-                'stok' => $product->stok - $qty
-            ]);
+            $product->stok -= $qty;
 
             KantinTransaksiDetail::create([
                 'kantin_produk_id' => $product->id,
@@ -71,9 +68,8 @@ class SiswaKantinController extends Controller
                 'harga' => $product->harga_jual,
             ]);
 
-            $totalHarga += $product->harga_jual * $productDetail['jumlah'];
+            $totalHarga += $product->harga_jual * $qty;
         }
-
 
         if ($siswaWallet->nominal < $totalHarga) {
             return response()->json(['message' => 'Saldo tidak mencukupi untuk transaksi ini.'], Response::HTTP_BAD_REQUEST);
@@ -86,6 +82,8 @@ class SiswaKantinController extends Controller
         $siswaWallet->update([
             'nominal' => $siswaWallet->nominal - $totalHarga,
         ]);
+
+        $products->each->save();
 
         SiswaWalletRiwayat::create([
             'siswa_wallet_id' => $siswaWallet->id,

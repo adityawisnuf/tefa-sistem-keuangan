@@ -24,44 +24,18 @@ class BendaharaController extends Controller
         $this->endOfWeek = now()->endOfWeek();
     }
 
-    public function getKantinTransaksi()
+    public function getUsahaTransaksi()
     {
-        $perPage = request()->input('per_page', 10);
-    
-        $transaksi = KantinTransaksi::with('kantin_transaksi_detail')
+        $perPage = request('per_page', 10);
+        $role = request('role', 'Kantin');
+
+        $model = $role == 'Kantin' ? new KantinTransaksi : new LaundryTransaksi;
+        $transaksi = $model->with($role == 'Kantin' ? 'kantin_transaksi_detail' : 'laundry_transaksi_detail')
             ->whereIn('status', ['dibatalkan', 'selesai'])
             ->whereBetween('tanggal_selesai', [$this->startOfWeek, $this->endOfWeek])
             ->paginate($perPage);
-        
-        // Transform the data to the desired format
-        $formattedData = $transaksi->flatMap(function ($item) {
-            return $item->kantin_transaksi_detail->map(function ($detail) use ($item) {
-                return [
-                    'id' => $item->id, // ID transaksi kantin
-                    'siswa_id' => $item->siswa_id, 
-                    'usaha_id' => $item->usaha_id,
-                    'jumlah' => $detail->jumlah,
-                    'harga' => $detail->harga,
-                    'harga_total' => $detail->harga * $detail->jumlah,
-
-                    'status' => $item->status,
-                    'tanggal_pemesanan' => $item->tanggal_pemesanan,
-                    'tanggal_selesai' => $item->tanggal_selesai,
-                    'created_at' => $item->created_at,
-                    'updated_at' => $item->updated_at,
-                ];
-            });
-        });
     
-        return response()->json(['data' => $formattedData], Response::HTTP_OK);
-    }
-
-    public function getLaundryTransaksi()
-    {
-        $perPage = request()->input('per_page', 10);
-        return LaundryTransaksi::whereIn('status', ['dibatalkan', 'selesai'])
-            ->whereBetween('tanggal_selesai', [$this->startOfWeek, $this->endOfWeek])
-            ->paginate($perPage);
+        return response()->json(['data' => $transaksi], Response::HTTP_OK);
     }
 
     public function getUsahaPengajuan()
