@@ -30,22 +30,30 @@ class LaporanKeuanganController extends Controller
 
         // Mulai query
         $query = PembayaranPpdb::selectRaw('
-            pembayaran_ppdb.ppdb_id,
-            pembayaran_ppdb.status,
-            SUM(pembayaran_ppdb.nominal) as total_nominal,
-            pendaftar.nama_depan,
-            pendaftar.nama_belakang,
-            CONCAT(
-                IF(MONTH(pembayaran.created_at) >= 7, YEAR(pembayaran.created_at), YEAR(pembayaran.created_at) - 1),
-                "/",
-                IF(MONTH(pembayaran.created_at) >= 7, YEAR(pembayaran.created_at) + 1, YEAR(pembayaran.created_at))
-            ) as tahun_ajaran
-        ')
-        ->leftJoin('pendaftar', 'pembayaran_ppdb.ppdb_id', '=', 'pendaftar.ppdb_id')
-        ->leftJoin('pembayaran', 'pembayaran_ppdb.pembayaran_id', '=', 'pembayaran.id');
+                pembayaran_ppdb.ppdb_id,
+                pembayaran_ppdb.status,
+                SUM(pembayaran_ppdb.nominal) as total_nominal,
+                pendaftar.nama_depan,
+                pendaftar.nama_belakang,
+                CONCAT(
+                    IF(MONTH(pembayaran.created_at) >= 7, YEAR(pembayaran.created_at), YEAR(pembayaran.created_at) - 1),
+                    "/",
+                    IF(MONTH(pembayaran.created_at) >= 7, YEAR(pembayaran.created_at) + 1, YEAR(pembayaran.created_at))
+                ) as tahun_ajaran
+            ')
+            ->leftJoin('pendaftar', 'pembayaran_ppdb.ppdb_id', '=', 'pendaftar.ppdb_id')
+            ->leftJoin('pembayaran', 'pembayaran_ppdb.pembayaran_id', '=', 'pembayaran.id'); // Tambahkan join dengan tabel pembayaran
 
-        // Filter berdasarkan status jika ada
-        if ($status !== null) {
+       // Filter berdasarkan tahun jika ada
+        if ($tahunAwal) {
+            $query->whereYear('pembayaran.created_at', '>=', $tahunAwal);
+        }
+
+        if ($tahunAkhir) {
+            $query->whereYear('pembayaran.created_at', '<=', $tahunAkhir);
+        }
+
+        if (isset($status)) {
             $query->where('pembayaran_ppdb.status', $status);
         }
 
