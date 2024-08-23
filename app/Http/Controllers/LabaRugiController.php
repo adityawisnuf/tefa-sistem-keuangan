@@ -129,7 +129,10 @@ class LabaRugiController extends Controller
         DB::table('pembayaran_ppdb')->selectRaw('YEAR(created_at) as year, MONTHNAME(created_at) as month')
     )
     ->unionAll(
-        DB::table('pengeluaran')->selectRaw('YEAR(created_at) as year, MONTHNAME(created_at) as month')
+        DB::table('pengeluaran')->selectRaw('YEAR(diajukan_pada) as year, MONTHNAME(diajukan_pada) as month')
+    )
+    ->unionAll(
+        DB::table('pengeluaran')->selectRaw('YEAR(disetujui_pada) as year, MONTHNAME(disetujui_pada) as month')
     )
     ->groupBy('year', 'month')
     ->get();
