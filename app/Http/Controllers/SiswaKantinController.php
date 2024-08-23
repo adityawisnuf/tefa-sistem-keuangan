@@ -18,24 +18,30 @@ class SiswaKantinController extends Controller
         $kategori = request()->input('kategori');
         $perPage = request()->input('per_page', 10);
 
-        $produk = $kategori
-            ? KantinProduk::where('kantin_produk_kategori_id', $kategori)->paginate($perPage)
-            : KantinProduk::paginate($perPage);
+        $produk = KantinProduk::where('kantin_produk_kategori_id', 'like', "%$kategori%")
+            ->where('status', 'aktif')
+            ->paginate($perPage);
 
         return response()->json(['data' => $produk], Response::HTTP_OK);
     }
 
     public function getProdukDetail(KantinProduk $produk)
     {
-        return response()->json(['data' => $produk], Response::HTTP_OK);
+        if ($produk->status == 'aktif') {
+            return response()->json(['data' => $produk], Response::HTTP_OK);
+        }
+        return response()->json(['data' => 'produk tidak tersedia'], Response::HTTP_BAD_REQUEST);
     }
 
     public function createProdukTransaksi(SiswaKantinRequest $request)
     {
-        $siswa = Auth::user()->siswa()->with('siswa_wallet')->firstOrFail();
+        $siswa = Auth::user()->siswa->firstOrFail();
         $fields = $request->validated();
 
-        $usaha = KantinProduk::find($fields['detail_pesanan'][0]['kantin_produk_id'])->usaha;
+        $productIds = collect($fields['detail_pesanan'])->pluck('kantin_produk_id')->toArray();
+        $products = KantinProduk::whereIn('id', $productIds)->get();
+
+        $usaha = $products->first()->usaha;
         $siswaWallet = $siswa->siswa_wallet;
 
         $fields['siswa_id'] = $siswa->id;
@@ -46,7 +52,8 @@ class SiswaKantinController extends Controller
         $totalHarga = 0;
 
         foreach ($fields['detail_pesanan'] as $productDetail) {
-            $product = $usaha->kantin_produk()->findOrFail($productDetail['kantin_produk_id']);
+            $product = $products->firstWhere('id', $productDetail['kantin_produk_id']);
+            return $product;
             $qty = $productDetail['jumlah'];
 
             if ($product->stok < $qty) {

@@ -3,8 +3,9 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
-class SiswaKantinRequest extends FormRequest
+class BendaharaPengajuanRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,9 +23,8 @@ class SiswaKantinRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'detail_pesanan' => ['required', 'array', 'min:1'],
-            'detail_pesanan.*.kantin_produk_id' => ['required', 'exists:kantin_produk,id'],
-            'detail_pesanan.*.jumlah' => ['required', 'numeric', 'min:1'],
+            'alasan_penolakan' => ['sometimes', 'string', Rule::requiredIf(request('status') == 'ditolak')],
+            'status' => ['required', Rule::in('disetujui', 'ditolak')],
         ];
     }
 }

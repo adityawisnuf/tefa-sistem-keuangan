@@ -31,13 +31,6 @@ class OrangTuaWalletController extends Controller
         return response()->json(['wallet' => $siswaWallet], 200);
     }
 
-    public function getPaymentMethod(TopUpOrangTuaRequest $request)
-    {
-        $fields = $request->validated();
-        $result = $this->duitkuService->getPaymentMethod($fields['paymentAmount']);
-        return response()->json($result['data'], $result['statusCode']);
-    }
-
     public function requestTransaction(TopUpOrangTuaRequest $request)
     {
         $orangtua = Auth::user()->orangtua->firstOrFail();

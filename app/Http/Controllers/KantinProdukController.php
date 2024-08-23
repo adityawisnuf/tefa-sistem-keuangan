@@ -16,9 +16,10 @@ class KantinProdukController extends Controller
     public function index()
     {
         $usaha = Auth::user()->usaha->firstOrFail();
-        $perPage = request()->input('per_page', 10);
+        $perPage = request('per_page', 10);
+        $kategori = request('kategori');
 
-        $items = $usaha->kantin_produk()->paginate($perPage);
+        $items = $usaha->kantin_produk()->where('kantin_produk_kategori_id', 'like', "%$kategori%")->paginate($perPage);
         return response()->json(['data' => $items], Response::HTTP_OK);
     }
 
@@ -32,6 +33,11 @@ class KantinProdukController extends Controller
         $fields['usaha_id'] = $usaha->id;
         $item = KantinProduk::create($fields);
         return response()->json(['data' => $item], Response::HTTP_CREATED);
+    }
+
+    public function show(KantinProduk $produk)
+    {
+        return response()->json(['data' => $produk], Response::HTTP_OK);
     }
 
 

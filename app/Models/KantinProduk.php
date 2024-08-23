@@ -32,7 +32,7 @@ class KantinProduk extends Model
     public function kantin_transaksi_detail()
     {
         return $this->hasMany(KantinTransaksiDetail::class, 'kantin_produk_id');
-    }
+        }
     public function kantin_produk_kategori()
     {
         return $this->belongsTo(KantinProdukKategori::class, 'kantin_produk_kategori_id');

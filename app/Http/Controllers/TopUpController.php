@@ -39,6 +39,8 @@ class TopUpController extends Controller
             $siswa = $orangtua->siswa()->find($fields['siswa_id']);
 
             $fields['email'] = $siswa->user->email;
+        } else {
+            $siswa = Auth::user();
         }
 
 

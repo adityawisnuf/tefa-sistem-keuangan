@@ -27,6 +27,11 @@ class KantinProdukKategoriController extends Controller
         return response()->json(['data' => $item], Response::HTTP_CREATED);
     }
 
+    public function show(KantinProdukKategori $kategori)
+    {
+        return response()->json(['data' => $kategori], Response::HTTP_OK);
+    }
+
     public function update(KantinProdukKategoriRequest $request, KantinProdukKategori $kategori)
     {
         $fields = $request->validated();

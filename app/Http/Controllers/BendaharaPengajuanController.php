@@ -16,7 +16,7 @@ class BendaharaPengajuanController extends Controller
 
         $pengajuan = UsahaPengajuan::join('usaha', 'usaha.id', '=', 'usaha_pengajuan.usaha_id')
         ->join('users', 'users.id', '=', 'usaha.user_id')
-        ->select('usaha_pengajuan.id as usaha_pengajuan_id',
+        ->select('usaha_pengajuan.id',
             'usaha.nama_usaha',
             'usaha_pengajuan.jumlah_pengajuan',
             'usaha_pengajuan.status',

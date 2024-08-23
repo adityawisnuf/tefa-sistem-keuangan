@@ -64,13 +64,14 @@ Route::group([
         'middleware' => 'checkrole:Siswa'
     ], function () {
         Route::group(['prefix' => 'wallet'], function () {
-            Route::get('/saldo', [SiswaWalletController::class, 'getSaldo']);
+            Route::get('/', [SiswaWalletController::class, 'getSaldo']);
             Route::get('/riwayat', [SiswaWalletController::class, 'getRiwayat']);
         });
 
         Route::group(['prefix' => 'kantin'], function () {
             Route::group(['prefix' => 'produk'], function () {
                 Route::get('/', [SiswaKantinController::class, 'getProduk']);
+                Route::get('/{produk}', [SiswaKantinController::class, 'getProdukDetail']);
                 Route::get('/riwayat', [SiswaKantinController::class, 'getKantinRiwayat']);
                 Route::post('/transaksi', [SiswaKantinController::class, 'createProdukTransaksi']);
             });
@@ -158,7 +159,7 @@ Route::group([
 
         Route::group(['prefix' => 'pengajuan'], function() {
                 Route::get('/', [BendaharaPengajuanController::class, 'getUsahaPengajuan']);
-                Route::put('/{pengajuan}', [BendaharaPengajuanController::class, 'PengajuanUsaha']);
+                Route::put('/{pengajuan}', [BendaharaPengajuanController::class, 'confirmUsahaPengajuan']);
         });
     });
 
@@ -166,9 +167,10 @@ Route::group([
         'prefix' => 'kepsek',
         'middleware' => 'checkrole:KepalaSekolah'
     ], function () {
+
         Route::group(['prefix' => 'laporan'], function() {
             Route::get('/kantin', [BendaharaController::class, 'getKantinTransaksi']);
-            Route::get('/laundry', [BendaharaController::class, 'getKantinTransaksi']);
+            Route::get('/laundry', [BendaharaController::class, 'getLaundryTransaksi']);
         });
 
         Route::group(['prefix' => 'pengajuan'], function() {

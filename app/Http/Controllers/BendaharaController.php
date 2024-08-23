@@ -27,9 +27,33 @@ class BendaharaController extends Controller
     public function getKantinTransaksi()
     {
         $perPage = request()->input('per_page', 10);
-        return KantinTransaksi::whereIn('status', ['dibatalkan', 'selesai'])
+    
+        $transaksi = KantinTransaksi::with('kantin_transaksi_detail')
+            ->whereIn('status', ['dibatalkan', 'selesai'])
             ->whereBetween('tanggal_selesai', [$this->startOfWeek, $this->endOfWeek])
             ->paginate($perPage);
+        
+        // Transform the data to the desired format
+        $formattedData = $transaksi->flatMap(function ($item) {
+            return $item->kantin_transaksi_detail->map(function ($detail) use ($item) {
+                return [
+                    'id' => $item->id, // ID transaksi kantin
+                    'siswa_id' => $item->siswa_id, 
+                    'usaha_id' => $item->usaha_id,
+                    'jumlah' => $detail->jumlah,
+                    'harga' => $detail->harga,
+                    'harga_total' => $detail->harga * $detail->jumlah,
+
+                    'status' => $item->status,
+                    'tanggal_pemesanan' => $item->tanggal_pemesanan,
+                    'tanggal_selesai' => $item->tanggal_selesai,
+                    'created_at' => $item->created_at,
+                    'updated_at' => $item->updated_at,
+                ];
+            });
+        });
+    
+        return response()->json(['data' => $formattedData], Response::HTTP_OK);
     }
 
     public function getLaundryTransaksi()
