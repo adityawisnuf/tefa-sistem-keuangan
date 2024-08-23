@@ -29,7 +29,11 @@ class LaundryTransaksiController extends Controller
         $usaha = Auth::user()->usaha->firstOrFail();
 
         $perPage = request()->input('per_page', 10);
-        $transaksi = $usaha->laundry_transaksi()->whereIn('status', ['pending', 'proses', 'siap_diambil'])->paginate($perPage);
+        $transaksi = $usaha->laundry_transaksi()
+            ->with(['siswa:id,nama_depan,nama_belakang', 'laundry_transaksi_detail.laundry_layanan'])
+            ->withSum('laundry_transaksi_detail as harga_total', 'harga', 'total_harga') // Tambahkan baris ini
+            ->whereIn('status', ['pending', 'proses', 'siap_diambil'])
+            ->paginate($perPage);
 
         return response()->json(['data' => $transaksi], Response::HTTP_OK);
     }

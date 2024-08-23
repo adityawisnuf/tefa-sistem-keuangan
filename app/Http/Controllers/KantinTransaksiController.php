@@ -29,18 +29,9 @@ class KantinTransaksiController extends Controller
         $perPage = request()->input('per_page', 10);
         $transaksi = $usaha->kantin_transaksi()
             ->with(['siswa:id,nama_depan,nama_belakang', 'kantin_transaksi_detail.kantin_produk:id,nama_produk'])
+            ->withSum('kantin_transaksi_detail as harga_total', 'harga', 'total_harga') // Tambahkan baris ini
             ->whereIn('status', ['pending', 'proses', 'siap_diambil'])
             ->paginate($perPage);
-
-        // Transform the data to include the desired fields
-        $transaksi->transform(function ($transaction) {
-            $transaction->nama_siswa = $transaction->siswa->nama_depan . ' ' . $transaction->siswa->nama_belakang;
-            $transaction->nama_produk = $transaction->kantin_transaksi_detail->first()->kantin_produk->nama_produk;
-            $transaction->harga = $transaction->kantin_transaksi_detail->first()->harga;
-            $transaction->jumlah = $transaction->kantin_transaksi_detail->first()->jumlah;
-            $transaction->harga_total = $transaction->kantin_transaksi_detail->first()->harga * $transaction->kantin_transaksi_detail->first()->jumlah;
-            return $transaction;
-        });
 
         return response()->json(['data' => $transaksi], Response::HTTP_OK);
     }

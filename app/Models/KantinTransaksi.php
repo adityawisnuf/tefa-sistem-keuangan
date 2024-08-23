@@ -35,4 +35,11 @@ class KantinTransaksi extends Model
         return $this->belongsTo(Siswa::class, 'siswa_id');
     }
 
+    // public function getHargaTotalAttribute()
+    // {
+    //     return $this->kantin_transaksi_detail->sum(function ($detail) {
+    //         return $detail->harga * $detail->jumlah;
+    //     });
+    // }
+
 }
