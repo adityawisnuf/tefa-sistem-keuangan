@@ -87,7 +87,7 @@ class RasioKeuanganController extends Controller
         $dter = $this->debtToEquityRatio($totalLiability, $equity);
         $dr = $this->debtRatio($totalLiability, $asset)*100;
 
-        return response()->json([
+        $data = [
             'current_ratio' => $cr,
             'quick_ratio' => $qr,
             'net_profit_margin' => $npm,
@@ -96,7 +96,8 @@ class RasioKeuanganController extends Controller
             'turnover_of_assets' => $toa,
             'debt_to_equity_ratio' => $dter,
             'debt_ratio' => $dr,
-        ]);
+        ];
+        return response()->json(['data' => $data], 200);
     }
 
     private function currentRatio($asetLancar, $currentLiabilities)
