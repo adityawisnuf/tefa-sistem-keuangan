@@ -27,6 +27,7 @@ class KantinTransaksiController extends Controller
         $usaha = Auth::user()->usaha->firstOrFail();
 
         $perPage = request()->input('per_page', 10);
+        
         $transaksi = $usaha->kantin_transaksi()
             ->with(['siswa:id,nama_depan,nama_belakang', 'kantin_transaksi_detail.kantin_produk:id,nama_produk'])
             ->withSum('kantin_transaksi_detail as harga_total', 'harga', 'total_harga') // Tambahkan baris ini

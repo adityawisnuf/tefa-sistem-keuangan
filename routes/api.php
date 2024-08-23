@@ -152,10 +152,7 @@ Route::group([
         'prefix' => 'bendahara',
         'middleware' => 'checkrole:Bendahara'
     ], function () {
-        Route::group(['prefix' => 'laporan'], function() {
-            Route::get('/kantin', [BendaharaController::class, 'getKantinTransaksi']);
-            Route::get('/laundry', [BendaharaController::class, 'getKantinTransaksi']);
-        });
+        Route::get('/laporan', [BendaharaController::class, 'getUsahaTransaksi']);
 
         Route::group(['prefix' => 'pengajuan'], function() {
                 Route::get('/', [BendaharaPengajuanController::class, 'getUsahaPengajuan']);
