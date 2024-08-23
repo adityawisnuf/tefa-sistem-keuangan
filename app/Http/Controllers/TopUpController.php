@@ -22,29 +22,21 @@ class TopUpController extends Controller
         $this->duitkuService = new DuitkuService();
     }
 
-    public function getPaymentMethod(TopUpRequest $request)
+    public function getPaymentMethod()
     {
-        $fields = $request->validated();
-        $result = $this->duitkuService->getPaymentMethod($fields['paymentAmount']);
+        $paymentAmount = request('paymentAmount', 0);
+        $result = $this->duitkuService->getPaymentMethod($paymentAmount);
         return response()->json($result['data'], $result['statusCode']);
     }
 
     public function requestTransaction(TopUpRequest $request)
     {
         $fields = $request->validated();
-        
-        
-        if ($fields['siswa_id']) {
-            $orangtua = Auth::user()->orangtua->firstOrFail();
-            $siswa = $orangtua->siswa()->find($fields['siswa_id']);
 
-            $fields['email'] = $siswa->user->email;
-        } else {
-            $siswa = Auth::user();
-        }
+        $user = isset($fields['siswa_id'])
+            ? Auth::user()->orangtua->firstOrFail()->siswa->find($fields['siswa_id'])->user
+            : Auth::user();
 
-
-        $user = Auth::user();
         $fields['email'] = $user->email;
         $result = $this->duitkuService->requestTransaction($fields);
         return response()->json($result['data'], $result['statusCode']);

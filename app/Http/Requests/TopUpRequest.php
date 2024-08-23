@@ -21,23 +21,8 @@ class TopUpRequest extends FormRequest
      */
     public function rules(): array
     {
-        return match ($this->route()->getName()) {
-            'get-payment-method' => $this->getPaymentMethod(),
-            'request-transaksi' => $this->requestTransaksi(),
-        };
-    }
-
-    public function getPaymentMethod()
-    {
         return [
-            'paymentAmount' => ['required', 'numeric', 'min:1']
-        ];
-    }
-
-    public function requestTransaksi()
-    {
-        return [
-            'siswa_id' => ['sometimmes', 'exists:siswa,id'],
+            'siswa_id' => ['sometimes', 'exists:siswa,id'],
             'paymentAmount' => ['required', 'numeric', 'min:1'],
             'paymentMethod' => ['required'],
         ];
