@@ -165,15 +165,10 @@ Route::group([
         'middleware' => 'checkrole:KepalaSekolah'
     ], function () {
 
-        Route::group(['prefix' => 'laporan'], function() {
-            Route::get('/kantin', [BendaharaController::class, 'getKantinTransaksi']);
-            Route::get('/laundry', [BendaharaController::class, 'getLaundryTransaksi']);
-        });
+        Route::get('/laporan', [KepsekController::class, 'getUsahaTransaksi']);
 
-        Route::group(['prefix' => 'pengajuan'], function() {
-                Route::get('/', [BendaharaPengajuanController::class, 'getUsahaPengajuan']);
-                Route::put('/{pengajuan}', [BendaharaPengajuanController::class, 'PengajuanUsaha']);
-        });
+        Route::get('/pengajuan', [KepsekController::class, 'getUsahaPengajuan']);
+        
     });
 });
 
