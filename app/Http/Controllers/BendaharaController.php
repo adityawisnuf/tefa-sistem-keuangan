@@ -32,7 +32,7 @@ class BendaharaController extends Controller
         $model = $role == 'Kantin' ? new KantinTransaksi : new LaundryTransaksi;
         $transaksi = $model->with($role == 'Kantin' ? 'kantin_transaksi_detail' : 'laundry_transaksi_detail')
             ->whereIn('status', ['dibatalkan', 'selesai'])
-            ->whereBetween('tanggal_selesai', [$this->startOfWeek, $this->endOfWeek])
+            ->whereBetween('tanggal_pemesanan', [$this->startOfWeek, $this->endOfWeek])
             ->paginate($perPage);
     
         return response()->json(['data' => $transaksi], Response::HTTP_OK);

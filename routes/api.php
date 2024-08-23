@@ -45,18 +45,9 @@ Route::group([
         'prefix' => 'orangtua',
         'middleware' => 'checkrole:OrangTua'
     ], function () {
-        Route::group(['prefix' => 'siswa'], function() {
-            Route::get('/', [OrangTuaSiswaController::class, 'getDataSiswa']);
-        });
-
-        Route::group(['prefix' => 'wallet'], function () {
-            Route::get('/', [OrangTuaController::class, 'getWalletSiswa']);
-            Route::get('/request-transaksi', [OrangTuaWalletController::class, 'requestTransaction']);
-        });
-        Route::group(['prefix' => 'riwayat'], function () {
-            Route::get('/{id}/kantin', [OrangTuaRiwayatController::class, 'getRiwayatKantinSiswa']);
-            Route::get('/{id}/laundry', [OrangTuaRiwayatController::class, 'getRiwayatLaundrySiswa']);
-        });
+        Route::get('/siswa', [OrangTuaSiswaController::class, 'getDataSiswa']);
+        Route::get('/riwayat', [OrangTuaRiwayatController::class, 'getRiwayatSiswa']);
+        Route::get('/wallet', [OrangTuaWalletController::class, 'getWalletSiswa']);
     });
 
     Route::group([

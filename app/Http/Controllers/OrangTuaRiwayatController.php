@@ -11,87 +11,25 @@ use Symfony\Component\HttpFoundation\Response;
 
 class OrangTuaRiwayatController extends Controller
 {
-    public function getRiwayatKantinSiswa($id)
+    public function getRiwayatSiswa()
     {
         $orangTua = Auth::user()->orangtua()->with('siswa')->firstOrFail();
+        $siswaId = request('siswa_id', null);
         $perPage = request('per_page', 10);
+        $role = request('role', 'Kantin');
 
-        $siswa = $orangTua->siswa()->findOrFail($id);
+        $siswa = $orangTua->siswa()->find($siswaId) ?? $orangTua->siswa->first();
 
-        $riwayat = $siswa->kantin_transaksi()
-            ->whereIn('status', ['dibatalkan', 'selesai'])
-            ->with('kantin_transaksi_detail.kantin_produk')
-            ->paginate($perPage);
+        $riwayat = $role == 'Kantin'
+            ? $siswa->kantin_transaksi()
+                ->with('kantin_transaksi_detail.kantin_produk:id,nama_produk,foto_produk,harga_jual')
+                ->whereIn('status', ['dibatalkan', 'selesai'])
+                ->paginate($perPage)
+            : $siswa->laundry_transaksi()
+                ->whereIn('status', ['dibatalkan', 'selesai'])
+                ->with('laundry_transaksi_detail.laundry_layanan:id,nama_layanan,foto_layanan,harga')
+                ->paginate($perPage);
 
-        $formattedData = $riwayat->map(function ($transaksi) {
-            return [
-                'item_detail' => $transaksi->kantin_transaksi_detail->map(function ($detail) {
-                    return [
-                        'nama_produk' => $detail->kantin_produk->nama_produk,
-                        'harga_jual' => $detail->kantin_produk->harga_jual,
-                        'jumlah' => $detail->jumlah,
-                        'harga_total' => $detail->harga_jual * $detail->jumlah,
-                    ];
-                }),
-                'status' => $transaksi->status,
-            ];
-        });
-
-        $paginatedData = new LengthAwarePaginator(
-            $formattedData,
-            $riwayat->total(),
-            $riwayat->perPage(),
-            $riwayat->currentPage(),
-            [
-                'path' => \Request::url(),
-                'query' => \Request::query(),
-            ]
-        );
-
-        return response()->json($paginatedData, Response::HTTP_OK);
-
-    }
-
-    public function getRiwayatLaundrySiswa($id)
-    {
-        $orangTua = Auth::user()->orangtua()->with('siswa')->firstOrFail();
-        $perPage = request('per_page', 10);
-
-        $siswa = $orangTua->siswa()->findOrFail($id);
-
-
-        $riwayat = $siswa->laundry_transaksi()
-            ->whereIn('status', ['dibatalkan', 'selesai'])
-            ->with('laundry_transaksi_detail.laundry_layanan')
-            ->paginate($perPage);
-
-        $formattedData = $riwayat->map(function ($transaksi) {
-            return [
-                'detail_pesanan' => $transaksi->laundry_transaksi_detail->map(function ($detail) {
-                    return [
-                        'nama_layanan' => $detail->laundry_layanan->nama_layanan,
-                        'harga_jual' => $detail->laundry_layanan->harga,
-                        'jumlah' => $detail->jumlah,
-                        'harga_total' => $detail->harga_jual * $detail->jumlah,
-                    ];
-                }),
-                'status' => $transaksi->status,
-            ];
-        });
-
-
-        $paginatedData = new LengthAwarePaginator(
-            $formattedData,
-            $riwayat->total(),
-            $riwayat->perPage(),
-            $riwayat->currentPage(),
-            [
-                'path' => \Request::url(),
-                'query' => \Request::query(),
-            ]
-        );
-
-        return response()->json($paginatedData, Response::HTTP_OK);
-
+        return response()->json(['data' => $riwayat], Response::HTTP_OK);
     }
 }

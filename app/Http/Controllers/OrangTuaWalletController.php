@@ -12,6 +12,7 @@ use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Symfony\Component\HttpFoundation\Response;
 
 class OrangTuaWalletController extends Controller
 {
@@ -22,27 +23,17 @@ class OrangTuaWalletController extends Controller
         $this->duitkuService = new DuitkuService();
     }
 
-    public function getDetailWalletSiswa($id)
+    public function getWalletSiswa()
     {
-        $user = Auth::user();
-        $siswa = $user->orangtua->first()->siswa->find($id);
-        $siswaWallet = $siswa->siswa_wallet->nominal;
 
-        return response()->json(['wallet' => $siswaWallet], 200);
-    }
+        $orangTua = Auth::user()->orangtua->firstOrFail();
+        $siswaId = request('siswa_id', null);
+        $perPage = request('per_page', 10);
 
-    public function requestTransaction(TopUpOrangTuaRequest $request)
-    {
-        $orangtua = Auth::user()->orangtua->firstOrFail();
+        $siswa = $orangTua->siswa->find($siswaId) ?? $orangTua->siswa->first();
+        $riwayat = $siswa->siswa_wallet()->with('siswa_wallet_riwayat')->paginate($perPage);
 
-        $fields = $request->validated();
-        $siswa = $orangtua->siswa()->findOrFail($fields['siswa_id']);
-
-        $fields['email'] = $siswa->user->email;
-
-        $result = $this->duitkuService->requestTransaction($fields);
-
-        return response()->json($result['data'], $result['statusCode']);
+        return response()->json(['data' => $riwayat], Response::HTTP_OK);
     }
 
     public function callback()
