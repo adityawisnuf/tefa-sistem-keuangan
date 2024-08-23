@@ -10,6 +10,7 @@ use App\Models\LaundryTransaksiKiloan;
 use App\Models\LaundryTransaksiSatuan;
 use App\Models\UsahaPengajuan;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class KepsekController extends Controller
 {
@@ -21,28 +22,33 @@ class KepsekController extends Controller
         $this->startOfWeek = now()->startOfWeek();
         $this->endOfWeek = now()->endOfWeek();
     }
-    public function getKantinTransaksi()
-    {
-        $perPage = request()->input('per_page', 10);
-        return KantinTransaksi::whereIn('status', ['dibatalkan', 'selesai'])
-            ->whereBetween('tanggal_selesai', [$this->startOfWeek, $this->endOfWeek])
-            ->paginate($perPage);
-    }
 
-    public function getLaundryTransaksi()
-    {
-        $perPage = request()->input('per_page', 10);
-        return LaundryTransaksi::whereIn('status', ['dibatalkan', 'selesai'])
-            ->whereBetween('tanggal_selesai', [$this->startOfWeek, $this->endOfWeek])
-            ->paginate($perPage);
-    }
 
+    public function getUsahaTransaksi()
+    {
+        $perPage = request('perpage', 10);
+        $role = request('role', 'Kantin');
+
+        $model = $role == 'Kantin' ? new KantinTransaksi : new LaundryTransaksi;
+
+        $transaksi = $model->with([$role == 'Kantin' ? 'kantin_transaksi_detail' : 'laundry_transaksi_detail', 'usaha:id,nama_usaha'])
+        ->whereIn('status', ['dibatalkan', 'selesai'])
+        ->whereBetween('tanggal_selesai', [$this->startOfWeek, $this->endOfWeek])
+        ->paginate($perPage);
+
+        return response()->json($transaksi, Response::HTTP_OK);
+    }
 
 
     public function getUsahaPengajuan()
     {
         $perPage = request()->input('per_page', 10);
-        return UsahaPengajuan::whereIn('status', ['disetujui', 'ditolak'])->paginate($perPage);
+
+        $pengajuan = UsahaPengajuan::with('usaha:id,nama_usaha')
+        ->whereIn('status', ['disetujui', 'ditolak'])
+        ->paginate($perPage);
+
+        return response()->json(['data'=>  $pengajuan], Response::HTTP_OK);
     }
 
 
