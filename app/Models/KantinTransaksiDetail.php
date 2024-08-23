@@ -17,7 +17,7 @@ class KantinTransaksiDetail extends Model
         'jumlah',
         'harga',
     ];
-
+    
     public function kantin_transaksi()
     {
         return $this->belongsTo(KantinTransaksi::class, 'kantin_transaksi_id');
@@ -25,5 +25,5 @@ class KantinTransaksiDetail extends Model
     public function kantin_produk()
     {
         return $this->belongsTo(KantinProduk::class, 'kantin_produk_id');
-    }   
+    }
 }

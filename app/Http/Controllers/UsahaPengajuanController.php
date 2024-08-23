@@ -31,7 +31,6 @@ class UsahaPengajuanController extends Controller
         }
 
         $fields['usaha_id'] = $usaha->id;
-        $fields['nama_usaha'] = $usaha->nama_usaha;
 
         DB::beginTransaction();
         $pengajuan = UsahaPengajuan::create($fields);
