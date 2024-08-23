@@ -9,8 +9,8 @@ use App\Models\PembayaranSiswa;
 use App\Models\Pengeluaran;
 use App\Models\PengeluaranKategori;
 use Carbon\Carbon;
-use DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class LabaRugiController extends Controller
 {
