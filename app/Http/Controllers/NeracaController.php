@@ -8,120 +8,136 @@ use App\Models\Pengeluaran;
 use App\Models\PembayaranPpdb;
 use App\Models\PembayaranSiswa;
 use App\Models\PengeluaranKategori;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class NeracaController extends Controller
 {
     private function retrieveData()
     {
-        // Retrieve all assets data
-        $assets = AsetSekolah::all();
+        // Inisialisasi query dasar
+        $assets = AsetSekolah::query();
+        $expenses = Pengeluaran::query();
+        $liabilities = Pengeluaran::whereNull('disetujui_pada');
+        $studentPayments = PembayaranSiswa::where('status', 1);
+        $ppdbPayments = PembayaranPpdb::query();
+        $approvedBudgets = Anggaran::where('status', 3);
+        $receivables = PembayaranSiswa::where('status', 0);
 
-        // Retrieve all expenses data
-        $expenses = Pengeluaran::get();
-
-        // Retrieve all liabilities data (belum disetujui)
-        $liabilities = Pengeluaran::whereNull('disetujui_pada')->get();
-
-        // Retrieve all payments data
-        $payments = PembayaranSiswa::where('status', 1)->get();
-
-        // Retrieve all PPDB payments data
-        $paymentsPpdb = PembayaranPpdb::get();
-
-        // Retrieve approved budget data
-        $approvedBudgets = Anggaran::where('status', 3)->get();
-
-        // Retrieve all unpaid student payments as receivables
-        $receivables = PembayaranSiswa::where('status', 0)->get();
-
-        // Format the data into an array
-        $data = [
-            'assets' => $assets,
-            'expenses' => $expenses,
-            'liabilities' => $liabilities,
-            'payments' => $payments,
-            'paymentsPpdb' => $paymentsPpdb,
-            'approvedBudgets' => $approvedBudgets,
-            'receivables' => $receivables,
+        // Menjalankan query untuk mengambil data
+        return [
+            'assets' => $assets->get(),
+            'expenses' => $expenses->get(),
+            'liabilities' => $liabilities->get(),
+            'studentPayments' => $studentPayments->get(),
+            'ppdbPayments' => $ppdbPayments->get(),
+            'approvedBudgets' => $approvedBudgets->get(),
+            'receivables' => $receivables->get(),
         ];
-
-        return $data;
     }
 
     public function index()
     {
-        // Retrieve the data using the private function
-        $data = $this->retrieveData();
+        try {
+            $data = $this->retrieveData();
 
-        $cash = $this->calculateCash($data['payments'], $data['paymentsPpdb']);
-        $receivables = $this->formatReceivables($data['receivables']);
-        $tca = $cash + $receivables;
-        $tfe = $this->retrieveData()['assets']->sum('harga');
+            // Cek jika data kosong
+            if ($data['assets']->isEmpty() && $data['expenses']->isEmpty() && $data['liabilities']->isEmpty()) {
+                return response()->json(['message' => 'Tidak ada data untuk periode ini.'], 404);
+            }
 
-        // Format the response to match accounting standards and frontend requirements
-        $response = [
-            'assets' => [
-                'aset_lancar' => [
-                    'kas' => $cash,
-                    'piutang' => $receivables,
+            $cash = $this->calculateCash($data['studentPayments'], $data['ppdbPayments']);
+            $receivables = $this->formatReceivables($data['receivables']);
+            $totalCurrentAssets = $cash + $receivables;
+            $totalFixedAssets = $data['assets']->where('tipe', 'tetap')->sum('harga');
+            $totalAssets = $totalFixedAssets + $totalCurrentAssets;
+
+            $currentLiabilities = $this->calculateLiabilities($data['liabilities'], '1');
+            $totalCurrentLiabilities = array_sum(array_column($currentLiabilities, 'value'));
+
+            $longTermLiabilities = $this->calculateLiabilities($data['liabilities'], '2');
+            $totalLongTermLiabilities = array_sum(array_column($longTermLiabilities, 'value'));
+
+            $totalLiabilities = $totalCurrentLiabilities + $totalLongTermLiabilities;
+
+            // Hitung ekuitas
+            $equityData = $this->calculateEquity($data['studentPayments'], $data['ppdbPayments'], $data['approvedBudgets']);
+            $totalEL = $totalLiabilities + $equityData['total_ekuitas'];
+
+            $response = [
+                'assets' => [
+                    'current_assets' => [
+                        'cash' => $this->formatToRupiah($cash),
+                        'receivables' => $this->formatToRupiah($receivables),
+                    ],
+                    'total_current_assets' => $this->formatToRupiah($totalCurrentAssets),
+                    'fixed_assets' => $this->formatAssets($data['assets'], 'tetap'),
+                    'total_fixed_assets' => $this->formatToRupiah($totalFixedAssets),
+                    'total_assets' => $this->formatToRupiah($totalAssets),
                 ],
-                'total_aset_lancar' => $tca,
-                'aset_tetap' => $this->formatAssets($data['assets'], 'tetap'),
-                'total_aset_tetap' => $tfe,
-                'total_aset' => $tca + $tfe,
-            ],
-            'kewajiban' => [
-                'kewajiban_lancar' => $this->calculateLiabilities($data['liabilities'], '1'),
-                'kewajiban_jangka_panjang' => $this->calculateLiabilities($data['liabilities'], '2'),
-            ],
-            'ekuitas' => $this->calculateEquity($data['payments'], $data['paymentsPpdb'], $data['approvedBudgets']),
-        ];
+                'liabilities' => [
+                    'current_liabilities' => $this->formatLiabilities($currentLiabilities),
+                    'total_current_liabilities' => $this->formatToRupiah($totalCurrentLiabilities),
+                    'long_term_liabilities' => $this->formatLiabilities($longTermLiabilities),
+                    'total_long_term_liabilities' => $this->formatToRupiah($totalLongTermLiabilities),
+                    'total_liabilities' => $this->formatToRupiah($totalLiabilities),
+                ],
+                'equity' => [
+                    'pendapatan' => $this->formatToRupiah($equityData['pendapatan']),
+                    'anggaran' => $this->formatToRupiah($equityData['anggaran']),
+                    'total_ekuitas' => $this->formatToRupiah($equityData['total_ekuitas']),
+                    'total_kewajiban_ekuitas' => $this->formatToRupiah($totalEL),
+                ],
+            ];
 
-        return response()->json(['data' => $response], 200);
+            return response()->json(['data' => $response], 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Terjadi kesalahan saat memproses data.'], 500);
+        }
     }
 
     private function formatAssets($assets, $type)
     {
-        // Filter assets by type and format them
+        // Memfilter dan memformat aset berdasarkan tipe
         return $assets->filter(function ($asset) use ($type) {
             return $asset->tipe === $type;
         })->map(function ($asset) {
             return [
                 'name' => $asset->nama,
-                'value' => $asset->harga,
+                'value' => $this->formatToRupiah($asset->harga),
             ];
         })->toArray();
     }
 
     private function formatReceivables($receivables)
     {
+        // Menghitung total piutang
         return $receivables->sum('nominal');
     }
 
     private function calculateCash($payments, $paymentsPpdb)
     {
-        // Calculate the total cash
+        // Menghitung total kas
         $totalCash = $payments->sum('nominal') + $paymentsPpdb->sum('nominal');
         return $totalCash;
     }
 
     private function calculateLiabilities($liabilities, $type)
     {
-        // Filter liabilities by tipe_utang from PengeluaranKategori
+        // Memfilter kewajiban berdasarkan tipe_utang dari PengeluaranKategori
         $filteredLiabilities = $liabilities->filter(function ($liability) use ($type) {
             $kategori = PengeluaranKategori::find($liability->pengeluaran_kategori_id);
             return $kategori && $kategori->tipe_utang === $type;
         });
 
-        // Group liabilities by kategori and calculate total value
+        // Mengelompokkan kewajiban berdasarkan kategori dan menghitung total nilai
         $groupedLiabilities = $filteredLiabilities->groupBy(function ($liability) {
             return PengeluaranKategori::find($liability->pengeluaran_kategori_id)->nama;
         })->map(function ($items) {
             return $items->sum('nominal');
         });
 
-        // Format the response
+        // Memformat response
         return $groupedLiabilities->map(function ($value, $name) {
             return [
                 'name' => $name,
@@ -130,17 +146,34 @@ class NeracaController extends Controller
         })->values()->toArray();
     }
 
+    private function formatLiabilities($liabilities)
+    {
+        // Memformat nilai kewajiban dengan format rupiah
+        return collect($liabilities)->map(function ($liability) {
+            return [
+                'name' => $liability['name'],
+                'value' => $this->formatToRupiah($liability['value']),
+            ];
+        })->toArray();
+    }
+
     private function calculateEquity($payments, $pembayaranPpdb, $approvedBudgets)
     {
-        // Calculate total income and equity
+        // Menghitung total pendapatan dan ekuitas
         $totalIncome = $payments->sum('nominal') + $pembayaranPpdb->sum('nominal');
         $totalBudget = $approvedBudgets->sum('nominal');
         $equity = $totalIncome - $totalBudget;
 
         return [
-            'total_ekuitas' => $equity,
             'pendapatan' => $totalIncome,
             'anggaran' => $totalBudget,
+            'total_ekuitas' => $equity,
         ];
+    }
+
+    private function formatToRupiah($value)
+    {
+        // Memformat nilai ke dalam format Rupiah
+        return 'Rp ' . number_format($value, 0, ',', '.');
     }
 }
