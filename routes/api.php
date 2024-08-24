@@ -38,8 +38,8 @@ Route::group([
 ], function () {
     Route::post('logout', [LogoutController::class, 'logout']);
 
-    Route::post('/duitku/get-payment-method', [TopUpController::class, 'getPaymentMethod'])->name('get-payment-method');
-    Route::post('/duitku/request-transaksi', [TopUpController::class, 'requestTransaction'])->name('request-transakepseksi');
+    Route::post('/duitku/get-payment-method', [TopUpController::class, 'getPaymentMethod']);
+    Route::post('/duitku/request-transaksi', [TopUpController::class, 'requestTransaction']);
 
     Route::group([
         'prefix' => 'orangtua',
@@ -62,9 +62,9 @@ Route::group([
         Route::group(['prefix' => 'kantin'], function () {
             Route::group(['prefix' => 'produk'], function () {
                 Route::get('/', [SiswaKantinController::class, 'getProduk']);
-                Route::get('/{produk}', [SiswaKantinController::class, 'getProdukDetail']);
                 Route::get('/riwayat', [SiswaKantinController::class, 'getKantinRiwayat']);
                 Route::post('/transaksi', [SiswaKantinController::class, 'createProdukTransaksi']);
+                Route::get('/{produk}', [SiswaKantinController::class, 'getProdukDetail']);
             });
         });
 
