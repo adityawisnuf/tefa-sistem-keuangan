@@ -56,4 +56,47 @@ class PembayaranExport implements FromCollection, WithHeadings, WithMapping, Wit
             'Total Transaksi',
         ];
     }
+
+    private function getStatusText($status)
+    {
+        $statusTexts = [
+            1 => 'Mendaftar',
+            2 => 'Telah Membayar',
+            3 => 'Telah Terdaftar',
+            4 => 'Ditolak',
+        ];
+
+        return $statusTexts[$status] ?? 'Unknown';
+    }
+
+    public function styles(Worksheet $sheet)
+    {
+        $sheet->getStyle('A1:E1')->applyFromArray([
+            'font' => [
+                'bold' => true,
+                'size' => 12,
+                'color' => ['argb' => 'FFFFFF'], // Warna teks putih
+            ],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THICK,
+                    'color' => ['argb' => '000000'],
+                ],
+            ],
+            'fill' => [
+                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                'color' => ['argb' => '3C50E0'], // Warna header biru
+            ],
+        ]);
+
+        $highestRow = $sheet->getHighestRow();
+        $sheet->getStyle("A2:E$highestRow")->applyFromArray([
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                    'color' => ['argb' => '000000'],
+                ],
+            ],
+        ]);
+    }
 }

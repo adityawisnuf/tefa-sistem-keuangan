@@ -11,28 +11,34 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class pendaftarExport implements FromCollection, WithHeadings, WithStyles
 {
-    public function collection()
-{
-    return Pendaftar::select(
-            'pendaftar.nama_depan',
-            'pendaftar.nama_belakang',
-            'pendaftar.jenis_kelamin',
-            DB::raw("CONCAT('\'', pendaftar.nik) as nik"), // Menambahkan tanda kutip di depan NIK
-            'pendaftar.alamat',
-            DB::raw('IFNULL(SUM(pembayaran.nominal), 0) as nominal')
-        )
-        ->leftJoin('pembayaran_ppdb', 'pendaftar.ppdb_id', '=', 'pembayaran_ppdb.ppdb_id')
-        ->leftJoin('pembayaran', 'pembayaran_ppdb.pembayaran_id', '=', 'pembayaran.id')
-        ->groupBy(
-            'pendaftar.nama_depan',
-            'pendaftar.nama_belakang',
-            'pendaftar.jenis_kelamin',
-            'pendaftar.nik',
-            'pendaftar.alamat'
-        )
-        ->get();
-}
+    protected $totalNominal;
 
+    public function collection()
+    {
+        $pendaftarData = Pendaftar::select(
+                'pendaftar.nama_depan',
+                'pendaftar.nama_belakang',
+                DB::raw("CASE WHEN pendaftar.jenis_kelamin = 1 THEN 'Laki-laki' WHEN pendaftar.jenis_kelamin = 2 THEN 'Perempuan' END as jenis_kelamin"),
+                DB::raw("CONCAT('\'', pendaftar.nik) as nik"), // Menambahkan tanda kutip di depan NIK
+                'pendaftar.alamat',
+                DB::raw('IFNULL(SUM(pembayaran.nominal), 0) as nominal')
+            )
+            ->leftJoin('pembayaran_ppdb', 'pendaftar.ppdb_id', '=', 'pembayaran_ppdb.ppdb_id')
+            ->leftJoin('pembayaran', 'pembayaran_ppdb.pembayaran_id', '=', 'pembayaran.id')
+            ->groupBy(
+                'pendaftar.nama_depan',
+                'pendaftar.nama_belakang',
+                'pendaftar.jenis_kelamin',
+                'pendaftar.nik',
+                'pendaftar.alamat'
+            )
+            ->get();
+
+        // Calculate the total nominal
+        $this->totalNominal = $pendaftarData->sum('nominal');
+
+        return $pendaftarData;
+    }
 
     public function headings(): array
     {
@@ -43,13 +49,14 @@ class pendaftarExport implements FromCollection, WithHeadings, WithStyles
             'NIK',
             'Alamat',
             'Nominal',
+            'Total Transaksi', // New column
         ];
     }
 
     public function styles(Worksheet $sheet)
     {
         // Warna dan gaya untuk header
-        $sheet->getStyle('A1:F1')->applyFromArray([
+        $sheet->getStyle('A1:G1')->applyFromArray([
             'font' => [
                 'bold' => true,
                 'size' => 12,
@@ -69,7 +76,7 @@ class pendaftarExport implements FromCollection, WithHeadings, WithStyles
 
         // Warna dan gaya untuk konten
         $highestRow = $sheet->getHighestRow();
-        $sheet->getStyle("A2:F$highestRow")->applyFromArray([
+        $sheet->getStyle("A2:G$highestRow")->applyFromArray([
             'borders' => [
                 'allBorders' => [
                     'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
@@ -77,5 +84,8 @@ class pendaftarExport implements FromCollection, WithHeadings, WithStyles
                 ],
             ],
         ]);
+
+        // Set the Total Transaksi in the last row
+        $sheet->setCellValue("G" . ($highestRow + 1), $this->totalNominal);
     }
 }
