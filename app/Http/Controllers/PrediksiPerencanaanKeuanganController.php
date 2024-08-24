@@ -32,10 +32,20 @@ class PrediksiPerencanaanKeuanganController extends Controller
 
         return [
             'anggaran' => $anggaranFiltered,
-            'count_diajukan' => $anggaran->where('status',1)->count(),
-            'count_diapprove' => $anggaran->where('status',2)->count(),
-            'count_terealisasikan' => $anggaran->where('status',3)->count(),
-            'count_gagal' => $anggaran->where('status',4)->count(),
+            'total_anggaran_diajukan' => $this->formatToRupiah($anggaran->where('status', 1)->sum('nominal')),
+            'total_anggaran_diapprove' => $this->formatToRupiah($anggaran->where('status', 2)->sum('nominal')),
+            'total_anggaran_terealisasikan' => $this->formatToRupiah($anggaran->where('status', 3)->sum('nominal')),
+            'total_anggaran_gagal' => $this->formatToRupiah($anggaran->where('status', 4)->sum('nominal')),
+            'count_diajukan' => $anggaran->where('status', 1)->count(),
+            'count_diapprove' => $anggaran->where('status', 2)->count(),
+            'count_terealisasikan' => $anggaran->where('status', 3)->count(),
+            'count_gagal' => $anggaran->where('status', 4)->count(),
         ];
+    }
+
+    private function formatToRupiah($value)
+    {
+        // Memformat nilai ke dalam format Rupiah
+        return 'Rp ' . number_format($value, 0, ',', '.');
     }
 }
