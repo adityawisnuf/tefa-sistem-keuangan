@@ -67,26 +67,32 @@ class NeracaController extends Controller
             $response = [
                 'assets' => [
                     'current_assets' => [
-                        'cash' => $this->formatToRupiah($cash),
-                        'receivables' => $this->formatToRupiah($receivables),
+                        [
+                            'name' => 'Cash',
+                            'value' => $this->formatCurrency($cash),
+                        ],
+                        [
+                            'name' => 'Receivables',
+                            'value' => $this->formatCurrency($receivables),
+                        ]
                     ],
-                    'total_current_assets' => $this->formatToRupiah($totalCurrentAssets),
-                    'fixed_assets' => $this->formatAssets($data['assets'], 'tetap'),
-                    'total_fixed_assets' => $this->formatToRupiah($totalFixedAssets),
-                    'total_assets' => $this->formatToRupiah($totalAssets),
+                    'total_current_assets' => $this->formatCurrency($totalCurrentAssets),
+                    'fixed_assets' => $this->formatFixedAssets($data['assets'], 'tetap'),
+                    'total_fixed_assets' => $this->formatCurrency($totalFixedAssets),
+                    'total_assets' => $this->formatCurrency($totalAssets),
                 ],
                 'liabilities' => [
                     'current_liabilities' => $this->formatLiabilities($currentLiabilities),
-                    'total_current_liabilities' => $this->formatToRupiah($totalCurrentLiabilities),
+                    'total_current_liabilities' => $this->formatCurrency($totalCurrentLiabilities),
                     'long_term_liabilities' => $this->formatLiabilities($longTermLiabilities),
-                    'total_long_term_liabilities' => $this->formatToRupiah($totalLongTermLiabilities),
-                    'total_liabilities' => $this->formatToRupiah($totalLiabilities),
+                    'total_long_term_liabilities' => $this->formatCurrency($totalLongTermLiabilities),
+                    'total_liabilities' => $this->formatCurrency($totalLiabilities),
                 ],
                 'equity' => [
-                    'pendapatan' => $this->formatToRupiah($equityData['pendapatan']),
-                    'anggaran' => $this->formatToRupiah($equityData['anggaran']),
-                    'total_ekuitas' => $this->formatToRupiah($equityData['total_ekuitas']),
-                    'total_kewajiban_ekuitas' => $this->formatToRupiah($totalEL),
+                    'pendapatan' => $this->formatCurrency($equityData['pendapatan']),
+                    'anggaran' => $this->formatCurrency($equityData['anggaran']),
+                    'total_ekuitas' => $this->formatCurrency($equityData['total_ekuitas']),
+                    'total_kewajiban_ekuitas' => $this->formatCurrency($totalEL),
                 ],
             ];
 
@@ -96,7 +102,7 @@ class NeracaController extends Controller
         }
     }
 
-    private function formatAssets($assets, $type)
+    private function formatFixedAssets($assets, $type)
     {
         // Memfilter dan memformat aset berdasarkan tipe
         return $assets->filter(function ($asset) use ($type) {
@@ -104,7 +110,7 @@ class NeracaController extends Controller
         })->map(function ($asset) {
             return [
                 'name' => $asset->nama,
-                'value' => $this->formatToRupiah($asset->harga),
+                'value' => $this->formatCurrency($asset->harga),
             ];
         })->toArray();
     }
@@ -152,7 +158,7 @@ class NeracaController extends Controller
         return collect($liabilities)->map(function ($liability) {
             return [
                 'name' => $liability['name'],
-                'value' => $this->formatToRupiah($liability['value']),
+                'value' => $this->formatCurrency($liability['value']),
             ];
         })->toArray();
     }
@@ -171,7 +177,7 @@ class NeracaController extends Controller
         ];
     }
 
-    private function formatToRupiah($value)
+    private function formatCurrency($value)
     {
         // Memformat nilai ke dalam format Rupiah
         return 'Rp ' . number_format($value, 0, ',', '.');
