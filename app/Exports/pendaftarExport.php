@@ -6,32 +6,33 @@ use App\Models\Pendaftar;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithStyles;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class pendaftarExport implements FromCollection, WithHeadings
+class pendaftarExport implements FromCollection, WithHeadings, WithStyles
 {
     public function collection()
-    {
-        $data = Pendaftar::select(
-                'pendaftar.nama_depan',
-                'pendaftar.nama_belakang',
-                'pendaftar.jenis_kelamin',
-                'pendaftar.nik',
-                'pendaftar.alamat',
-                DB::raw('IFNULL(SUM(pembayaran.nominal), 0) as nominal')
-            )
-            ->leftJoin('pembayaran_ppdb', 'pendaftar.ppdb_id', '=', 'pembayaran_ppdb.ppdb_id')
-            ->leftJoin('pembayaran', 'pembayaran_ppdb.pembayaran_id', '=', 'pembayaran.id')
-            ->groupBy(
-                'pendaftar.nama_depan',
-                'pendaftar.nama_belakang',
-                'pendaftar.jenis_kelamin',
-                'pendaftar.nik',
-                'pendaftar.alamat'
-            )
-            ->get();
+{
+    return Pendaftar::select(
+            'pendaftar.nama_depan',
+            'pendaftar.nama_belakang',
+            'pendaftar.jenis_kelamin',
+            DB::raw("CONCAT('\'', pendaftar.nik) as nik"), // Menambahkan tanda kutip di depan NIK
+            'pendaftar.alamat',
+            DB::raw('IFNULL(SUM(pembayaran.nominal), 0) as nominal')
+        )
+        ->leftJoin('pembayaran_ppdb', 'pendaftar.ppdb_id', '=', 'pembayaran_ppdb.ppdb_id')
+        ->leftJoin('pembayaran', 'pembayaran_ppdb.pembayaran_id', '=', 'pembayaran.id')
+        ->groupBy(
+            'pendaftar.nama_depan',
+            'pendaftar.nama_belakang',
+            'pendaftar.jenis_kelamin',
+            'pendaftar.nik',
+            'pendaftar.alamat'
+        )
+        ->get();
+}
 
-        return $data;
-    }
 
     public function headings(): array
     {
@@ -43,5 +44,38 @@ class pendaftarExport implements FromCollection, WithHeadings
             'Alamat',
             'Nominal',
         ];
+    }
+
+    public function styles(Worksheet $sheet)
+    {
+        // Warna dan gaya untuk header
+        $sheet->getStyle('A1:F1')->applyFromArray([
+            'font' => [
+                'bold' => true,
+                'size' => 12,
+                'color' => ['argb' => 'FFFFFF'], // Warna teks putih
+            ],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THICK,
+                    'color' => ['argb' => '000000'],
+                ],
+            ],
+            'fill' => [
+                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                'color' => ['argb' => '3C50E0'], // Warna header biru
+            ],
+        ]);
+
+        // Warna dan gaya untuk konten
+        $highestRow = $sheet->getHighestRow();
+        $sheet->getStyle("A2:F$highestRow")->applyFromArray([
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                    'color' => ['argb' => '000000'],
+                ],
+            ],
+        ]);
     }
 }
