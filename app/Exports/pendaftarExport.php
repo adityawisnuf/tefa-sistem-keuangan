@@ -33,6 +33,19 @@ class pendaftarExport implements FromCollection, WithHeadings, WithStyles
         ->get();
 }
 
+public function map($row): array
+{
+    $jenisKelamin = $this->getStatusText($row->jenis_kelamin);
+
+    return [
+        $row->nama_depan,
+        $row->nama_belakang,
+        $jenisKelamin,
+        $row->nik,
+        $row->alamat,
+        $row->nominal,
+    ];
+}
 
     public function headings(): array
     {
@@ -44,6 +57,17 @@ class pendaftarExport implements FromCollection, WithHeadings, WithStyles
             'Alamat',
             'Nominal',
         ];
+    }
+
+    private function getStatusText($jenis_kelamin)
+    {
+        $jenisKelamin = [
+            1 => 'laki-laki',
+            2 => 'perempuan',
+
+        ];
+
+        return $jenisKelamin[$jenis_kelamin] ?? 'Unknown';
     }
 
     public function styles(Worksheet $sheet)
