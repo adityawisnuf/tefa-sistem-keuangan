@@ -27,7 +27,7 @@ class PrediksiPerencanaanKeuanganController extends Controller
                 ? Carbon::parse($item->target_terealisasikan)->format('d M Y')
                 : null;
 
-            return $item->makeHidden(['id', 'deskripsi', 'created_at', 'updated_at'9]);
+            return $item->makeHidden(['id', 'deskripsi', 'created_at', 'updated_at']);
         });
 
         return [
