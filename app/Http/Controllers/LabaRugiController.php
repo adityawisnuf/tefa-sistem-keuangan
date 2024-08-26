@@ -77,10 +77,10 @@ class LabaRugiController extends Controller
     private function retrieveFinancialData()
     {
         // Mengambil data Pembayaran dan Pengeluaran
-        $payments = PembayaranSiswa::whereBetween('created_at', [$this->startDate, $this->endDate])
-            ->where('status', 1);
+        $payments = PembayaranSiswa::whereBetween('updated_at', [$this->startDate, $this->endDate])
+            ->where('status', 1)->get();
         $paymentsPpdb = PembayaranPpdb::whereBetween('created_at', [$this->startDate, $this->endDate])
-            ->where('status', 1);
+            ->where('status', 1)->get();
         $expenditures = Pengeluaran::whereBetween('disetujui_pada', [$this->startDate, $this->endDate])->get();
 
         return [
@@ -95,10 +95,6 @@ class LabaRugiController extends Controller
         $totalPayment = $financialData['payments']->sum('nominal') + $financialData['paymentsPpdb']->sum('nominal');
         $totalExpenditure = $financialData['expenditures']->sum('nominal');
         $profit = $totalPayment - $totalExpenditure;
-
-        if ($profit < 0) {
-            $profit = 0;
-        }
 
         return [
             'totalPayment' => $totalPayment,
@@ -168,8 +164,6 @@ class LabaRugiController extends Controller
                 ];
             } else {
                 // Handle the case where the month is not found
-                // You can log an error, return a default value, or ignore it
-                // For example:
                 error_log("Month not found: $month");
             }
         }
