@@ -109,8 +109,8 @@ Route::group([
 
         //pengajuan
         Route::group(['prefix' => 'pengajuan'], function () {
-            Route::post('/', [UsahaPengajuanController::class, 'create']);
-            Route::get('/riwayat', [UsahaPengajuanController::class, 'index']);
+            Route::post('/create', [UsahaPengajuanController::class, 'create']);
+            Route::get('/', [UsahaPengajuanController::class, 'index']);
         });
     });
 
@@ -134,8 +134,8 @@ Route::group([
         });
 
         Route::group(['prefix' => 'pengajuan'], function () {
-            Route::post('/', [UsahaPengajuanController::class, 'create']);
-            Route::get('/riwayat', [UsahaPengajuanController::class, 'index']);
+            Route::post('/create', [UsahaPengajuanController::class, 'create']);
+            Route::get('/', [UsahaPengajuanController::class, 'getUsahaPengajuan']);
         });
     });
 
@@ -157,7 +157,7 @@ Route::group([
     ], function () {
         Route::get('/laporan', [KepsekController::class, 'getUsahaTransaksi']);
         Route::get('/pengajuan', [KepsekController::class, 'getUsahaPengajuan']);
-        
+
     });
 });
 

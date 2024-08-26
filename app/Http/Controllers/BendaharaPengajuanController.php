@@ -14,22 +14,35 @@ class BendaharaPengajuanController extends Controller
     {
         $role = request('role', '');
         $perPage = request()->input('per_page', 10);
+        $status = request('status', 'all');
 
-        $pengajuan = UsahaPengajuan::join('usaha', 'usaha.id', '=', 'usaha_pengajuan.usaha_id')
-        ->join('users', 'users.id', '=', 'usaha.user_id')
-        ->select('usaha_pengajuan.id',
-            'usaha.nama_usaha',
-            'usaha_pengajuan.jumlah_pengajuan',
-            'usaha_pengajuan.status',
-            'usaha_pengajuan.alasan_penolakan',
-            'usaha_pengajuan.tanggal_pengajuan',
-            )
-            ->where('usaha_pengajuan.status', 'pending')
-        ->where('users.role', 'like', '%' . $role . '%')
-        ->paginate($perPage);
+        $pengajuan = UsahaPengajuan::with(['usaha.user' => function($query) use ($role) {
+            $query->where('role', 'like', '%' . $role . '%');
+        }])
+            ->when($status === 'aktif', function ($query) {
+                return $query->where('usaha_pengajuan.status', 'pending');
+            })
+            ->when($status === 'selesai', function ($query) {
+                return $query->whereIn('usaha_pengajuan.status', ['ditolak', 'disetujui']);
+            })
+            ->get();
+
+        $pengajuan->transform(function($pengajuan) {
+            return [
+                'id' => $pengajuan->id,
+                'nama_usaha' => $pengajuan->usaha->nama_usaha,
+                'jumlah_pengajuan' => $pengajuan->jumlah_pengajuan,
+                'status' => $pengajuan->status,
+                'alasan_penolakan'=>$pengajuan->alasan_penolakan,
+                'tanggal_pengajuan'=>$pengajuan->tanggal_pengajuan,
+                'tanggal_selesai'=>$pengajuan->tanggal_selesai,
+
+            ];
+        });
 
         return response()->json(['data' => $pengajuan], Response::HTTP_OK);
     }
+
 
     public function confirmUsahaPengajuan(UsahaPengajuanRequest $request, UsahaPengajuan $pengajuan)
     {
