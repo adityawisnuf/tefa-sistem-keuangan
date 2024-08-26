@@ -86,8 +86,8 @@ class NeracaController extends Controller
             $totalEL = $totalLiabilities + $equityData['total_ekuitas'];
 
             $ekuitas = [
-                ['name' => 'pendapatan', 'value' => $this->formatCurrency($equityData['pendapatan'])],
-                ['name' => 'anggaran', 'value' => $this->formatCurrency($equityData['anggaran'])],
+                ['name' => 'Pendapatan', 'value' => $this->formatCurrency($equityData['pendapatan'])],
+                ['name' => 'Anggaran', 'value' => $this->formatCurrency($equityData['anggaran'])],
             ];
 
             $response = [
