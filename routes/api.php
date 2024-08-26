@@ -3,6 +3,8 @@
 use App\Http\Controllers\BendaharaController;
 use App\Http\Controllers\BendaharaLaporanController;
 use App\Http\Controllers\BendaharaPengajuanController;
+use App\Http\Controllers\KepsekLaporanController;
+use App\Http\Controllers\KepsekPengajuanController;
 use App\Http\Controllers\LaundryTransaksiController;
 use App\Http\Controllers\OrangTuaController;
 use App\Http\Controllers\OrangTuaRiwayatController;
@@ -155,8 +157,8 @@ Route::group([
         'prefix' => 'kepsek',
         'middleware' => 'checkrole:KepalaSekolah'
     ], function () {
-        Route::get('/laporan', [KepsekController::class, 'getUsahaTransaksi']);
-        Route::get('/pengajuan', [KepsekController::class, 'getUsahaPengajuan']);
+        Route::get('/laporan', [KepsekLaporanController::class, 'getUsahaTransaksi']);
+        Route::get('/pengajuan', [KepsekPengajuanController::class, 'getUsahaPengajuan']);
 
     });
 });

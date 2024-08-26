@@ -2,18 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\LaundryLayananRequest;
 use App\Http\Requests\SiswaLaundryRequest;
-use App\Models\LaundryItem;
-use App\Models\LaundryItemDetail;
 use App\Models\LaundryLayanan;
 use App\Models\LaundryTransaksi;
 use App\Models\LaundryTransaksiDetail;
-use App\Models\LaundryTransaksiKiloan;
-use App\Models\LaundryTransaksiSatuan;
 use App\Models\SiswaWalletRiwayat;
-use Exception;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
