@@ -73,6 +73,7 @@ Route::group([
                 Route::get('/', [SiswaLaundryController::class, 'getLaundryLayanan']);
                 Route::get('/riwayat', [SiswaLaundryController::class, 'getLayananRiwayat']);
                 Route::post('/transaksi', [SiswaLaundryController::class, 'createLayananTransaksi']);
+                Route::get('/{produk}', [SiswaLaundryController::class, 'getProdukDetail']);
             });
         });
     });
@@ -101,10 +102,9 @@ Route::group([
 
         //transaksi
         Route::group(['prefix' => 'transaksi'], function () {
-            Route::get('/', [KantinTransaksiController::class, 'getActiveTransaction']);
-            Route::get('/riwayat', [KantinTransaksiController::class, 'getCompletedTransaction']);
-            Route::get('/{transaksi}', [KantinTransaksiController::class, 'update']);
-            Route::put('/{transaksi}/konfirmasi', [KantinTransaksiController::class, 'confirmInitialTransaction']);
+            Route::get('/', [KantinTransaksiController::class, 'index']);
+            Route::post('/{transaksi}', [KantinTransaksiController::class, 'update']);
+            Route::put('/{transaksi}/konfirmasi', [KantinTransaksiController::class, 'confirm']);
         });
 
         //pengajuan
@@ -155,9 +155,7 @@ Route::group([
         'prefix' => 'kepsek',
         'middleware' => 'checkrole:KepalaSekolah'
     ], function () {
-
         Route::get('/laporan', [KepsekController::class, 'getUsahaTransaksi']);
-
         Route::get('/pengajuan', [KepsekController::class, 'getUsahaPengajuan']);
         
     });

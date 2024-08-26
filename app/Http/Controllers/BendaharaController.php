@@ -30,7 +30,7 @@ class BendaharaController extends Controller
         $role = request('role', 'Kantin');
 
         $model = $role == 'Kantin' ? new KantinTransaksi : new LaundryTransaksi;
-        $transaksi = $model->with($role == 'Kantin' ? 'kantin_transaksi_detail' : 'laundry_transaksi_detail')
+        $transaksi = $model->with([($role == 'Kantin' ? 'kantin_transaksi_detail' : 'laundry_transaksi_detail'), 'usaha:id,nama_usaha', 'kantin_transaksi_detail.kantin_produk:id,nama_produk'])
             ->whereIn('status', ['dibatalkan', 'selesai'])
             ->whereBetween('tanggal_pemesanan', [$this->startOfWeek, $this->endOfWeek])
             ->paginate($perPage);

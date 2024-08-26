@@ -35,45 +35,4 @@ class OrangTuaWalletController extends Controller
 
         return response()->json(['data' => $riwayat], Response::HTTP_OK);
     }
-
-    public function callback()
-    {
-        $callbackData = request()->all();
-
-        if (!$this->duitkuService->verifySignature($callbackData)) {
-            return;
-        }
-
-        $resultCode = $callbackData['resultCode'] ?? null;
-
-        try {
-            $pembayaranDuitku = PembayaranDuitku::where('merchant_order_id', $callbackData['merchantOrderId'])->first();
-
-            DB::beginTransaction();
-            $pembayaranDuitku->update([
-                'callback_response' => json_encode($callbackData),
-                'status' => $resultCode,
-            ]);
-
-            if ($resultCode === '00') {
-                $siswaWallet = User::where('email', $callbackData['additionalParam'])->first()->siswa->first()->siswa_wallet;
-
-                SiswaWalletRiwayat::create([
-                    'siswa_wallet_id' => $siswaWallet->id,
-                    'merchant_order_id' => $callbackData['merchantOrderId'],
-                    'tipe_transaksi' => 'pemasukan',
-                    'nominal' => $callbackData['amount'],
-                ]);
-
-                $siswaWallet->update([
-                    'nominal' => $siswaWallet->nominal + $callbackData['amount'],
-                ]);
-            }
-
-            DB::commit();
-        } catch (Exception $e) {
-            DB::rollBack();
-            Log::error('Error memperbarui transaksi: ' . $e);
-        }
-    }
 }

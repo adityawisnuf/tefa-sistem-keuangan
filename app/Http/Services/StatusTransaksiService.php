@@ -24,13 +24,15 @@ class StatusTransaksiService
         }
     }
 
-    public function confirmInitialTransaction(array $data, Model $model)
+    public function confirmInitialTransaction(string $confirm, Model $model)
     {
         if ($this->isTransactionCompleted($model)) {
             throw new \Exception('Pesanan sudah selesai!');
         }
 
-        $model->update($data);
+        $model->update([
+            'status' => $confirm ? 'proses' : 'dibatalkan'
+        ]);
     }
 
     protected function isTransactionCompleted(Model $model): bool

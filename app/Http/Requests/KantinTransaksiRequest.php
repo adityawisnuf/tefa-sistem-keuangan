@@ -22,7 +22,7 @@ class KantinTransaksiRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'status' => ['required', Rule::in('dibatalkan', 'proses')]
+            'confirm' => ['required', 'boolean']
         ];
     }
 }

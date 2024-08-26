@@ -22,17 +22,22 @@ class KantinTransaksiController extends Controller
         $this->statusService = new StatusTransaksiService();
     }
 
-    public function getActiveTransaction()
+    public function index()
     {
         $usaha = Auth::user()->usaha->firstOrFail();
 
         $perPage = request()->input('per_page', 10);
-        
+        $status = request('status', 'active');
+
         $transaksi = $usaha->kantin_transaksi()
             ->with(['siswa:id,nama_depan,nama_belakang', 'kantin_transaksi_detail.kantin_produk:id,nama_produk'])
-            ->withSum('kantin_transaksi_detail as harga_total', 'harga', 'total_harga') // Tambahkan baris ini
-            ->whereIn('status', ['pending', 'proses', 'siap_diambil'])
-            ->paginate($perPage);
+            ->withSum('kantin_transaksi_detail as harga_total', 'harga', 'total_harga');
+
+        $status == 'active'
+            ? $transaksi->whereIn('status', ['pending', 'proses', 'siap_diambil'])
+            : $transaksi->whereIn('status', ['selesai', 'dibatalkan']);
+
+        $transaksi->paginate($perPage);
 
         return response()->json(['data' => $transaksi], Response::HTTP_OK);
     }
@@ -46,7 +51,7 @@ class KantinTransaksiController extends Controller
         return response()->json(['data' => $transaksi], Response::HTTP_OK);
     }
 
-    public function confirmInitialTransaction(KantinTransaksiRequest $request, KantinTransaksi $transaksi)
+    public function confirm(KantinTransaksiRequest $request, KantinTransaksi $transaksi)
     {
         $fields = $request->validated();
 
@@ -54,7 +59,7 @@ class KantinTransaksiController extends Controller
         $usaha = $transaksi->usaha;
 
         DB::beginTransaction();
-        $this->statusService->confirmInitialTransaction($fields, $transaksi);
+        $this->statusService->confirmInitialTransaction($fields['confirm'], $transaksi);
         if ($transaksi->status === 'dibatalkan') {
             $harga_total = $transaksi->kantin_transaksi_detail->sum(function ($detail) {
                 return $detail->harga * $detail->jumlah;

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\UsahaPengajuanRequest;
 use App\Models\UsahaPengajuan;
 use Illuminate\Http\Request;
+use Process;
 use Symfony\Component\HttpFoundation\Response;
 
 class BendaharaPengajuanController extends Controller
@@ -21,7 +22,9 @@ class BendaharaPengajuanController extends Controller
             'usaha_pengajuan.jumlah_pengajuan',
             'usaha_pengajuan.status',
             'usaha_pengajuan.alasan_penolakan',
-            'usaha_pengajuan.tanggal_pengajuan')
+            'usaha_pengajuan.tanggal_pengajuan',
+            )
+            ->where('usaha_pengajuan.status', 'pending')
         ->where('users.role', 'like', '%' . $role . '%')
         ->paginate($perPage);
 

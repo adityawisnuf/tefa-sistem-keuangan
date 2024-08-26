@@ -26,8 +26,8 @@ class OrangTuaRiwayatController extends Controller
                 ->whereIn('status', ['dibatalkan', 'selesai'])
                 ->paginate($perPage)
             : $siswa->laundry_transaksi()
-                ->whereIn('status', ['dibatalkan', 'selesai'])
                 ->with('laundry_transaksi_detail.laundry_layanan:id,nama_layanan,foto_layanan,harga')
+                ->whereIn('status', ['dibatalkan', 'selesai'])
                 ->paginate($perPage);
 
         return response()->json(['data' => $riwayat], Response::HTTP_OK);

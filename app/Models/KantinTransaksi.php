@@ -14,7 +14,7 @@ class KantinTransaksi extends Model
     protected $fillable = [
         'siswa_id',
         'usaha_id',
-        'status',
+    'status',
         'tanggal_pemesanan',
         'tanggal_selesai',
     ];

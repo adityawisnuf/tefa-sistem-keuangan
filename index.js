@@ -34,6 +34,6 @@ io.on('connection', (socket) => {
 })
 
 server.listen(port, () => {
-    console.log(`Server started at: http://localhost:${port}`)
+    console.log(`Server started at: http://0.0.0.0:${port}`)
 })
 

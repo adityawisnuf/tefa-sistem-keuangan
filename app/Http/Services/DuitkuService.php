@@ -84,8 +84,8 @@ class DuitkuService
         $firstName = 'Anjasmara';
         $lastName = 'Tahu Bulat';
         $customerVaName = $firstName . ' ' . $lastName;
-        $callbackUrl = 'https://325e-180-244-128-238.ngrok-free.app/api/duitku/callback';
-        $returnUrl = 'https://325e-180-244-128-238.ngrok-free.app/return';
+        $callbackUrl = 'https://24f0-180-244-128-103.ngrok-free.app/api/duitku/callback';
+        $returnUrl = 'http://localhost:5173/orang-tua';
         $expiryPeriod = 10;
         $signature = md5($this->merchantCode . $merchantOrderId . $paymentAmount . $this->apiKey);
 
