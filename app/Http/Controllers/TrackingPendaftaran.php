@@ -34,7 +34,7 @@ class TrackingPendaftaran extends Controller
     }
 
 
-    
+
     public function getAllPendaftarans()
     {
         $ppdbs = Ppdb::with([
@@ -51,7 +51,7 @@ class TrackingPendaftaran extends Controller
 {
     $query = Ppdb::with([
         'pendaftar',
-        'pendaftaranAkademik', 
+        'pendaftaranAkademik',
         'pendaftarDokumen',
     ]);
 
@@ -79,12 +79,8 @@ class TrackingPendaftaran extends Controller
         $query->where('status', $request->input('status'));
     }
 
-    // Paginate the results
-    $ppdbs = $query->paginate(5);
 
-    return response()->json([
-        'data' => $ppdbs
-    ]);
-}
+    }
 
 }
+ 
