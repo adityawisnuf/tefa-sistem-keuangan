@@ -112,7 +112,7 @@ class PembayaranController extends Controller
         $last_name = $request->input('nama_belakang');
         $paymentMethod = $request->input('paymentMethod');
         $merchantOrderId = $request->input('merchantOrderId');
-        $callbackUrl = 'https://2b6d-180-244-128-162.ngrok-free.app/api/payment-callback';
+        $callbackUrl = 'https://7c58-180-244-128-150.ngrok-free.app/api/payment-callback';
         $returnUrl = 'http://localhost:5173/orang-tua/cek-pembayaran';
         $expiryPeriod = 60;
         $customerEmail = $request->input('email');

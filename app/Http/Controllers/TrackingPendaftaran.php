@@ -79,8 +79,12 @@ class TrackingPendaftaran extends Controller
         $query->where('status', $request->input('status'));
     }
 
+    // Paginate the results
+    $ppdbs = $query->paginate(5);
 
-    }
+    return response()->json([
+        'data' => $ppdbs
+    ]);
+}
 
 }
- 
