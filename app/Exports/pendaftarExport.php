@@ -39,40 +39,6 @@ class pendaftarExport implements FromCollection, WithHeadings, WithStyles
 
         return $pendaftarData;
     }
-{
-    return Pendaftar::select(
-            'pendaftar.nama_depan',
-            'pendaftar.nama_belakang',
-            'pendaftar.jenis_kelamin',
-            DB::raw("CONCAT('\'', pendaftar.nik) as nik"), // Menambahkan tanda kutip di depan NIK
-            'pendaftar.alamat',
-            DB::raw('IFNULL(SUM(pembayaran.nominal), 0) as nominal')
-        )
-        ->leftJoin('pembayaran_ppdb', 'pendaftar.ppdb_id', '=', 'pembayaran_ppdb.ppdb_id')
-        ->leftJoin('pembayaran', 'pembayaran_ppdb.pembayaran_id', '=', 'pembayaran.id')
-        ->groupBy(
-            'pendaftar.nama_depan',
-            'pendaftar.nama_belakang',
-            'pendaftar.jenis_kelamin',
-            'pendaftar.nik',
-            'pendaftar.alamat'
-        )
-        ->get();
-}
-
-public function map($row): array
-{
-    $jenisKelamin = $this->getStatusText($row->jenis_kelamin);
-
-    return [
-        $row->nama_depan,
-        $row->nama_belakang,
-        $jenisKelamin,
-        $row->nik,
-        $row->alamat,
-        $row->nominal,
-    ];
-}
 
     public function headings(): array
     {
@@ -85,17 +51,6 @@ public function map($row): array
             'Nominal',
             'Total Transaksi', // New column
         ];
-    }
-
-    private function getStatusText($jenis_kelamin)
-    {
-        $jenisKelamin = [
-            1 => 'laki-laki',
-            2 => 'perempuan',
-
-        ];
-
-        return $jenisKelamin[$jenis_kelamin] ?? 'Unknown';
     }
 
     public function styles(Worksheet $sheet)
