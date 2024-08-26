@@ -15,7 +15,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            background-color: #f4f4f9;
+            background-color: #fff; /* Mengubah latar belakang menjadi putih */
             color: #333;
             margin: 0;
             padding: 20px;
@@ -26,6 +26,7 @@
             color: #555;
             width: 100%;
             text-align: center;
+            font-size: 24px;
         }
 
         .table-container {
@@ -45,7 +46,8 @@
 
         th, td {
             padding: 5px;
-            border: 1px solid #ddd;
+            border: 1px solid #000000;
+            vertical-align: middle; /* Menyelaraskan isi secara vertikal di tengah */
         }
 
         th {
@@ -62,12 +64,14 @@
         }
 
         tr {
-            background-color: #fff; /* Ensure rows have a solid background */
+            background-color: #fff;
         }
 
-        th, td {
-            text-align: center;
+        /* CSS khusus untuk kolom "No" */
+        th.no, td.no {
+            text-align: center; /* Menempatkan isi kolom "No" ke tengah */
         }
+
     </style>
 </head>
 
@@ -77,7 +81,7 @@
         <table>
             <thead>
                 <tr>
-                    <th>ID</th>
+                    <th class="no">No</th> 
                     <th>Nama Anggaran</th>
                     <th>Nominal</th>
                     <th>Deskripsi</th>
@@ -90,9 +94,9 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach ($anggarans as $anggaran)
+                @foreach ($anggarans as $index => $anggaran)
                     <tr>
-                        <td>{{ $anggaran->id }}</td>
+                        <td class="no">{{ $loop->iteration }}</td> 
                         <td>{{ $anggaran->nama_anggaran }}</td>
                         <td>{{ $anggaran->nominal }}</td>
                         <td>{{ $anggaran->deskripsi }}</td>
@@ -101,7 +105,7 @@
                         <td>{{ $anggaran->status }}</td>
                         <td>{{ $anggaran->pengapprove }}</td>
                         <td>{{ $anggaran->pengapprove_jabatan }}</td>
-                        <td>{{ $anggaran  ->catatan }}</td>
+                        <td>{{ $anggaran->catatan }}</td>
                     </tr>
                 @endforeach
             </tbody>

@@ -1,27 +1,22 @@
 <?php
+
 namespace App\Http\Controllers\Api;
+
 use App\Models\Anggaran;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\AnggaranResource;
 use Illuminate\Support\Facades\Validator;
 
-
 class AnggaranController extends Controller
 {
-
     public function index(Request $request)
     {
-        // Ambil parameter pencarian dari query string, jika ada
         $search = $request->query('search', '');
+        $query = Anggaran::oldest(); // Mengurutkan berdasarkan tanggal terlama
 
-        // Mulai dengan query untuk mengambil data terbaru
-        $query = Anggaran::latest();
-
-        // Tambahkan kondisi pencarian jika ada parameter 'search'
         if ($search) {
             $query->where(function ($q) use ($search) {
-                // Anda dapat menyesuaikan kolom yang dicari sesuai kebutuhan
                 $q->where('nama_anggaran', 'like', "%$search%")
                     ->orWhere('nominal', 'like', "%$search%")
                     ->orWhere('deskripsi', 'like', "%$search%")
@@ -34,75 +29,132 @@ class AnggaranController extends Controller
             });
         }
 
-        // Lakukan paginasi pada hasil query
-        $anggaran = $query->paginate(5);
-   
-        // Kembalikan hasil dalam format resource
+        $anggaran = $request->input('page') === 'all' ? $query->get() : $query->paginate(5); // Menggunakan pagination
+
         return new AnggaranResource(true, 'List Anggaran', $anggaran);
     }
 
-   public function store(Request $request)
-   {
-       $validator = Validator::make($request->all(), [
-          'nama_anggaran' => 'required|string|max:225',
-            'nominal' => 'required|numeric',
-            'deskripsi' => 'required|string',
-            'tanggal_pengajuan' => 'required|date',
-            'target_terealisasikan' => 'required|date',
-            'status' => 'required|integer|in:1,2,3,4',
-            'pengapprove' => 'required|string|max:225',
-            'pengapprove_jabatan' => 'required|string|max:225',
-            'catatan' => 'required|string',
-       ]);
-       //check if validation fails
-       if ($validator->fails()) {
-           return response()->json($validator->errors(), 422);
-       }
+    public function store(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'nama_anggaran' => 'string|max:225',
+            'nominal' => 'numeric',
+            'deskripsi' => 'string',
+            'tanggal_pengajuan' => 'date',
+            'target_terealisasikan' => 'date',
+            'status' => 'integer|in:1,2,3,4',
+            'pengapprove' => 'nullable|string|max:225',
+            'pengapprove_jabatan' => 'nullable|string|max:225',
+            'nominal_diapprove' => 'numeric',
+            'catatan' => 'nullable',
+        ]);
 
+        // Check if validation fails
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
 
+        // Additional validation if status is 'Diapprove'
+        if ($request->input('status') == 2) {
+            $validator->sometimes('pengapprove', 'nullable|string|max:225', function ($input) {
+                return !empty($input->pengapprove);
+            });
+            $validator->sometimes('pengapprove_jabatan', 'nullable|string|max:225', function ($input) {
+                return !empty($input->pengapprove_jabatan);
+            });
+        }
 
+        $anggaran = Anggaran::create($validator->validated());
 
-       $anggaran = Anggaran::create($validator->validated());
+        return new AnggaranResource(true, 'Anggaran Baru Berhasil Ditambahkan!', $anggaran);
+    }
 
+    public function show($id)
+    {
+        $anggaran = Anggaran::find($id);
+        if (!$anggaran) {
+            return response()->json(['success' => false, 'message' => 'Anggaran tidak ditemukan'], 404);
+        }
+        return new AnggaranResource(true, 'Detail Data Anggaran!', $anggaran);
+    }
 
+    public function update(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'nama_anggaran' => 'string|max:225',
+            'nominal' => 'numeric',
+            'deskripsi' => 'string',
+            'tanggal_pengajuan' => 'date',
+            'target_terealisasikan' => 'date',
+            'status' => 'integer|in:1,2,3,4',
+            'pengapprove' => 'nullable|string|max:225',
+            'pengapprove_jabatan' => 'nullable|string|max:225',
+            'nominal_diapprove' => 'numeric',
+            'catatan' => 'nullable',
+        ]);
 
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
 
-       //return response
-       return new AnggaranResource(true, 'Anggaran Baru Berhasil Ditambahkan!', $anggaran);
-   }
+        // Additional validation if status is 'Diapprove'
+        if ($request->input('status') == 2) {
+            $validator->sometimes('pengapprove', 'nullable|string|max:225', function ($input) {
+                return !empty($input->pengapprove);
+            });
+            $validator->sometimes('pengapprove_jabatan', 'nullable|string|max:225', function ($input) {
+                return !empty($input->pengapprove_jabatan);
+            });
+        }
 
+        $anggaran = Anggaran::find($id);
+        if (!$anggaran) {
+            return response()->json(['success' => false, 'message' => 'Anggaran tidak ditemukan'], 404);
+        }
 
-   public function show($id)
-   {
-       $anggaran = Anggaran::find($id);
-       return new AnggaranResource(true, 'Detail Data Anggaran!', $anggaran);
-   }
+        $anggaran->update($validator->validated());
 
+        return new AnggaranResource(true, 'Anggaran Berhasil Diubah!', $anggaran);
+    }
 
-   public function update(Request $request, $id)
-   {
-       $validator = Validator::make($request->all(), [
-           'nama_anggaran' => 'required|string|max:225',
-            'nominal' => 'required|numeric',
-            'deskripsi' => 'required|string',
-            'tanggal_pengajuan' => 'required|date',
-            'target_terealisasikan' => 'required|date',
-            'status' => 'required|boolean',
-            'pengapprove' => 'required|string|max:225',
-            'pengapprove_jabatan' => 'required|string|max:225',
-            'catatan' => 'required|string',
-       ]);
-       if ($validator->fails()) {
-           return response()->json($validator->errors(), 422);
-       }
-       $anggaran = Anggaran::find($id);
-       $anggaran->update($validator->validated());
-       return new AnggaranResource(true, 'Anggaran Berhasil Diubah!', $anggaran);
-   }
-   public function destroy($id)
-   {
-       $anggaran = Anggaran::find($id);
-       $anggaran->delete();
-       return new AnggaranResource(true, 'Data Anggaran Berhasil Dihapus!', null);
-   }
+    public function destroy($id)
+    {
+        $anggaran = Anggaran::find($id);
+        if (!$anggaran) {
+            return response()->json(['success' => false, 'message' => 'Anggaran tidak ditemukan'], 404);
+        }
+        $anggaran->delete();
+        return new AnggaranResource(true, 'Data Anggaran Berhasil Dihapus!', null);
+    }
+
+    public function getAnggaranData()
+    {
+        // Ambil data anggaran dengan status 'Diajukan' dan 'Diapprove'
+        $diajukan = Anggaran::where('status', 1)->sum('nominal');
+        $diapprove = Anggaran::where('status', 2)->sum('nominal');
+
+        // Hitung total nominal untuk normalisasi
+        $total = $diajukan + $diapprove;
+
+        // Menyusun data untuk grafik
+        $data = [
+            'series' => [
+                $diajukan / $total * 100, // Persentase dari 'Diajukan'
+                $diapprove / $total * 100 // Persentase dari 'Diapprove'
+            ],
+            'labels' => ['Diajukan', 'Diapprove'] // Label untuk grafik
+        ];
+
+        return response()->json($data);
+    }
+    function getAnggaranCount()
+    {
+        $keseluruhan = Anggaran::count();
+        $terealisasi = Anggaran::where('status', 3)->count();
+        
+        return new AnggaranResource(true, 'Jumlah anggaran berhasil didapatkan!', [
+            'terealisasi' => $terealisasi,
+            'keseluruhan' => $keseluruhan,
+        ]);
+    }
 }
