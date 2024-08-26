@@ -158,6 +158,10 @@ class ArusKasController extends Controller
             ->groupBy('year', 'month')
             ->get();
 
+            $data = $data->filter(function ($item) {
+                return !is_null($item->year) && !is_null($item->month);
+            });
+            
         // Extract unique months and years
         $months = $data->pluck('month')->unique()->values()->toArray();
         $years = $data->pluck('year')->unique()->sortDesc()->values()->toArray();
