@@ -97,6 +97,13 @@ class RasioKeuanganController extends Controller
             'debt_to_equity_ratio' => $dter,
             'debt_ratio' => $dr,
         ];
+        $allZero = !array_filter($data, fn($value) => $value !== 0);
+
+        // Return empty data array if all values are 0
+        if ($allZero) {
+            return response()->json(['data' => []], 200);
+        }
+
         return response()->json(['data' => $data], 200);
     }
 
@@ -162,7 +169,7 @@ class RasioKeuanganController extends Controller
             $data = $data->filter(function ($item) {
                 return !is_null($item->year) && !is_null($item->month);
             });
-            
+
         // Extract unique months and years
         $months = $data->pluck('month')->unique()->values()->toArray();
         $years = $data->pluck('year')->unique()->sortDesc()->values()->toArray();
