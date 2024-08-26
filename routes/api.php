@@ -135,7 +135,7 @@ Route::group([
 
         Route::group(['prefix' => 'pengajuan'], function () {
             Route::post('/create', [UsahaPengajuanController::class, 'create']);
-            Route::get('/', [UsahaPengajuanController::class, 'getUsahaPengajuan']);
+            Route::get('/', [UsahaPengajuanController::class, 'index']);
         });
     });
 
