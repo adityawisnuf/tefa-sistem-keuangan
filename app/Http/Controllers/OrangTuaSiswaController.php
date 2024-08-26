@@ -15,6 +15,7 @@ class OrangTuaSiswaController extends Controller
     {
         $orangtua = Auth::user()->orangtua->firstOrFail();
 
+        $perPage = request('per_page', 10);
         $nama_siswa = request('nama_siswa', null);
         $month = request('month', Carbon::now()->month);
         $year = request('year', Carbon::now()->year);
@@ -36,10 +37,9 @@ class OrangTuaSiswaController extends Controller
                         ->groupBy('siswa_wallet_id');
                 }
             ])
-            ->get();
+            ->paginate($perPage);
 
-
-        $siswa->transform(function ($siswa) {
+        $siswa->getCollection()->transform(function ($siswa) {
             return [
                 'siswa_id' => $siswa->id,
                 'nama_siswa' => $siswa->nama_depan . ' ' . $siswa->nama_belakang,
