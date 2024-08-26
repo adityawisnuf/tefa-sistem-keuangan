@@ -6,6 +6,7 @@ use App\Models\Anggaran;
 use App\Models\AsetSekolah;
 use App\Models\PembayaranPpdb;
 use App\Models\PembayaranSiswa;
+use App\Models\PembayaranSiswaCicilan;
 use App\Models\Pengeluaran;
 use App\Models\PengeluaranKategori;
 use Carbon\Carbon;
@@ -78,25 +79,34 @@ class LabaRugiController extends Controller
     {
         // Mengambil data Pembayaran dan Pengeluaran
         $payments = PembayaranSiswa::whereBetween('updated_at', [$this->startDate, $this->endDate])
-            ->where('status', 1)->get();
+            ->where('status', 1)
+            ->get();
+        $cicilanPayments = PembayaranSiswaCicilan::whereBetween('updated_at', [$this->startDate, $this->endDate])
+            ->get();
         $paymentsPpdb = PembayaranPpdb::whereBetween('created_at', [$this->startDate, $this->endDate])
-            ->where('status', 1)->get();
-        $expenditures = Pengeluaran::whereBetween('disetujui_pada', [$this->startDate, $this->endDate])->get();
+            ->where('status', 1)
+            ->get();
+        $expenditures = Pengeluaran::whereBetween('disetujui_pada', [$this->startDate, $this->endDate])
+            ->get();
 
         return [
             'payments' => $payments,
             'paymentsPpdb' => $paymentsPpdb,
+            'cicilanPayments' => $cicilanPayments,
             'expenditures' => $expenditures,
         ];
     }
 
     private function calculateFinancialMetrics(array $financialData)
     {
-        $totalPayment = $financialData['payments']->sum('nominal') + $financialData['paymentsPpdb']->sum('nominal');
+        $totalPayment = $financialData['payments']->sum('nominal') + $financialData['paymentsPpdb']->sum('nominal') + $financialData['cicilanPayments']->sum('nominal_cicilan');
         $totalExpenditure = $financialData['expenditures']->sum('nominal');
         $profit = $totalPayment - $totalExpenditure;
 
         return [
+            // 'cicilanPayments' => $financialData['cicilanPayments']->sum('nominal_cicilan'),
+            // 'payments' => $financialData['payments']->sum('nominal'),
+            // 'paymentsPpdb' => $financialData['paymentsPpdb']->sum('nominal'),
             'totalPayment' => $totalPayment,
             'totalExpenditure' => $totalExpenditure,
             'profit' => $profit,
@@ -133,9 +143,9 @@ class LabaRugiController extends Controller
             ->groupBy('year', 'month')
             ->get();
 
-            $data = $data->filter(function ($item) {
-                return !is_null($item->year) && !is_null($item->month);
-            });
+        $data = $data->filter(function ($item) {
+            return !is_null($item->year) && !is_null($item->month);
+        });
         // Extract unique months and years
         $months = $data->pluck('month')->unique()->values()->toArray();
         $years = $data->pluck('year')->unique()->sortDesc()->values()->toArray();
