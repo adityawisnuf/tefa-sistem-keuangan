@@ -28,7 +28,11 @@ Route::group([
     Route::get('neraca', [NeracaController::class, 'index']);
     Route::get('laba-rugi', [LabaRugiController::class, 'index']);
     Route::get('arus-kas', [ArusKasController::class, 'index']);
-    Route::get('get-options', [LabaRugiController::class, 'getOptions']);
     Route::get('rasio-keuangan', [RasioKeuanganController::class, 'index']);
     Route::get('prediksi-perencanaan', [PrediksiPerencanaanKeuanganController::class, 'index']);
+    Route::get('get-options-n', [NeracaController::class, 'getOptions']);
+    Route::get('get-options-lr', [LabaRugiController::class, 'getOptions']);
+    Route::get('get-options-ak', [ArusKasController::class, 'getOptions']);
+    Route::get('get-options-rk', [RasioKeuanganController::class, 'getOptions']);
+    Route::get('get-options-pp', [PrediksiPerencanaanKeuanganController::class, 'getOptions']);
 });

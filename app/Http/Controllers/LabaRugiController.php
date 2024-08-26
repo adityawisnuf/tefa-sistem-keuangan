@@ -124,13 +124,7 @@ class LabaRugiController extends Controller
 
         // Gabungkan semua data
         $data = DB::table('pembayaran_siswa')
-            ->selectRaw('YEAR(created_at) as year, MONTHNAME(created_at) as month')
-            ->unionAll(
-                DB::table('anggaran')->selectRaw('YEAR(created_at) as year, MONTHNAME(created_at) as month')
-            )
-            ->unionAll(
-                DB::table('aset')->selectRaw('YEAR(created_at) as year, MONTHNAME(created_at) as month')
-            )
+            ->selectRaw('YEAR(updated_at) as year, MONTHNAME(updated_at) as month')
             ->unionAll(
                 DB::table('pembayaran_ppdb')->selectRaw('YEAR(created_at) as year, MONTHNAME(created_at) as month')
             )

@@ -9,6 +9,7 @@ use App\Models\PembayaranSiswa;
 use App\Models\Pengeluaran;
 use App\Models\PengeluaranKategori;
 use Carbon\Carbon;
+use DB;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -135,5 +136,68 @@ class ArusKasController extends Controller
         ];
 
         return response()->json(['data' => $data], 200);
+    }
+    public function getOptions()
+    {
+
+        // Gabungkan semua data
+        $data = DB::table('pembayaran_siswa')
+            ->selectRaw('YEAR(updated_at) as year, MONTHNAME(updated_at) as month')
+            ->unionAll(
+                DB::table('pembayaran_ppdb')->selectRaw('YEAR(created_at) as year, MONTHNAME(created_at) as month')
+            )
+            ->unionAll(
+                DB::table('pembayaran')->selectRaw('YEAR(created_at) as year, MONTHNAME(created_at) as month')
+            )
+            ->unionAll(
+                DB::table('pengeluaran')->selectRaw('YEAR(diajukan_pada) as year, MONTHNAME(diajukan_pada) as month')
+            )
+            ->unionAll(
+                DB::table('pengeluaran')->selectRaw('YEAR(disetujui_pada) as year, MONTHNAME(disetujui_pada) as month')
+            )
+            ->groupBy('year', 'month')
+            ->get();
+
+        // Extract unique months and years
+        $months = $data->pluck('month')->unique()->values()->toArray();
+        $years = $data->pluck('year')->unique()->sortDesc()->values()->toArray();
+
+        // Membuat mapping dari nama bulan ke angka bulan
+        $monthNumbers = [
+            'January' => '01',
+            'February' => '02',
+            'March' => '03',
+            'April' => '04',
+            'May' => '05',
+            'June' => '06',
+            'July' => '07',
+            'August' => '08',
+            'September' => '09',
+            'October' => '10',
+            'November' => '11',
+            'December' => '12',
+        ];
+
+        // Format bulan dengan values dan labels
+        $formattedMonths = [];
+        foreach ($months as $month) {
+            // Check if the month exists in the mapping
+            if (array_key_exists($month, $monthNumbers)) {
+                $formattedMonths[] = [
+                    'values' => $monthNumbers[$month],
+                    'labels' => $month,
+                ];
+            } else {
+                // Handle the case where the month is not found
+                // You can log an error, return a default value, or ignore it
+                // For example:
+                error_log("Month not found: $month");
+            }
+        }
+
+        return response()->json([
+            'months' => $formattedMonths,
+            'years' => $years,
+        ]);
     }
 }

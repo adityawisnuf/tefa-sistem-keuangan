@@ -9,20 +9,41 @@ use App\Models\PembayaranPpdb;
 use App\Models\PembayaranSiswa;
 use App\Models\PengeluaranKategori;
 use Carbon\Carbon;
+use DB;
 use Illuminate\Http\Request;
 
 class NeracaController extends Controller
 {
-    private function retrieveData()
+    private function retrieveData(Request $request)
     {
+        $bulan = $request->query('bulan');
+        $tahun = $request->query('tahun');
         // Inisialisasi query dasar
-        $assets = AsetSekolah::query();
-        $expenses = Pengeluaran::query();
-        $liabilities = Pengeluaran::whereNull('disetujui_pada');
-        $studentPayments = PembayaranSiswa::where('status', 1);
-        $ppdbPayments = PembayaranPpdb::query();
-        $approvedBudgets = Anggaran::where('status', 3);
-        $receivables = PembayaranSiswa::where('status', 0);
+              // Inisialisasi query dasar dengan filtering bulan dan tahun
+        $assets = AsetSekolah::when($bulan, fn($query) => $query->whereMonth('created_at', $bulan))
+              ->when($tahun, fn($query) => $query->whereYear('created_at', $tahun));
+
+          $expenses = Pengeluaran::when($bulan, fn($query) => $query->whereMonth('created_at', $bulan))
+              ->when($tahun, fn($query) => $query->whereYear('created_at', $tahun));
+
+          $liabilities = Pengeluaran::whereNull('disetujui_pada')
+              ->when($bulan, fn($query) => $query->whereMonth('diajukan_pada', $bulan))
+              ->when($tahun, fn($query) => $query->whereYear('diajukan_pada', $tahun));
+
+          $studentPayments = PembayaranSiswa::where('status', 1)
+              ->when($bulan, fn($query) => $query->whereMonth('created_at', $bulan))
+              ->when($tahun, fn($query) => $query->whereYear('created_at', $tahun));
+
+          $ppdbPayments = PembayaranPpdb::when($bulan, fn($query) => $query->whereMonth('created_at', $bulan))
+              ->when($tahun, fn($query) => $query->whereYear('created_at', $tahun));
+
+          $approvedBudgets = Anggaran::where('status', 3)
+              ->when($bulan, fn($query) => $query->whereMonth('created_at', $bulan))
+              ->when($tahun, fn($query) => $query->whereYear('created_at', $tahun));
+
+          $receivables = PembayaranSiswa::where('status', 0)
+              ->when($bulan, fn($query) => $query->whereMonth('created_at', $bulan))
+              ->when($tahun, fn($query) => $query->whereYear('created_at', $tahun));
 
         // Menjalankan query untuk mengambil data
         return [
@@ -36,10 +57,10 @@ class NeracaController extends Controller
         ];
     }
 
-    public function index()
+    public function index(Request $request)
     {
         try {
-            $data = $this->retrieveData();
+            $data = $this->retrieveData($request);
 
             // Cek jika data kosong
             if ($data['assets']->isEmpty() && $data['expenses']->isEmpty() && $data['liabilities']->isEmpty()) {
@@ -181,5 +202,71 @@ class NeracaController extends Controller
     {
         // Memformat nilai ke dalam format Rupiah
         return 'Rp ' . number_format($value, 0, ',', '.');
+    }
+    public function getOptions()
+    {
+
+        // Gabungkan semua data
+        $data = DB::table('pembayaran_siswa')
+            ->selectRaw('YEAR(updated_at) as year, MONTHNAME(updated_at) as month')
+            ->unionAll(
+                DB::table('pembayaran_ppdb')->selectRaw('YEAR(created_at) as year, MONTHNAME(created_at) as month')
+            )
+            ->unionAll(
+                DB::table('anggaran')->selectRaw('YEAR(created_at) as year, MONTHNAME(created_at) as month')
+            )
+            ->unionAll(
+                DB::table('aset')->selectRaw('YEAR(created_at) as year, MONTHNAME(created_at) as month')
+            )
+            ->unionAll(
+                DB::table('pengeluaran')->selectRaw('YEAR(diajukan_pada) as year, MONTHNAME(diajukan_pada) as month')
+            )
+            ->unionAll(
+                DB::table('pengeluaran')->selectRaw('YEAR(disetujui_pada) as year, MONTHNAME(disetujui_pada) as month')
+            )
+            ->groupBy('year', 'month')
+            ->get();
+
+        // Extract unique months and years
+        $months = $data->pluck('month')->unique()->values()->toArray();
+        $years = $data->pluck('year')->unique()->sortDesc()->values()->toArray();
+
+        // Membuat mapping dari nama bulan ke angka bulan
+        $monthNumbers = [
+            'January' => '01',
+            'February' => '02',
+            'March' => '03',
+            'April' => '04',
+            'May' => '05',
+            'June' => '06',
+            'July' => '07',
+            'August' => '08',
+            'September' => '09',
+            'October' => '10',
+            'November' => '11',
+            'December' => '12',
+        ];
+
+        // Format bulan dengan values dan labels
+        $formattedMonths = [];
+        foreach ($months as $month) {
+            // Check if the month exists in the mapping
+            if (array_key_exists($month, $monthNumbers)) {
+                $formattedMonths[] = [
+                    'values' => $monthNumbers[$month],
+                    'labels' => $month,
+                ];
+            } else {
+                // Handle the case where the month is not found
+                // You can log an error, return a default value, or ignore it
+                // For example:
+                error_log("Month not found: $month");
+            }
+        }
+
+        return response()->json([
+            'months' => $formattedMonths,
+            'years' => $years,
+        ]);
     }
 }
