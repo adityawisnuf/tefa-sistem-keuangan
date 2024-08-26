@@ -55,11 +55,9 @@ Route::middleware('auth:api')->group(function () {
         Route::delete('{id}', [PendaftarDokumenController::class, 'destroy']);
     });
 
-    // Email Verification Routes
     Route::post('email-verification', [EmailVerificationController::class, 'email_verification']);
     Route::post('send-email-verification', [EmailVerificationController::class, 'sendEmailVerification']);
 
-    // Pembayaran Routes
 
     Route::group(['prefix' => 'ppdb'], function () {
         Route::get('/track', [TrackingPendaftaran::class, 'trackPendaftaran']);
@@ -85,7 +83,6 @@ Route::get('get-province', [IndoRegionController::class, 'getAllProvinces']);
 Route::get('get-regency/{provinceId}', [IndoRegionController::class, 'getRegenciesByProvince']);
 Route::get('get-district/{regencyId}', [IndoRegionController::class, 'getDistrictsByRegency']);
 Route::get('get-village/{districtId}', [IndoRegionController::class, 'getVillagesByDistrict']);
-Route::post('pendaftar-komplit', [PendaftarKomplitController::class, 'store']);
 
 Route::post('/update-status', [PpdbController::class, 'updateStatus']);
 Route::get('download/{id}', [PpdbController::class, 'downloadDocuments']);
