@@ -20,7 +20,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class SiswaLaundryController extends Controller
 {
-    public function getLaundryLayanan()
+    public function getLayanan()
     {
         $perPage = request()->input('per_page', 10);
         $items = LaundryLayanan::latest()->paginate($perPage);

@@ -27,11 +27,10 @@ class SiswaWalletController extends Controller
 
         return response()->json([
             'data' => [
-                'Rp' . Number::format($siswaWallet->nominal, 0, 0, 'id-ID'),
-                'Rp' . Number::format($pemasukan, 0, 0, 'id-ID'),
-                'Rp' . Number::format($pengeluaran, 0, 0, 'id-ID'),
+                'saldo_siswa' => 'Rp' . Number::format($siswaWallet->nominal, 0, 0, 'id-ID'),
+                'total_pemasukan' => 'Rp' . Number::format($pemasukan, 0, 0, 'id-ID'),
+                'total_pengeluaran' => 'Rp' . Number::format($pengeluaran, 0, 0, 'id-ID'),
             ]
-
         ], Response::HTTP_OK);
     }
 

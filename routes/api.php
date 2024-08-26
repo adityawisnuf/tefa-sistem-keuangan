@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\BendaharaController;
+use App\Http\Controllers\BendaharaLaporanController;
 use App\Http\Controllers\BendaharaPengajuanController;
 use App\Http\Controllers\LaundryTransaksiController;
 use App\Http\Controllers\OrangTuaController;
@@ -70,10 +71,10 @@ Route::group([
 
         Route::group(['prefix' => 'laundry'], function () {
             Route::group(['prefix' => 'layanan'], function () {
-                Route::get('/', [SiswaLaundryController::class, 'getLaundryLayanan']);
+                Route::get('/', [SiswaLaundryController::class, 'getLayanan']);
                 Route::get('/riwayat', [SiswaLaundryController::class, 'getLayananRiwayat']);
                 Route::post('/transaksi', [SiswaLaundryController::class, 'createLayananTransaksi']);
-                Route::get('/{produk}', [SiswaLaundryController::class, 'getProdukDetail']);
+                Route::get('/{layanan}', [SiswaLaundryController::class, 'getLayananDetail']);
             });
         });
     });
@@ -128,7 +129,6 @@ Route::group([
 
         Route::group(['prefix' => 'transaksi'], function () {
             Route::get('/', [LaundryTransaksiController::class, 'getActiveTransaction']);
-            Route::get('/riwayat', [LaundryTransaksiController::class, 'getCompletedTransaction']);
             Route::get('/{transaksi}', [LaundryTransaksiController::class, 'update']);
             Route::put('/{transaksi}/konfirmasi', [LaundryTransaksiController::class, 'confirmInitialTransaction']);
         });
@@ -143,7 +143,7 @@ Route::group([
         'prefix' => 'bendahara',
         'middleware' => 'checkrole:Bendahara'
     ], function () {
-        Route::get('/laporan', [BendaharaController::class, 'getUsahaTransaksi']);
+        Route::get('/laporan', [BendaharaLaporanController::class, 'getUsahaTransaksi']);
 
         Route::group(['prefix' => 'pengajuan'], function() {
                 Route::get('/', [BendaharaPengajuanController::class, 'getUsahaPengajuan']);

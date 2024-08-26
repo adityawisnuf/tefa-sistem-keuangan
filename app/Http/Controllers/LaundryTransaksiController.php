@@ -24,26 +24,22 @@ class LaundryTransaksiController extends Controller
         $this->statusService = new StatusTransaksiService();
     }
     //get done
-    public function getActiveTransaction()
+    public function getTransaction()
     {
         $usaha = Auth::user()->usaha->firstOrFail();
+        $status = request('status', 'aktif');
+        $perPage = request('per_page', 10);
 
-        $perPage = request()->input('per_page', 10);
         $transaksi = $usaha->laundry_transaksi()
             ->with(['siswa:id,nama_depan,nama_belakang', 'laundry_transaksi_detail.laundry_layanan'])
             ->withSum('laundry_transaksi_detail as harga_total', 'harga', 'total_harga') // Tambahkan baris ini
-            ->whereIn('status', ['pending', 'proses', 'siap_diambil'])
+            ->when($status == 'aktif', function($query) {
+                $query->whereIn('status', ['pending', 'proses', 'siap_diambil']);
+            })
+            ->when($status == 'selesai', function($query) {
+                $query->whereIn('status', ['selesai', 'dibatalkan'])
+            })
             ->paginate($perPage);
-
-        return response()->json(['data' => $transaksi], Response::HTTP_OK);
-    }
-
-    public function getCompletedTransaction()
-    {
-        $usaha = Auth::user()->usaha->firstOrFail();
-
-        $perPage = request()->input('per_page', 10);
-        $transaksi = $usaha->laundry_transaksi()->whereIn('status', ['selesai', 'dibatalkan'])->paginate($perPage);
 
         return response()->json(['data' => $transaksi], Response::HTTP_OK);
     }

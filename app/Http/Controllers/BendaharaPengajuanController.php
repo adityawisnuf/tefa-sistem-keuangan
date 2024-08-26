@@ -12,37 +12,37 @@ class BendaharaPengajuanController extends Controller
 {
     public function getUsahaPengajuan()
     {
-        $role = request('role', '');
+        $role = request('role', 'Kantin');
         $perPage = request()->input('per_page', 10);
         $status = request('status', 'all');
 
-        $pengajuan = UsahaPengajuan::with(['usaha.user' => function($query) use ($role) {
-            $query->where('role', 'like', '%' . $role . '%');
-        }])
+        $pengajuan = UsahaPengajuan::with(['usaha.user'])
+            ->whereHas('usaha.user', function ($query) use ($role) {
+                $query->where('role', 'like', '%' . $role . '%');
+            })
             ->when($status === 'aktif', function ($query) {
                 return $query->where('usaha_pengajuan.status', 'pending');
             })
             ->when($status === 'selesai', function ($query) {
                 return $query->whereIn('usaha_pengajuan.status', ['ditolak', 'disetujui']);
             })
-            ->get();
+            ->paginate($perPage);
 
-        $pengajuan->transform(function($pengajuan) {
+        $pengajuan->getCollection()->transform(function ($pengajuan) {
             return [
                 'id' => $pengajuan->id,
                 'nama_usaha' => $pengajuan->usaha->nama_usaha,
                 'jumlah_pengajuan' => $pengajuan->jumlah_pengajuan,
                 'status' => $pengajuan->status,
-                'alasan_penolakan'=>$pengajuan->alasan_penolakan,
-                'tanggal_pengajuan'=>$pengajuan->tanggal_pengajuan,
-                'tanggal_selesai'=>$pengajuan->tanggal_selesai,
+                'alasan_penolakan' => $pengajuan->alasan_penolakan,
+                'tanggal_pengajuan' => $pengajuan->tanggal_pengajuan,
+                'tanggal_selesai' => $pengajuan->tanggal_selesai,
 
             ];
         });
 
         return response()->json(['data' => $pengajuan], Response::HTTP_OK);
     }
-
 
     public function confirmUsahaPengajuan(UsahaPengajuanRequest $request, UsahaPengajuan $pengajuan)
     {
@@ -51,7 +51,7 @@ class BendaharaPengajuanController extends Controller
         if (in_array($pengajuan->status, ['disetujui', 'ditolak'])) {
             return response()->json([
                 'message' => 'Pengajuan sudah diproses!',
-            ], Response::HTTP_UNAUTHORIZED);
+            ], Response::HTTP_BAD_REQUEST);
         }
 
         // Logika untuk mengupdate status
@@ -92,7 +92,7 @@ class BendaharaPengajuanController extends Controller
             default:
                 return response()->json([
                     'message' => 'Status tidak valid.',
-                ], Response::HTTP_UNAUTHORIZED);
+                ], Response::HTTP_BAD_REQUEST);
         }
     }
 }

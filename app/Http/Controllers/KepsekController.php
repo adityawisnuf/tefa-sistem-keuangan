@@ -14,13 +14,13 @@ use Symfony\Component\HttpFoundation\Response;
 
 class KepsekController extends Controller
 {
-    private $startOfWeek;
-    private $endOfWeek;
+    private $startOfMonth;
+    private $endOfMonth;
 
     public function __construct()
     {
-        $this->startOfWeek = now()->startOfWeek();
-        $this->endOfWeek = now()->endOfWeek();
+        $this->startOfMonth = now()->startOfMonth();
+        $this->endOfMonth = now()->endOfMonth();
     }
 
 
@@ -33,7 +33,7 @@ class KepsekController extends Controller
 
         $transaksi = $model->with([$role == 'Kantin' ? 'kantin_transaksi_detail' : 'laundry_transaksi_detail', 'usaha:id,nama_usaha'])
         ->whereIn('status', ['dibatalkan', 'selesai'])
-        ->whereBetween('tanggal_selesai', [$this->startOfWeek, $this->endOfWeek])
+        ->whereBetween('tanggal_selesai', [$this->startOfMonth, $this->endOfMonth])
         ->paginate($perPage);
 
         return response()->json($transaksi, Response::HTTP_OK);
