@@ -31,7 +31,6 @@ class UsahaPengajuanRequest extends FormRequest
     public function store()
     {
         return [
-
             'jumlah_pengajuan' => ['required', 'integer', 'min:0'],
         ];
     }

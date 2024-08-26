@@ -146,11 +146,8 @@ Route::group([
         'middleware' => 'checkrole:Bendahara'
     ], function () {
         Route::get('/laporan', [BendaharaLaporanController::class, 'getUsahaTransaksi']);
-
-        Route::group(['prefix' => 'pengajuan'], function() {
-                Route::get('/', [BendaharaPengajuanController::class, 'getUsahaPengajuan']);
-                Route::put('/{pengajuan}', [BendaharaPengajuanController::class, 'confirmUsahaPengajuan']);
-        });
+        Route::get('/pengajuan', [BendaharaPengajuanController::class, 'getUsahaPengajuan']);
+        Route::put('/pengajuan/{pengajuan}', [BendaharaPengajuanController::class, 'confirmUsahaPengajuan']);
     });
 
     Route::group([
@@ -159,7 +156,6 @@ Route::group([
     ], function () {
         Route::get('/laporan', [KepsekLaporanController::class, 'getUsahaTransaksi']);
         Route::get('/pengajuan', [KepsekPengajuanController::class, 'getUsahaPengajuan']);
-
     });
 });
 

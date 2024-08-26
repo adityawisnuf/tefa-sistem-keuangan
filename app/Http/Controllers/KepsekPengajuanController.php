@@ -65,6 +65,5 @@ class KepsekPengajuanController extends Controller
         } catch (\Exception $e) {
             return response()->json(['error' => 'Terjadi kesalahan saat mengambil data pengajuan.'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
-
     }
 }
