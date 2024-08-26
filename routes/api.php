@@ -10,14 +10,11 @@ use App\Http\Controllers\PendaftarController;
 use App\Http\Controllers\LogoutController;
 use App\Http\Controllers\NIKController;
 use App\Http\Controllers\AmountController;
-use App\Http\Controllers\PdfDownloadController;
 use App\Http\Controllers\PendaftarDokumenController;
 use App\Http\Controllers\PendaftaranAkademikController;
-use App\Http\Controllers\PendaftarKomplitController;
 use App\Http\Controllers\PembayaranController;
 use App\Http\Controllers\PpdbController;
 use App\Http\Controllers\TrackingPendaftaran;
-use App\Models\PendaftarDokumen;
 
 
 Route::post('register', [RegisterController::class, 'register']);
@@ -95,13 +92,9 @@ Route::get('/download-berkas/{id}', [PendaftarDokumenController::class, 'mergePe
 Route::post('/validate-nik', [NIKController::class, 'validateNik']);
 Route::post('/validate-nik', [NIKController::class, 'validateNik']);
 Route::get('/laporan-keuangan/search', [LaporanKeuanganController::class, 'searchLaporanKeuangan']);
-Route::get('/laporan-keuangan', [LaporanKeuanganController::class, 'laporanKeuangan']);
 // api.php
 
 Route::get('/export-pendaftar', [PendaftarController::class, 'export']);
 Route::get('export-pembayaran-ppdb', [PembayaranController::class, 'exportPembayaranPpdb']);
 Route::get('filter-ppdb', [PpdbController::class, 'filterByStatusAndYear']);
 Route::get('test');
-
-
-    // Route::post('/download-pdf', [PdfDownloadController::class, 'store']);

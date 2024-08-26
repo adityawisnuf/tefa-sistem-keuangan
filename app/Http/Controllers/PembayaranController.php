@@ -297,14 +297,12 @@ class PembayaranController extends Controller
                                         'jurusan_tujuan' => $dataUserResponse['jurusan_tujuan'],
                                     ]);
 
-                                    // Generate a random plain password
                                     $plainPassword = Str::random(12);
 
-                                    // Create the user with the hashed password
                                     $user = User::create([
                                         'name' => $dataUserResponse['nama_depan'] . ' ' . $dataUserResponse['nama_belakang'],
                                         'email' => $dataUserResponse['email'],
-                                        'password' => Hash::make($plainPassword), // Hash the plain password
+                                        'password' => Hash::make($plainPassword), 
                                         'role' => 'Siswa',
                                     ]);
 

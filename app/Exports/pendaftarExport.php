@@ -49,7 +49,7 @@ class pendaftarExport implements FromCollection, WithHeadings, WithStyles
             'NIK',
             'Alamat',
             'Nominal',
-            'Total Transaksi', // New column
+            'Total Transaksi'
         ];
     }
 
