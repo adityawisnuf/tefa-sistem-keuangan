@@ -147,14 +147,58 @@ class AnggaranController extends Controller
 
         return response()->json($data);
     }
-    function getAnggaranCount()
+
+    public function getAnggaranCount()
     {
-        $keseluruhan = Anggaran::count();
+        $keseluruhan = Anggaran::whereNot('status', 3)->count();
         $terealisasi = Anggaran::where('status', 3)->count();
-        
+
+        $jumlahTerapproveTahunIni = Anggaran::whereYear('created_at', now()->year)->where('status', 3)->count();
+        $jumlahTerapproveBulanIni = Anggaran::whereYear('created_at', now()->year)
+            ->whereMonth('created_at', now()->month)
+            ->where('status', 3)
+            ->count();
+
+        // Sum and count for each month of the current year
+        $jumlahtahunini = Anggaran::selectRaw('MONTH(created_at) as month, COUNT(*) as count, SUM(nominal) as sum')
+            ->whereYear('created_at', now()->year)
+            ->where('status', 3)
+            ->groupBy('month')
+            ->orderBy('month')
+            ->get()
+            ->mapWithKeys(function ($item) {
+                return [
+                    strtolower(now()->startOfYear()->addMonths($item->month - 1)->format('M')) => [
+                        'count' => $item->count,
+                        'sum of nominal' => $item->sum
+                    ]
+                ];
+            });
+
+        // Sum and count for each week of the current month
+        $jumlahbulanini = Anggaran::selectRaw('WEEK(created_at, 1) as week, COUNT(*) as count, SUM(nominal) as sum')
+            ->whereYear('created_at', now()->year)
+            ->whereMonth('created_at', now()->month)
+            ->where('status', 3)
+            ->groupBy('week')
+            ->orderBy('week')
+            ->get()
+            ->mapWithKeys(function ($item) {
+                return [
+                    'minggu' . $item->week => [
+                        'count' => $item->count,
+                        'sum of nominal' => $item->sum
+                    ]
+                ];
+            });
+
         return new AnggaranResource(true, 'Jumlah anggaran berhasil didapatkan!', [
-            'terealisasi' => $terealisasi,
             'keseluruhan' => $keseluruhan,
+            'terealisasi' => $terealisasi,
+            'jumlahTerapproveTahunIni' => $jumlahTerapproveTahunIni,
+            'jumlahTerapproveBulanIni' => $jumlahTerapproveBulanIni,
+            'jumlahtahunini' => $jumlahtahunini,
+            'jumlahbulanini' => $jumlahbulanini,
         ]);
     }
 }
