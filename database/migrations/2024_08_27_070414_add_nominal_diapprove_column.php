@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('anggaran', function (Blueprint $table) {
-            $table->integer('nominal_dihapus')->after('nominal');
+            $table->integer('nominal_diapprove')->nullable()->after('nominal');
         });
     }
 
@@ -22,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('anggaran', function (Blueprint $table) {
-            $table->dropColumn('nominal_dihapus');
+            $table->dropColumn('nominal_diapprove');
         });
     }
 };

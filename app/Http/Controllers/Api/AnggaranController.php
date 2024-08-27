@@ -41,11 +41,11 @@ class AnggaranController extends Controller
             'nominal' => 'numeric',
             'deskripsi' => 'string',
             'tanggal_pengajuan' => 'date',
-            'target_terealisasikan' => 'date',
+            'target_terealisasikan' => 'date|nullable',
             'status' => 'integer|in:1,2,3,4',
             'pengapprove' => 'nullable|string|max:225',
             'pengapprove_jabatan' => 'nullable|string|max:225',
-            'nominal_diapprove' => 'numeric',
+            'nominal_diapprove' => 'numeric|nullable',
             'catatan' => 'nullable',
         ]);
 
@@ -97,7 +97,6 @@ class AnggaranController extends Controller
             return response()->json($validator->errors(), 422);
         }
 
-        // Additional validation if status is 'Diapprove'
         if ($request->input('status') == 2) {
             $validator->sometimes('pengapprove', 'nullable|string|max:225', function ($input) {
                 return !empty($input->pengapprove);
