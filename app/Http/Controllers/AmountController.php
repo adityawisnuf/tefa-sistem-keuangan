@@ -11,10 +11,7 @@ class AmountController extends Controller
     // Display a listing of the amounts
     public function index()
     {
-        $amounts = Amount::all()->map(function ($amount) {
-            $amount->paymentAmount = number_format($amount->paymentAmount, 0, ',', '.');
-            return $amount;
-        });
+        $amounts = Amount::all();
         return response()->json($amounts);
     }
 
@@ -34,10 +31,7 @@ class AmountController extends Controller
 
         $amount = Amount::create($validatedData);
 
-        // Format paymentAmount before returning the response
-        $amount->paymentAmount = number_format($amount->paymentAmount, 0, ',', '.');
-
-        return response()->json($amount, 201); // 201 status code for created
+        return response()->json($amount, 201); 
     }
 
     // Display the specified amount
@@ -48,9 +42,6 @@ class AmountController extends Controller
         if (!$amount) {
             return response()->json(['message' => 'Amount not found'], 404);
         }
-
-        // Format paymentAmount before returning the response
-        $amount->paymentAmount = number_format($amount->paymentAmount, 0, ',', '.');
 
         return response()->json(['data' => $amount->toArray()]);
     }
@@ -78,7 +69,6 @@ class AmountController extends Controller
         $amount->update($validatedData);
 
         // Format paymentAmount before returning the response
-        $amount->paymentAmount = number_format($amount->paymentAmount, 0, ',', '.');
 
         return response()->json($amount);
     }

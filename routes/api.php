@@ -10,6 +10,7 @@ use App\Http\Controllers\PendaftarController;
 use App\Http\Controllers\LogoutController;
 use App\Http\Controllers\NIKController;
 use App\Http\Controllers\AmountController;
+use App\Http\Controllers\KelasController;
 use App\Http\Controllers\PendaftarDokumenController;
 use App\Http\Controllers\PendaftaranAkademikController;
 use App\Http\Controllers\PembayaranController;
@@ -61,6 +62,15 @@ Route::middleware('auth:api')->group(function () {
         Route::get('/all/pendaftaran', [TrackingPendaftaran::class, 'getAllPendaftarans']);
         Route::get('/search', [TrackingPendaftaran::class, 'searchPendaftarans']);
     });
+    Route::prefix('kelas')->group(function () {
+        Route::get('/', [KelasController::class, 'index']);
+        Route::get('{id}', [KelasController::class, 'show']);
+        Route::post('/', [KelasController::class, 'store']);
+        Route::put('{id}', [KelasController::class, 'update']);
+        Route::delete('{id}', [KelasController::class, 'destroy']);
+        
+    });
+
 
 
 
