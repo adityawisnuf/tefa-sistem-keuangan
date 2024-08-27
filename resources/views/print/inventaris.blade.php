@@ -7,7 +7,6 @@
     <style>
         * {
             font-family: 'Arial', sans-serif;
-            font-size: 14px;
             box-sizing: border-box;
         }
 
@@ -15,17 +14,18 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            background-color: #f4f4f9;
-            color: #333;
+            background-color: #ffffff;
+            color: #151010;
             margin: 0;
             padding: 20px;
         }
 
-        h2 {
+        h3 {
             margin-bottom: 20px;
-            color: #555;
+            color: #080000;
             width: 100%;
             text-align: center;
+            font-size: 24px; /* Ukuran font lebih besar untuk judul */
         }
 
         .table-container {
@@ -40,60 +40,58 @@
             max-width: 1000px;
             border-collapse: collapse;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            background-color: #fff;
+            background-color: #ffffff;
+            color: #151010;
+            font-size: 14px; /* Ukuran font tetap untuk tabel */
         }
 
         th, td {
             padding: 5px;
-            border: 1px solid #ddd;
+            border: 1px solid #000000; /* Border hitam */
         }
 
         th {
             background-color: #0068fa;
-            color: #fff;
+            color: #ffffff;
         }
 
         tr:nth-child(even) {
-            background-color: #f9f9f9;
+            background-color: #f4f4f9; /* Warna abu-abu muda untuk baris genap */
         }
 
         tr:hover {
-            background-color: #f1f1f1;
-        }
-
-        tr {
-            background-color: #fff; /* Ensure rows have a solid background */
+            background-color: #e0e0e0; /* Warna abu-abu terang saat hover */
         }
 
         th, td {
-            text-align: center;
+            text-align: flex-start;
         }
     </style>
 </head>
 
 <body>
-    <h2>Laporan Inventaris</h2>
+    <h3>Laporan Inventaris</h3>
     <div class="table-container">
         <table>
             <thead>
                 <tr>
-                    <th>ID</th>
+                    <th>No</th>
                     <th>Nama</th>
-                    <th>Harga</th>
                     <th>Kondisi</th>
-                    <th>Tipe</th>
                     <th>Penggunaan</th>
+                    <th>Tipe</th>
+                    <th>Harga</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach ($assets as $asset)
                     <tr>
-                        <td>{{ $asset->id }}</td>
+                        <td>{{ $loop->iteration }}</td>
                         <td>{{ $asset->nama }}</td>
-                        <td>{{ $asset->harga }}</td>
                         <td>{{ $asset->kondisi }}</td>
-                        <td>{{ $asset->tipe }}</td>
                         <td>{{ $asset->penggunaan }}</td>
+                        <td>{{ $asset->tipe }}</td>
+                        <td>{{ 'Rp ' . number_format($asset->harga, 0, ',', '.') }}</td>
                     </tr>
                 @endforeach
             </tbody>

@@ -23,7 +23,7 @@ class AsetSekolahController extends Controller
         $search = $request->query('search', '');
 
         // Mulai dengan query untuk mengambil data terbaru
-        $query = AsetSekolah::latest();
+        $query = AsetSekolah::oldest();
 
         // Tambahkan kondisi pencarian jika ada parameter 'search'
         if ($search) {
@@ -36,7 +36,7 @@ class AsetSekolahController extends Controller
         }
 
         // Lakukan paginasi pada hasil query
-        $asset = $query->paginate(5);
+        $asset = $request->input('page') === 'all' ? $query->get() : $query->paginate(5);
 
         // Kembalikan hasil dalam format resource
         return new AssetResource(true, 'List Inventaris', $asset);
@@ -53,10 +53,11 @@ class AsetSekolahController extends Controller
         //define validation rules
         $validator = Validator::make($request->all(), [
             'nama' => 'required|string|max:255',
-            'tipe' => 'required|string|max:225',
-            'kondisi' => 'required|string',
-            'harga' => 'required|numeric',
-            'penggunaan' => 'required|string'
+            'tipe' => 'required|string|max:255',
+            'kondisi' => 'required|string|max:255',
+            'harga' => 'required|numeric|min:0',
+            'penggunaan' => 'required|string',
+
         ]);
 
         //check if validation fails
