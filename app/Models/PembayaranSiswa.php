@@ -12,7 +12,7 @@ class PembayaranSiswa extends Model
 
     protected $fillable = [
         'siswa_id', 
-        'pembayaran_kategori_id', 
+        'pembayaran_id', 
         'nominal', 
         'merchant_order_id', 
         'status',
