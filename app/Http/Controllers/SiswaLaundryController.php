@@ -61,7 +61,41 @@ class SiswaLaundryController extends Controller
         $perPage = request('per_page', 10);
 
         try {
-            $riwayat = $siswa->laundry_transaksi()->with(['usaha', 'laundry_transaksi_detail.laundry_layanan'])->paginate($perPage);
+            $riwayat = $siswa->laundry_transaksi()
+            ->with(['usaha', 'laundry_transaksi_detail.laundry_layanan'])
+            ->whereIn('status',['dibatalkan','selesai'])
+            ->paginate($perPage);
+
+            $riwayat->getCollection()->transform(function ($riwayat) {
+                return [
+                    'id' => $riwayat->id,
+                    'nama_usaha' => $riwayat->usaha->nama_usaha,
+                    'jumlah_layanan' => count($riwayat->laundry_transaksi_detail),
+                    'harga_total' => array_reduce($riwayat->laundry_transaksi_detail->toArray(), function($scary, $item) {
+                        return $scary += $item['harga_total']; //horror sikit
+                    }),
+                    'status' => $riwayat->status,
+                    'tanggal_pemesanan' => $riwayat->tanggal_pemesanan,
+                    'tanggal_selesai' => $riwayat->tanggal_selesai,
+                ];
+            });
+
+            return response()->json(['data' => $riwayat], Response::HTTP_OK);
+        } catch (Exception $e) {
+            Log::error('getLayananRiwayat: ' . $e->getMessage());
+            return response()->json(['error' => 'Terjadi kesalahan saat mengambil data riwayat transaksi.'], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+    public function getLayananTransaksi()
+    {
+        $siswa = Auth::user()->siswa()->first();
+        $perPage = request('per_page', 10);
+
+        try {
+            $riwayat = $siswa->laundry_transaksi()
+            ->with(['usaha', 'laundry_transaksi_detail.laundry_layanan'])
+            ->whereIn('status',['proses','siap_diambil'])
+            ->paginate($perPage);
 
             $riwayat->getCollection()->transform(function ($riwayat) {
                 return [

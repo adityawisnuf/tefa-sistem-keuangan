@@ -74,7 +74,8 @@ Route::group([
             Route::group(['prefix' => 'layanan'], function () {
                 Route::get('/', [SiswaLaundryController::class, 'getLayanan']);
                 Route::get('/riwayat', [SiswaLaundryController::class, 'getLayananRiwayat']);
-                Route::post('/transaksi', [SiswaLaundryController::class, 'createLayananTransaksi']);
+                Route::get('/transaksi', [SiswaLaundryController::class, 'getLayananTransaksi']);
+                Route::post('/transaksi/create', [SiswaLaundryController::class, 'createLayananTransaksi']);
                 Route::get('/{id}', [SiswaLaundryController::class, 'getLayananDetail']);
             });
         });
