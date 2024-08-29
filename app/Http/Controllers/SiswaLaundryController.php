@@ -33,17 +33,21 @@ class SiswaLaundryController extends Controller
         $namaLayanan = request('nama_layanan');
 
         try {
-            $items = LaundryLayanan::where('tipe', $tipe)
+            $items = LaundryLayanan::where('status', 'aktif')
+                ->where('tipe', $tipe)
                 ->when($namaLayanan, function ($query) use ($namaLayanan) {
                     $query->where('nama_layanan', 'like', "%$namaLayanan%");
                 })
-                ->latest()->paginate($perPage);
+                ->latest()
+                ->paginate($perPage);
+
             return response()->json(['data' => $items], Response::HTTP_OK);
         } catch (Exception $e) {
             Log::error('getLayanan: ' . $e->getMessage());
             return response()->json(['error' => 'Terjadi kesalahan saat mengambil data layanan.'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
     public function getLayananDetail($id)
     {
         try {
