@@ -66,7 +66,8 @@ class PengumumanAdminController extends Controller
         $pengumuman = Pengumuman::create([
             'judul' => $request->judul,
             'isi' => $request->isi,
-            'status' => 1
+            'status' => 1,
+            'user_id' => Auth::user()->id
         ]);
 
         return response()->json([

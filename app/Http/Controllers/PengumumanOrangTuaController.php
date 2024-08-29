@@ -13,7 +13,7 @@ class PengumumanOrangTuaController extends Controller
         $this->middleware('checkrole:OrangTua,Siswa');
     }
 
-    public function approvedAnnouncements(): JsonResponse
+    public function allApprovedAnnouncements(): JsonResponse
     {
         $pengumuman = Pengumuman::where('status', 2)->get();
 

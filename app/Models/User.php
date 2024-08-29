@@ -72,4 +72,9 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasOne(Orangtua::class, 'user_id');
     }
+
+    public function pengumuman()
+    {
+        return $this->hasMany('pengumuman');
+    }
 }

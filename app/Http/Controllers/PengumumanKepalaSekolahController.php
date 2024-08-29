@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Pengumuman;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class PengumumanKepalaSekolahController extends Controller
@@ -14,7 +15,7 @@ class PengumumanKepalaSekolahController extends Controller
         $this->middleware('checkrole:KepalaSekolah');
     }
 
-    public function approvedAnnouncements(): JsonResponse
+    public function allApprovedAnnouncements(): JsonResponse
     {
         $pengumuman = Pengumuman::where('status', 2)->get();
 
@@ -25,7 +26,7 @@ class PengumumanKepalaSekolahController extends Controller
         ], 200);
     }
 
-    public function submittedAnnouncements(): JsonResponse
+    public function allSubmittedAnnouncements(): JsonResponse
     {
         $pengumuman = Pengumuman::where('status', 1)->get();
 
@@ -54,7 +55,8 @@ class PengumumanKepalaSekolahController extends Controller
         $pengumuman = Pengumuman::create([
             'judul' => $request->judul,
             'isi' => $request->isi,
-            'status' => 2
+            'status' => 2,
+            'user_id' => Auth::user()->id
         ]);
 
         return response()->json([

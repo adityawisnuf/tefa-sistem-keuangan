@@ -18,6 +18,7 @@ return new class extends Migration
             $table->text('isi');
             $table->text('pesan_ditolak')->default(null);
             $table->timestamps();
+            $table->foreignId('user_id')->constrained('users');
         });
     }
 
