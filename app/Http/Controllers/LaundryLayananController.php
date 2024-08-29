@@ -18,10 +18,19 @@ class LaundryLayananController extends Controller
     public function index()
     {
         $usaha = Auth::user()->usaha->first();
+        $perPage = request('per_page', 10);
+        $namaLayanan = request('nama_layanan');
 
-        $perPage = request()->input('per_page', 10);
-        $layanan = $usaha->laundry_layanan()->latest()->paginate($perPage);
-        return response()->json(['data' => $layanan], Response::HTTP_OK);
+        try {
+            $layanan = $usaha->laundry_layanan()
+                ->when($namaLayanan, function ($query) use ($namaLayanan) {
+                    $query->where('nama_layanan', 'like', "%$namaLayanan%");
+                })
+                ->latest()->paginate($perPage);
+            return response()->json(['data' => $layanan], Response::HTTP_OK);
+        } catch (Exception $e) {
+            return response()->json(['error' => 'Terjadi kesalahan saat mengambil data layanan.'], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     public function create(LaundryLayananRequest $request)
@@ -37,7 +46,7 @@ class LaundryLayananController extends Controller
             $layanan = LaundryLayanan::create($fields);
             return response()->json(['data' => $layanan], Response::HTTP_CREATED);
         } catch (Exception $e) {
-            return response()->json(['message' => 'Gagal menyimpan layanan: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+            return response()->json(['error' => 'Terjadi kesalahan saat membuat data layanan.'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -60,7 +69,7 @@ class LaundryLayananController extends Controller
             $layanan->update($fields);
             return response()->json(['data' => $layanan], Response::HTTP_OK);
         } catch (Exception $e) {
-            return response()->json(['message' => 'Gagal memperbarui layanan: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+            return response()->json(['error' => 'Terjadi kesalahan saat mengubah data layanan.'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
     }
@@ -72,7 +81,7 @@ class LaundryLayananController extends Controller
             $layanan->delete();
             return response(null, Response::HTTP_NO_CONTENT);
         } catch (Exception $e) {
-            return response()->json(['message' => 'Gagal menghapus layanan: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+            return response()->json(['error' => 'Terjadi kesalahan saat menghapus data layanan.'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 }

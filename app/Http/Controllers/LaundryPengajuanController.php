@@ -4,14 +4,28 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\UsahaPengajuanRequest;
 use App\Models\UsahaPengajuan;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 class LaundryPengajuanController extends Controller
 {
     public function getUsahaPengajuan()
     {
-        $perPage = request()->input('per_page', 10);
-        return UsahaPengajuan::paginate($perPage);
+        $usaha = Auth::user()->usaha->firstOrFail();
+        $startDate = request('tanggal_awal');
+        $endDate = request('tanggal_akhir');
+        $perPage = request('per_page', 10);
+
+        $pengajuan = $usaha->pengajuan()
+            ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
+                $query->whereBetween('tanggal_pe', [
+                    Carbon::parse($startDate)->startOfDay(),
+                    Carbon::parse($endDate)->endOfDay()
+                ]);
+            })->paginate($perPage);
+
+        return response()->json(['data' => $pengajuan], Response::HTTP_OK);
     }
 
     public function PengajuanUsaha(UsahaPengajuanRequest $request, UsahaPengajuan $pengajuan)

@@ -27,17 +27,17 @@ class KantinTransaksiController extends Controller
         $usaha = Auth::user()->usaha->firstOrFail();
 
         $perPage = request()->input('per_page', 10);
-        $status = request('status', 'active');
+        $status = request('status', 'aktif');
 
         $transaksi = $usaha->kantin_transaksi()
-            ->with(['siswa:id,nama_depan,nama_belakang', 'kantin_transaksi_detail.kantin_produk:id,nama_produk'])
-            ->withSum('kantin_transaksi_detail as harga_total', 'harga', 'total_harga');
-
-        $status == 'active'
-            ? $transaksi->whereIn('status', ['pending', 'proses', 'siap_diambil'])
-            : $transaksi->whereIn('status', ['selesai', 'dibatalkan']);
-
-        $transaksi->paginate($perPage);
+            ->with(['kantin_transaksi_detail.kantin_produk:id,nama_produk', 'siswa:id,nama_depan,nama_belakang'])
+            ->when($status ==  'aktif', function($query) {
+                $query->whereIn('status', ['pending', 'proses', 'siap_diambil']);
+            })
+            ->when($status ==  'selesai', function($query) {
+                $query->whereIn('status', ['selesai', 'dibatalkan']);
+            })
+            ->paginate($perPage);
 
         return response()->json(['data' => $transaksi], Response::HTTP_OK);
     }

@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\UsahaPengajuanRequest;
 use App\Models\UsahaPengajuan;
+use Carbon\Carbon;
+use Exception;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -14,32 +16,32 @@ class UsahaPengajuanController extends Controller
     {
         $usaha = Auth::user()->usaha->firstOrFail();
 
+        $startDate = request('tanggal_awal');
+        $endDate = request('tanggal_akhir');
         $perPage = request()->input('per_page', 10);
         $status = request('status', 'all');
 
-        $pengajuan = UsahaPengajuan::where('usaha_id', $usaha->id)
-            ->when($status === 'aktif', function ($query) {
-                return $query->where('status', 'pending');
-            })
-            ->when($status === 'selesai', function ($query) {
-                return $query->whereIn('status', ['ditolak', 'disetujui']);
-            })
-            ->with('usaha:id,nama_usaha') // Mengambil nama usaha langsung
-            ->paginate($perPage, ['id', 'usaha_id', 'jumlah_pengajuan', 'status', 'alasan_penolakan', 'tanggal_pengajuan', 'tanggal_selesai']);
-
-        $pengajuan->getCollection()->transform(function($pengajuan) {
-            return [
-                'id' => $pengajuan->id,
-                'nama_usaha' => $pengajuan->usaha->nama_usaha,
-                'jumlah_pengajuan' => $pengajuan->jumlah_pengajuan,
-                'status' => $pengajuan->status,
-                'alasan_penolakan' => $pengajuan->alasan_penolakan,
-                'tanggal_pengajuan' => $pengajuan->tanggal_pengajuan,
-                'tanggal_selesai' => $pengajuan->tanggal_selesai,
-            ];
-        });
-
-        return response()->json(['data' => $pengajuan], Response::HTTP_OK);
+        try {
+            $pengajuan = $usaha->usaha_pengajuan()
+                ->select(['jumlah_pengajuan', 'status', 'alasan_penolakan', 'tanggal_pengajuan', 'tanggal_selesai'])
+                ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
+                    $query->whereBetween('tanggal_pengajuan', [
+                        Carbon::parse($startDate)->startOfDay(),
+                        Carbon::parse($endDate)->endOfDay()
+                    ]);
+                })
+                ->when($status === 'aktif', function ($query) {
+                    return $query->where('status', 'pending');
+                })
+                ->when($status === 'selesai', function ($query) {
+                    return $query->whereIn('status', ['ditolak', 'disetujui']);
+                })
+                ->paginate($perPage);
+    
+            return response()->json(['data' => $pengajuan], Response::HTTP_OK);
+        } catch (Exception $e) {
+            
+        }
     }
 
 

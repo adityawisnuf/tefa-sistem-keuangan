@@ -24,6 +24,13 @@ class Siswa extends Model
         'kelas_id',
     ];
 
+    protected $appends = ['nama_siswa'];
+
+    public function getNamaSiswaAttribute()
+    {
+        return $this->nama_depan . ' ' . $this->nama_belakang;
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');

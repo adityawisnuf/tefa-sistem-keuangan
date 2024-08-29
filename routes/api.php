@@ -7,17 +7,11 @@ use App\Http\Controllers\KepsekLaporanController;
 use App\Http\Controllers\KepsekPengajuanController;
 use App\Http\Controllers\LaundryTransaksiController;
 use App\Http\Controllers\OrangTuaController;
-use App\Http\Controllers\OrangTuaRiwayatController;
-use App\Http\Controllers\OrangTuaSiswaController;
-use App\Http\Controllers\OrangTuaWalletController;
 use App\Http\Controllers\UsahaPengajuanController;
 use App\Http\Controllers\KantinProdukController;
 use App\Http\Controllers\KantinProdukKategoriController;
 use App\Http\Controllers\KantinTransaksiController;
-use App\Http\Controllers\KepsekController;
-use App\Http\Controllers\LaundryItemController;
 use App\Http\Controllers\LaundryLayananController;
-use App\Http\Controllers\LaundryPengajuanController;
 use App\Http\Controllers\SiswaKantinController;
 use App\Http\Controllers\SiswaLaundryController;
 use App\Http\Controllers\SiswaWalletController;
@@ -48,9 +42,14 @@ Route::group([
         'prefix' => 'orangtua',
         'middleware' => 'checkrole:OrangTua'
     ], function () {
-        Route::get('/siswa', [OrangTuaSiswaController::class, 'getDataSiswa']);
-        Route::get('/riwayat', [OrangTuaRiwayatController::class, 'getRiwayatSiswa']);
-        Route::get('/wallet', [OrangTuaWalletController::class, 'getWalletSiswa']);
+        Route::group(['prefix' => 'siswa'], function() {
+            Route::get('/', [OrangTuaController::class, 'getSiswa']);
+
+            Route::group(['prefix' => 'riwayat'], function() {
+                Route::get('/wallet/{id}', [OrangTuaController::class, 'getRiwayatWalletSiswa']);
+                Route::get('/transaksi/{id}', [OrangTuaController::class, 'getRiwayatTransaksiSiswa']);
+            });
+        });
     });
 
     Route::group([
@@ -130,8 +129,9 @@ Route::group([
         });
 
         Route::group(['prefix' => 'transaksi'], function () {
-            Route::get('/', [LaundryTransaksiController::class, 'getActiveTransaction']);
-            Route::get('/{transaksi}', [LaundryTransaksiController::class, 'update']);
+            Route::get('/', [LaundryTransaksiController::class, 'getTransaction']);
+            Route::get('/{id}', [LaundryTransaksiController::class, 'getDetailUsahaTransaksi']);
+            Route::post('/{transaksi}', [LaundryTransaksiController::class, 'update']);
             Route::put('/{transaksi}/konfirmasi', [LaundryTransaksiController::class, 'confirmInitialTransaction']);
         });
 
@@ -155,6 +155,7 @@ Route::group([
         'middleware' => 'checkrole:KepalaSekolah'
     ], function () {
         Route::get('/laporan', [KepsekLaporanController::class, 'getUsahaTransaksi']);
+        Route::get('/laporan/{id}', [KepsekLaporanController::class, 'getDetailUsahaTransaksi']);
         Route::get('/pengajuan', [KepsekPengajuanController::class, 'getUsahaPengajuan']);
     });
 });

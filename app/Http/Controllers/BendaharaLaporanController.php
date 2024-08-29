@@ -23,12 +23,12 @@ class BendaharaLaporanController extends Controller
         if ($validator->fails()) {
             return response()->json(['error' => $validator->errors()], Response::HTTP_BAD_REQUEST);
         }
-
+        
+        $perPage = request('per_page', 10);
         $startDate = request('tanggal_awal');
         $endDate = request('tanggal_akhir');
         $nama_usaha = request('nama_usaha');
         $role = request('role', 'Kantin');
-        $perPage = request('per_page', 10);
 
         $model = $role == 'Kantin' ? new KantinTransaksi : new LaundryTransaksi;
 
@@ -74,7 +74,6 @@ class BendaharaLaporanController extends Controller
             return response()->json(['data' => $transaksi], Response::HTTP_OK);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Terjadi kesalahan saat mengambil data transaksi.'], Response::HTTP_INTERNAL_SERVER_ERROR);
-            // return response()->json(['error' => 'Terjadi kesalahan saat mengambil data transaksi: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 }

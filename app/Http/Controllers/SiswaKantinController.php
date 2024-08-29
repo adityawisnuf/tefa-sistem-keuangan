@@ -15,21 +15,26 @@ class SiswaKantinController extends Controller
 {
     public function getProduk()
     {
-        $kategori = request()->input('kategori');
-        $perPage = request()->input('per_page', 10);
-
-        $produk = KantinProduk::where('kantin_produk_kategori_id', 'like', "%$kategori%")
-            ->where('status', 'aktif')
+        $perPage = request('per_page', 10);
+        $nama_produk = request('nama_produk');
+        $nama_kategori = request('nama_kategori');
+    
+        $produk = KantinProduk::where('status', 'aktif')
+            ->when($nama_produk, function ($query) use ($nama_produk) {
+                $query->where('nama_produk', 'like', "%$nama_produk%");
+            })
+            ->when($nama_kategori, function ($query) use ($nama_kategori) {
+                $query->whereRelation('kantin_produk_kategori', 'nama_kategori', 'like', "%$nama_kategori%");
+            })
             ->paginate($perPage);
-
+    
         return response()->json(['data' => $produk], Response::HTTP_OK);
     }
+    
 
     public function getProdukDetail(KantinProduk $produk)
     {
-        if ($produk->status == 'aktif') {
-            return response()->json(['data' => $produk], Response::HTTP_OK);
-        }
+        if ($produk->status == 'aktif') return response()->json(['data' => $produk], Response::HTTP_OK);
         return response()->json(['data' => 'produk tidak tersedia'], Response::HTTP_BAD_REQUEST);
     }
 

@@ -12,6 +12,7 @@ use App\Models\Siswa;
 use App\Models\SiswaWalletRiwayat;
 use Exception;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Auth;
 
@@ -33,11 +34,11 @@ class LaundryTransaksiController extends Controller
         $transaksi = $usaha->laundry_transaksi()
             ->with(['siswa:id,nama_depan,nama_belakang', 'laundry_transaksi_detail.laundry_layanan'])
             ->withSum('laundry_transaksi_detail as harga_total', 'harga', 'total_harga') // Tambahkan baris ini
-            ->when($status == 'aktif', function($query) {
+            ->when($status == 'aktif', function ($query) {
                 $query->whereIn('status', ['pending', 'proses', 'siap_diambil']);
             })
-            ->when($status == 'selesai', function($query) {
-                $query->whereIn('status', ['selesai', 'dibatalkan'])
+            ->when($status == 'selesai', function ($query) {
+                $query->whereIn('status', ['selesai', 'dibatalkan']);
             })
             ->paginate($perPage);
 
@@ -106,6 +107,19 @@ class LaundryTransaksiController extends Controller
         DB::commit();
 
         return response()->json(['data' => $transaksi], Response::HTTP_OK);
+    }
+
+    public function getDetailUsahaTransaksi($id)
+    {
+        $perPage = request('per_page', 10);
+
+        $transaksi = LaundryTransaksi::find($id)
+            ->laundry_transaksi_detail()
+            ->with(['laundry_layanan'])
+            ->paginate($perPage);
+
+        return response()->json(['data' => $transaksi], Response::HTTP_OK);
+
     }
 
 }

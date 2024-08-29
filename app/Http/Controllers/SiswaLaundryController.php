@@ -7,17 +7,32 @@ use App\Models\LaundryLayanan;
 use App\Models\LaundryTransaksi;
 use App\Models\LaundryTransaksiDetail;
 use App\Models\SiswaWalletRiwayat;
+use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\Response;
 
 class SiswaLaundryController extends Controller
 {
     public function getLayanan()
     {
+        $validator = Validator::make()
+        
         $perPage = request()->input('per_page', 10);
-        $items = LaundryLayanan::latest()->paginate($perPage);
-        return response()->json(['data' => $items], Response::HTTP_OK);
+        $tipe = request('tipe', 'kiloan');
+        $namaLayanan = request('nama_layanan');
+
+        try {
+            $items = LaundryLayanan::where('tipe', $tipe)
+                ->when($namaLayanan, function ($query) use ($namaLayanan) {
+                    $query->where('nama_layanan', 'like', "%$namaLayanan%");
+                })
+                ->latest()->paginate($perPage);
+            return response()->json(['data' => $items], Response::HTTP_OK);
+        } catch (Exception $e) {
+            return response()->json(['error' => 'Terjadi kesalahan saat mengambil data layanan.'], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
     public function getLayananDetail(LaundryLayanan $layanan)
     {
@@ -27,9 +42,14 @@ class SiswaLaundryController extends Controller
     public function getLayananRiwayat()
     {
         $siswa = Auth::user()->siswa()->first();
-        $perPage = request()->input('per_page', 10);
-        $riwayat = $siswa->laundry_transaksi()->paginate($perPage);
-        return response()->json(['data' => $riwayat], Response::HTTP_OK);
+        $perPage = request('per_page', 10);
+
+        try {
+            $riwayat = $siswa->laundry_transaksi()->paginate($perPage);
+            return response()->json(['data' => $riwayat], Response::HTTP_OK);
+        } catch (Exception $e) {
+            return response()->json(['error' => 'Terjadi kesalahan saat mengambil data riwayat transaksi.'], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     public function createLayananTransaksi(SiswaLaundryRequest $request)
@@ -64,7 +84,7 @@ class SiswaLaundryController extends Controller
 
 
         if ($siswaWallet->nominal < $totalHarga) {
-            return response()->json(['message' => 'Saldo tidak mencukupi untuk transaksi ini.'], Response::HTTP_BAD_REQUEST);
+            return response()->json(['error' => 'Saldo tidak mencukupi untuk transaksi ini.'], Response::HTTP_BAD_REQUEST);
         }
 
         $usaha->update([

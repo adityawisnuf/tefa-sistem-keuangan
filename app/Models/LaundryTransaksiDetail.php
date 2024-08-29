@@ -18,6 +18,13 @@ class LaundryTransaksiDetail extends Model
         'harga',
     ];
 
+    protected $appends = ['harga_total'];
+
+    public function getHargaTotalAttribute()
+    {
+        return $this->jumlah * $this->harga;
+    }
+
     public function laundry_layanan ()
     {
         return $this->belongsTo(LaundryLayanan::class, 'laundry_layanan_id');

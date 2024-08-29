@@ -77,4 +77,39 @@ class KepsekLaporanController extends Controller
             // return response()->json(['error' => 'Terjadi kesalahan saat mengambil data transaksi: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
+    public function getDetailUsahaTransaksi($id)
+    {
+        $validator = Validator::make(request()->all(), [
+            'tanggal_awal' => ['nullable', 'date'],
+            'tanggal_akhir' => ['nullable', 'date', 'after_or_equal:tanggal_awal'],
+            'per_page' => ['nullable', 'integer', 'min:1'],
+            'role' => ['nullable', 'in:Kantin,Laundry'],
+            'nama_usaha' => ['nullable', 'string'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()], Response::HTTP_BAD_REQUEST);
+        }
+        $role = request('role', 'Kantin');
+        $perPage = request('per_page', 10);
+
+
+        try {
+            $transaksi = $role == 'Kantin'
+                ? KantinTransaksi::find($id)
+                    ->kantin_transaksi_detail()
+                    ->with(['kantin_produk', 'siswa'])
+                    ->paginate($perPage)
+                : LaundryTransaksi::find($id)
+                    ->laundry_transaksi_detail()
+                    ->with(['laundry_layanan', 'siswa'])
+                    ->paginate($perPage);
+
+            return response()->json(['data' => $transaksi], Response::HTTP_OK);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Terjadi kesalahan saat mengambil data transaksi.' . $e], Response::HTTP_INTERNAL_SERVER_ERROR);
+            // return response()->json(['error' => 'Terjadi kesalahan saat mengambil data transaksi: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
 }
