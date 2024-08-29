@@ -7,6 +7,7 @@ use App\Models\UsahaPengajuan;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Process;
 use Symfony\Component\HttpFoundation\Response;
@@ -34,8 +35,9 @@ class BendaharaPengajuanController extends Controller
         $role = request('role', 'Kantin');
         $status = request('status', 'active');
         $perPage = request('per_page', 10);
-
+        
         try {
+
             $pengajuan = UsahaPengajuan::with(['usaha.user'])
                 ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
                     $query->whereBetween('tanggal_pengajuan', [
@@ -74,12 +76,15 @@ class BendaharaPengajuanController extends Controller
 
             return response()->json(['data' => $pengajuan], Response::HTTP_OK);
         } catch (\Exception $e) {
+            Log::error('getUsahaPengajuan: ' . $e->getMessage());
             return response()->json(['error' => 'Terjadi kesalahan saat mengambil data pengajuan.'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
-    public function confirmUsahaPengajuan(UsahaPengajuanRequest $request, UsahaPengajuan $pengajuan)
+    public function confirmUsahaPengajuan(UsahaPengajuanRequest $request, $id)
     {
+
+        $pengajuan = UsahaPengajuan::findOrFail($id);
         $usaha = $pengajuan->usaha;
 
         if (in_array($pengajuan->status, ['disetujui', 'ditolak'])) {
@@ -100,7 +105,7 @@ class BendaharaPengajuanController extends Controller
                         'message' => 'Pengajuan telah disetujui.',
                         'data' => $pengajuan,
                     ], Response::HTTP_OK);
-    
+
                 case 'ditolak':
                     if (empty($request->alasan_penolakan)) {
                         return response()->json([
@@ -109,10 +114,10 @@ class BendaharaPengajuanController extends Controller
                     }
 
                     DB::beginTransaction();
-    
+
                     $usaha->saldo += $pengajuan->jumlah_pengajuan;
                     $usaha->save();
-    
+
                     $pengajuan->update([
                         'status' => 'ditolak',
                         'alasan_penolakan' => $request->alasan_penolakan,
@@ -121,18 +126,19 @@ class BendaharaPengajuanController extends Controller
 
                     DB::commit();
                     break;
-    
+
                 default:
                     return response()->json([
                         'message' => 'Status tidak valid.',
                     ], Response::HTTP_BAD_REQUEST);
             }
-    
+
             return response()->json([
                 'message' => 'Pengajuan telah ditolak dan saldo dikembalikan.',
                 'data' => $pengajuan,
             ], Response::HTTP_OK);
         } catch (\Exception $e) {
+            Log::error('confirmUsahaPengajuan' . $e->getMessage());
             return response()->json(['error' => 'Terjadi kesalahan saat memproses data pengajuan.'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }

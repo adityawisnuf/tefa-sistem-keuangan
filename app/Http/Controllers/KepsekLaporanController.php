@@ -6,6 +6,7 @@ use App\Models\KantinTransaksi;
 use App\Models\LaundryTransaksi;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 
 class KepsekLaporanController extends Controller
@@ -73,8 +74,8 @@ class KepsekLaporanController extends Controller
 
             return response()->json(['data' => $transaksi], Response::HTTP_OK);
         } catch (\Exception $e) {
+            Log::error('getUsahaTransaksi: '. $e->getMessage());
             return response()->json(['error' => 'Terjadi kesalahan saat mengambil data transaksi.'], Response::HTTP_INTERNAL_SERVER_ERROR);
-            // return response()->json(['error' => 'Terjadi kesalahan saat mengambil data transaksi: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -108,8 +109,8 @@ class KepsekLaporanController extends Controller
 
             return response()->json(['data' => $transaksi], Response::HTTP_OK);
         } catch (\Exception $e) {
+            Log::error('getDetailUsahaTransaksi: ' . $e->getMessage());
             return response()->json(['error' => 'Terjadi kesalahan saat mengambil data transaksi.' . $e], Response::HTTP_INTERNAL_SERVER_ERROR);
-            // return response()->json(['error' => 'Terjadi kesalahan saat mengambil data transaksi: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 }

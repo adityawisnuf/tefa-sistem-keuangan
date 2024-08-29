@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\UsahaPengajuan;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 
 class KepsekPengajuanController extends Controller
@@ -63,6 +64,7 @@ class KepsekPengajuanController extends Controller
 
             return response()->json(['data' => $pengajuan], Response::HTTP_OK);
         } catch (\Exception $e) {
+            Log::error('getUsahaTransaksi: ' . $e->getMessage());
             return response()->json(['error' => 'Terjadi kesalahan saat mengambil data pengajuan.'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
