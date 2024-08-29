@@ -21,20 +21,16 @@ class PpdbController extends Controller
     public function getTotalPendaftar()
 {
     try {
-        // Menghitung total pendaftar dari tabel ppdb
         $totalPendaftar = Ppdb::count();
 
-        // Mengembalikan total pendaftar dalam bentuk JSON
         return response()->json([
             'success' => true,
             'total_pendaftar' => $totalPendaftar
         ]);
     } catch (\Exception $e) {
-        // Menangani error
         Log::error('Error getting total pendaftar:', [
             'exception' => $e->getMessage(),
         ]);
-
         return response()->json([
             'success' => false,
             'message' => 'Failed to retrieve total pendaftar. Please try again later.'
@@ -127,11 +123,9 @@ class PpdbController extends Controller
             $namaDepan = $pendaftar->nama_depan;
             $namaBelakang = $pendaftar->nama_belakang;
 
-            // Membuat nama folder menggunakan nama depan dan nama belakang
             $folderName = $namaDepan . '_' . $namaBelakang;
             $zipFileName = $folderName . '_dokumen_' . $id . '.zip';
 
-            // List of files with their respective document types
             $files = [
                 'akte_kelahiran' => $pendaftarDokumen->akte_kelahiran,
                 'kartu_keluarga' => $pendaftarDokumen->kartu_keluarga,

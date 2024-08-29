@@ -29,7 +29,7 @@ class LaporanKeuanganController extends Controller
     ->leftJoin('pembayaran', 'pembayaran_ppdb.pembayaran_id', '=', 'pembayaran.id')
     ->groupBy('pembayaran_ppdb.ppdb_id', 'pembayaran_ppdb.status', 'pendaftar.nama_depan', 'pendaftar.nama_belakang', 'pembayaran_ppdb.pembayaran_id');
 
-    // Apply filters based on query parameters
+    
     if ($request->has('nama')) {
         $query->whereHas('pendaftar', function ($q) use ($request) {
             $q->where('nama_depan', 'like', '%' . $request->input('nama') . '%')

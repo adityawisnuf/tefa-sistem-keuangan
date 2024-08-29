@@ -28,14 +28,11 @@ use Symfony\Component\HttpFoundation\Response;
 
 class PembayaranController extends Controller
 {
-
     const PDF_STORAGE_PATH = 'storage/app/documents/';
-
-
 
     public function exportPembayaranPpdb()
     {
-        return Excel::download(new PembayaranExport, 'pembayaran_ppdb.xlsx');
+        return Excel::download(new PembayaranExport(), 'pembayaran_ppdb.xlsx');
     }
     public function getPaymentMethod(Request $request)
     {
@@ -44,28 +41,26 @@ class PembayaranController extends Controller
             'merchantCode' => 'string',
             'apiKey' => 'string',
             'paymentAmount' => 'numeric',
-            'paymentMethod' => 'nullable|string', // Allow optional paymentMethod param
+            'paymentMethod' => 'nullable|string', 
         ]);
 
-        $merchantCode = "DS19869";
-        $apiKey = "8093b2c02b8750e4e73845f307325566";
+        $merchantCode = 'DS19869';
+        $apiKey = '8093b2c02b8750e4e73845f307325566';
         $paymentAmount = $request->input('paymentAmount');
         $paymentMethod = $request->get('paymentMethod');
         $datetime = now()->format('Y-m-d H:i:s');
 
-        // Generate signature
         $signature = hash('sha256', $merchantCode . $paymentAmount . $datetime . $apiKey);
 
-        // Prepare request parameters
+
         $params = [
             'merchantcode' => $merchantCode,
             'amount' => $paymentAmount,
             'datetime' => $datetime,
             'signature' => $signature,
-            'paymentMethod' => $paymentMethod
+            'paymentMethod' => $paymentMethod,
         ];
 
-        // Build the API URL with optional payment method parameter
         $url = 'https://sandbox.duitku.com/webapi/api/merchant/paymentmethod/getpaymentmethod';
 
         $client = new Client();
@@ -86,33 +81,36 @@ class PembayaranController extends Controller
             if ($statusCode == 200) {
                 return response()->json($responseBody, 200);
             } else {
-                return response()->json([
-                    'error' => 'Server Error',
-                    'message' => $responseBody['Message'] ?? 'An error occurred',
-                ], $statusCode);
+                return response()->json(
+                    [
+                        'error' => 'Server Error',
+                        'message' => $responseBody['Message'] ?? 'An error occurred',
+                    ],
+                    $statusCode,
+                );
             }
         } catch (\Exception $e) {
             Log::error('Error retrieving payment methods from Duitku', ['message' => $e->getMessage()]);
-            return response()->json([
-                'error' => 'Request Error',
-                'message' => $e->getMessage(),
-            ], 500);
+            return response()->json(
+                [
+                    'error' => 'Request Error',
+                    'message' => $e->getMessage(),
+                ],
+                500,
+            );
         }
     }
 
-    // Method untuk membuat transaksi
     public function createTransaction(Request $request)
     {
-
-        // Ambil data dari request
-        $merchantCode = "DS19869";
-        $apiKey = "8093b2c02b8750e4e73845f307325566";
+        $merchantCode = 'DS19869';
+        $apiKey = '8093b2c02b8750e4e73845f307325566';
         $paymentAmount = $request->input('paymentAmount');
         $first_name = $request->input('nama_depan');
         $last_name = $request->input('nama_belakang');
         $paymentMethod = $request->input('paymentMethod');
         $merchantOrderId = $request->input('merchantOrderId');
-        $callbackUrl = 'https://7c58-180-244-128-150.ngrok-free.app/api/payment-callback';
+        $callbackUrl = 'https://8e03-180-244-128-142.ngrok-free.app/api/payment-callback';
         $returnUrl = 'http://localhost:5173/orang-tua/cek-pembayaran';
         $expiryPeriod = 60;
         $customerEmail = $request->input('email');
@@ -133,7 +131,7 @@ class PembayaranController extends Controller
             'signature' => $signature,
             'expiryPeriod' => $expiryPeriod,
             'email' => $customerEmail,
-            'customerVaName' => $customerVaName
+            'customerVaName' => $customerVaName,
         ];
 
         $params_string = json_encode($params);
@@ -141,18 +139,11 @@ class PembayaranController extends Controller
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
         curl_setopt($ch, CURLOPT_POSTFIELDS, $params_string);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt(
-            $ch,
-            CURLOPT_HTTPHEADER,
-            array(
-                'Content-Type: application/json',
-                'Content-Length: ' . strlen($params_string)
-            )
-        );
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json', 'Content-Length: ' . strlen($params_string)]);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
         // Execute cURL request
         $response = curl_exec($ch);
@@ -188,7 +179,7 @@ class PembayaranController extends Controller
                 'nominal' => $paymentAmount,
                 'status' => 0,
                 'kelas_id' => null,
-                'ppdb_id' => $ppdb->id
+                'ppdb_id' => $ppdb->id,
             ]);
 
             PembayaranPpdb::create([
@@ -201,15 +192,15 @@ class PembayaranController extends Controller
 
             return response()->json($responseBody);
         } else {
-            return response()->json([
-                'error' => 'Server Error',
-                'message' => json_decode($response)->Message ?? 'Unknown error'
-            ], $httpCode);
+            return response()->json(
+                [
+                    'error' => 'Server Error',
+                    'message' => json_decode($response)->Message ?? 'Unknown error',
+                ],
+                $httpCode,
+            );
         }
     }
-
-
-
 
     public function handleCallback(Request $request)
     {
@@ -241,7 +232,7 @@ class PembayaranController extends Controller
                     try {
                         // Update status pembayaran menjadi 'success' dan simpan callback response
                         $pembayaran->update([
-                            'status' => "Success",
+                            'status' => 'Success',
                             'callback_response' => json_encode($request->all()),
                         ]);
 
@@ -253,79 +244,73 @@ class PembayaranController extends Controller
 
                             // Update status PembayaranPpdb menjadi 1
                             $pembayaranPpdb = PembayaranPpdb::where('merchant_order_id', $merchantOrderId)->first();
-                            if ($pembayaranPpdb) {
-                                $pembayaranPpdb->update(['status' => 1]);
-                                Log::info("PembayaranPpdb status updated to 1 for Order ID: $merchantOrderId");
-
-                                // Decode user data and insert into Pendaftar
-                                $dataUserResponse = json_decode($pembayaran->data_user_response, true);
-                                if ($dataUserResponse) {
-
-                                    // Insert Pendaftar
-                                    Pendaftar::create([
-                                        'ppdb_id' => $ppdb->id,
-                                        'nama_depan' => $dataUserResponse['nama_depan'],
-                                        'nama_belakang' => $dataUserResponse['nama_belakang'],
-                                        'jenis_kelamin' => $dataUserResponse['jenis_kelamin'],
-                                        'nik' => $dataUserResponse['nik'],
-                                        'email' => $dataUserResponse['email'],
-                                        'nisn' => $dataUserResponse['nisn'],
-                                        'tempat_lahir' => $dataUserResponse['tempat_lahir'],
-                                        'tgl_lahir' => $dataUserResponse['tgl_lahir'],
-                                        'alamat' => $dataUserResponse['alamat'],
-                                        'village_id' => $dataUserResponse['village_id'],
-                                        'nama_ayah' => $dataUserResponse['nama_ayah'],
-                                        'nama_ibu' => $dataUserResponse['nama_ibu'],
-                                        'tgl_lahir_ayah' => $dataUserResponse['tgl_lahir_ayah'],
-                                        'tgl_lahir_ibu' => $dataUserResponse['tgl_lahir_ibu'],
-                                    ]);
-
-                                    PendaftarDokumen::create([
-                                        'ppdb_id' => $ppdb->id,
-                                        'akte_kelahiran' => $dataUserResponse['akte_kelahiran'],
-                                        'kartu_keluarga' => $dataUserResponse['kartu_keluarga'],
-                                        'ijazah' => $dataUserResponse['ijazah'],
-                                        'raport' => $dataUserResponse['raport'],
-                                    ]);
-
-
-                                    // Insert PendaftarAkademik
-                                    PendaftarAkademik::create([
-                                        'ppdb_id' => $ppdb->id,
-                                        'sekolah_asal' => $dataUserResponse['sekolah_asal'],
-                                        'tahun_lulus' => $dataUserResponse['tahun_lulus'],
-                                        'jurusan_tujuan' => $dataUserResponse['jurusan_tujuan'],
-                                    ]);
-
-                                    $plainPassword = Str::random(12);
-
-                                    $user = User::create([
-                                        'name' => $dataUserResponse['nama_depan'] . ' ' . $dataUserResponse['nama_belakang'],
-                                        'email' => $dataUserResponse['email'],
-                                        'password' => Hash::make($plainPassword), 
-                                        'role' => 'Siswa',
-                                    ]);
-
-                                    // Send an email with the plain password
-                                    $user->notify(new CredentialsEmailNotification($plainPassword));
-
-                                    Log::info("Data user successfully inserted into Pendaftar for Order ID: $merchantOrderId");
-
-                                    Log::info("Data user successfully inserted into Pendaftar for Order ID: $merchantOrderId");
-                                } else {
-                                    Log::error("Failed to decode data_user_response for Order ID: $merchantOrderId");
-                                    return response()->json(['error' => 'Failed to decode user data'], 500);
-                                }
-                            } else {
+                            if (!$pembayaranPpdb) {
                                 Log::error("PembayaranPpdb record not found for Order ID: $merchantOrderId");
                                 return response()->json(['error' => 'PembayaranPpdb record not found'], 404);
                             }
-                        } else {
-                            Log::error("Ppdb record not found for Order ID: $merchantOrderId");
-                            return response()->json(['error' => 'Ppdb record not found'], 404);
+                            $pembayaranPpdb->update(['status' => 1]);
+                            Log::info("PembayaranPpdb status updated to 1 for Order ID: $merchantOrderId");
+
+                            // Decode user data and insert into Pendaftar
+                            $dataUserResponse = json_decode($pembayaran->data_user_response, true);
+
+                            if (!$dataUserResponse) {
+                                Log::error("Failed to decode data_user_response for Order ID: $merchantOrderId");
+                                return response()->json(['error' => 'Failed to decode user data'], 500);
+                            }
+                            // Insert Pendaftar
+                            Pendaftar::create([
+                                'ppdb_id' => $ppdb->id,
+                                'nama_depan' => $dataUserResponse['nama_depan'],
+                                'nama_belakang' => $dataUserResponse['nama_belakang'],
+                                'jenis_kelamin' => $dataUserResponse['jenis_kelamin'],
+                                'nik' => $dataUserResponse['nik'],
+                                'email' => $dataUserResponse['email'],
+                                'nisn' => $dataUserResponse['nisn'],
+                                'tempat_lahir' => $dataUserResponse['tempat_lahir'],
+                                'tgl_lahir' => $dataUserResponse['tgl_lahir'],
+                                'alamat' => $dataUserResponse['alamat'],
+                                'village_id' => $dataUserResponse['village_id'],
+                                'nama_ayah' => $dataUserResponse['nama_ayah'],
+                                'nama_ibu' => $dataUserResponse['nama_ibu'],
+                                'tgl_lahir_ayah' => $dataUserResponse['tgl_lahir_ayah'],
+                                'tgl_lahir_ibu' => $dataUserResponse['tgl_lahir_ibu'],
+                            ]);
+
+                            PendaftarDokumen::create([
+                                'ppdb_id' => $ppdb->id,
+                                'akte_kelahiran' => $dataUserResponse['akte_kelahiran'],
+                                'kartu_keluarga' => $dataUserResponse['kartu_keluarga'],
+                                'ijazah' => $dataUserResponse['ijazah'],
+                                'raport' => $dataUserResponse['raport'],
+                            ]);
+
+                            // Insert PendaftarAkademik
+                            PendaftarAkademik::create([
+                                'ppdb_id' => $ppdb->id,
+                                'sekolah_asal' => $dataUserResponse['sekolah_asal'],
+                                'tahun_lulus' => $dataUserResponse['tahun_lulus'],
+                                'jurusan_tujuan' => $dataUserResponse['jurusan_tujuan'],
+                            ]);
+
+                            $plainPassword = Str::random(12);
+
+                            $user = User::create([
+                                'name' => $dataUserResponse['nama_depan'] . ' ' . $dataUserResponse['nama_belakang'],
+                                'email' => $dataUserResponse['email'],
+                                'password' => Hash::make($plainPassword),
+                                'role' => 'Siswa',
+                            ]);
+
+                            // Send an email with the plain password
+                            $user->notify(new CredentialsEmailNotification($plainPassword));
+
+                            Log::info("Data user successfully inserted into Pendaftar for Order ID: $merchantOrderId");
+
+                            Log::info("Data user successfully inserted into Pendaftar for Order ID: $merchantOrderId");
                         }
                     } catch (\Exception $e) {
-                        Log::error("Error updating payment, Ppdb, or PembayaranPpdb record: " . $e->getMessage());
+                        Log::error('Error updating payment, Ppdb, or PembayaranPpdb record: ' . $e->getMessage());
                         return response()->json(['error' => 'Update Error', 'message' => $e->getMessage()], 500);
                     }
                 } else {

@@ -70,7 +70,7 @@ class Kernel extends HttpKernel
     ];
 
     protected $routeMiddleware = [
-        // 'checkrole' => \App\Http\Middleware\CheckRole::class,
+        'checkrole' => \App\Http\Middleware\CheckRole::class,
     ];
 
     protected $commands = [
