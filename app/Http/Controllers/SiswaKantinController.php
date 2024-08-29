@@ -48,7 +48,7 @@ class SiswaKantinController extends Controller
             return response()->json(['error' => 'Terjadi kesalahan saat mengambil data produk.'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
-    
+
 
     public function getProdukDetail($id)
     {
@@ -130,6 +130,8 @@ class SiswaKantinController extends Controller
             return response()->json(['error' => 'Terjadi kesalahan saat membuat data produk.'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
+
 
     public function getKantinRiwayat()
     {
