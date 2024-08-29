@@ -75,7 +75,7 @@ Route::group([
                 Route::get('/', [SiswaLaundryController::class, 'getLayanan']);
                 Route::get('/riwayat', [SiswaLaundryController::class, 'getLayananRiwayat']);
                 Route::post('/transaksi', [SiswaLaundryController::class, 'createLayananTransaksi']);
-                Route::get('/{layanan}', [SiswaLaundryController::class, 'getLayananDetail']);
+                Route::get('/{id}', [SiswaLaundryController::class, 'getLayananDetail']);
             });
         });
     });

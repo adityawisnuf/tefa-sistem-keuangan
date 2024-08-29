@@ -10,6 +10,7 @@ use App\Models\SiswaWalletRiwayat;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -17,8 +18,16 @@ class SiswaLaundryController extends Controller
 {
     public function getLayanan()
     {
-        $validator = Validator::make()
-        
+        $validator = Validator::make(request()->all(), [
+            'per_page' => ['nullable', 'integer', 'min:1'],
+            'tipe' => ['nullable', 'string', 'in:kiloan,satuan'],
+            'nama_layanan' => ['nullable', 'string']
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()], Response::HTTP_BAD_REQUEST);
+        }
+
         $perPage = request()->input('per_page', 10);
         $tipe = request('tipe', 'kiloan');
         $namaLayanan = request('nama_layanan');
@@ -31,12 +40,19 @@ class SiswaLaundryController extends Controller
                 ->latest()->paginate($perPage);
             return response()->json(['data' => $items], Response::HTTP_OK);
         } catch (Exception $e) {
+            Log::error('getLayanan: ' . $e->getMessage());
             return response()->json(['error' => 'Terjadi kesalahan saat mengambil data layanan.'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
-    public function getLayananDetail(LaundryLayanan $layanan)
+    public function getLayananDetail($id)
     {
-        return response()->json(['data' => $layanan], Response::HTTP_OK);
+        try {
+            $layanan = LaundryLayanan::findOrFail($id);
+            return response()->json(['data' => $layanan], Response::HTTP_OK);
+        } catch (Exception $e) {
+            Log::error('getLayananDetail: ' . $e->getMessage());
+            return response()->json(['error' => 'Terjadi kesalahan saat mengambil data layanan detail.'], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     public function getLayananRiwayat()
@@ -45,9 +61,25 @@ class SiswaLaundryController extends Controller
         $perPage = request('per_page', 10);
 
         try {
-            $riwayat = $siswa->laundry_transaksi()->paginate($perPage);
+            $riwayat = $siswa->laundry_transaksi()->with(['usaha', 'laundry_transaksi_detail.laundry_layanan'])->paginate($perPage);
+
+            $riwayat->getCollection()->transform(function ($riwayat) {
+                return [
+                    'id' => $riwayat->id,
+                    'nama_usaha' => $riwayat->usaha->nama_usaha,
+                    'jumlah_layanan' => count($riwayat->laundry_transaksi_detail),
+                    'harga_total' => array_reduce($riwayat->laundry_transaksi_detail->toArray(), function($scary, $item) {
+                        return $scary += $item['harga_total']; //horror sikit
+                    }),
+                    'status' => $riwayat->status,
+                    'tanggal_pemesanan' => $riwayat->tanggal_pemesanan,
+                    'tanggal_selesai' => $riwayat->tanggal_selesai,
+                ];
+            });
+
             return response()->json(['data' => $riwayat], Response::HTTP_OK);
         } catch (Exception $e) {
+            Log::error('getLayananRiwayat: ' . $e->getMessage());
             return response()->json(['error' => 'Terjadi kesalahan saat mengambil data riwayat transaksi.'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
