@@ -17,7 +17,13 @@ class KantinTransaksiDetail extends Model
         'jumlah',
         'harga',
     ];
-    
+
+    protected $appends = ['harga_total'];
+
+    public function getHargaTotalAttribute()
+    {
+        return $this->jumlah * $this->harga;
+    }
     public function kantin_transaksi()
     {
         return $this->belongsTo(KantinTransaksi::class, 'kantin_transaksi_id');

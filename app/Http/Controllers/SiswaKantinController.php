@@ -7,8 +7,10 @@ use App\Models\KantinProduk;
 use App\Models\KantinTransaksi;
 use App\Models\KantinTransaksiDetail;
 use App\Models\SiswaWalletRiwayat;
+use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Log;
 use Symfony\Component\HttpFoundation\Response;
 
 class SiswaKantinController extends Controller
@@ -18,7 +20,7 @@ class SiswaKantinController extends Controller
         $perPage = request('per_page', 10);
         $nama_produk = request('nama_produk');
         $nama_kategori = request('nama_kategori');
-    
+
         $produk = KantinProduk::where('status', 'aktif')
             ->when($nama_produk, function ($query) use ($nama_produk) {
                 $query->where('nama_produk', 'like', "%$nama_produk%");
@@ -27,10 +29,10 @@ class SiswaKantinController extends Controller
                 $query->whereRelation('kantin_produk_kategori', 'nama_kategori', 'like', "%$nama_kategori%");
             })
             ->paginate($perPage);
-    
+
         return response()->json(['data' => $produk], Response::HTTP_OK);
     }
-    
+
 
     public function getProdukDetail(KantinProduk $produk)
     {
@@ -101,12 +103,68 @@ class SiswaKantinController extends Controller
         return response()->json(['data' => $kantinTransaksi], Response::HTTP_CREATED);
     }
 
+
+
     public function getKantinRiwayat()
     {
-        $siswa = Auth::user()->siswa->firstOrFail();
-        $perPage = request()->input('per_page', 10);
+        $siswa = Auth::user()->siswa()->first();
+        $perPage = request('per_page', 10);
 
-        $riwayat = $siswa->kantin_transaksi()->with('kantin_transaksi_detail.kantin_produk')->latest()->paginate($perPage);
-        return response()->json(['data' => $riwayat], Response::HTTP_OK);
+        try {
+            $riwayat = $siswa->kantin_transaksi()
+            ->with(['usaha', 'kantin_transaksi_detail.kantin_produk'])
+            ->whereIn('status',['dibatalkan','selesai'])
+            ->paginate($perPage);
+
+            $riwayat->getCollection()->transform(function ($riwayat) {
+                return [
+                    'id' => $riwayat->id,
+                    'nama_usaha' => $riwayat->usaha->nama_usaha,
+                    'jumlah_layanan' => count($riwayat->kantin_transaksi_detail),
+                    'harga_total' => array_reduce($riwayat->kantin_transaksi_detail->toArray(), function($scary, $item) {
+                        return $scary += $item['harga_total']; //horror sikit
+                    }),
+                    'status' => $riwayat->status,
+                    'tanggal_pemesanan' => $riwayat->tanggal_pemesanan,
+                    'tanggal_selesai' => $riwayat->tanggal_selesai,
+                ];
+            });
+
+            return response()->json(['data' => $riwayat], Response::HTTP_OK);
+        } catch (Exception $e) {
+            Log::error('getLayananRiwayat: ' . $e->getMessage());
+            return response()->json(['error' => 'Terjadi kesalahan saat mengambil data riwayat transaksi.'], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+    public function getKantinTransaksi()
+    {
+        $siswa = Auth::user()->siswa()->first();
+        $perPage = request('per_page', 10);
+
+        try {
+            $riwayat = $siswa->kantin_transaksi()
+            ->with(['usaha', 'kantin_transaksi_detail.kantin_produk'])
+            ->whereIn('status',['pending','siap_diambil','proses'])
+            ->paginate($perPage);
+
+            $riwayat->getCollection()->transform(function ($riwayat) {
+                return [
+                    'id' => $riwayat->id,
+                    'nama_usaha' => $riwayat->usaha->nama_usaha,
+                    'jumlah_layanan' => count($riwayat->kantin_transaksi_detail),
+                    'harga_total' => array_reduce($riwayat->kantin_transaksi_detail->toArray(), function($scary, $item) {
+                        return $scary += $item['harga_total']; //horror sikit
+                    }),
+                    'status' => $riwayat->status,
+                    'tanggal_pemesanan' => $riwayat->tanggal_pemesanan,
+                    'tanggal_selesai' => $riwayat->tanggal_selesai,
+                ];
+            });
+
+            return response()->json(['data' => $riwayat], Response::HTTP_OK);
+        } catch (Exception $e) {
+            Log::error('getLayananRiwayat: ' . $e->getMessage());
+            return response()->json(['error' => 'Terjadi kesalahan saat mengambil data riwayat transaksi.'], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 }
