@@ -144,7 +144,7 @@ class SiswaKantinController extends Controller
         try {
             $riwayat = $siswa->kantin_transaksi()
             ->with(['usaha', 'kantin_transaksi_detail.kantin_produk'])
-            ->whereIn('status',['pending','siap_diambil','proses'])
+            ->whereIn('status',['pending','proses','siap_diambil'])
             ->paginate($perPage);
 
             $riwayat->getCollection()->transform(function ($riwayat) {
@@ -167,4 +167,5 @@ class SiswaKantinController extends Controller
             return response()->json(['error' => 'Terjadi kesalahan saat mengambil data riwayat transaksi.'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+   
 }

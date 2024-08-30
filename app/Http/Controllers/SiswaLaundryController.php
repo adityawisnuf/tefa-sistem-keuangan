@@ -57,6 +57,7 @@ class SiswaLaundryController extends Controller
 
     public function getLayananRiwayat()
     {
+       
         $siswa = Auth::user()->siswa()->first();
         $perPage = request('per_page', 10);
 
