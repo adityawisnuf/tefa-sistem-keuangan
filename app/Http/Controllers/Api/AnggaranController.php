@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\AnggaranResource;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Response;
 
 class AnggaranController extends Controller
 {
@@ -46,20 +47,19 @@ class AnggaranController extends Controller
             'pengapprove' => 'nullable|string|max:225',
             'pengapprove_jabatan' => 'nullable|string|max:225',
             'nominal_diapprove' => 'numeric|nullable',
-            'catatan' => 'nullable',
+            'catatan' => 'nullable|string',
         ]);
 
-        // Check if validation fails
         if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
 
         // Additional validation if status is 'Diapprove'
         if ($request->input('status') == 2) {
-            $validator->sometimes('pengapprove', 'nullable|string|max:225', function ($input) {
+            $validator->sometimes('pengapprove', 'required|string|max:225', function ($input) {
                 return !empty($input->pengapprove);
             });
-            $validator->sometimes('pengapprove_jabatan', 'nullable|string|max:225', function ($input) {
+            $validator->sometimes('pengapprove_jabatan', 'required|string|max:225', function ($input) {
                 return !empty($input->pengapprove_jabatan);
             });
         }
@@ -90,7 +90,7 @@ class AnggaranController extends Controller
             'pengapprove' => 'nullable|string|max:225',
             'pengapprove_jabatan' => 'nullable|string|max:225',
             'nominal_diapprove' => 'numeric',
-            'catatan' => 'nullable',
+            'catatan' => 'nullable|string',
         ]);
 
         if ($validator->fails()) {
@@ -98,10 +98,10 @@ class AnggaranController extends Controller
         }
 
         if ($request->input('status') == 2) {
-            $validator->sometimes('pengapprove', 'nullable|string|max:225', function ($input) {
+            $validator->sometimes('pengapprove', 'required|string|max:225', function ($input) {
                 return !empty($input->pengapprove);
             });
-            $validator->sometimes('pengapprove_jabatan', 'nullable|string|max:225', function ($input) {
+            $validator->sometimes('pengapprove_jabatan', 'required|string|max:225', function ($input) {
                 return !empty($input->pengapprove_jabatan);
             });
         }
@@ -124,80 +124,5 @@ class AnggaranController extends Controller
         }
         $anggaran->delete();
         return new AnggaranResource(true, 'Data Anggaran Berhasil Dihapus!', null);
-    }
-
-    public function getAnggaranData()
-    {
-        // Ambil data anggaran dengan status 'Diajukan' dan 'Diapprove'
-        $diajukan = Anggaran::where('status', 1)->sum('nominal');
-        $diapprove = Anggaran::where('status', 2)->sum('nominal');
-
-        // Hitung total nominal untuk normalisasi
-        $total = $diajukan + $diapprove;
-
-        // Menyusun data untuk grafik
-        $data = [
-            'series' => [
-                $diajukan / $total * 100, // Persentase dari 'Diajukan'
-                $diapprove / $total * 100 // Persentase dari 'Diapprove'
-            ],
-            'labels' => ['Diajukan', 'Diapprove'] // Label untuk grafik
-        ];
-
-        return response()->json($data);
-    }
-
-    public function getAnggaranCount()
-    {
-        $keseluruhan = Anggaran::whereNot('status', 3)->count();
-        $terealisasi = Anggaran::where('status', 3)->count();
-
-        $jumlahTerapproveTahunIni = Anggaran::whereYear('created_at', now()->year)->where('status', 3)->count();
-        $jumlahTerapproveBulanIni = Anggaran::whereYear('created_at', now()->year)
-            ->whereMonth('created_at', now()->month)
-            ->where('status', 3)
-            ->count();
-
-        // Sum and count for each month of the current year
-        $jumlahtahunini = Anggaran::selectRaw('MONTH(created_at) as month, COUNT(*) as count, SUM(nominal) as sum')
-            ->whereYear('created_at', now()->year)
-            ->where('status', 3)
-            ->groupBy('month')
-            ->orderBy('month')
-            ->get()
-            ->mapWithKeys(function ($item) {
-                return [
-                    strtolower(now()->startOfYear()->addMonths($item->month - 1)->format('M')) => [
-                        'count' => $item->count,
-                        'sum of nominal' => $item->sum
-                    ]
-                ];
-            });
-
-        // Sum and count for each week of the current month
-        $jumlahbulanini = Anggaran::selectRaw('WEEK(created_at, 1) as week, COUNT(*) as count, SUM(nominal) as sum')
-            ->whereYear('created_at', now()->year)
-            ->whereMonth('created_at', now()->month)
-            ->where('status', 3)
-            ->groupBy('week')
-            ->orderBy('week')
-            ->get()
-            ->mapWithKeys(function ($item) {
-                return [
-                    'minggu' . $item->week => [
-                        'count' => $item->count,
-                        'sum of nominal' => $item->sum
-                    ]
-                ];
-            });
-
-        return new AnggaranResource(true, 'Jumlah anggaran berhasil didapatkan!', [
-            'keseluruhan' => $keseluruhan,
-            'terealisasi' => $terealisasi,
-            'jumlahTerapproveTahunIni' => $jumlahTerapproveTahunIni,
-            'jumlahTerapproveBulanIni' => $jumlahTerapproveBulanIni,
-            'jumlahtahunini' => $jumlahtahunini,
-            'jumlahbulanini' => $jumlahbulanini,
-        ]);
     }
 }

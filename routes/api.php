@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AnggaranController;
+use App\Http\Controllers\Api\MonitoringController;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RegisterController;
@@ -8,27 +9,31 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\LogoutController;
 use App\Models\Anggaran;
 
-// ROLE: Admin, Kepala Sekolah, Bendahara
-
+// Register and Login Routes
 Route::post('register', [RegisterController::class, 'register']);
 Route::post('login', [LoginController::class, 'login']);
 
 Route::group([
     'middleware' => ['auth:api'],
 ], function () {
+
     Route::post('logout', [LogoutController::class, 'logout']);
 
     // Role: Admin
     Route::group([
         'middleware' => ['checkrole:Admin'],
-        'prefix' => "Admin"
+        'prefix' => 'Admin'
     ], function () {
+        // CRUD Routes
         Route::post('/anggaran', [AnggaranController::class, 'store']);
         Route::get('/anggaran', [AnggaranController::class, 'index']);
-        Route::patch('/anggaran/{anggaran}/', [AnggaranController::class, 'update']);
+        Route::patch('/anggaran/{anggaran}', [AnggaranController::class, 'update']);
         Route::delete('/anggaran/{anggaran}', [AnggaranController::class, 'destroy']);
-        Route::get('/anggaran-data', [AnggaranController::class, 'getAnggaranData']);
 
+        // Monitoring Routes
+        Route::get('/monitoring/get', [MonitoringController::class, 'getMonitoringData']);
+
+        // Laporan Anggaran
         Route::get('/laporan/anggaran', function () {
             $tgl_awal = request('tgl_awal');
             $tgl_akhir = request('tgl_akhir');
@@ -46,7 +51,6 @@ Route::group([
 
             return $pdf->stream($fileName);
         })->name('laporan.anggaran');
-        Route::get('monitoring/get', [AnggaranController::class, 'getAnggaranCount']);
     });
 
     // Role: Bendahara
@@ -54,10 +58,15 @@ Route::group([
         'middleware' => ['checkrole:Bendahara'],
         'prefix' => 'Bendahara'
     ], function () {
+        // CRUD Routes
         Route::post('/anggaran', [AnggaranController::class, 'store']);
         Route::get('/anggaran', [AnggaranController::class, 'index']);
-        Route::patch('/anggaran/{anggaran}/', [AnggaranController::class, 'update']);
+        Route::patch('/anggaran/{anggaran}', [AnggaranController::class, 'update']);
 
+        // Monitoring Routes
+        Route::get('/monitoring/get', [MonitoringController::class, 'getMonitoringData']);
+
+        // Laporan Anggaran
         Route::get('/laporan/anggaran', function () {
             $tgl_awal = request('tgl_awal');
             $tgl_akhir = request('tgl_akhir');
@@ -82,10 +91,15 @@ Route::group([
         'middleware' => ['checkrole:Kepala Sekolah'],
         'prefix' => 'Kepala Sekolah'
     ], function () {
+        // Read Routes
         Route::get('/anggaran', [AnggaranController::class, 'index']);
-        Route::patch('/anggaran/{anggaran}/', [AnggaranController::class, 'update']);
-        Route::get('/anggaran/chart-data', [AnggaranController::class, 'getChartData']);
+        Route::patch('/anggaran/{anggaran}', [AnggaranController::class, 'update']);
+        Route::get('/anggaran/chart-data', [AnggaranController::class, 'getAnggaranData']);
 
+        // Monitoring Routes
+        Route::get('/monitoring/get', [MonitoringController::class, 'getMonitoringData']);
+
+        // Laporan Anggaran
         Route::get('/laporan/anggaran', function () {
             $tgl_awal = request('tgl_awal');
             $tgl_akhir = request('tgl_akhir');
