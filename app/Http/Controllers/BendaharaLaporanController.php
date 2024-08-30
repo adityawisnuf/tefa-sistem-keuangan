@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\KantinTransaksi;
 use App\Models\LaundryTransaksi;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -29,10 +30,10 @@ class BendaharaLaporanController extends Controller
         $endDate = request('tanggal_akhir');
         $nama_usaha = request('nama_usaha');
         $role = request('role', 'Kantin');
-
-        $model = $role == 'Kantin' ? new KantinTransaksi : new LaundryTransaksi;
-
+        
         try {
+            $model = $role == 'Kantin' ? new KantinTransaksi : new LaundryTransaksi;
+
             $transaksi = $model->with([
                 $role == 'Kantin'
                 ? 'kantin_transaksi_detail.kantin_produk:id,nama_produk,foto_produk,deskripsi'
@@ -73,6 +74,7 @@ class BendaharaLaporanController extends Controller
 
             return response()->json(['data' => $transaksi], Response::HTTP_OK);
         } catch (\Exception $e) {
+            Log::error('getUsahaTransaksi: ' . $e->getMessage());
             return response()->json(['error' => 'Terjadi kesalahan saat mengambil data transaksi.'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }

@@ -5,7 +5,10 @@ namespace App\Http\Controllers;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Number;
+use Exception;
 use Symfony\Component\HttpFoundation\Response;
 
 class SiswaWalletController extends Controller
@@ -22,42 +25,62 @@ class SiswaWalletController extends Controller
     public function getSaldo()
     {
         $siswaWallet = Auth::user()->siswa->first()->siswa_wallet;
-        $pemasukan = $siswaWallet->siswa_wallet_riwayat()->whereBetween('tanggal_riwayat', [$this->startOfMonth, $this->endOfMonth])->where('tipe_transaksi', 'pemasukan')->sum('nominal');
-        $pengeluaran = $siswaWallet->siswa_wallet_riwayat()->whereBetween('tanggal_riwayat', [$this->startOfMonth, $this->endOfMonth])->where('tipe_transaksi', 'pengeluaran')->sum('nominal');
+        try {
+            $pemasukan = $siswaWallet->siswa_wallet_riwayat()->whereBetween('tanggal_riwayat', [$this->startOfMonth, $this->endOfMonth])->where('tipe_transaksi', 'pemasukan')->sum('nominal');
+            $pengeluaran = $siswaWallet->siswa_wallet_riwayat()->whereBetween('tanggal_riwayat', [$this->startOfMonth, $this->endOfMonth])->where('tipe_transaksi', 'pengeluaran')->sum('nominal');
 
-        return response()->json([
-            'data' => [
-                'saldo_siswa' => 'Rp' . Number::format($siswaWallet->nominal, 0, 0, 'id-ID'),
-                'total_pemasukan' => 'Rp' . Number::format($pemasukan, 0, 0, 'id-ID'),
-                'total_pengeluaran' => 'Rp' . Number::format($pengeluaran, 0, 0, 'id-ID'),
-            ]
-        ], Response::HTTP_OK);
+            return response()->json([
+                'data' => [
+                    'saldo_siswa' => 'Rp' . Number::format($siswaWallet->nominal, 0, 0, 'id-ID'),
+                    'total_pemasukan' => 'Rp' . Number::format($pemasukan, 0, 0, 'id-ID'),
+                    'total_pengeluaran' => 'Rp' . Number::format($pengeluaran, 0, 0, 'id-ID'),
+                ]
+            ], Response::HTTP_OK);
+        } catch (Exception $e) {
+            Log::error('getSaldo: ' . $e->getMessage());
+            return response()->json(['error' => 'Terjadi kesalahan saat mengambil data walet.'], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
 
 
     public function getRiwayat()
     {
-        $siswaWallet = Auth::user()->siswa->first()->siswa_wallet;
-        $perPage = request()->input('per_page', 10);
-        $bulan = request()->input('bulan', Carbon::now()->month);
-        $tahun = request()->input('tahun', Carbon::now()->year);
-        $tipeTransaksi = request()->input('tipe_transaksi');
+        $validator = Validator::make(request()->all(), [
+            'per_page' => ['nullable', 'integer', 'min:1'],
+            'tanggal_awal' => ['nullable', 'date'],
+            'tanggal_akhir' => ['nullable', 'date', 'after_or_equal:tanggal_awal'],
+            'tipe_transaksi' => ['nullable', 'string', '']
+        ]);
 
-        $startOfMonth = Carbon::create($tahun, $bulan, 1)->startOfMonth();
-        $endOfMonth = Carbon::create($tahun, $bulan, 1)->endOfMonth();
-
-        $query = $siswaWallet->siswa_wallet_riwayat()
-                    ->whereBetween('tanggal_riwayat', [$startOfMonth, $endOfMonth])
-                    ->latest();
-
-        if ($tipeTransaksi) {
-            $query->where('tipe_transaksi', $tipeTransaksi);
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()], Response::HTTP_BAD_REQUEST);
         }
 
-        $siswaWalletRiwayat = $query->paginate($perPage);
+        $siswaWallet = Auth::user()->siswa->first()->siswa_wallet;
+        $perPage = request()->input('per_page', 10);
+        $startDate = request('tanggal_awal');
+        $endDate = request('tanggal_akhir');
+        $tipeTransaksi = request()->input('tipe_transaksi');
 
-        return response()->json(['data' => $siswaWalletRiwayat], Response::HTTP_OK);
+        try {
+            $startOfMonth = Carbon::create($endDate, $startDate, 1)->startOfMonth();
+            $endOfMonth = Carbon::create($endDate, $startDate, 1)->endOfMonth();
+
+            $query = $siswaWallet->siswa_wallet_riwayat()
+                ->whereBetween('tanggal_riwayat', [$startOfMonth, $endOfMonth])
+                ->latest();
+
+            if ($tipeTransaksi) {
+                $query->where('tipe_transaksi', $tipeTransaksi);
+            }
+
+            $siswaWalletRiwayat = $query->paginate($perPage);
+
+            return response()->json(['data' => $siswaWalletRiwayat], Response::HTTP_OK);
+        } catch (Exception $e) {
+            Log::error('getRiwayat: ' . $e->getMessage());
+            return response()->json(['error' => 'Terjadi kesalahan saat mengambil data walet riwayat.'], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
-
 }
