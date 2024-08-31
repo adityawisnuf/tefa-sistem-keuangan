@@ -10,9 +10,7 @@ use App\Http\Controllers\PengeluaranController;
 use App\Http\Controllers\SekolahController;
 use App\Http\Controllers\SiswaController;
 use App\Http\Controllers\KelasController;
-use App\Http\Controllers\PengumumanAdminController;
-use App\Http\Controllers\PengumumanKepalaSekolahController;
-use App\Http\Controllers\PengumumanOrangTuaController;
+use App\Http\Controllers\PengumumanController;
 
 // ROLE : Admin; KepalaSekolah; Bendahara; OrangTua; Siswa; Kantin; Laundry;
 
@@ -69,27 +67,27 @@ Route::delete('siswa/{id}', [SiswaController::class, 'destroy']);
 
 // pengumuman
 Route::middleware(['checkrole:KepalaSekolah'])->group(function () {
-    Route::get('/pengumuman', [PengumumanKepalaSekolahController::class, 'allApprovedAnnouncements']);
-    Route::get('/pengumuman/submitted', [PengumumanKepalaSekolahController::class, 'allSubmittedAnnouncements']);
-    Route::post('/pengumuman', [PengumumanKepalaSekolahController::class, 'store']);
-    Route::get('/pengumuman/{id}', [PengumumanKepalaSekolahController::class, 'show']);
-    Route::put('/pengumuman/{id}', [PengumumanKepalaSekolahController::class, 'update']);
-    Route::delete('/pengumuman/{id}', [PengumumanKepalaSekolahController::class, 'destroy']);
-    Route::put('/pengumuman/{id}/approve', [PengumumanKepalaSekolahController::class, 'approve']);
-    Route::put('/pengumuman/{id}/reject', [PengumumanKepalaSekolahController::class, 'reject']);
+    Route::get('/pengumuman', [PengumumanController::class, 'allApprovedAnnouncements']);
+    Route::get('/pengumuman/submitted', [PengumumanController::class, 'allSubmittedAnnouncements']);
+    Route::post('/pengumuman', [PengumumanController::class, 'store']);
+    Route::get('/pengumuman/{id}', [PengumumanController::class, 'show']);
+    Route::put('/pengumuman/{id}', [PengumumanController::class, 'update']);
+    Route::delete('/pengumuman/{id}', [PengumumanController::class, 'destroy']);
+    Route::put('/pengumuman/{id}/approve', [PengumumanController::class, 'approve']);
+    Route::put('/pengumuman/{id}/reject', [PengumumanController::class, 'reject']);
 });
 
 Route::middleware(['checkrole:Admin,Bendahara'])->group(function () {
-    Route::get('/pengumuman', [PengumumanAdminController::class, 'approvedAnnouncements']);
-    Route::get('/pengumuman/submitted', [PengumumanAdminController::class, 'submittedAnnouncements']);
-    Route::get('/pengumuman/rejected', [PengumumanAdminController::class, 'rejectedAnnouncements']);
-    Route::post('/pengumuman', [PengumumanAdminController::class, 'store']);
-    Route::get('/pengumuman/{id}', [PengumumanAdminController::class, 'show']);
-    Route::put('/pengumuman/{id}', [PengumumanAdminController::class, 'update']);
-    Route::delete('/pengumuman/{id}', [PengumumanAdminController::class, 'destroy']);
+    Route::get('/pengumuman', [PengumumanController::class, 'approvedAnnouncements']);
+    Route::get('/pengumuman/submitted', [PengumumanController::class, 'submittedAnnouncements']);
+    Route::get('/pengumuman/rejected', [PengumumanController::class, 'rejectedAnnouncements']);
+    Route::post('/pengumuman', [PengumumanController::class, 'store']);
+    Route::get('/pengumuman/{id}', [PengumumanController::class, 'show']);
+    Route::put('/pengumuman/{id}', [PengumumanController::class, 'update']);
+    Route::delete('/pengumuman/{id}', [PengumumanController::class, 'destroy']);
 });
 
 Route::middleware(['checkrole:OrangTua,Siswa'])->group(function () {
-    Route::get('/pengumuman', [PengumumanOrangTuaController::class, 'allApprovedAnnouncements']);
-    Route::get('/pengumuman/{id}', [PengumumanOrangTuaController::class, 'show']);
+    Route::get('/pengumuman', [PengumumanController::class, 'allApprovedAnnouncements']);
+    Route::get('/pengumuman/{id}', [PengumumanController::class, 'show']);
 });

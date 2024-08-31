@@ -8,14 +8,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
-class PengumumanAdminController extends Controller
+class PengumumanController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('checkrole:Admin,Bendahara');
-    }
-
-    public function approvedAnnouncements(): JsonResponse
+    // semua pengumuman yang disetujui
+    public function allApprovedAnnouncements(): JsonResponse
     {
         $pengumuman = Pengumuman::where('status', 2)->get();
 
@@ -26,6 +22,31 @@ class PengumumanAdminController extends Controller
         ], 200);
     }
 
+    // semua pengumuman yang diajukan
+    public function allSubmittedAnnouncements(): JsonResponse
+    {
+        $pengumuman = Pengumuman::where('status', 1)->get();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'pengumuman yang diajukan berhasil ditampilkan',
+            'pengumuman' => $pengumuman
+        ], 200);
+    }
+
+    // pengumuman user (saat ini) yang disetujui
+    public function approvedAnnouncements(): JsonResponse
+    {
+        $pengumuman = Pengumuman::where('user_id', Auth::user()->id)->where('status', 2)->get();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'pengumuman berhasil ditampilkan',
+            'pengumuman' => $pengumuman
+        ], 200);
+    }
+
+    // pengumuman user (saat ini) yang diajukan
     public function submittedAnnouncements(): JsonResponse
     {
         $pengumuman = Pengumuman::where('user_id', Auth::user()->id)->where('status', 1)->get();
@@ -37,6 +58,7 @@ class PengumumanAdminController extends Controller
         ], 200);
     }
 
+    // pengumuman user (saat ini) yang ditolak
     public function rejectedAnnouncements(): JsonResponse
     {
         $pengumuman = Pengumuman::where('user_id', Auth::user()->id)->where('status', 3)->get();
@@ -48,6 +70,7 @@ class PengumumanAdminController extends Controller
         ]);
     }
 
+    // membuat pengumuman
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -77,6 +100,7 @@ class PengumumanAdminController extends Controller
         ], 200);
     }
 
+    // melihat detail pengumuman
     public function show(string $id): JsonResponse
     {
         $pengumuman = Pengumuman::find($id);
@@ -95,6 +119,7 @@ class PengumumanAdminController extends Controller
         ], 200);
     }
 
+    // update pengumuman
     public function update(Request $request, string $id): JsonResponse
     {
         $pengumuman = Pengumuman::find($id);
@@ -138,6 +163,7 @@ class PengumumanAdminController extends Controller
         ], 200);
     }
 
+    // menghapus pengumuman
     public function destroy(string $id): JsonResponse
     {
         $pengumuman = Pengumuman::find($id);
@@ -162,5 +188,62 @@ class PengumumanAdminController extends Controller
             'success' => true,
             'message' => 'pengumuman berhasil dihapus'
         ], 200);
+    }
+
+    // menyetujui pengumuman
+    public function approve(string $id): JsonResponse
+    {
+        $pengumuman = Pengumuman::find($id);
+
+        if (!$pengumuman) {
+            return response()->json([
+                'success' => false,
+                'message' => 'pengumuman gagal ditemukan'
+            ], 404);
+        }
+
+        $pengumuman->update([
+            'status' => 2
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'pengumuman berhasil disetujui'
+        ]);
+    }
+
+    // menolak pengumuman
+    public function reject(Request $request, string $id): JsonResponse
+    {
+        $pengumuman = Pengumuman::find($id);
+
+        if (!$pengumuman) {
+            return response()->json([
+                'success' => false,
+                'message' => 'pengumuman gagal ditemukan'
+            ], 404);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'pesan_ditolak' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'masukkan alasan pengumuman ditolak',
+                'error' => $validator->errors()
+            ], 422);
+        }
+
+        $pengumuman->update([
+            'status' => 3,
+            'pesan_ditolak' => $request->pesan_ditolak
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'pengumuman berhasil ditolak'
+        ]);
     }
 }
