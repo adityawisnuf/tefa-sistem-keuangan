@@ -28,7 +28,7 @@ class KantinTransaksiController extends Controller
     {
         $validator = Validator::make(request()->all(), [
             'usaha' => ['nullable', 'integer', 'min:1'],
-            'status' => ['nullable', 'string', 'in:aktif,tidak_aktif'],
+            'status' => ['nullable', 'string', 'in:aktif,selesai'],
             'per_page' => ['nullable', 'integer', 'min:1']
         ]);
 
@@ -75,8 +75,8 @@ class KantinTransaksiController extends Controller
 
     public function confirm(KantinTransaksiRequest $request, $id)
     {
-        $transaksi = KantinTransaksi::findOrFail($id);
         $fields = $request->validated();
+        $transaksi = KantinTransaksi::findOrFail($id);
 
         $siswaWallet = $transaksi->siswa->siswa_wallet;
         $usaha = $transaksi->usaha;

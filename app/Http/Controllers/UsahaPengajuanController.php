@@ -20,7 +20,7 @@ class UsahaPengajuanController extends Controller
             'tanggal_awal' => ['nullable', 'date'],
             'tanggal_akhir' => ['nullable', 'date', 'after_or_equal:tanggal_awal'],
             'per_page' => ['nullable', 'integer', 'min:1'],
-            'status' => ['nullable', 'string', 'in:pending,disetujui,ditolak'],
+            'status' => ['nullable', 'string', 'in:aktif,selesai'],
         ]);
 
         if ($validator->fails()) {
@@ -33,7 +33,7 @@ class UsahaPengajuanController extends Controller
         $startDate = request('tanggal_awal');
         $endDate = request('tanggal_akhir');
         $perPage = request()->input('per_page', 10);
-        $status = request('status', 'all');
+        $status = request('status', 'aktif');
 
         try {
             $pengajuan = $usaha->usaha_pengajuan()

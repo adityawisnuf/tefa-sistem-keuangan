@@ -11,13 +11,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class KepsekLaporanController extends Controller
 {
-    public function getUsahaTransaksi()
+    public function getKantinTransaksi()
     {
         $validator = Validator::make(request()->all(), [
             'tanggal_awal' => ['nullable', 'date'],
             'tanggal_akhir' => ['nullable', 'date', 'after_or_equal:tanggal_awal'],
             'per_page' => ['nullable', 'integer', 'min:1'],
-            'role' => ['nullable', 'in:Kantin,Laundry'],
             'nama_usaha' => ['nullable', 'string'],
         ]);
 
@@ -28,16 +27,11 @@ class KepsekLaporanController extends Controller
         $startDate = request('tanggal_awal');
         $endDate = request('tanggal_akhir');
         $nama_usaha = request('nama_usaha');
-        $role = request('role', 'Kantin');
         $perPage = request('per_page', 10);
 
-        $model = $role == 'Kantin' ? new KantinTransaksi : new LaundryTransaksi;
-
         try {
-            $transaksi = $model->with([
-                $role == 'Kantin'
-                ? 'kantin_transaksi_detail.kantin_produk:id,nama_produk,foto_produk,deskripsi'
-                : 'laundry_transaksi_detail.laundry_layanan:id,nama_layanan,foto_layanan,deskripsi',
+            $transaksi = KantinTransaksi::with([
+                'kantin_transaksi_detail.kantin_produk:id,nama_produk,foto_produk,deskripsi',
                 'usaha:id,nama_usaha',
                 'siswa:id,nama_depan,nama_belakang'
             ])
@@ -58,7 +52,7 @@ class KepsekLaporanController extends Controller
                 })
                 ->paginate($perPage);
 
-            $transaksi->getCollection()->transform(function ($transaksi) use ($role) {
+            $transaksi->getCollection()->transform(function ($transaksi) {
                 return [
                     'id' => $transaksi->id,
                     'nama_siswa' => "{$transaksi->siswa->nama_depan} {$transaksi->siswa->nama_belakang}",
@@ -66,51 +60,129 @@ class KepsekLaporanController extends Controller
                     'status' => $transaksi->status,
                     'tanggal_pemesanan' => $transaksi->tanggal_pemesanan,
                     'tanggal_selesai' => $transaksi->tanggal_selesai,
-                    'transaksi_detail' => $role == 'Kantin'
-                        ? $transaksi->kantin_transaksi_detail
-                        : $transaksi->laundry_transaksi_detail
+                    'kantin_transaksi_detail' => $transaksi->kantin_transaksi_detail
                 ];
             });
 
             return response()->json(['data' => $transaksi], Response::HTTP_OK);
         } catch (\Exception $e) {
-            Log::error('getUsahaTransaksi: '. $e->getMessage());
+            Log::error('getUsahaTransaksi: ' . $e->getMessage());
             return response()->json(['error' => 'Terjadi kesalahan saat mengambil data transaksi.'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
-    public function getDetailUsahaTransaksi($id)
+    public function getLaundryTransaksi()
     {
         $validator = Validator::make(request()->all(), [
             'tanggal_awal' => ['nullable', 'date'],
             'tanggal_akhir' => ['nullable', 'date', 'after_or_equal:tanggal_awal'],
             'per_page' => ['nullable', 'integer', 'min:1'],
-            'role' => ['nullable', 'in:Kantin,Laundry'],
             'nama_usaha' => ['nullable', 'string'],
         ]);
 
         if ($validator->fails()) {
             return response()->json(['error' => $validator->errors()], Response::HTTP_BAD_REQUEST);
         }
-        $role = request('role', 'Kantin');
+
+        $startDate = request('tanggal_awal');
+        $endDate = request('tanggal_akhir');
+        $nama_usaha = request('nama_usaha');
         $perPage = request('per_page', 10);
 
-
         try {
-            $transaksi = $role == 'Kantin'
-                ? KantinTransaksi::find($id)
-                    ->kantin_transaksi_detail()
-                    ->with(['kantin_produk', 'siswa'])
-                    ->paginate($perPage)
-                : LaundryTransaksi::find($id)
-                    ->laundry_transaksi_detail()
-                    ->with(['laundry_layanan', 'siswa'])
-                    ->paginate($perPage);
+            $transaksi = LaundryTransaksi::with([
+                'laundry_transaksi_detail.laundry_layanan:id,nama_layanan,foto_layanan,deskripsi',
+                'usaha:id,nama_usaha',
+                'siswa:id,nama_depan,nama_belakang'
+            ])
+                ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
+                    $query->whereBetween('tanggal_selesai', [
+                        Carbon::parse($startDate)->startOfDay(),
+                        Carbon::parse($endDate)->endOfDay()
+                    ]);
+                }, function ($query) {
+                    $query->whereBetween('tanggal_selesai', [
+                        Carbon::now()->startOfMonth(),
+                        Carbon::now()->endOfMonth()
+                    ]);
+                })
+                ->whereIn('status', ['selesai', 'dibatalkan'])
+                ->when($nama_usaha, function ($query) use ($nama_usaha) {
+                    $query->whereRelation('usaha', 'nama_usaha', 'like', "%$nama_usaha%");
+                })
+                ->paginate($perPage);
+
+            $transaksi->getCollection()->transform(function ($transaksi) {
+                return [
+                    'id' => $transaksi->id,
+                    'nama_siswa' => "{$transaksi->siswa->nama_depan} {$transaksi->siswa->nama_belakang}",
+                    'nama_usaha' => $transaksi->usaha->nama_usaha,
+                    'status' => $transaksi->status,
+                    'tanggal_pemesanan' => $transaksi->tanggal_pemesanan,
+                    'tanggal_selesai' => $transaksi->tanggal_selesai,
+                    'laundry_transaksi_detail' => $transaksi->laundry_transaksi_detail
+                ];
+            });
 
             return response()->json(['data' => $transaksi], Response::HTTP_OK);
         } catch (\Exception $e) {
+            Log::error('getUsahaTransaksi: ' . $e->getMessage());
+            return response()->json(['error' => 'Terjadi kesalahan saat mengambil data transaksi.'], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public function getDetailKantinTransaksi($id)
+    {
+        $validator = Validator::make(request()->all(), [
+            'tanggal_awal' => ['nullable', 'date'],
+            'tanggal_akhir' => ['nullable', 'date', 'after_or_equal:tanggal_awal'],
+            'per_page' => ['nullable', 'integer', 'min:1'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()], Response::HTTP_BAD_REQUEST);
+        }
+
+        $perPage = request('per_page', 10);
+
+        try {
+            $transaksi =KantinTransaksi::find($id)
+                    ->kantin_transaksi_detail()
+                    ->with(['kantin_produk'])
+                    ->paginate($perPage);
+
+
+            return response()->json(['data' => [$transaksi]], Response::HTTP_OK);
+        } catch (\Exception $e) {
             Log::error('getDetailUsahaTransaksi: ' . $e->getMessage());
-            return response()->json(['error' => 'Terjadi kesalahan saat mengambil data transaksi.' . $e], Response::HTTP_INTERNAL_SERVER_ERROR);
+            return response()->json(['error' => 'Terjadi kesalahan saat mengambil data transaksi.' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+    public function getDetailLaundryTransaksi($id)
+    {
+        $validator = Validator::make(request()->all(), [
+            'tanggal_awal' => ['nullable', 'date'],
+            'tanggal_akhir' => ['nullable', 'date', 'after_or_equal:tanggal_awal'],
+            'per_page' => ['nullable', 'integer', 'min:1'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()], Response::HTTP_BAD_REQUEST);
+        }
+
+        $perPage = request('per_page', 10);
+
+        try {
+            $transaksi =LaundryTransaksi::find($id)
+                    ->laundry_transaksi_detail()
+                    ->with(['laundry_layanan'])
+                    ->paginate($perPage);
+
+
+            return response()->json(['data' => [$transaksi]], Response::HTTP_OK);
+        } catch (\Exception $e) {
+            Log::error('getDetailLaundryTransaksi: ' . $e->getMessage());
+            return response()->json(['error' => 'Terjadi kesalahan saat mengambil data transaksi.' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 }

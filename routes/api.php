@@ -64,7 +64,6 @@ Route::group([
         Route::group(['prefix' => 'kantin'], function () {
             Route::group(['prefix' => 'produk'], function () {
                 Route::get('/', [SiswaKantinController::class, 'getProduk']);
-                Route::get('/riwayat', [SiswaKantinController::class, 'getKantinRiwayat']);
                 Route::get('/transaksi', [SiswaKantinController::class, 'getKantinTransaksi']);
                 Route::post('/transaksi/create', [SiswaKantinController::class, 'createProdukTransaksi']);
                 Route::get('/{produk}', [SiswaKantinController::class, 'getProdukDetail']);
@@ -108,9 +107,9 @@ Route::group([
         Route::group(['prefix' => 'transaksi'], function () {
             Route::get('/', [KantinTransaksiController::class, 'index']);
             Route::post('/{id}', [KantinTransaksiController::class, 'update']);
-            Route::put('/{id}/konfrmasi', [KantinTransaksiController::class, 'confirm']);
+            Route::put('/{id}/konfirmasi', [KantinTransaksiController::class, 'confirm']);
         });
-
+        
         //pengajuan
         Route::group(['prefix' => 'pengajuan'], function () {
             Route::post('/create', [UsahaPengajuanController::class, 'create']);
@@ -134,7 +133,7 @@ Route::group([
             Route::get('/', [LaundryTransaksiController::class, 'getTransaction']);
             Route::get('/{id}', [LaundryTransaksiController::class, 'getDetailUsahaTransaksi']);
             Route::post('/{id}', [LaundryTransaksiController::class, 'update']);
-            Route::put('/{id}/konfirmasi', [LaundryTransaksiController::class, 'confirmInitialTransaction']);
+            Route::put('/{id}/konfirmasi', [LaundryTransaksiController::class, 'confirm']);
         });
 
         Route::group(['prefix' => 'pengajuan'], function () {
@@ -156,8 +155,12 @@ Route::group([
         'prefix' => 'kepsek',
         'middleware' => 'checkrole:KepalaSekolah'
     ], function () {
-        Route::get('/laporan', [KepsekLaporanController::class, 'getUsahaTransaksi']);
-        Route::get('/laporan/{id}', [KepsekLaporanController::class, 'getDetailUsahaTransaksi']);
+        Route::get('/kantin/laporan', [KepsekLaporanController::class, 'getKantinTransaksi']);
+        Route::get('/kantin/laporan/{id}', [KepsekLaporanController::class, 'getDetailKantinTransaksi']);
+
+        Route::get('/laundry/laporan', [KepsekLaporanController::class, 'getLaundryTransaksi']);
+        Route::get('/laundry/laporan/{id}', [KepsekLaporanController::class, 'getDetailLaundryTransaksi']);
+
         Route::get('/pengajuan', [KepsekPengajuanController::class, 'getUsahaPengajuan']);
     });
 });

@@ -86,7 +86,7 @@ class OrangTuaController extends Controller
     {
         $validator = Validator::make(request()->all(), [
             'per_page' => ['nullable', 'integer', 'min:1'],
-            'role' => ['nullabe', 'string', 'in:Kantin,Laundry']
+            'role' => ['nullable', 'string', 'in:Kantin,Laundry']
         ]);
 
         if ($validator->fails()) {

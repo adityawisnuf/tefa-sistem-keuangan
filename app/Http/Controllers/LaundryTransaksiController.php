@@ -98,7 +98,7 @@ class LaundryTransaksiController extends Controller
         }
     }
 
-    public function confirmInitialTransaction(LaundryTransaksiRequest $request, $id)
+    public function confirm(LaundryTransaksiRequest $request, $id)
     {
         $fields = $request->validated();
         $transaksi = LaundryTransaksi::findOrFail($id);
@@ -109,23 +109,18 @@ class LaundryTransaksiController extends Controller
         DB::beginTransaction();
         try {
 
-            $this->statusService->confirmInitialTransaction($fields, $transaksi);
+            $this->statusService->confirmInitialTransaction($fields['confirm'], $transaksi);
+
             if ($transaksi->status === 'dibatalkan') {
-                $harga_total = $transaksi->laundry_transaksi_detail->sum(function ($detail) {
+                $harga_total = $transaksi->laundry_transaksi_detail->sum(function ($det ail) {
                     return $detail->harga * $detail->jumlah;
                 });
 
-                $transaksi->update([
-                    'tanggal_selesai' => now()
-                ]);
+                $transaksi->update(['tanggal_selesai' => now()]);
 
-                $usaha->update([
-                    'saldo' => $usaha->saldo - $harga_total
-                ]);
+                $usaha->update(['saldo' => $usaha->saldo - $harga_total]);
 
-                $siswaWallet->update([
-                    'nominal' => $siswaWallet->nominal + $harga_total
-                ]);
+                $siswaWallet->update(['nominal' => $siswaWallet->nominal + $harga_total]);
 
                 SiswaWalletRiwayat::create([
                     'siswa_wallet_id' => $siswaWallet->id,

@@ -133,10 +133,11 @@ class SiswaKantinController extends Controller
 
 
 
-    public function getKantinRiwayat()
+    public function getKantinTransaksi()
     {
         $validator = Validator::make(request()->all(), [
             'per_page' => ['nullable', 'integer', 'min:1'],
+            'status' => ['nullable', 'string', 'in:aktif,selesai']
         ]);
 
         if ($validator->fails()) {
@@ -145,11 +146,17 @@ class SiswaKantinController extends Controller
         
         $siswa = Auth::user()->siswa->firstOrFail();
         $perPage = request()->input('per_page', 10);
+        $status = request()->input('status', 'aktif');
 
         try {
             $riwayat = $siswa->kantin_transaksi()
             ->with(['usaha', 'kantin_transaksi_detail.kantin_produk'])
-            ->whereIn('status',['pending','proses','siap_diambil'])
+            ->when($status == 'aktif', function($query){
+                $query->whereIn('status',['pending','proses','siap_diambil']);
+            })
+            ->when($status == 'selesai', function($query){
+                $query->whereIn('status',['selesai','dibatalkan']);
+            })
             ->paginate($perPage);
 
             $riwayat->getCollection()->transform(function ($riwayat) {
@@ -172,5 +179,6 @@ class SiswaKantinController extends Controller
             return response()->json(['error' => 'Terjadi kesalahan saat melihat data kantin riwayat.'], Response::HTTP_INTERNAL_SERVER_ERROR);
        }
     }
+
    
 }
