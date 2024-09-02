@@ -23,9 +23,16 @@ app.use(cors({ credentials: true, origin: true }), express.json(), router)
 io.on('connection', (socket) => {
   console.log('aya client konek yeuh')
 
-  socket.on('message', (message) => {
-    console.log('Message didie:', message)
-    io.emit('message', message)
+  socket.on('siswa-transaksi-kantin', () => {
+    io.emit('siswa-transaksi-kantin')
+  })
+
+  socket.on('siswa-transaksi-laundry', () => {
+    io.emit('siswa-transaksi-laundry')
+  })
+
+  socket.on('usaha-pengajuan', () => {
+    io.emit('usaha-pengajuan')
   })
 
   socket.on('disconnect', () => {

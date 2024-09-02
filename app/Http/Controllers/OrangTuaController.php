@@ -56,11 +56,6 @@ class OrangTuaController extends Controller
                                     Carbon::parse($startDate)->startOfDay(),
                                     Carbon::parse($endDate)->endOfDay()
                                 ]);
-                            }, function ($query) {
-                                $query->whereBetween('tanggal_riwayat', [
-                                    Carbon::now()->startOfMonth(),
-                                    Carbon::now()->endOfMonth()
-                                ]);
                             })
                             ->groupBy('siswa_wallet_id');
                     }

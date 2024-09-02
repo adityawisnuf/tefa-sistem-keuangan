@@ -5,19 +5,25 @@ router.route('/').get((req, res) => {
     res.json('wadidawww......')
 })
 
-router.route('/send-saldo')
+router.route('/siswa-pesan')
     .post((req, res) => {
         const io = req.app.get('io')
-        const saldo = 1000;
         if (io) {
-            // if(!saldo || isNaN(saldo)) 
-            //     return res.status(422)
-            //     .json({success: false, message: 'tidak ada saldo untuk dikirim'})
-
-            io.emit('message', JSON.stringify({saldo: saldo}))
-            res.json({ success: true, new_saldo: saldo })
+            io.emit('siswa-pesan')
+            res.json({ success: true })
         } else {
-            res.status(500).json({ error: 'eweh socket.io' })
+            res.status(500).json({ error: 'euweuh socket.io' })
+        }
+    })
+
+router.route('/usaha-pengajuan')
+    .post((req, res) => {
+        const io = req.app.get('io')
+        if (io) {
+            io.emit('usaha-pengajuan')
+            res.json({ success: true })
+        } else {
+            res.status(500).json({ error: 'euweuh socket.io' })
         }
     })
 

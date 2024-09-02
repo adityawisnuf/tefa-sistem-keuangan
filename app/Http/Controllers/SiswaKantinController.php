@@ -8,6 +8,7 @@ use App\Models\KantinTransaksi;
 use App\Models\KantinTransaksiDetail;
 use App\Models\SiswaWalletRiwayat;
 use Exception;
+use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -123,6 +124,9 @@ class SiswaKantinController extends Controller
                 'nominal' => $totalHarga,
             ]);
             DB::commit();
+
+            $client = new Client();
+            $client->post(env('WEBSOCKET_URL') . '/siswa-transaksi-kantin');
 
             return response()->json(['data' => $kantinTransaksi], Response::HTTP_CREATED);
         }catch(Exception $e){

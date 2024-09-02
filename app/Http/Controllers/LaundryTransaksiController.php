@@ -11,6 +11,7 @@ use App\Models\LaundryTransaksiKiloan;
 use App\Models\Siswa;
 use App\Models\SiswaWalletRiwayat;
 use Exception;
+use GuzzleHttp\Client;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
@@ -86,6 +87,8 @@ class LaundryTransaksiController extends Controller
     public function update($id)
     {
         $transaksi = LaundryTransaksi::findOrFail($id);
+        $client = new Client();
+        $client->post(env('WEBSOCKET_URL') . '/usaha-transaksi');
         try {
             $this->statusService->update($transaksi);
             if ($transaksi->status === 'selesai') {
@@ -112,7 +115,7 @@ class LaundryTransaksiController extends Controller
             $this->statusService->confirmInitialTransaction($fields['confirm'], $transaksi);
 
             if ($transaksi->status === 'dibatalkan') {
-                $harga_total = $transaksi->laundry_transaksi_detail->sum(function ($det ail) {
+                $harga_total = $transaksi->laundry_transaksi_detail->sum(function ($detail) {
                     return $detail->harga * $detail->jumlah;
                 });
 
@@ -130,7 +133,8 @@ class LaundryTransaksiController extends Controller
                 ]);
             }
             DB::commit();
-
+            $client = new Client();
+            $client->post(env('WEBSOCKET_URL') . '/usaha-transaksi');
             return response()->json(['data' => $transaksi], Response::HTTP_OK);
         } catch (Exception $e) {
             Log::error('confirmInitialTransaction: ' . $e->getMessage());

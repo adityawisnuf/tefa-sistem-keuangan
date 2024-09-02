@@ -6,6 +6,7 @@ use App\Http\Requests\UsahaPengajuanRequest;
 use App\Models\UsahaPengajuan;
 use Carbon\Carbon;
 use Exception;
+use GuzzleHttp\Client;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -82,6 +83,8 @@ class UsahaPengajuanController extends Controller
                 'saldo' => $usaha->saldo - $fields['jumlah_pengajuan']
             ]);
             DB::commit();
+            $client = new Client();
+            $client->post(env('WEBSOCKET_URL') . '/usaha-pengajuan');
 
             return response()->json(['data' => [array_merge(['nama_usaha' => $usaha->nama_usaha], $pengajuan->toArray())]], Response::HTTP_CREATED);
         } catch (Exception $e) {

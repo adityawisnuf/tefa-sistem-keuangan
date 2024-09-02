@@ -8,6 +8,7 @@ use App\Models\LaundryTransaksi;
 use App\Models\LaundryTransaksiDetail;
 use App\Models\SiswaWalletRiwayat;
 use Exception;
+use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -183,6 +184,9 @@ class SiswaLaundryController extends Controller
                 'nominal' => $totalHarga,
             ]);
             DB::commit();
+
+            $client = new Client();
+            $client->post(env('WEBSOCKET_URL') . '/siswa-transaksi-laundry');
 
             return response()->json(['data' => $laundryTransaksi], Response::HTTP_CREATED);
         }  catch (\Exception $e) {
