@@ -146,9 +146,9 @@ class LabaRugiController extends Controller
         $data = $data->filter(function ($item) {
             return !is_null($item->year) && !is_null($item->month);
         });
-        // Extract unique months and years
         $months = $data->pluck('month')->unique()->values()->toArray();
         $years = $data->pluck('year')->unique()->sortDesc()->values()->toArray();
+
 
         // Membuat mapping dari nama bulan ke angka bulan
         $monthNumbers = [
@@ -169,21 +169,28 @@ class LabaRugiController extends Controller
         // Format bulan dengan values dan labels
         $formattedMonths = [];
         foreach ($months as $month) {
-            // Check if the month exists in the mapping
             if (array_key_exists($month, $monthNumbers)) {
                 $formattedMonths[] = [
                     'values' => $monthNumbers[$month],
                     'labels' => $month,
                 ];
             } else {
-                // Handle the case where the month is not found
                 error_log("Month not found: $month");
             }
         }
 
+        // Format tahun dengan values dan labels
+        $formattedYears = [];
+        foreach ($years as $year) {
+            $formattedYears[] = [
+                'values' => (string) $year,
+                'labels' => (string) $year,
+            ];
+        }
+
         return response()->json([
             'months' => $formattedMonths,
-            'years' => $years,
+            'years' => $formattedYears,
         ]);
     }
 }
