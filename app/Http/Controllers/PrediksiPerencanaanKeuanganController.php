@@ -22,13 +22,14 @@ class PrediksiPerencanaanKeuanganController extends Controller
         $bulan = $request->query('bulan');
         $tahun = $request->query('tahun');
 
-        // Retrieve data with filtering based on the month and year if provided
+        // Retrieve data with filtering based on the month and year if provided, and sort by tanggal_pengajuan
         $anggaran = Anggaran::when($bulan, function ($query) use ($bulan) {
-                return $query->whereMonth('tanggal_pengajuan', $bulan);
-            })
+            return $query->whereMonth('tanggal_pengajuan', $bulan);
+        })
             ->when($tahun, function ($query) use ($tahun) {
                 return $query->whereYear('tanggal_pengajuan', $tahun);
             })
+            ->orderBy('tanggal_pengajuan', 'desc') // Menambahkan orderBy untuk mengurutkan dari tanggal terbaru
             ->get();
 
         // Format the data and remove unwanted fields
@@ -37,6 +38,8 @@ class PrediksiPerencanaanKeuanganController extends Controller
             $item->target_terealisasikan = $item->target_terealisasikan
                 ? Carbon::parse($item->target_terealisasikan)->format('d M Y')
                 : null;
+
+            $item->nominal = $this->formatToRupiah($item->nominal);
 
             return $item->makeHidden(['id', 'deskripsi', 'created_at', 'updated_at']);
         });
@@ -48,11 +51,12 @@ class PrediksiPerencanaanKeuanganController extends Controller
             'total_anggaran_terealisasikan' => $this->formatToRupiah(Anggaran::all()->where('status', 3)->sum('nominal')),
             'total_anggaran_gagal' => $this->formatToRupiah(Anggaran::all()->where('status', 4)->sum('nominal')),
             'count_diajukan' => Anggaran::all()->where('status', 1)->count(),
-                'count_diapprove' => Anggaran::all()->where('status', 2)->count(),
-                'count_terealisasikan' => Anggaran::all()->where('status', 3)->count(),
-                'count_gagal' => Anggaran::all()->where('status', 4)->count(),
-            ];
+            'count_diapprove' => Anggaran::all()->where('status', 2)->count(),
+            'count_terealisasikan' => Anggaran::all()->where('status', 3)->count(),
+            'count_gagal' => Anggaran::all()->where('status', 4)->count(),
+        ];
     }
+
 
     private function formatToRupiah($value)
     {
@@ -68,13 +72,12 @@ class PrediksiPerencanaanKeuanganController extends Controller
             ->groupBy('year', 'month')
             ->get();
 
-            $data = $data->filter(function ($item) {
-                return !is_null($item->year) && !is_null($item->month);
-            });
-
-        // Extract unique months and years
+        $data = $data->filter(function ($item) {
+            return !is_null($item->year) && !is_null($item->month);
+        });
         $months = $data->pluck('month')->unique()->values()->toArray();
         $years = $data->pluck('year')->unique()->sortDesc()->values()->toArray();
+
 
         // Membuat mapping dari nama bulan ke angka bulan
         $monthNumbers = [
@@ -95,23 +98,28 @@ class PrediksiPerencanaanKeuanganController extends Controller
         // Format bulan dengan values dan labels
         $formattedMonths = [];
         foreach ($months as $month) {
-            // Check if the month exists in the mapping
             if (array_key_exists($month, $monthNumbers)) {
                 $formattedMonths[] = [
                     'values' => $monthNumbers[$month],
                     'labels' => $month,
                 ];
             } else {
-                // Handle the case where the month is not found
-                // You can log an error, return a default value, or ignore it
-                // For example:
                 error_log("Month not found: $month");
             }
         }
 
+        // Format tahun dengan values dan labels
+        $formattedYears = [];
+        foreach ($years as $year) {
+            $formattedYears[] = [
+                'values' => (string) $year,
+                'labels' => (string) $year,
+            ];
+        }
+
         return response()->json([
             'months' => $formattedMonths,
-            'years' => $years,
+            'years' => $formattedYears,
         ]);
     }
 }

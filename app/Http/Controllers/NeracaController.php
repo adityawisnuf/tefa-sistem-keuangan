@@ -190,8 +190,12 @@ class NeracaController extends Controller
             ->get();
 
         // Extract unique months and years
+        $data = $data->filter(function ($item) {
+            return !is_null($item->year) && !is_null($item->month);
+        });
         $months = $data->pluck('month')->unique()->values()->toArray();
         $years = $data->pluck('year')->unique()->sortDesc()->values()->toArray();
+
 
         // Membuat mapping dari nama bulan ke angka bulan
         $monthNumbers = [
@@ -212,20 +216,28 @@ class NeracaController extends Controller
         // Format bulan dengan values dan labels
         $formattedMonths = [];
         foreach ($months as $month) {
-            // Check if the month exists in the mapping
             if (array_key_exists($month, $monthNumbers)) {
                 $formattedMonths[] = [
                     'values' => $monthNumbers[$month],
                     'labels' => $month,
                 ];
             } else {
-                // Handle the case where the month is not found
-                // You can log an error, return a default value, or ignore it
-                // For example:
                 error_log("Month not found: $month");
             }
         }
 
-        return response()->json($data);
+        // Format tahun dengan values dan labels
+        $formattedYears = [];
+        foreach ($years as $year) {
+            $formattedYears[] = [
+                'values' => (string) $year,
+                'labels' => (string) $year,
+            ];
+        }
+
+        return response()->json([
+            'months' => $formattedMonths,
+            'years' => $formattedYears,
+        ]);
     }
 }
