@@ -30,9 +30,12 @@ class PembayaranController extends Controller
 {
     const PDF_STORAGE_PATH = 'storage/app/documents/';
 
-    public function exportPembayaranPpdb()
+    public function exportPembayaranPpdb(Request $request)
     {
-        return Excel::download(new PembayaranExport(), 'pembayaran_ppdb.xlsx');
+        $year = $request->input('tahun_awal', date('Y')); // Default ke tahun sekarang jika tidak ada parameter
+
+        // Pass the selected year to the export class
+        return Excel::download(new PembayaranExport($year), 'dataPPDB.xlsx');
     }
     public function getPaymentMethod(Request $request)
     {

@@ -78,6 +78,22 @@ class TrackingPendaftaran extends Controller
     if ($request->has('status')) {
         $query->where('status', $request->input('status'));
     }
+    if ($request->has('tahun_awal')) {
+        $query->whereYear('ppdb.created_at', '=', $request->input('tahun_awal'));
+    }
+    if ($request->has('tahun_akhir')) {
+        $query->whereYear('ppdb.created_at', '<=', $request->input('tahun_akhir'));
+    }
+
+    if ($request->has('tahun_ajaran')) {
+        $query->whereRaw('
+            CONCAT(
+                IF(MONTH(ppdb.created_at) >= 7, YEAR(ppdb.created_at), YEAR(ppdb.created_at) - 1),
+                "/",
+                IF(MONTH(ppdb.created_at) >= 7, YEAR(ppdb.created_at) + 1, YEAR(ppdb.created_at))
+            ) like ?
+        ', ['%' . $request->input('tahun_ajaran') . '%']);
+    }
 
     // Paginate the results
     $ppdbs = $query->paginate(5);

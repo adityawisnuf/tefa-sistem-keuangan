@@ -1,7 +1,8 @@
 <?php
+
 namespace App\Exports;
 
-use App\Models\PembayaranPpdb;
+use App\Models\Pembayaran;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
@@ -11,20 +12,33 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 class PembayaranExport implements FromCollection, WithHeadings, WithMapping, WithStyles
 {
     protected $totalTransaksi;
+    protected $selectedYear;
+
+    public function __construct($selectedYear = null)
+    {
+        $this->selectedYear = $selectedYear;
+    }
 
     public function collection()
     {
-        // Ambil data transaksi
-        $data = PembayaranPpdb::join('pendaftar', 'pembayaran_ppdb.ppdb_id', '=', 'pendaftar.ppdb_id')
+        // Initialize query to fetch pembayaran data
+        $query = Pembayaran::join('pembayaran_ppdb', 'pembayaran.id', '=', 'pembayaran_ppdb.pembayaran_id')
+            ->join('pendaftar', 'pembayaran_ppdb.ppdb_id', '=', 'pendaftar.ppdb_id')
             ->select(
                 'pendaftar.nama_depan',
                 'pendaftar.nama_belakang',
                 'pembayaran_ppdb.status',
-                'pembayaran_ppdb.nominal'
-            )
-            ->get();
+                'pembayaran.nominal'
+            );
 
-        // Hitung total transaksi
+        // Apply year filter if selectedYear is provided and not empty
+        if (!empty($this->selectedYear)) {
+            $query->whereYear('pembayaran.created_at', $this->selectedYear);
+        }
+
+        $data = $query->get();
+
+        // Calculate total transactions
         $this->totalTransaksi = $data->sum('nominal');
 
         return $data;
@@ -34,7 +48,7 @@ class PembayaranExport implements FromCollection, WithHeadings, WithMapping, Wit
     {
         static $firstRow = true;
         $statusText = $this->getStatusText($row->status);
-        $totalTransaksi = $firstRow ? $this->totalTransaksi : ''; // Tampilkan total transaksi hanya di baris pertama
+        $totalTransaksi = $firstRow ? $this->totalTransaksi : ''; // Display total only in the first row
         $firstRow = false;
 
         return [
@@ -75,7 +89,7 @@ class PembayaranExport implements FromCollection, WithHeadings, WithMapping, Wit
             'font' => [
                 'bold' => true,
                 'size' => 12,
-                'color' => ['argb' => 'FFFFFF'], // Warna teks putih
+                'color' => ['argb' => 'FFFFFF'], // White text color
             ],
             'borders' => [
                 'allBorders' => [
@@ -85,7 +99,7 @@ class PembayaranExport implements FromCollection, WithHeadings, WithMapping, Wit
             ],
             'fill' => [
                 'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-                'color' => ['argb' => '3C50E0'], // Warna header biru
+                'color' => ['argb' => '3C50E0'], // Blue header color
             ],
         ]);
 
@@ -98,6 +112,14 @@ class PembayaranExport implements FromCollection, WithHeadings, WithMapping, Wit
                 ],
             ],
         ]);
+
+        // Set the format for nominal and total transaction columns as currency
+        $sheet->getStyle("D2:D$highestRow")->getNumberFormat()->setFormatCode('Rp #,##0');
+        $sheet->getStyle("E2:E$highestRow")->getNumberFormat()->setFormatCode('Rp #,##0');
+
+        // Auto size columns to fit the content
+        foreach (range('A', 'E') as $column) {
+            $sheet->getColumnDimension($column)->setAutoSize(true);
+        }
     }
 }
-

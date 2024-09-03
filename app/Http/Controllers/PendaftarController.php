@@ -34,12 +34,13 @@ class PendaftarController extends Controller
      * @return \Illuminate\Http\Response
      */
 
-     public function export()
+     public function export(Request $request)
      {
-         // Create an instance of the export class without a year parameter
-         return Excel::download(new pendaftarExport, 'pendaftar_data.xlsx');
+         // Ambil parameter tahun dari request
+         $year = $request->input('tahun_awal', date('Y')); // Default ke tahun sekarang jika tidak ada parameter
+ 
+         return Excel::download(new pendaftarExport($year), 'pendaftar_data.xlsx');
      }
-
 
      public function store(Request $request)
      {

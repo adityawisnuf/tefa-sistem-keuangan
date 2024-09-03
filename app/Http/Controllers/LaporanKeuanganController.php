@@ -42,7 +42,7 @@ class LaporanKeuanganController extends Controller
     }
 
     if ($request->has('tahun_awal')) {
-        $query->whereYear('pembayaran.created_at', '>=', $request->input('tahun_awal'));
+        $query->whereYear('pembayaran.created_at', '=', $request->input('tahun_awal'));
     }
 
     if ($request->has('tahun_akhir')) {
