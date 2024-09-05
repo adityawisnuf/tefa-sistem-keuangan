@@ -7,6 +7,7 @@ use App\Http\Services\StatusTransaksiService;
 use App\Models\KantinProduk;
 use App\Models\KantinTransaksi;
 use App\Models\SiswaWalletRiwayat;
+use GuzzleHttp\Client;
 use Illuminate\Database\Eloquent\Model;
 use illuminate\Support\Facades\Auth;
 use Exception;
@@ -61,11 +62,17 @@ class KantinTransaksiController extends Controller
     public function update($id)
     {
         $transaksi = KantinTransaksi::findOrFail($id);
+        // $client = new Client();
+        // $client->post(env('WEBSOCKET_URL') . '/usaha-transaksi');
         try {
             $this->statusService->update($transaksi);
             if ($transaksi->status === 'selesai') {
                 $transaksi->update(['tanggal_selesai' => now()]);
             }
+            
+            $client = new Client();
+            $client->post(env('WEBSOCKET_URL') . '/usaha-transaksi');
+
             return response()->json(['data' => $transaksi], Response::HTTP_OK);
         } catch (Exception $e) {
             Log::error('update: ' . $e->getMessage());
@@ -103,6 +110,10 @@ class KantinTransaksiController extends Controller
             }
 
             DB::commit();
+
+            $client = new Client();
+            $client->post(env('WEBSOCKET_URL') . '/usaha-transaksi');
+
             return response()->json(['data' => $transaksi], Response::HTTP_OK);
         } catch (Exception $e) {
             DB::rollBack(); 

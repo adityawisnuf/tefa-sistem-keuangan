@@ -1,46 +1,66 @@
 //INDEX.JS
-const express = require('express')
-const cors = require('cors')
-const http = require('http')
-const socketIo = require('socket.io')
-const router = require('./routes/routes')
+const express = require("express");
+const cors = require("cors");
+const http = require("http");
+const socketIo = require("socket.io");
+const router = require("./routes/routes");
 
-const port = 9000
-const app = express()
+const port = 9000;
+const app = express();
 
-const server = http.createServer(app)
+const server = http.createServer(app);
 
 const io = socketIo(server, {
     cors: {
         origin: true,
-        methods: ["*"]
+        methods: ["*"],
+    },
+});
+
+app.set("io", io);
+app.use(cors({ credentials: true, origin: true }), express.json(), router);
+
+const clientConnections = {
+    siswaId: {},
+    kantinId: {},
+    laundryId: {},
+    bendaharaId: {},
+};
+
+function emitToTarget(targetIdKey, targetId, eventName) {
+    const targetSocketId = clientConnections[targetIdKey][targetId];
+
+    if (!targetSocketId) {
+        console.log(`${targetRole} dengan ID ${targetId} tidak ditemukan`);
+        return;
     }
-})
-app.set('io', io)
 
-app.use(cors({ credentials: true, origin: true }), express.json(), router)
+    io.to(targetSocketId).emit(eventName);
+}
 
-io.on('connection', (socket) => {
-  console.log('aya client konek yeuh')
+io.on("connection", (socket) => {
+    socket.on("user-connected", (roleIdKey, roleId, socketId) => {
+        clientConnections[roleIdKey][roleId] = socketId;
+        console.log("user connected: ", socketId);
+    });
 
-  socket.on('siswa-transaksi-kantin', () => {
-    io.emit('siswa-transaksi-kantin')
-  })
+    socket.on("siswa-transaksi", (data) => {
+        emitToTarget(`${data.role}Id`, data.roleId, "siswa-transaksi");
+    });
 
-  socket.on('siswa-transaksi-laundry', () => {
-    io.emit('siswa-transaksi-laundry')
-  })
+    socket.on("usaha-transaksi", (data) => {
+        emitToTarget("siswaId", data.roleId, "usaha-transaksi");
+    });
 
-  socket.on('usaha-pengajuan', () => {
-    io.emit('usaha-pengajuan')
-  })
+    socket.on("usaha-pengajuan", (data) => {
+        emitToTarget(`bendaharaId`, data.roleId, "usaha-pengajuan");
+    });
 
-  socket.on('disconnect', () => {
-    console.log('client diskonek')
-  })
-})
+    socket.on("bendahara-pengajuan", (data) => {
+        emitToTarget(`${data.role}Id`, data.roleId, "bendahara-pengajuan");
+    });
+});
 
 server.listen(port, () => {
-    console.log(`Server started at: http://0.0.0.0:${port}`)
-})
-
+    console.log(`Server started at: http://0.0.0.0:${port}`);
+});

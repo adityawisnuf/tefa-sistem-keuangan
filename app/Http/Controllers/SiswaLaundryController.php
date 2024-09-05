@@ -60,47 +60,6 @@ class SiswaLaundryController extends Controller
         }
     }
 
-    public function getLayananRiwayat()
-    {
-
-        $validator = Validator::make(request()->all(), [
-            'per_page' => ['nullable', 'integer', 'min:1'],
-            'siswa' => ['nullable', 'integer', 'min:1']
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()], Response::HTTP_BAD_REQUEST);
-        }
-        
-        $siswa = Auth::user()->siswa()->first();
-        $perPage = request('per_page', 10);
-
-        try {
-            $riwayat = $siswa->laundry_transaksi()
-            ->with(['usaha', 'laundry_transaksi_detail.laundry_layanan'])
-            ->whereIn('status',['dibatalkan','selesai'])
-            ->paginate($perPage);
-
-            $riwayat->getCollection()->transform(function ($riwayat) {
-                return [
-                    'id' => $riwayat->id,
-                    'nama_usaha' => $riwayat->usaha->nama_usaha,
-                    'jumlah_layanan' => count($riwayat->laundry_transaksi_detail),
-                    'harga_total' => array_reduce($riwayat->laundry_transaksi_detail->toArray(), function($scary, $item) {
-                        return $scary += $item['harga_total']; //horror sikit
-                    }),
-                    'status' => $riwayat->status,
-                    'tanggal_pemesanan' => $riwayat->tanggal_pemesanan,
-                    'tanggal_selesai' => $riwayat->tanggal_selesai,
-                ];
-            });
-
-            return response()->json(['data' => $riwayat], Response::HTTP_OK);
-        } catch (Exception $e) {
-            Log::error('getLayananRiwayat: ' . $e->getMessage());
-            return response()->json(['error' => 'Terjadi kesalahan saat mengambil data riwayat transaksi.'], Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
-    }
     public function getLayananTransaksi()
     {
         $siswa = Auth::user()->siswa()->first();
@@ -109,7 +68,7 @@ class SiswaLaundryController extends Controller
         try {
             $riwayat = $siswa->laundry_transaksi()
             ->with(['usaha', 'laundry_transaksi_detail.laundry_layanan'])
-            ->whereIn('status',['proses','siap_diambil'])
+            ->whereIn('status',['pending', 'proses','siap_diambil'])
             ->paginate($perPage);
 
             $riwayat->getCollection()->transform(function ($riwayat) {
@@ -117,6 +76,9 @@ class SiswaLaundryController extends Controller
                     'id' => $riwayat->id,
                     'nama_usaha' => $riwayat->usaha->nama_usaha,
                     'jumlah_layanan' => count($riwayat->laundry_transaksi_detail),
+                    'nama_layanan' => $riwayat->laundry_transaksi_detail->first()->laundry_layanan->nama_layanan,
+                    'jumlah' => $riwayat->laundry_transaksi_detail->first()->jumlah,
+                    'harga' => $riwayat->laundry_transaksi_detail->first()->harga,
                     'harga_total' => array_reduce($riwayat->laundry_transaksi_detail->toArray(), function($scary, $item) {
                         return $scary += $item['harga_total']; //horror sikit
                     }),
@@ -134,66 +96,74 @@ class SiswaLaundryController extends Controller
     }
 
     public function createLayananTransaksi(SiswaLaundryRequest $request)
-    {
-        $siswa = Auth::user()->siswa()->with('siswa_wallet')->firstOrFail();
-        $fields = $request->validated();
+{
+    $siswa = Auth::user()->siswa()->with('siswa_wallet')->firstOrFail();
+    $fields = $request->validated();
 
-        try{
-            $usaha = LaundryLayanan::find($fields['detail_pesanan'][0]['laundry_layanan_id'])->usaha;
-            $siswaWallet = $siswa->siswa_wallet;
+    try {
+        $usaha = LaundryLayanan::find($fields['detail_pesanan'][0]['laundry_layanan_id'])->usaha;
+        $siswaWallet = $siswa->siswa_wallet;
 
-            $fields['siswa_id'] = $siswa->id;
-            $fields['usaha_id'] = $usaha->id;
+        // periksa saldo sebelum melanjutkan transaksi
+        $totalHarga = 0;
+        foreach ($fields['detail_pesanan'] as $layananDetail) {
+            $layanan = $usaha->laundry_layanan()->findOrFail($layananDetail['laundry_layanan_id']);
+            $totalHarga += $layanan->harga * $layananDetail['jumlah'];
+        }
 
-            DB::beginTransaction();
-            $laundryTransaksi = LaundryTransaksi::create($fields);
-            $totalHarga = 0;
+        if ($siswaWallet->nominal < $totalHarga) {
+            return response()->json(['error' => 'Saldo tidak mencukupi untuk transaksi ini.'], Response::HTTP_BAD_REQUEST);
+        }
 
-            foreach ($fields['detail_pesanan'] as $layananDetail) {
-                $layanan = $usaha->laundry_layanan()->findOrFail($layananDetail['laundry_layanan_id']);
-                $qty = $layananDetail['jumlah'];
+        $fields['siswa_id'] = $siswa->id;
+        $fields['usaha_id'] = $usaha->id;
 
+        DB::beginTransaction();
+        $laundryTransaksi = LaundryTransaksi::create($fields);
 
-                LaundryTransaksiDetail::create([
-                    'laundry_layanan_id' => $layanan->id,
-                    'laundry_transaksi_id' => $laundryTransaksi->id,
-                    'jumlah' => $qty,
-                    'harga' => $layanan->harga
-                ]);
+        foreach ($fields['detail_pesanan'] as $layananDetail) {
+            $layanan = $usaha->laundry_layanan()->findOrFail($layananDetail['laundry_layanan_id']);
+            $qty = $layananDetail['jumlah'];
 
-                $totalHarga += $layanan->harga * $layananDetail['jumlah'];
-            }
-
-
-            if ($siswaWallet->nominal < $totalHarga) {
-                return response()->json(['error' => 'Saldo tidak mencukupi untuk transaksi ini.'], Response::HTTP_BAD_REQUEST);
-            }
-
-            $usaha->update([
-                'saldo' => $usaha->saldo + $totalHarga,
+            LaundryTransaksiDetail::create([
+                'laundry_layanan_id' => $layanan->id,
+                'laundry_transaksi_id' => $laundryTransaksi->id,
+                'jumlah' => $qty,
+                'harga' => $layanan->harga,
             ]);
+        }
 
-            $siswaWallet->update([
-                'nominal' => $siswaWallet->nominal - $totalHarga,
-            ]);
+        // update saldo secara atomik
+        $usaha->increment('saldo', $totalHarga);
 
-            SiswaWalletRiwayat::create([
-                'siswa_wallet_id' => $siswaWallet->id,
-                'merchant_order_id' => null,
-                'tipe_transaksi' => 'pengeluaran',
-                'nominal' => $totalHarga,
-            ]);
-            DB::commit();
+        $siswaWallet->update([
+            'nominal' => $siswaWallet->nominal - $totalHarga,
+        ]);
 
+        SiswaWalletRiwayat::create([
+            'siswa_wallet_id' => $siswaWallet->id,
+            'merchant_order_id' => null,
+            'tipe_transaksi' => 'pengeluaran',
+            'nominal' => $totalHarga,
+        ]);
+
+        DB::commit();
+
+        // error handling for websocket request
+        try {
             $client = new Client();
             $client->post(env('WEBSOCKET_URL') . '/siswa-transaksi-laundry');
-
-            return response()->json(['data' => $laundryTransaksi], Response::HTTP_CREATED);
-        }  catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('createLayananTransaksi: ' . $e->getMessage());
-            return response()->json(['error' => 'Terjadi kesalahan saat membuat data laundry layanan.'], Response::HTTP_INTERNAL_SERVER_ERROR);
+        } catch (\Exception $e) {
+            Log::error('WebSocket request failed: ' . $e->getMessage());
         }
+
+        return response()->json(['data' => $laundryTransaksi], Response::HTTP_CREATED);
+    } catch (\Exception $e) {
+        DB::rollBack();
+        Log::error('createLayananTransaksi: ' . $e->getMessage());
+        return response()->json(['error' => 'Terjadi kesalahan saat membuat data laundry layanan.'], Response::HTTP_INTERNAL_SERVER_ERROR);
     }
+}
+
 
 }

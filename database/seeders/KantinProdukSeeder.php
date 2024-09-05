@@ -13,13 +13,13 @@ class KantinProdukSeeder extends Seeder
      */
     public function run(): void
     {
-        // for ($usahaId = 1; $usahaId <= 5; $usahaId++) {
-        //     KantinProduk::factory(20)->create([
-        //         'usaha_id' => $usahaId,
-        //     ]);
-        // }
-        // KantinProduk::factory(20)->create([
-        //     'usaha_id' => 1,
-        // ]);
+        for ($usahaId = 1; $usahaId <= 5; $usahaId++) {
+            KantinProduk::factory(20)->create([
+                'usaha_id' => $usahaId,
+            ]);
+        }
+        KantinProduk::factory(4)->create([
+            'usaha_id' => 1,
+        ]);
     }
 }

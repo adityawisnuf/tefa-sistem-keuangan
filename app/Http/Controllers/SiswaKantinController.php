@@ -126,7 +126,7 @@ class SiswaKantinController extends Controller
             DB::commit();
 
             $client = new Client();
-            $client->post(env('WEBSOCKET_URL') . '/siswa-transaksi-kantin');
+            $client->post(env('WEBSOCKET_URL') . '/siswa-pesan');
 
             return response()->json(['data' => $kantinTransaksi], Response::HTTP_CREATED);
         }catch(Exception $e){
@@ -168,8 +168,11 @@ class SiswaKantinController extends Controller
                     'id' => $riwayat->id,
                     'nama_usaha' => $riwayat->usaha->nama_usaha,
                     'jumlah_layanan' => count($riwayat->kantin_transaksi_detail),
+                    'nama_produk' => $riwayat->kantin_transaksi_detail->first()->kantin_produk->nama_produk,
+                    'jumlah' => $riwayat->kantin_transaksi_detail->first()->jumlah,
+                    'harga' => $riwayat->kantin_transaksi_detail->first()->harga,
                     'harga_total' => array_reduce($riwayat->kantin_transaksi_detail->toArray(), function($scary, $item) {
-                        return $scary += $item['harga_total']; //horror sikit
+                        return $scary += $item['harga_total'];
                     }),
                     'status' => $riwayat->status,
                     'tanggal_pemesanan' => $riwayat->tanggal_pemesanan,

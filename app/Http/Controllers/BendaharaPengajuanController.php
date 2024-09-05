@@ -39,17 +39,17 @@ class BendaharaPengajuanController extends Controller
         try {
 
             $pengajuan = UsahaPengajuan::with(['usaha.user'])
-                ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
-                    $query->whereBetween('tanggal_pengajuan', [
-                        Carbon::parse($startDate)->startOfDay(),
-                        Carbon::parse($endDate)->endOfDay()
-                    ]);
-                }, function ($query) {
-                    $query->whereBetween('tanggal_pengajuan', [
-                        Carbon::now()->startOfMonth(),
-                        Carbon::now()->endOfMonth()
-                    ]);
-                })
+                // ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
+                //     $query->whereBetween('tanggal_pengajuan', [
+                //         Carbon::parse($startDate)->startOfDay(),
+                //         Carbon::parse($endDate)->endOfDay()
+                //     ]);
+                // }, function ($query) {
+                //     $query->whereBetween('tanggal_pengajuan', [
+                //         Carbon::now()->startOfMonth(),
+                //         Carbon::now()->endOfMonth()
+                //     ]);
+                // })
                 ->when($status === 'active', function ($query) {
                     $query->whereIn('status', ['pending']);
                 })

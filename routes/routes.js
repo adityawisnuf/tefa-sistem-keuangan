@@ -1,30 +1,72 @@
-const express = require('express')
-const router = express.Router()
+const express = require("express");
+const router = express.Router();
 
-router.route('/').get((req, res) => {
-    res.json('wadidawww......')
-})
+router.route("/").get((_, res) => {
+    res.json("wadidawww......");
+});
 
-router.route('/siswa-pesan')
-    .post((req, res) => {
-        const io = req.app.get('io')
-        if (io) {
-            io.emit('siswa-pesan')
-            res.json({ success: true })
-        } else {
-            res.status(500).json({ error: 'euweuh socket.io' })
-        }
-    })
+router.route("/siswa-transaksi").post((req, res) => {
+    const io = req.app.get("io");
+    const { role, roleId } = req.body;
 
-router.route('/usaha-pengajuan')
-    .post((req, res) => {
-        const io = req.app.get('io')
-        if (io) {
-            io.emit('usaha-pengajuan')
-            res.json({ success: true })
-        } else {
-            res.status(500).json({ error: 'euweuh socket.io' })
-        }
-    })
+    if (!io) {
+        res.status(500).json({ error: "socket.io not found" });
+    }
 
-module.exports = router
+    if (!role || !roleId) {
+        res.status(422).json({ error: "role or roleId is missing" });
+    }
+
+    io.emit("siswa-transaksi", { role, roleId });
+    res.status(200).json({ message: `event emitted to ${role}` });
+});
+
+router.route("/usaha-transaksi").post((req, res) => {
+    const io = req.app.get("io");
+    const { roleId } = req.body;
+
+    if (!io) {
+        res.status(500).json({ error: "socket.io not found" });
+    }
+
+    if (!roleId) {
+        res.status(422).json({ error: "roleId is missing" });
+    }
+
+    io.emit("usaha-transaksi", { roleId });
+    res.status(200).json({ message: `event emitted to ${role}` });
+});
+
+router.route("/usaha-pengajuan").post((req, res) => {
+    const io = req.app.get("io");
+    const { roleId } = req.body;
+
+    if (!io) {
+        res.status(500).json({ error: "socket.io not found" });
+    }
+
+    if (!roleId) {
+        res.status(422).json({ error: "roleId is missing" });
+    }
+
+    io.emit("usaha-pengajuan", { roleId });
+    res.status(200).json({ message: `event emitted to ${role}` });
+});
+
+router.route("/bendahara-pengajuan").post((req, res) => {
+    const io = req.app.get("io");
+    const { role, roleId } = req.body;
+
+    if (!io) {
+        res.status(500).json({ error: "socket.io not found" });
+    }
+
+    if (!role || !roleId) {
+        res.status(422).json({ error: "role or roleId is missing" });
+    }
+
+    io.emit("bendahara-pengajuan", { role, roleId });
+    res.status(200).json({ message: `event emitted to ${role}` });
+});
+
+module.exports = router;

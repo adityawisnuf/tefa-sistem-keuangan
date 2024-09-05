@@ -87,13 +87,15 @@ class LaundryTransaksiController extends Controller
     public function update($id)
     {
         $transaksi = LaundryTransaksi::findOrFail($id);
-        $client = new Client();
-        $client->post(env('WEBSOCKET_URL') . '/usaha-transaksi');
         try {
             $this->statusService->update($transaksi);
             if ($transaksi->status === 'selesai') {
                 $transaksi->update(['tanggal_selesai' => now()]);
             }
+
+            $client = new Client();
+            $client->post(env('WEBSOCKET_URL') . '/laundry-transaksi');
+
             return response()->json(['data' => $transaksi], Response::HTTP_OK);
         } catch (Exception $e) {
             Log::error('update: ' . $e->getMessage());
@@ -134,10 +136,10 @@ class LaundryTransaksiController extends Controller
             }
             DB::commit();
             $client = new Client();
-            $client->post(env('WEBSOCKET_URL') . '/usaha-transaksi');
+            $client->post(env('WEBSOCKET_URL') . '/laundry-transaksi');
             return response()->json(['data' => $transaksi], Response::HTTP_OK);
         } catch (Exception $e) {
-            Log::error('confirmInitialTransaction: ' . $e->getMessage());
+            Log::error('confirm: ' . $e->getMessage());
             return response()->json(['error' => 'Terjadi kesalahan pada saat akan confirmInitialTransaction data laundry'], RESPONSE::HTTP_INTERNAL_SERVER_ERROR);
         }
     }

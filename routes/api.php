@@ -1,4 +1,4 @@
-<?php
+    <?php
 
 use App\Http\Controllers\BendaharaController;
 use App\Http\Controllers\BendaharaLaporanController;
@@ -73,8 +73,8 @@ Route::group([
         Route::group(['prefix' => 'laundry'], function () {
             Route::group(['prefix' => 'layanan'], function () {
                 Route::get('/', [SiswaLaundryController::class, 'getLayanan']);
-                Route::get('/riwayat', [SiswaLaundryController::class, 'getLayananRiwayat']);
                 Route::get('/transaksi', [SiswaLaundryController::class, 'getLayananTransaksi']);
+                // Route::get('/riwayat', [SiswaLaundryController::class, 'getLayananRiwayat']);
                 Route::post('/transaksi/create', [SiswaLaundryController::class, 'createLayananTransaksi']);
                 Route::get('/{id}', [SiswaLaundryController::class, 'getLayananDetail']);
             });

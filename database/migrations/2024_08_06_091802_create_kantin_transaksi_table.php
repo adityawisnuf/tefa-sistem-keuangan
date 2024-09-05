@@ -18,7 +18,7 @@ return new class extends Migration
             $table->bigInteger('siswa_id');
             $table->unsignedBigInteger('usaha_id');
             $table->enum('status',['pending','proses', 'siap_diambil', 'selesai','dibatalkan'])->default('pending');
-            $table->dateTime('tanggal_pemesanan')->default(now());
+            $table->dateTime('tanggal_pemesanan')->useCurrent();
             $table->dateTime('tanggal_selesai')->nullable();
             $table->timestamps();
 
