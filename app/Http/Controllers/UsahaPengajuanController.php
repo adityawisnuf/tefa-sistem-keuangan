@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UsahaPengajuanRequest;
+use App\Http\Services\SocketIOService;
 use App\Models\UsahaPengajuan;
+use App\Models\User;
 use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Client;
@@ -63,7 +65,7 @@ class UsahaPengajuanController extends Controller
 
 
 
-    public function create(UsahaPengajuanRequest $request)
+    public function create(UsahaPengajuanRequest $request, SocketIOService $socketIOService)
     {
         $usaha = Auth::user()->usaha->firstOrFail();
         $fields = $request->validated();
@@ -83,8 +85,9 @@ class UsahaPengajuanController extends Controller
                 'saldo' => $usaha->saldo - $fields['jumlah_pengajuan']
             ]);
             DB::commit();
-            $client = new Client();
-            $client->post(env('WEBSOCKET_URL') . '/usaha-pengajuan');
+            
+            $bendahara = User::where('role', 'Bendahara')->first();
+            $socketIOService->remindFetch($bendahara->id);
 
             return response()->json(['data' => [array_merge(['nama_usaha' => $usaha->nama_usaha], $pengajuan->toArray())]], Response::HTTP_CREATED);
         } catch (Exception $e) {

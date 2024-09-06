@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\LaundryTransaksiKiloanRequest;
 use App\Http\Requests\LaundryTransaksiRequest;
+use App\Http\Services\SocketIOService;
 use App\Http\Services\StatusTransaksiService;
 use App\Models\LaundryLayanan;
 use App\Models\LaundryTransaksi;
@@ -84,7 +85,7 @@ class LaundryTransaksiController extends Controller
         }
     }
 
-    public function update($id)
+    public function update($id, SocketIOService $socketIOService)
     {
         $transaksi = LaundryTransaksi::findOrFail($id);
         try {
@@ -93,8 +94,7 @@ class LaundryTransaksiController extends Controller
                 $transaksi->update(['tanggal_selesai' => now()]);
             }
 
-            $client = new Client();
-            $client->post(env('WEBSOCKET_URL') . '/laundry-transaksi');
+           $socketIOService->remindFetch($transaksi->siswa->user->id);
 
             return response()->json(['data' => $transaksi], Response::HTTP_OK);
         } catch (Exception $e) {
@@ -103,7 +103,7 @@ class LaundryTransaksiController extends Controller
         }
     }
 
-    public function confirm(LaundryTransaksiRequest $request, $id)
+    public function confirm(LaundryTransaksiRequest $request, $id, SocketIOService $socketIOService)
     {
         $fields = $request->validated();
         $transaksi = LaundryTransaksi::findOrFail($id);
@@ -135,8 +135,9 @@ class LaundryTransaksiController extends Controller
                 ]);
             }
             DB::commit();
-            $client = new Client();
-            $client->post(env('WEBSOCKET_URL') . '/laundry-transaksi');
+            
+            $socketIOService->remindFetch($transaksi->siswa->user->id);
+
             return response()->json(['data' => $transaksi], Response::HTTP_OK);
         } catch (Exception $e) {
             Log::error('confirm: ' . $e->getMessage());

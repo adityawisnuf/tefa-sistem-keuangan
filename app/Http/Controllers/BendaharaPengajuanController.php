@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UsahaPengajuanRequest;
+use App\Http\Services\SocketIOService;
 use App\Models\UsahaPengajuan;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -81,7 +82,7 @@ class BendaharaPengajuanController extends Controller
         }
     }
 
-    public function confirmUsahaPengajuan(UsahaPengajuanRequest $request, $id)
+    public function confirmUsahaPengajuan(UsahaPengajuanRequest $request, $id, SocketIOService $socketIOService)
     {
 
         $pengajuan = UsahaPengajuan::findOrFail($id);
@@ -132,6 +133,8 @@ class BendaharaPengajuanController extends Controller
                         'message' => 'Status tidak valid.',
                     ], Response::HTTP_BAD_REQUEST);
             }
+
+            $socketIOService->remindFetch($usaha->user->id);
 
             return response()->json([
                 'message' => 'Pengajuan telah ditolak dan saldo dikembalikan.',

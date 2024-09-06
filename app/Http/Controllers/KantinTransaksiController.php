@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\KantinTransaksiRequest;
+use App\Http\Services\SocketIOService;
 use App\Http\Services\StatusTransaksiService;
 use App\Models\KantinProduk;
 use App\Models\KantinTransaksi;
@@ -44,10 +45,10 @@ class KantinTransaksiController extends Controller
         try {
             $transaksi = $usaha->kantin_transaksi()
                 ->with(['kantin_transaksi_detail.kantin_produk:id,nama_produk', 'siswa:id,nama_depan,nama_belakang'])
-                ->when($status ==  'aktif', function ($query) {
+                ->when($status == 'aktif', function ($query) {
                     $query->whereIn('status', ['pending', 'proses', 'siap_diambil']);
                 })
-                ->when($status ==  'selesai', function ($query) {
+                ->when($status == 'selesai', function ($query) {
                     $query->whereIn('status', ['selesai', 'dibatalkan']);
                 })
                 ->paginate($perPage);
@@ -59,19 +60,16 @@ class KantinTransaksiController extends Controller
         }
     }
 
-    public function update($id)
+    public function update($id, SocketIOService $socketIOService)
     {
         $transaksi = KantinTransaksi::findOrFail($id);
-        // $client = new Client();
-        // $client->post(env('WEBSOCKET_URL') . '/usaha-transaksi');
         try {
             $this->statusService->update($transaksi);
             if ($transaksi->status === 'selesai') {
                 $transaksi->update(['tanggal_selesai' => now()]);
             }
-            
-            $client = new Client();
-            $client->post(env('WEBSOCKET_URL') . '/usaha-transaksi');
+
+            $socketIOService->remindFetch($transaksi->siswa->user->id);
 
             return response()->json(['data' => $transaksi], Response::HTTP_OK);
         } catch (Exception $e) {
@@ -80,7 +78,7 @@ class KantinTransaksiController extends Controller
         }
     }
 
-    public function confirm(KantinTransaksiRequest $request, $id)
+    public function confirm(KantinTransaksiRequest $request, $id, SocketIOService $socketIOService)
     {
         $fields = $request->validated();
         $transaksi = KantinTransaksi::findOrFail($id);
@@ -111,14 +109,13 @@ class KantinTransaksiController extends Controller
 
             DB::commit();
 
-            $client = new Client();
-            $client->post(env('WEBSOCKET_URL') . '/usaha-transaksi');
+            $socketIOService->remindFetch($transaksi->siswa->user->id);
 
             return response()->json(['data' => $transaksi], Response::HTTP_OK);
         } catch (Exception $e) {
-            DB::rollBack(); 
+            DB::rollBack();
             Log::error('confirm: ' . $e->getMessage());
-            return response()->json(['error' => 'Terjadi Kesalahan pada saat melakukan Confirm Transaksi'], Response::HTTP_INTERNAL_SERVER_ERROR); 
+            return response()->json(['error' => 'Terjadi Kesalahan pada saat melakukan Confirm Transaksi'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
