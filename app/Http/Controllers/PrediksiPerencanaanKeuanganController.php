@@ -31,6 +31,42 @@ class PrediksiPerencanaanKeuanganController extends Controller
             })
             ->orderBy('tanggal_pengajuan', 'desc') // Menambahkan orderBy untuk mengurutkan dari tanggal terbaru
             ->get();
+        $totalDiajukan = Anggaran::when($bulan, function ($query) use ($bulan) {
+            return $query->whereMonth('tanggal_pengajuan', $bulan);
+        })
+            ->when($tahun, function ($query) use ($tahun) {
+                return $query->whereYear('tanggal_pengajuan', $tahun);
+            })
+            ->where('status',1)
+            ->orderBy('tanggal_pengajuan', 'desc') // Menambahkan orderBy untuk mengurutkan dari tanggal terbaru
+            ->sum('nominal');
+        $totalDiapprove = Anggaran::when($bulan, function ($query) use ($bulan) {
+            return $query->whereMonth('tanggal_pengajuan', $bulan);
+        })
+            ->when($tahun, function ($query) use ($tahun) {
+                return $query->whereYear('tanggal_pengajuan', $tahun);
+            })
+            ->where('status',2)
+            ->orderBy('tanggal_pengajuan', 'desc') // Menambahkan orderBy untuk mengurutkan dari tanggal terbaru
+            ->sum('nominal');
+        $totalRealisasi = Anggaran::when($bulan, function ($query) use ($bulan) {
+            return $query->whereMonth('tanggal_pengajuan', $bulan);
+        })
+            ->when($tahun, function ($query) use ($tahun) {
+                return $query->whereYear('tanggal_pengajuan', $tahun);
+            })
+            ->where('status',3)
+            ->orderBy('tanggal_pengajuan', 'desc') // Menambahkan orderBy untuk mengurutkan dari tanggal terbaru
+            ->sum('nominal');
+        $totalGagal = Anggaran::when($bulan, function ($query) use ($bulan) {
+            return $query->whereMonth('tanggal_pengajuan', $bulan);
+        })
+            ->when($tahun, function ($query) use ($tahun) {
+                return $query->whereYear('tanggal_pengajuan', $tahun);
+            })
+            ->where('status',4)
+            ->orderBy('tanggal_pengajuan', 'desc') // Menambahkan orderBy untuk mengurutkan dari tanggal terbaru
+            ->sum('nominal');
 
         // Format the data and remove unwanted fields
         $anggaranFiltered = $anggaran->map(function ($item) {
@@ -46,10 +82,10 @@ class PrediksiPerencanaanKeuanganController extends Controller
 
         return [
             'anggaran' => $anggaranFiltered,
-            'total_anggaran_diajukan' => $this->formatToRupiah(Anggaran::all()->where('status', 1)->sum('nominal')),
-            'total_anggaran_diapprove' => $this->formatToRupiah(Anggaran::all()->where('status', 2)->sum('nominal')),
-            'total_anggaran_terealisasikan' => $this->formatToRupiah(Anggaran::all()->where('status', 3)->sum('nominal')),
-            'total_anggaran_gagal' => $this->formatToRupiah(Anggaran::all()->where('status', 4)->sum('nominal')),
+            'total_anggaran_diajukan' => $this->formatToRupiah($totalDiajukan),
+            'total_anggaran_diapprove' => $this->formatToRupiah($totalDiapprove),
+            'total_anggaran_terealisasikan' => $this->formatToRupiah($totalRealisasi),
+            'total_anggaran_gagal' => $this->formatToRupiah($totalGagal),
             'count_diajukan' => Anggaran::all()->where('status', 1)->count(),
             'count_diapprove' => Anggaran::all()->where('status', 2)->count(),
             'count_terealisasikan' => Anggaran::all()->where('status', 3)->count(),
