@@ -11,10 +11,8 @@ class TrackingPendaftaran extends Controller
 {
     public function trackPendaftaran()
     {
-        // Ambil user ID yang sedang login
         $userId = Auth::id();
 
-        // Ambil semua data ppdb berdasarkan user ID
         $ppdbs = Ppdb::with([
             'pendaftaranAkademik',
             'pendaftar',
@@ -23,7 +21,6 @@ class TrackingPendaftaran extends Controller
         ->where('user_id', $userId)
         ->get();
 
-        // Format tanggal created_at dan tambahkan ke array
         $ppdb = $ppdbs->map(function($ppdbs) {
             $ppdbArray = $ppdbs->toArray();
             $ppdbArray['created_at'] = Carbon::parse($ppdbs->created_at)->format('d-m-Y');
@@ -56,16 +53,16 @@ class TrackingPendaftaran extends Controller
     ]);
 
     // Apply filters based on query parameters
-    if ($request->has('nama')) {
-        $query->whereHas('pendaftar', function ($q) use ($request) {
-            $q->where('nama_depan', 'like', '%' . $request->input('nama') . '%')
-              ->orWhere('nama_belakang', 'like', '%' . $request->input('nama') . '%');
-        });
-    }
-
-    if ($request->has('nik')) {
-        $query->whereHas('pendaftar', function ($q) use ($request) {
-            $q->where('nik', 'like', '%' . $request->input('nik') . '%');
+    if ($request->has('search')) {
+        $searchTerm = $request->input('search');
+        
+        $query->whereHas('pendaftar', function ($q) use ($searchTerm) {
+            $q->where(function ($query) use ($searchTerm) {
+                $query->where('nama_depan', 'like', '%' . $searchTerm . '%')
+                      ->orWhere('nama_belakang', 'like', '%' . $searchTerm . '%')
+                      ->orWhere('nik', 'like', '%' . $searchTerm . '%')
+                      ->orWhere('nisn', 'like', '%' . $searchTerm . '%');
+            });
         });
     }
 

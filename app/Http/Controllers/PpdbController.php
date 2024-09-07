@@ -7,7 +7,10 @@ use App\Models\Pendaftar;
 use App\Models\Ppdb;
 use App\Models\PendaftarDokumen;
 use App\Models\PendaftarAkademik;
+use App\Models\User;
+use App\Notifications\UpdateStatus;
 use Illuminate\Http\Request;
+use Illuminate\Notifications\Notification;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -159,40 +162,58 @@ class PpdbController extends Controller
 
 
     public function updateStatus(Request $request)
-    {
-        // Validate incoming request
-        $validated = $request->validate([
-            'id' => 'required|exists:ppdb,id',
-            'status' => 'required|integer|'
+{
+    // Validate incoming request
+    $validated = $request->validate([
+        'id' => 'required|exists:ppdb,id',
+        'status' => 'required|integer|in:1,2,3,4'
+    ]);
+
+    $ppdbId = $validated['id'];
+    $status = $validated['status'];
+
+    try {
+        $ppdb = Ppdb::findOrFail($ppdbId);
+        $ppdb->status = $status;
+        $ppdb->save();
+
+        // Retrieve the associated User and Pendaftar
+        $user = User::where('id', $ppdb->user_id)->first();
+        $pendaftar = Pendaftar::where('ppdb_id', $ppdbId)->first();
+
+        if ($user && $pendaftar) {
+            Log::info('Sending email to: ' . $user->email);
+            $user->notify(new UpdateStatus($ppdb, $pendaftar));
+        } else {
+            Log::warning('User or Pendaftar not found for PPDB ID: ' . $ppdbId);
+        }
+
+        // Return a success response with human-readable status
+        $statusLabels = [
+            1 => 'Mendaftar',
+            2 => 'Telah Membayar',
+            3 => 'Lulus',
+            4 => 'Ditolak'
+        ];
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Status updated to: ' . $statusLabels[$status],
+            'data' => $ppdb
+        ]);
+    } catch (\Exception $e) {
+        // Log the exception
+        Log::error('Status update failed:', [
+            'exception' => $e->getMessage(),
+            'id' => $ppdbId,
+            'status' => $status,
         ]);
 
-        $ppdbId = $validated['id'];
-        $status = $validated['status'];
-
-        try {
-            $ppdb = Ppdb::findOrFail($ppdbId);
-            $ppdb->status = $status;
-            $ppdb->save();
-
-            // Return a success response
-            return response()->json([
-                'success' => true,
-                'message' => 'Status updated successfully.',
-                'data' => $ppdb
-            ]);
-        } catch (\Exception $e) {
-            // Handle exception (e.g., log it)
-            Log::error('Status update failed:', [
-                'exception' => $e->getMessage(),
-                'id' => $ppdbId,
-                'status' => $status,
-            ]);
-
-            // Return an error response
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to update status. Please try again later.'
-            ], 500);
-        }
+        // Return an error response
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to update status. Please try again later.'
+        ], 500);
     }
+}
 }
