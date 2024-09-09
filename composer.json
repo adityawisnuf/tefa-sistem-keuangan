@@ -7,10 +7,12 @@
     "require": {
         "php": "^8.1",
         "azishapidin/indoregion": "^3.0",
+        "barryvdh/laravel-dompdf": "^3.0",
         "guzzlehttp/guzzle": "^7.2",
         "laravel/framework": "^10.10",
         "laravel/sanctum": "^3.3",
         "laravel/tinker": "^2.8",
+        "maatwebsite/excel": "^3.1",
         "tymon/jwt-auth": "2.1.1"
     },
     "require-dev": {
