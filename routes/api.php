@@ -19,7 +19,7 @@ Route::group([
 ], function () {
     Route::post('logout', [LogoutController::class, 'logout']);
 
-    Route::middleware('checkrole:Bendahara,KepalaSekolah')->group(function () {
+    Route::middleware('checkrole:Bendahara,KepalaSekolah,Admin')->group(function () {
         // pengeluaran
         Route::get('pengeluaran', [PengeluaranController::class, 'getAllPengeluaran']);
         Route::get('pengeluaran/disetujui', [PengeluaranController::class, 'getPengeluaranDisetujui']);
