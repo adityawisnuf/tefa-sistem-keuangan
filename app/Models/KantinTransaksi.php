@@ -11,16 +11,16 @@ class KantinTransaksi extends Model
 
     protected $table = 'kantin_transaksi';
 
-    protected $fillable =[
+    protected $fillable = [
         'kantin_id', 'qty', 'total_harga', 'merchant_order_id',
     ];
 
-    public function pembayaran_duitku ()
+    public function pembayaran_duitku()
     {
         return $this->belongsTo(PembayaranDuitku::class, 'merchant_order_id');
     }
 
-    public function kantin () 
+    public function kantin()
     {
         return $this->belongsTo(Kantin::class, 'kantin_id');
     }

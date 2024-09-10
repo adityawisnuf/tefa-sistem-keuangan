@@ -2,191 +2,119 @@
 
 namespace App\Http\Services;
 
+use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Support\Facades\Log;
+
 class Duitku
 {
     protected $merchantCode;
+
     protected $apiKey;
+
     protected $apiURL;
+
     protected $dateNow;
+
+    protected $ch;
 
     public function __construct()
     {
-        $this->merchantCode = env("DUITKU_MERCHANT_ID", "");
-        $this->apiKey = env("DUITKU_API_KEY", "");
-        $this->apiURL = env("APP_ENV", 'production') === 'production' ? 'https://passport.duitku.com' : 'https://sandbox.duitku.com';
-        $this->dateNow =  date('Y-m-d H:i:s');
+        $this->merchantCode = env('DUITKU_MERCHANT_ID', '');
+        $this->apiKey = env('DUITKU_API_KEY', '');
+        $this->apiURL = env('APP_ENV', 'production') === 'production' ? 'https://passport.duitku.com' : 'https://sandbox.duitku.com';
+        $this->dateNow = date('Y-m-d H:i:s');
+        $this->ch = curl_init();
     }
 
-    public function getPaymentMethod($paymentAmount = 0)
+    protected function executeCurlRequest($url, $params)
     {
-        $signature = hash('sha256', $this->merchantCode . $paymentAmount . $this->dateNow . $this->apiKey);
-
-        $params = array(
-            'merchantcode' => $this->merchantCode,
-            'amount' => $paymentAmount,
-            'dateNow' => $this->dateNow,
-            'signature' => $signature
-        );
-
         $params_string = json_encode($params);
 
-
-
-        $ch = curl_init();
-
-        curl_setopt($ch, CURLOPT_URL, $this->apiURL . "/webapi/api/merchant/paymentmethod/getpaymentmethod");
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $params_string);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($this->ch, CURLOPT_URL, $url);
+        curl_setopt($this->ch, CURLOPT_CUSTOMREQUEST, 'POST');
+        curl_setopt($this->ch, CURLOPT_POSTFIELDS, $params_string);
+        curl_setopt($this->ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt(
-            $ch,
+            $this->ch,
             CURLOPT_HTTPHEADER,
-            array(
+            [
                 'Content-Type: application/json',
-                'Content-Length: ' . strlen($params_string)
-            )
+                'Content-Length' => strlen($params_string),
+            ]
         );
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+        curl_setopt($this->ch, CURLOPT_SSL_VERIFYPEER, false);
 
-        //execute post
-        $request = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $response = curl_exec($this->ch);
+        $httpCode = curl_getinfo($this->ch, CURLINFO_HTTP_CODE);
 
-        if ($httpCode == 200) {
-            $results = json_decode($request, true);
-            print_r($results, false);
-        } else {
-            $request = json_decode($request);
-            $error_message = "Server Error " . $httpCode . " " . $request->Message;
-            echo $error_message;
+        if ($httpCode != 200) {
+            $error_message = 'Server Error '.$httpCode.' '.json_decode($response)->Message;
+            Log::error($error_message);
+            throw new HttpResponseException(response()->json(['error' => $error_message], $httpCode));
         }
+
+        return json_decode($response, true);
+    }
+
+    public function getPaymentMethod($paymentAmount)
+    {
+        if (! $paymentAmount) {
+            throw new HttpResponseException(response()->json(['error' => 'Payment amount cannot be null'], 402));
+        }
+
+        $signature = hash('sha256', $this->merchantCode.$paymentAmount.$this->dateNow.$this->apiKey);
+        $params = [
+            'merchantcode' => $this->merchantCode,
+            'amount' => $paymentAmount,
+            'datetime' => $this->dateNow,
+            'signature' => $signature,
+        ];
+
+        return $this->executeCurlRequest($this->apiURL.'/webapi/api/merchant/paymentmethod/getpaymentmethod', $params);
     }
 
     public function requestTransaction($data)
     {
-        /*
-        $data = [
+        $signature = md5($this->merchantCode.$data['merchantOrderId'].$data['payment_amount'].$this->apiKey);
 
-        ]
-        */
-        $merchantOrderId = time() . ''; // dari merchant, unik
-        $productDetails = 'Tes pembayaran menggunakan Duitku';
-        $email = $data['user']['email']; // email pelanggan anda
-        $phoneNumber = ''; // nomor telepon pelanggan anda (opsional)
-        $additionalParam = ''; // opsional
-        $merchantUserInfo = ''; // opsional
-        $customerVaName = $data['user']['name']; // tampilan nama pada tampilan konfirmasi bank
-        $callbackUrl = route("duitku.callback"); // url untuk callback
-        $returnUrl = $data['return_url']; // url untuk redirect
-        $expiryPeriod = 10; // atur waktu kadaluarsa dalam hitungan menit
-        $signature = md5($this->merchantCode . $merchantOrderId . $data['payment_amount'] . $this->apiKey);
-
-        // Customer Detail
-        $nameArray = explode(" ", $data['user']['name']);
-        $firstName = $nameArray[0];
-        $lastName = $nameArray[1] ?? '';
-
-        // Account Link
-        //$accountLink = ''; // opsional
-        //$creditCardDetail = '';
-
-        // Address
-        $alamat = "Jl. Kembangan Raya";
-        $city = "Jakarta";
-        $postalCode = "11530";
-        $countryCode = "ID";
-
-        $address = array(
-            'firstName' => $firstName,
-            'lastName' => $lastName,
-            'address' => $alamat,
-            'city' => $city,
-            'postalCode' => $postalCode,
-            'phone' => $phoneNumber,
-            'countryCode' => $countryCode
-        );
-
-        $customerDetail = array(
-            'firstName' => $firstName,
-            'lastName' => $lastName,
-            'email' => $email,
-            'phoneNumber' => $phoneNumber,
-            'billingAddress' => $address,
-            'shippingAddress' => $address
-        );
-
-        $item1 = array(
-            'name' => 'Test Item 1',
-            'price' => 10000,
-            'quantity' => 1
-        );
-
-        $item2 = array(
-            'name' => 'Test Item 2',
-            'price' => 30000,
-            'quantity' => 3
-        );
-
-        $itemDetails = array(
-            $item1,
-            $item2
-        );
-        $params = array(
+        $params = [
             'merchantCode' => $this->merchantCode,
             'paymentAmount' => $data['payment_amount'],
             'paymentMethod' => $data['payment_method'],
-            'merchantOrderId' => $merchantOrderId,
-            'productDetails' => $productDetails,
-            'additionalParam' => $additionalParam,
-            'merchantUserInfo' => $merchantUserInfo,
-            'customerVaName' => $customerVaName,
-            'email' => $email,
-            'phoneNumber' => $phoneNumber,
-            //'accountLink' => $accountLink,
-            //'creditCardDetail' => $creditCardDetail,
-            'itemDetails' => $itemDetails,
-            'customerDetail' => $customerDetail,
-            'callbackUrl' => $callbackUrl,
-            'returnUrl' => $returnUrl,
+            'merchantOrderId' => $data['merchantOrderId'],
+            'productDetails' => $data['title'],
+            'additionalParam' => '',
+            'merchantUserInfo' => '',
+            'customerVaName' => $data['user']['name'],
+            'email' => $data['user']['email'],
+            'phoneNumber' => $data['user']['phone'],
+            'itemDetails' => $data['item_details'],
+            'customerDetail' => [
+                'firstName' => explode(' ', $data['user']['name'])[0],
+                'lastName' => explode(' ', $data['user']['name'])[1] ?? '',
+                'email' => $data['user']['email'],
+                'phoneNumber' => $data['user']['phone'],
+            ],
+            'callbackUrl' => route('payment.transaction.callback'),
+            'returnUrl' => $data['return_url'],
             'signature' => $signature,
-            'expiryPeriod' => $expiryPeriod
-        );
+            'expiryPeriod' => 5,
+        ];
 
-        $params_string = json_encode($params);
-        $ch = curl_init();
+        return $this->executeCurlRequest($this->apiURL.'/webapi/api/merchant/v2/inquiry', $params);
+    }
 
-        curl_setopt($ch, CURLOPT_URL, $this->apiURL . "webapi/api/merchant/v2/inquiry");
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $params_string);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt(
-            $ch,
-            CURLOPT_HTTPHEADER,
-            array(
-                'Content-Type: application/json',
-                'Content-Length: ' . strlen($params_string)
-            )
-        );
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+    public function callback($data)
+    {
+        $signature = md5($this->merchantCode.$data['amount'].$data['merchantOrderId'].$this->apiKey);
 
-        //execute post
-        $request = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        if ($signature !== $data['signature']) {
+            Log::warning('Invalid callback signature');
 
-        if ($httpCode == 200) {
-            $result = json_decode($request, true);
-            //header('location: '. $result['paymentUrl']);
-            echo "paymentUrl :" . $result['paymentUrl'] . "<br />";
-            echo "merchantCode :" . $result['merchantCode'] . "<br />";
-            echo "reference :" . $result['reference'] . "<br />";
-            echo "vaNumber :" . $result['vaNumber'] . "<br />";
-            echo "amount :" . $result['amount'] . "<br />";
-            echo "statusCode :" . $result['statusCode'] . "<br />";
-            echo "statusMessage :" . $result['statusMessage'] . "<br />";
-        } else {
-            $request = json_decode($request);
-            $error_message = "Server Error " . $httpCode . " " . $request->Message;
-            echo $error_message;
+            return false;
         }
+
+        // Process the callback
+        return $data['resultCode'] === '00';
     }
 }

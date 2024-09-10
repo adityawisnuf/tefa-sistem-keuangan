@@ -10,7 +10,7 @@ class LogoutController extends Controller
     {
         $removeToken = JWTAuth::invalidate(JWTAuth::getToken());
 
-        if($removeToken) {
+        if ($removeToken) {
             return response()->json(['message' => 'Successfully logged out']);
         }
     }
@@ -20,7 +20,7 @@ class LogoutController extends Controller
         return response()->json([
             'access_token' => $token,
             'token_type' => 'bearer',
-            'expires_in' => JWTAuth::factory()->getTTL() * 60
+            'expires_in' => JWTAuth::factory()->getTTL() * 60,
         ]);
     }
 }

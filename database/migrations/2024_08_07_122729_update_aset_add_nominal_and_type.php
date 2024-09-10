@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('aset', function (Blueprint $table) {
             $table->string('tipe', 255)->after('id')->nullable();
-            $table->double('harga', 10,2)->after('nama')->default(0);
+            $table->double('harga', 10, 2)->after('nama')->default(0);
         });
     }
 

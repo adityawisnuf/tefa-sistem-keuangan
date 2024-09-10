@@ -9,8 +9,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use AzisHapidin\IndoRegion\RawDataGetter;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
 class IndoRegionRegencySeeder extends Seeder
@@ -19,7 +19,7 @@ class IndoRegionRegencySeeder extends Seeder
      * Run the database seeds.
      *
      * @deprecated
-     * 
+     *
      * @return void
      */
     public function run()

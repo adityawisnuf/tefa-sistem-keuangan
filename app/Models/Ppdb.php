@@ -9,9 +9,9 @@ class Ppdb extends Model
 {
     use HasFactory;
 
-    protected $table= 'ppdb';
+    protected $table = 'ppdb';
 
-    protected $fillable= [
+    protected $fillable = [
         'dokumen_pendaftar_id', 'status', 'merchant_order_id',
     ];
 
@@ -24,13 +24,14 @@ class Ppdb extends Model
     {
         return $this->hasOne(PendaftarAkademik::class, 'ppdb_id');
     }
+
     public function pendaftar()
     {
         return $this->hasOne(Pendaftar::class, 'ppdb_id');
     }
+
     public function pendaftar_dokumen()
     {
         return $this->hasOne(PendaftarDokumen::class, 'ppdb_id');
     }
-
 }

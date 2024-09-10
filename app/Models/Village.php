@@ -11,7 +11,6 @@ namespace App\Models;
 
 use AzisHapidin\IndoRegion\Traits\VillageTrait;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\District;
 
 /**
  * Village Model.
@@ -33,10 +32,10 @@ class Village extends Model
      * @var array
      */
     protected $hidden = [
-        'district_id'
+        'district_id',
     ];
 
-	/**
+    /**
      * Village belongs to District.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo

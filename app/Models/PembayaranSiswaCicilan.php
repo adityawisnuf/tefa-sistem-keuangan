@@ -21,6 +21,7 @@ class PembayaranSiswaCicilan extends Model
     {
         return $this->belongsTo(PembayaranSiswa::class, 'pembayaran_siswa_id');
     }
+
     public function pembayaran_duitku()
     {
         return $this->belongsTo(PembayaranDuitku::class, 'merchant_order_id');

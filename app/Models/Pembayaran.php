@@ -28,8 +28,10 @@ class Pembayaran extends Model
 
     public function pembayaran_kategori()
     {
-        return $this->hasMany(PembayaranKategori::class, 'pembayaran_kategori_id');
+        // return $this->hasMany(PembayaranKategori::class, 'pembayaran_kategori_id');
+        return $this->belongsTo(PembayaranKategori::class, 'pembayaran_kategori_id');
     }
+
     public function pembayaran_siswa()
     {
         return $this->hasMany(PembayaranSiswa::class, 'pembayaran_id');

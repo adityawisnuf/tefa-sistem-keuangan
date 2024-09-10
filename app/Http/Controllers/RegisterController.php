@@ -2,17 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Tymon\JWTAuth\Facades\JWTAuth;
 
 class RegisterController extends Controller
 {
     public function register(Request $request)
     {
         $this->validate($request, [
-            'name' => 'required|string|max:255',          
+            'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:6|confirmed',
         ]);
@@ -23,11 +22,11 @@ class RegisterController extends Controller
             'role' => 'OrangTua',
             'password' => Hash::make($request->password),
         ]);
-                              
-        if($user) {
+
+        if ($user) {
             return response()->json([
                 'success' => true,
-                'user'    => $user,  
+                'user' => $user,
             ], 201);
         }
 
@@ -35,5 +34,4 @@ class RegisterController extends Controller
             'success' => false,
         ], 409);
     }
-
 }

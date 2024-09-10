@@ -3,16 +3,18 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use app\Http\Controllers\LoginController;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Tymon\JWTAuth\Contracts\JWTSubject;
-use app\Http\Controllers\LoginController;
 
 class User extends Authenticatable implements JWTSubject
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens;
+    use HasFactory;
+    use Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -54,7 +56,7 @@ class User extends Authenticatable implements JWTSubject
     public function getJWTCustomClaims()
     {
         $datas = (new LoginController)->getAllDatas($this->id);
-        
+
         return [
             'user_id' => $this->id,
             'email' => $this->email,
@@ -63,14 +65,13 @@ class User extends Authenticatable implements JWTSubject
         ];
     }
 
-    public function siswa ()
+    public function siswa()
     {
         return $this->hasOne(Siswa::class, 'user_id');
     }
-    
-    public function orangtua ()
+
+    public function orangtua()
     {
         return $this->hasOne(Orangtua::class, 'user_id');
     }
-
 }

@@ -9,9 +9,9 @@ class Pengeluaran extends Model
 {
     use HasFactory;
 
-    protected $table= 'pengeluaran';
+    protected $table = 'pengeluaran';
 
-    protected $fillable= [
+    protected $fillable = [
         'pengeluaran_kategori_id', 'keperluan', 'nominal', 'diajukan_pada', 'disetujui_pada',
     ];
 

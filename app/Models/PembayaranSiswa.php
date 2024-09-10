@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -11,10 +12,10 @@ class PembayaranSiswa extends Model
     protected $table = 'pembayaran_siswa';
 
     protected $fillable = [
-        'siswa_id', 
-        'pembayaran_id', 
-        'nominal', 
-        'merchant_order_id', 
+        'siswa_id',
+        'pembayaran_id',
+        'nominal',
+        'merchant_order_id',
         'status',
     ];
 

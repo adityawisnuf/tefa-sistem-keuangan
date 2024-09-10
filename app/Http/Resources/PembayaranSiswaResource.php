@@ -8,21 +8,23 @@ class PembayaranSiswaResource extends JsonResource
 {
     //define properti
     public $status;
+
     public $message;
+
     public $resource;
-    
+
     /**
      * __construct
      *
-     * @param  mixed $status
-     * @param  mixed $message
-     * @param  mixed $resource
+     * @param  mixed  $status
+     * @param  mixed  $message
+     * @param  mixed  $resource
      * @return void
      */
     public function __construct($status, $message, $resource)
     {
         parent::__construct($resource);
-        $this->status  = $status;
+        $this->status = $status;
         $this->message = $message;
     }
 
@@ -35,9 +37,9 @@ class PembayaranSiswaResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'success'   => $this->status,
-            'message'   => $this->message,
-            'data'      => $this->resource
+            'success' => $this->status,
+            'message' => $this->message,
+            'data' => $this->resource,
         ];
     }
 }

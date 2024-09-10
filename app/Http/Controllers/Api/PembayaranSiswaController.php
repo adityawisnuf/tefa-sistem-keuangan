@@ -1,10 +1,11 @@
 <?php
+
 namespace App\Http\Controllers\Api;
 
-use App\Models\PembayaranSiswa;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PembayaranSiswaResource;
+use App\Models\PembayaranSiswa;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class PembayaranSiswaController extends Controller
@@ -36,25 +37,26 @@ class PembayaranSiswaController extends Controller
             'merchant_order_id' => 'nullable|string|max:255',
             'status' => 'required|in:0,1',
         ]);
-    
+
         if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
-    
+
         // Generate a unique merchant_order_id if not provided
-        $merchantOrderId = $request->input('merchant_order_id') ?: 'ORDER-' . time() . '-' . strtoupper(uniqid());
-    
+        $merchantOrderId = $request->input('merchant_order_id') ?: 'ORDER-'.time().'-'.strtoupper(uniqid());
+
         $pembayaranSiswa = PembayaranSiswa::create(array_merge(
             $validator->validated(),
             ['merchant_order_id' => $merchantOrderId]
         ));
-    
+
         return new PembayaranSiswaResource(true, 'Pembayaran Siswa Berhasil Ditambahkan!', $pembayaranSiswa);
     }
-    
+
     public function show($id)
     {
         $pembayaranSiswa = PembayaranSiswa::find($id);
+
         return new PembayaranSiswaResource(true, 'Detail Pembayaran Siswa!', $pembayaranSiswa);
     }
 
@@ -82,6 +84,7 @@ class PembayaranSiswaController extends Controller
     {
         $pembayaranSiswa = PembayaranSiswa::find($id);
         $pembayaranSiswa->delete();
+
         return new PembayaranSiswaResource(true, 'Pembayaran Siswa Berhasil Dihapus!', null);
     }
 
@@ -90,7 +93,7 @@ class PembayaranSiswaController extends Controller
     {
         $pembayaranSiswa = PembayaranSiswa::find($id);
 
-        if (!$pembayaranSiswa) {
+        if (! $pembayaranSiswa) {
             return response()->json(['error' => 'Pembayaran Siswa tidak ditemukan'], 404);
         }
 
@@ -115,30 +118,29 @@ class PembayaranSiswaController extends Controller
     {
         $siswaId = $request->user()->id;
         $pembayaranSiswa = PembayaranSiswa::where('siswa_id', $siswaId)->get();
-        
+
         return response()->json([
             'success' => true,
             'message' => 'Riwayat Pembayaran',
-            'data' => $pembayaranSiswa
+            'data' => $pembayaranSiswa,
         ]);
     }
-    
 
     // Metode untuk riwayat tagihan
     public function riwayatTagihan(Request $request)
     {
         $siswaId = $request->user()->id; // Ambil ID siswa dari user yang sedang login
-    
+
         // Ambil tagihan berdasarkan siswa_id dan status
         $tagihan = PembayaranSiswa::where('siswa_id', $siswaId)
             ->where('status', 0) // Misalnya, 0 = belum dibayar
             ->get();
-    
+
         // Kembalikan data dalam format JSON
         return response()->json([
             'success' => true,
             'message' => 'Riwayat Tagihan',
-            'data' => $tagihan
+            'data' => $tagihan,
         ]);
     }
-}    
+}

@@ -9,9 +9,9 @@ class AsetSekolah extends Model
 {
     use HasFactory;
 
-    protected $table= 'aset';
+    protected $table = 'aset';
 
-    protected $fillable= [
+    protected $fillable = [
         'tipe', 'nama', 'harga', 'kondisi', 'penggunaan',
     ];
 }

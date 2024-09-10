@@ -5,7 +5,6 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Symfony\Component\HttpFoundation\Response;
 
 class CheckUserRole
 {
@@ -14,11 +13,11 @@ class CheckUserRole
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle($request, Closure $next, ... $roles)
+    public function handle($request, Closure $next, ...$roles)
     {
         $user = Auth::user();
 
-        foreach($roles as $role) {
+        foreach ($roles as $role) {
             if ($user && $user->role === $role) {
                 return $next($request);
             }

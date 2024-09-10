@@ -32,7 +32,7 @@ class Regency extends Model
      * @var array
      */
     protected $hidden = [
-        'province_id'
+        'province_id',
     ];
 
     /**

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id()->autoIncrement();
             $table->integer('ppdb_id');
             $table->integer('pembayaran_id');
-            $table->double('nominal', 10,2)->default(0);
+            $table->double('nominal', 10, 2)->default(0);
             $table->string('merchant_order_id', 255)->nullable();
             $table->tinyInteger('status')->comment('1=selesai; 0=belum selesai;');
             $table->timestamps();

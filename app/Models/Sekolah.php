@@ -9,13 +9,13 @@ class Sekolah extends Model
 {
     use HasFactory;
 
-    protected $table= 'sekolah';
+    protected $table = 'sekolah';
 
-    protected $fillable =[
+    protected $fillable = [
         'nama', 'alamat', 'telepon',
     ];
 
-    public function kelas() 
+    public function kelas()
     {
         return $this->hasMany(kelas::class, 'sekolah_id');
     }

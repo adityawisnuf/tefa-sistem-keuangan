@@ -11,13 +11,13 @@ class Laundry extends Model
     use HasFactory;
     use SoftDeletes;
 
-    protected $table= 'laundry';
+    protected $table = 'laundry';
 
     protected $fillable = [
         'berat', 'harga',
     ];
 
-    public function laundry_transaksi () 
+    public function laundry_transaksi()
     {
         return $this->hasMany(LaundryTransaksi::class, 'laundry_id');
     }

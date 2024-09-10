@@ -15,11 +15,12 @@ class SiswaWallet extends Model
         'siswa_id', 'nominal',
     ];
 
-    public function siswa ()
+    public function siswa()
     {
         return $this->belongsTo(Siswa::class, 'siswa_id');
     }
-    public function siswa_wallet_riwayat ()
+
+    public function siswa_wallet_riwayat()
     {
         return $this->hasMany(Siswa::class, 'siswa_wallet_id');
     }

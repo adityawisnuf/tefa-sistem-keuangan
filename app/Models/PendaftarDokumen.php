@@ -9,15 +9,14 @@ class PendaftarDokumen extends Model
 {
     use HasFactory;
 
-    protected $table='pendaftar_dokumen';
+    protected $table = 'pendaftar_dokumen';
 
-    protected $fillable=[
+    protected $fillable = [
         'ppdb_id', 'akte_kelahiran', 'kartu_keluarga', 'ijazah', 'raport',
     ];
 
-    public function ppdb ()
+    public function ppdb()
     {
         return $this->belongsTo(Ppdb::class, 'ppdb_id');
     }
-
 }

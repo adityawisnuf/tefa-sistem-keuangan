@@ -9,7 +9,7 @@ class SiswaWalletRiwayat extends Model
 {
     use HasFactory;
 
-    protected $table= 'siswa_wallet_riwayat';
+    protected $table = 'siswa_wallet_riwayat';
 
     protected $fillable = [
         'siswa_wallet_id', 'tujuan_transaksi', 'nominal', 'tipe_transaksi', 'merchant_order_id', 'status',
@@ -19,6 +19,7 @@ class SiswaWalletRiwayat extends Model
     {
         return $this->belongsTo(PembayaranDuitku::class, 'merchant_order_id');
     }
+
     public function siswa_wallet()
     {
         return $this->belongsTo(Siswa::class, 'siswa_wallet_id');

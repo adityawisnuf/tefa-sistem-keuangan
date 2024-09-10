@@ -15,12 +15,12 @@ class LaundryTransaksi extends Model
         'laundry_id', 'qty', 'total_harga', 'merchant_order_id',
     ];
 
-    public function pembayaran_duitku ()
+    public function pembayaran_duitku()
     {
         return $this->belongsTo(PembayaranDuitku::class, 'merchant_order_id');
     }
 
-    public function laundry () 
+    public function laundry()
     {
         return $this->belongsTo(Laundry::class, 'laundry_id');
     }
