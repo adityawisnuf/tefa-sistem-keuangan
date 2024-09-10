@@ -67,7 +67,7 @@ class PembayaranController extends Controller
         // Retrieve the pembayaran list
         $pembayaranList = $pembayaranKategori->pembayaran->map(function ($pembayaran) use ($pembayaranKategori, $siswa) {
             // Check if the student has paid this pembayaran
-            $pembayaranSiswa = $pembayaran->pembayaran_siswa->first(); // This can be null
+            $pembayaranSiswa = $pembayaran->pembayaran_siswa->where('status', 0)->first(); // This can be null
 
             // Get total installment (cicilan) amount if any
             $totalCicilan = 0;
