@@ -20,6 +20,7 @@ class PrediksiPerencanaanKeuanganController extends Controller
 {
     // Get the year from query parameters
     $tahun = $request->query('tahun');
+    $bulan = $request->query('bulan');
 
     // Initialize arrays for each count (12 months)
     $countDiajukan = array_fill(0, 12, 0);
@@ -49,12 +50,14 @@ class PrediksiPerencanaanKeuanganController extends Controller
     }
 
     // Example of how other anggaran data is handled (keep this part unchanged as per your example)
-    $anggaran = Anggaran::when($tahun, function ($query) use ($tahun) {
-        return $query->whereYear('tanggal_pengajuan', $tahun);
+    $anggaran = Anggaran::when($bulan, function ($query) use ($bulan) {
+        return $query->whereMonth('tanggal_pengajuan', $bulan);
     })
-    ->orderBy('tanggal_pengajuan', 'desc')
-    ->get();
-
+        ->when($tahun, function ($query) use ($tahun) {
+            return $query->whereYear('tanggal_pengajuan', $tahun);
+        })
+        ->orderBy('tanggal_pengajuan', 'desc') // Menambahkan orderBy untuk mengurutkan dari tanggal terbaru
+        ->get();
     // Format the anggaran data (you can keep your current mapping logic here)
     $anggaranFiltered = $anggaran->map(function ($item) {
         $item->tanggal_pengajuan = Carbon::parse($item->tanggal_pengajuan)->format('d M Y');
