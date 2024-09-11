@@ -17,81 +17,76 @@ class PrediksiPerencanaanKeuanganController extends Controller
     }
 
     private function retrieveData(Request $request)
-    {
-        // Get the month and year from query parameters
-        $bulan = $request->query('bulan');
-        $tahun = $request->query('tahun');
+{
+    // Get the year from query parameters
+    $tahun = $request->query('tahun');
 
-        // Retrieve data with filtering based on the month and year if provided, and sort by tanggal_pengajuan
-        $anggaran = Anggaran::when($bulan, function ($query) use ($bulan) {
-            return $query->whereMonth('tanggal_pengajuan', $bulan);
-        })
-            ->when($tahun, function ($query) use ($tahun) {
-                return $query->whereYear('tanggal_pengajuan', $tahun);
-            })
-            ->orderBy('tanggal_pengajuan', 'desc') // Menambahkan orderBy untuk mengurutkan dari tanggal terbaru
-            ->get();
-        $totalDiajukan = Anggaran::when($bulan, function ($query) use ($bulan) {
-            return $query->whereMonth('tanggal_pengajuan', $bulan);
-        })
-            ->when($tahun, function ($query) use ($tahun) {
-                return $query->whereYear('tanggal_pengajuan', $tahun);
-            })
-            ->where('status',1)
-            ->orderBy('tanggal_pengajuan', 'desc') // Menambahkan orderBy untuk mengurutkan dari tanggal terbaru
-            ->sum('nominal');
-        $totalDiapprove = Anggaran::when($bulan, function ($query) use ($bulan) {
-            return $query->whereMonth('tanggal_pengajuan', $bulan);
-        })
-            ->when($tahun, function ($query) use ($tahun) {
-                return $query->whereYear('tanggal_pengajuan', $tahun);
-            })
-            ->where('status',2)
-            ->orderBy('tanggal_pengajuan', 'desc') // Menambahkan orderBy untuk mengurutkan dari tanggal terbaru
-            ->sum('nominal');
-        $totalRealisasi = Anggaran::when($bulan, function ($query) use ($bulan) {
-            return $query->whereMonth('tanggal_pengajuan', $bulan);
-        })
-            ->when($tahun, function ($query) use ($tahun) {
-                return $query->whereYear('tanggal_pengajuan', $tahun);
-            })
-            ->where('status',3)
-            ->orderBy('tanggal_pengajuan', 'desc') // Menambahkan orderBy untuk mengurutkan dari tanggal terbaru
-            ->sum('nominal');
-        $totalGagal = Anggaran::when($bulan, function ($query) use ($bulan) {
-            return $query->whereMonth('tanggal_pengajuan', $bulan);
-        })
-            ->when($tahun, function ($query) use ($tahun) {
-                return $query->whereYear('tanggal_pengajuan', $tahun);
-            })
-            ->where('status',4)
-            ->orderBy('tanggal_pengajuan', 'desc') // Menambahkan orderBy untuk mengurutkan dari tanggal terbaru
-            ->sum('nominal');
+    // Initialize arrays for each count (12 months)
+    $countDiajukan = array_fill(0, 12, 0);
+    $countDiapprove = array_fill(0, 12, 0);
+    $countTerealisasikan = array_fill(0, 12, 0);
+    $countGagal = array_fill(0, 12, 0);
 
-        // Format the data and remove unwanted fields
-        $anggaranFiltered = $anggaran->map(function ($item) {
-            $item->tanggal_pengajuan = Carbon::parse($item->tanggal_pengajuan)->format('d M Y');
-            $item->target_terealisasikan = $item->target_terealisasikan
-                ? Carbon::parse($item->target_terealisasikan)->format('d M Y')
-                : null;
+    // Retrieve counts by month for each status
+    $anggaranByMonth = Anggaran::when($tahun, function ($query) use ($tahun) {
+        return $query->whereYear('tanggal_pengajuan', $tahun);
+    })
+        ->selectRaw('MONTH(tanggal_pengajuan) as month,
+            COUNT(CASE WHEN status = 1 THEN 1 ELSE NULL END) as count_diajukan,
+            COUNT(CASE WHEN status = 2 THEN 1 ELSE NULL END) as count_diapprove,
+            COUNT(CASE WHEN status = 3 THEN 1 ELSE NULL END) as count_terealisasikan,
+            COUNT(CASE WHEN status = 4 THEN 1 ELSE NULL END) as count_gagal')
+        ->groupBy('month')
+        ->get();
 
-            $item->nominal = $this->formatToRupiah($item->nominal);
-
-            return $item->makeHidden(['id', 'deskripsi', 'created_at', 'updated_at']);
-        });
-
-        return [
-            'anggaran' => $anggaranFiltered,
-            'total_anggaran_diajukan' => $this->formatToRupiah($totalDiajukan),
-            'total_anggaran_diapprove' => $this->formatToRupiah($totalDiapprove),
-            'total_anggaran_terealisasikan' => $this->formatToRupiah($totalRealisasi),
-            'total_anggaran_gagal' => $this->formatToRupiah($totalGagal),
-            'count_diajukan' => Anggaran::all()->where('status', 1)->count(),
-            'count_diapprove' => Anggaran::all()->where('status', 2)->count(),
-            'count_terealisasikan' => Anggaran::all()->where('status', 3)->count(),
-            'count_gagal' => Anggaran::all()->where('status', 4)->count(),
-        ];
+    // Populate the arrays for each month based on the retrieved data
+    foreach ($anggaranByMonth as $data) {
+        $monthIndex = $data->month - 1; // Month index (0 for January, 11 for December)
+        $countDiajukan[$monthIndex] = $data->count_diajukan;
+        $countDiapprove[$monthIndex] = $data->count_diapprove;
+        $countTerealisasikan[$monthIndex] = $data->count_terealisasikan;
+        $countGagal[$monthIndex] = $data->count_gagal;
     }
+
+    // Example of how other anggaran data is handled (keep this part unchanged as per your example)
+    $anggaran = Anggaran::when($tahun, function ($query) use ($tahun) {
+        return $query->whereYear('tanggal_pengajuan', $tahun);
+    })
+    ->orderBy('tanggal_pengajuan', 'desc')
+    ->get();
+
+    // Format the anggaran data (you can keep your current mapping logic here)
+    $anggaranFiltered = $anggaran->map(function ($item) {
+        $item->tanggal_pengajuan = Carbon::parse($item->tanggal_pengajuan)->format('d M Y');
+        $item->target_terealisasikan = $item->target_terealisasikan
+            ? Carbon::parse($item->target_terealisasikan)->format('d M Y')
+            : null;
+
+        $item->nominal = $this->formatToRupiah($item->nominal);
+
+        return $item->makeHidden(['id', 'deskripsi', 'created_at', 'updated_at']);
+    });
+
+    // Example of other sums, unchanged
+    $totalDiajukan = $this->formatToRupiah(Anggaran::where('status', 1)->sum('nominal'));
+    $totalDiapprove = $this->formatToRupiah(Anggaran::where('status', 2)->sum('nominal'));
+    $totalTerealisasikan = $this->formatToRupiah(Anggaran::where('status', 3)->sum('nominal'));
+    $totalGagal = $this->formatToRupiah(Anggaran::where('status', 4)->sum('nominal'));
+
+    // Return the response
+    return [
+        'anggaran' => $anggaranFiltered,
+        'total_anggaran_diajukan' => $totalDiajukan,
+        'total_anggaran_diapprove' => $totalDiapprove,
+        'total_anggaran_terealisasikan' => $totalTerealisasikan,
+        'total_anggaran_gagal' => $totalGagal,
+        'count_diajukan' => $countDiajukan,
+        'count_diapprove' => $countDiapprove,
+        'count_terealisasikan' => $countTerealisasikan,
+        'count_gagal' => $countGagal,
+    ];
+}
+
 
 
     private function formatToRupiah($value)
