@@ -73,7 +73,7 @@ class Duitku
         return $this->executeCurlRequest($this->apiURL.'/webapi/api/merchant/paymentmethod/getpaymentmethod', $params);
     }
 
-    public function requestTransaction($data)
+    public function requestTransaction($data, $expiryPeriod = 60)
     {
         $signature = md5($this->merchantCode.$data['merchantOrderId'].$data['payment_amount'].$this->apiKey);
 
@@ -98,7 +98,7 @@ class Duitku
             'callbackUrl' => route('payment.transaction.callback'),
             'returnUrl' => $data['return_url'],
             'signature' => $signature,
-            'expiryPeriod' => 5,
+            'expiryPeriod' => $expiryPeriod,
         ];
 
         return $this->executeCurlRequest($this->apiURL.'/webapi/api/merchant/v2/inquiry', $params);

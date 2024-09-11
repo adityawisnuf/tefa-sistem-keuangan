@@ -41,7 +41,7 @@ class DatabaseSeeder extends Seeder
             ]);
 
             $SiswaUser = \App\Models\User::create([
-                'name' => 'Siswa User',
+                'name' => 'Muhammad Azfa',
                 'email' => 'siswa@gmail.com',
                 'role' => 'Siswa',
                 'password' => \Illuminate\Support\Facades\Hash::make('rahasia'),

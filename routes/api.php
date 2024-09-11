@@ -17,7 +17,9 @@ Route::middleware('auth:api')->group(function () {
     Route::post('logout', [LogoutController::class, 'logout']);
 
     Route::prefix('payment')->group(function () {
-        Route::get('/me', [PembayaranController::class, 'getCurrent'])->name('payment.transaction.request');
+        Route::get('/me', [PembayaranController::class, 'getCurrent'])->name('payment.transaction.getMonth');
+        Route::get('/me/yearly', [PembayaranController::class, 'getCurrentYear'])->name('payment.transaction.getYear');
+        Route::get('/yearly', [PembayaranController::class, 'getRiwayatTahunan'])->name('payment.transaction.getYear');
         Route::get('/', [PembayaranController::class, 'getRiwayat'])->name('payment.transaction.request');
         Route::get('methods/{id}', [PembayaranController::class, 'getPaymentMethod'])->name('payment.methods');
         Route::post('transaction/request', [PembayaranController::class, 'requestTransaksi'])->name('payment.transaction.request');
