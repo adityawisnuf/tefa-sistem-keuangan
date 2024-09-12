@@ -30,8 +30,8 @@ Route::group([
         Route::patch('/anggaran/{anggaran}', [AnggaranController::class, 'update']);
         Route::delete('/anggaran/{anggaran}', [AnggaranController::class, 'destroy']);
 
-        // Monitoring Routes
-        Route::get('/monitoring/get', [MonitoringController::class, 'getMonitoringData']);
+        // Additional Routes
+        Route::get('/monitoring', [MonitoringController::class, 'getLastSevenAnggaran']);
 
         // Laporan Anggaran
         Route::get('/laporan/anggaran', function () {
@@ -51,6 +51,9 @@ Route::group([
 
             return $pdf->stream($fileName);
         })->name('laporan.anggaran');
+
+         // Laporan Deviasi
+         Route::get('/laporan/deviasi', [AnggaranController::class, 'printDeviasi'])->name('laporan.deviasi');
     });
 
     // Role: Bendahara
@@ -62,9 +65,6 @@ Route::group([
         Route::post('/anggaran', [AnggaranController::class, 'store']);
         Route::get('/anggaran', [AnggaranController::class, 'index']);
         Route::patch('/anggaran/{anggaran}', [AnggaranController::class, 'update']);
-
-        // Monitoring Routes
-        Route::get('/monitoring/get', [MonitoringController::class, 'getMonitoringData']);
 
         // Laporan Anggaran
         Route::get('/laporan/anggaran', function () {
@@ -95,9 +95,6 @@ Route::group([
         Route::get('/anggaran', [AnggaranController::class, 'index']);
         Route::patch('/anggaran/{anggaran}', [AnggaranController::class, 'update']);
         Route::get('/anggaran/chart-data', [AnggaranController::class, 'getAnggaranData']);
-
-        // Monitoring Routes
-        Route::get('/monitoring/get', [MonitoringController::class, 'getMonitoringData']);
 
         // Laporan Anggaran
         Route::get('/laporan/anggaran', function () {
