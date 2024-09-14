@@ -19,7 +19,7 @@ class OrangTuaController extends Controller
 
             return response()->json(['data' => $siswa], Response::HTTP_OK);
         } catch (\Exception $e) {
-            Log::error('getSiswa: ' . $e->getMessage());
+            Log::error('getSiswa: ' . $e);
             return response()->json(['error' => 'Terjadi kesalahan saat mengambil data siswa.'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }

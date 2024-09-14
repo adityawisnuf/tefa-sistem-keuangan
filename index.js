@@ -12,7 +12,7 @@ const io = socketIo(server, {
     cors: {
         origin: true,
         methods: ["*"],
-    },
+    },  
 });
 
 app.set("io", io);
@@ -34,7 +34,7 @@ io.on("connection", (socket) => {
                 return;
             }
 
-            io.to(targetSocketId).emit("remidFetch");
+            io.to(targetSocketId).emit("remindFetch");
         } catch (error) {
             console.error(`Error emitting remindFetch event: ${error}`);
         }
