@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Test\Constraint\ResponseFormatSame;
 
 class PengeluaranController extends Controller
 {
-    public function getAllPengeluaran()
+    public function index()
     {
         $pengeluaran = Pengeluaran::with('pengeluaran_kategori')->get();
 
@@ -22,7 +22,7 @@ class PengeluaranController extends Controller
         ]);
     }
 
-    public function getDetailPengeluaran(string $id)
+    public function show(string $id)
     {
         $pengeluaran = Pengeluaran::with('pengeluaran_kategori')->find($id);
 
@@ -79,7 +79,7 @@ class PengeluaranController extends Controller
         ]);
     }
 
-    public function addPengeluaran(Request $request)
+    public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'pengeluaran_kategori_id' => 'required|exists:pengeluaran_kategori,id',
@@ -121,7 +121,7 @@ class PengeluaranController extends Controller
         ]);
     }
 
-    public function updatePengeluaran(Request $request, string $id)
+    public function update(Request $request, string $id)
     {
         $validator = Validator::make($request->all(), [
             'pengeluaran_kategori_id' => 'required|exists:pengeluaran_kategori,id',
@@ -161,7 +161,7 @@ class PengeluaranController extends Controller
         ]);
     }
 
-    public function deletePengeluaran(string $id)
+    public function destroy(string $id)
     {
 
         $pengeluaran = Pengeluaran::find($id);

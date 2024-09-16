@@ -8,7 +8,35 @@ use Illuminate\Support\Facades\Validator;
 
 class PengeluaranKategoriController extends Controller
 {
-    public function addPengeluaranKategori(Request $request)
+    public function index()
+    {
+        $pengeluaranKategori = PengeluaranKategori::all('id', 'nama', 'status');
+
+        return response()->json([
+            'success' => true,
+            'message' => 'data pengeluaran kategori berhasil diambil',
+            'data' => $pengeluaranKategori
+        ]);
+    }
+
+    public function show(string $id)
+    {
+        $pengeluaranKategori = PengeluaranKategori::find($id, ['id', 'nama', 'status']);
+        if (!$pengeluaranKategori) {
+            return response()->json([
+                'success' => false,
+                'message' => 'data pengeluaran kategori tidak ditemukan'
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'data pengeluaran kategori berhasil diambil',
+            'data' => $pengeluaranKategori
+        ]);
+    }
+
+    public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'nama' => 'required',
@@ -40,7 +68,7 @@ class PengeluaranKategoriController extends Controller
         ]);
     }
 
-    public function updatePengeluaranKategori(Request $request, string $id)
+    public function update(Request $request, string $id)
     {
         $validator = Validator::make($request->all(), [
             'nama'     => 'required'
@@ -74,7 +102,7 @@ class PengeluaranKategoriController extends Controller
         ]);
     }
 
-    public function deletePengeluaranKategori(string $id)
+    public function destroy(string $id)
     {
 
         $pengeluaranKategori = PengeluaranKategori::find($id);
