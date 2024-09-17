@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laporan Anggaran</title>
+    <title>Laporan Deviasi</title>
     <style>
         /* Styling umum */
         * {
@@ -12,18 +12,19 @@
             box-sizing: border-box;
         }
 
+
         body {
             display: flex;
             flex-direction: column;
             align-items: center;
-            background-color: #ffffff;
+            background-color: #fff; /* Mengubah latar belakang menjadi putih */
             color: #151010;
             margin: 0;
             padding: 20px;
         }
 
-        /* Header styling */
-        header {
+          /* Header styling */
+          header {
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -47,8 +48,7 @@
         .kop-surat h1, .kop-surat p, .kop-surat h2 {
             margin: 0;
         }
-
-        .kop-surat h2 {
+ .kop-surat h2 {
             font-size: 16px;
             font-weight: normal; /* Mengatur font-weight menjadi normal */
         }
@@ -66,14 +66,14 @@
             font-size: 11px;
         }
 
-        /* Garis bawah kop surat */
+ /* Garis bawah kop surat */
         .line-container {
             width: 100%;
             max-width: 1000px;
             margin-top: 5px; /* Mengurangi jarak antara garis dan kop surat */
         }
 
-        .line-container hr {
+ .line-container hr {
             border: 1px solid black; /* Mengubah ketebalan garis menjadi lebih tipis */
             margin: 2px 0; /* Mengurangi jarak antar dua garis */
         }
@@ -96,7 +96,7 @@
             margin-bottom: 20px;
         }
 
-        table {
+  table {
             width: 100%;
             max-width: 1000px;
             border-collapse: collapse;
@@ -116,7 +116,7 @@
             color: #ffffff;
         }
 
-        tr:nth-child(even) {
+ tr:nth-child(even) {
             background-color: #f4f4f9;
         }
 
@@ -137,7 +137,7 @@
             margin: 5px 0;
         }
 
-        .signature {
+ .signature {
             margin-top: 80px;
             font-size: 16px;
         }
@@ -161,64 +161,51 @@
         </div>
     </header>
 
-    <!-- Garis bawah kop surat -->
+  <!-- Garis bawah kop surat -->
     <div class="line-container">
         <hr>
         <hr>
     </div>
 
     <!-- Judul Laporan -->
-    <h3>LAPORAN ANGGARAN</h3>
 
-    <!-- Tabel Anggaran -->
+    <h3>LAPORAN DEVIASI</h3>
     <div class="table-container">
         <table>
             <thead>
                 <tr>
-                    <th>No</th> 
+                    <th class="no">No</th> 
                     <th>Nama Anggaran</th>
-                    <th>Nominal</th>
-                    <th>Deskripsi</th>
-                    <th>Tanggal Pengajuan</th>
-                    <th>Target Terealisasikan</th>
-                    <th>Status</th>
-                    <th>Disetujui</th>
-                    <th>Jabatan</th>
-                    <th>Catatan</th>
+                    <th>Rencana Anggaran</th>
+                    <th>Realisasi Anggaran</th>
+                    <th>Persentase</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach ($anggarans as $index => $anggaran)
-                <tr>
-                    <td>{{ $loop->iteration }}</td>
-                    <td>{{ $anggaran->nama_anggaran }}</td>
-                    <td>{{ 'Rp ' . number_format($anggaran->nominal, 0, ',', '.') }}</td>
-                    <td>{{ $anggaran->deskripsi }}</td>
-                    <td>{{ $anggaran->tanggal_pengajuan }}</td>
-                    <td>{{ $anggaran->target_terealisasikan }}</td>
-                    <td>{{ $anggaran->status }}</td>
-                    <td>{{ $anggaran->pengapprove }}</td>
-                    <td>{{ $anggaran->pengapprove_jabatan }}</td>
-                    <td>{{ $anggaran->catatan }}</td>
-                </tr>
+                @foreach ($deviasis as $index => $deviasi)
+                    <tr>
+                        <td class="no">{{ $loop->iteration }}</td>
+                        <td>{{ $deviasi->nama_anggaran }}</td>
+                        <td>Rp. {{ number_format($deviasi->nominal, 0) }}</td>
+                        <td>Rp. {{ number_format($deviasi->nominal_diapprove, 0) }}</td>
+                        <td>{{ $deviasi->nominal_diapprove  != 0 ? ($deviasi->nominal_diapprove / $deviasi->nominal) * 100 : '0'  }}%</td>
+                    </tr>
                 @endforeach
             </tbody>
         </table>
     </div>
 
-    <!-- Area Tanda Tangan -->
-    <div style="display: flex; justify-content: end;">
-        <div style="width: 35%; position: absolute; right: 0;">
-            <div class="signature">
-                <p>Sumedang, {{ date('d F Y') }}</p>
-                <p>Kepala Sekolah,</p>
-            </div>
-            <div class="signature">
-                <p style="font-weight: bold;">Dra. Elis Herawati, M.Pd.</p>
-                <p>NIP. 196702021993032006</p>
-            </div>
-        </div>
-    </div>
+        <!-- Area Tanda Tangan -->
+        <div style="display: flex; justify-content: end;">
+            <div style="width: 35%; position: absolute; right: 0;">
+                <div class="signature">
+                    <p>Sumedang, {{ date('d F Y') }}</p>
+                    <p>Kepala Sekolah,</p>
+                </div>
+                <div class="signature">
+                    <p style="font-weight: bold;">Dra. Elis Herawati, M.Pd.</p>
+                    <p>NIP. 196702021993032006</p>
+    
 </body>
 
 </html>
