@@ -14,4 +14,12 @@ class Anggaran extends Model
     protected $fillable = [
         'nama_anggaran', 'nominal', 'deskripsi', 'tanggal_pengajuan', 'target_terealisasikan', 'status', 'pengapprove', 'pengapprove_jabatan', 'catatan'
     ];
+
+    public function pengeluaran()
+    {
+        return $this->hasMany(Pengeluaran::class, 'anggaran_id');
+    }
+
 }
+
+

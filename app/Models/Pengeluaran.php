@@ -17,6 +17,15 @@ class Pengeluaran extends Model
 
     public function pengeluaran_kategori()
     {
-        return $this->hasOne(PengeluaranKategori::class, 'pengeluaran_kategori_id');
+        return $this->belongsTo(PengeluaranKategori::class, 'pengeluaran_kategori_id');
     }
+
+    public function anggaran()
+    {
+        return $this->belongsTo(Anggaran::class, 'anggaran_id', 'nama_anggaran', 'id');
+    }
+
+    
 }
+
+
