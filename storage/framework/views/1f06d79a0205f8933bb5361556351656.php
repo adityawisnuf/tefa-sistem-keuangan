@@ -25,18 +25,18 @@
         /* Header styling */
         header {
             display: flex;
-            flex-direction: column;
+            justify-content: space-between;
             align-items: center;
             width: 100%;
             max-width: 1000px;
             margin-bottom: 10px;
             padding-bottom: 10px;
-            position: relative;
+            border-bottom: 2px solid #000; /* Garis di bawah kop surat */
         }
 
         .logo {
             width: 100px;
-            height: auto;
+            height: auto; /* Menjaga rasio gambar */
         }
 
         .kop-surat {
@@ -44,38 +44,14 @@
             flex: 1;
         }
 
-        .kop-surat h1, .kop-surat p, .kop-surat h2 {
+        .kop-surat h1 {
+            font-size: 24px;
             margin: 0;
         }
 
-        .kop-surat h2 {
-            font-size: 16px;
-            font-weight: normal; /* Mengatur font-weight menjadi normal */
-        }
-
-        .kop-surat h1 {
-            font-size: 18px;
-            font-weight: bold;
-        }
-
         .kop-surat p {
-            font-size: 10px;
-        }
-
-        .kop-surat .kabupaten {
-            font-size: 11px;
-        }
-
-        /* Garis bawah kop surat */
-        .line-container {
-            width: 100%;
-            max-width: 1000px;
-            margin-top: 5px; /* Mengurangi jarak antara garis dan kop surat */
-        }
-
-        .line-container hr {
-            border: 1px solid black; /* Mengubah ketebalan garis menjadi lebih tipis */
-            margin: 2px 0; /* Mengurangi jarak antar dua garis */
+            margin: 0;
+            font-size: 14px;
         }
 
         /* Judul Laporan */
@@ -84,8 +60,7 @@
             color: #080000;
             width: 100%;
             text-align: center;
-            font-size: 20px;
-            text-decoration: underline;
+            font-size: 24px;
         }
 
         /* Table styling */
@@ -126,20 +101,15 @@
 
         /* Tanda tangan styling */
         .signature-section {
-            width: fit-content;
+            width: 100%;
             max-width: 1000px;
+            text-align: right;
             margin-top: 50px;
-            text-align: right; /* Mengarahkan elemen ke kanan */
-            padding-right: 20px; /* Memberi jarak dari tepi kanan */
-        }
-
-        .signature p {
-            margin: 5px 0;
         }
 
         .signature {
             margin-top: 80px;
-            font-size: 16px;
+            font-size: 14px;
         }
     </style>
 </head>
@@ -148,27 +118,16 @@
     <!-- Kop Surat -->
     <header>
         <!-- Logo Sekolah -->
-        <!-- <img src="{{ asset('foto/logosmk.jpeg') }}" alt="Logo Sekolah" class="logo"> -->
-
+        <img src="<?php echo e(asset('foto/logosmk.jpeg')); ?>" alt="Logo Sekolah" class="logo">
         <div class="kop-surat">
-            <h2>PEMERINTAH DAERAH PROVINSI JAWA BARAT</h2>
-            <h2>DINAS PENDIDIKAN</h2>
-            <h2>CABANG DINAS PENDIDIKAN WILAYAH VIII</h2>
-            <h1>SMK NEGERI 2 SUMEDANG</h1>
-            <p>Jalan Arief Rakhman Hakim No. 59 Telp. 0216-201531, Fax. 0261-210097</p>
-            <p>http://www.smkn2sumedang.sch.id - email.smkn2sumedang@yahoo.com</p>
-            <p class="kabupaten">KABUPATEN SUMEDANG 45323</p>
+            <h1>SMKN 2 SUMEDANG</h1>
+            <p>Jalan Arief Rakhman Hakim No. 59 45355 Sumedang, West Java, Jawa Barat</p>
+            <p>Telepon: (0261) 201531 | Email: info@sekolah.com</p>
         </div>
     </header>
 
-    <!-- Garis bawah kop surat -->
-    <div class="line-container">
-        <hr>
-        <hr>
-    </div>
-
     <!-- Judul Laporan -->
-    <h3>LAPORAN INVENTARIS</h3>
+    <h3>Laporan Inventaris</h3>
 
     <!-- Tabel Inventaris -->
     <div class="table-container">
@@ -184,33 +143,28 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach ($assets as $asset)
+                <?php $__currentLoopData = $assets; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $asset): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                 <tr>
-                    <td>{{ $loop->iteration }}</td>
-                    <td>{{ $asset->nama }}</td>
-                    <td>{{ $asset->kondisi }}</td>
-                    <td>{{ $asset->penggunaan }}</td>
-                    <td>{{ $asset->tipe }}</td>
-                    <td>{{ 'Rp ' . number_format($asset->harga, 0, ',', '.') }}</td>
+                    <td><?php echo e($loop->iteration); ?></td>
+                    <td><?php echo e($asset->nama); ?></td>
+                    <td><?php echo e($asset->kondisi); ?></td>
+                    <td><?php echo e($asset->penggunaan); ?></td>
+                    <td><?php echo e($asset->tipe); ?></td>
+                    <td><?php echo e('Rp ' . number_format($asset->harga, 0, ',', '.')); ?></td>
                 </tr>
-                @endforeach
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
             </tbody>
         </table>
     </div>
 
     <!-- Area Tanda Tangan -->
-     <div style="display: flex; justify-content: end;">
-        <div style="width: 35%; position: absolute; right: 0;">
-            <div class="signature">
-                <p>Sumedang, {{ date('d F Y') }}</p>
-                <p>Kepala Sekolah,</p>
-            </div>
-            <div class="signature">
-                <p style="font-weight: bold;">Dra. Elis Herawati, M.Pd.</p>
-                <p>NIP. 196702021993032006</p>
-            </div>
+    <div class="signature-section">
+        <p>Sumedang <?php echo e(date('d F Y')); ?></p>
+        <div class="signature">
+            <p>Kepala Sekolah</p>
+            <p>_______________________</p> <!-- Tanda tangan di sini -->
         </div>
     </div>
 </body>
 
-</html>
+</html>|<?php /**PATH D:\LARAGON\laragon-6.0-portable\www\Kelompok 4\tefa-sistem-keuangan\resources\views\print\inventaris.blade.php ENDPATH**/ ?>

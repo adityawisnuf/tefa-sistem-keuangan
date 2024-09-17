@@ -148,7 +148,7 @@
     <!-- Kop Surat -->
     <header>
         <!-- Logo Sekolah -->
-        <!-- <img src="{{ asset('foto/logosmk.jpeg') }}" alt="Logo Sekolah" class="logo"> -->
+        <!-- <img src="<?php echo e(asset('foto/logosmk.jpeg')); ?>" alt="Logo Sekolah" class="logo"> -->
 
         <div class="kop-surat">
             <h2>PEMERINTAH DAERAH PROVINSI JAWA BARAT</h2>
@@ -184,16 +184,16 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach ($assets as $asset)
+                <?php $__currentLoopData = $assets; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $asset): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                 <tr>
-                    <td>{{ $loop->iteration }}</td>
-                    <td>{{ $asset->nama }}</td>
-                    <td>{{ $asset->kondisi }}</td>
-                    <td>{{ $asset->penggunaan }}</td>
-                    <td>{{ $asset->tipe }}</td>
-                    <td>{{ 'Rp ' . number_format($asset->harga, 0, ',', '.') }}</td>
+                    <td><?php echo e($loop->iteration); ?></td>
+                    <td><?php echo e($asset->nama); ?></td>
+                    <td><?php echo e($asset->kondisi); ?></td>
+                    <td><?php echo e($asset->penggunaan); ?></td>
+                    <td><?php echo e($asset->tipe); ?></td>
+                    <td><?php echo e('Rp ' . number_format($asset->harga, 0, ',', '.')); ?></td>
                 </tr>
-                @endforeach
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
             </tbody>
         </table>
     </div>
@@ -202,7 +202,7 @@
      <div style="display: flex; justify-content: end;">
         <div style="width: 35%; position: absolute; right: 0;">
             <div class="signature">
-                <p>Sumedang, {{ date('d F Y') }}</p>
+                <p>Sumedang, <?php echo e(date('d F Y')); ?></p>
                 <p>Kepala Sekolah,</p>
             </div>
             <div class="signature">
@@ -214,3 +214,4 @@
 </body>
 
 </html>
+<?php /**PATH D:\LARAGON\laragon-6.0-portable\www\Kelompok 4\tefa-sistem-keuangan\resources\views/print/inventaris.blade.php ENDPATH**/ ?>

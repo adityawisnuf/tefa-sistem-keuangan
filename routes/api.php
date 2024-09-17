@@ -36,7 +36,7 @@ Route::group([
         $tgl_akhir = request('tgl_akhir');
 
         if ($tgl_awal && $tgl_akhir) {
-            $asset = AsetSekolah::whereBetween('created_at', [$tgl_awal, $tgl_akhir])->get();
+            // $asset = AsetSekolah::whereBetween('created_at', [$tgl_awal, $tgl_akhir])->get();
             $fileName = "Aset {$tgl_awal} - {$tgl_akhir}.pdf";
         } else {
             $asset = AsetSekolah::all();
