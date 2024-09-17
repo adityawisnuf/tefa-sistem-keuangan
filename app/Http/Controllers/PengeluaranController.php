@@ -90,33 +90,27 @@ class PengeluaranController extends Controller
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
-                'message' => 'invalid field',
+                'message' => 'Invalid field',
                 'errors' => $validator->errors()
             ], 422);
         }
 
-        $role = auth()->user()->role;
-
-        if ($role !== 'Bendahara') {
-            $pengeluaran = Pengeluaran::create([
-                'pengeluaran_kategori_id' => $request->pengeluaran_kategori_id,
-                'keperluan' => $request->keperluan,
-                'nominal' => $request->nominal,
-                'diajukan_pada' => now(),
-            ]);
-        }
-
-        $pengeluaran = Pengeluaran::create([
+        $data = [
             'pengeluaran_kategori_id' => $request->pengeluaran_kategori_id,
             'keperluan' => $request->keperluan,
             'nominal' => $request->nominal,
             'diajukan_pada' => now(),
-            'disetujui_pada' => now(),
-        ]);
+        ];
+
+        if (auth()->user()->role === 'Bendahara') {
+            $data['disetujui_pada'] = now();
+        }
+
+        $pengeluaran = Pengeluaran::create($data);
 
         return response()->json([
             'success' => true,
-            'message' => 'pengeluaran berhasil ditambahkan',
+            'message' => 'Pengeluaran berhasil ditambahkan',
             'data' => $pengeluaran
         ]);
     }
