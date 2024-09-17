@@ -273,6 +273,5 @@ public function printDeviasi(Request $request)
             $pdf = Pdf::loadView('Print.Deviasi', $data);
 
             return $pdf->stream($fileName);
-
-        }
     }
+}

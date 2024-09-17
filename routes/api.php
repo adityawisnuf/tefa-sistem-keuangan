@@ -97,7 +97,6 @@ Route::group([
         Route::delete('/anggaran/{anggaran}', [AnggaranController::class, 'destroy']);
         Route::get('/anggaran/chart-data', [AnggaranController::class, 'getAnggaranData']);
 
-
         // Laporan Anggaran
         Route::get('/laporan/anggaran', function () {
             $tgl_awal = request('tgl_awal');
