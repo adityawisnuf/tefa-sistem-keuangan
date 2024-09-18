@@ -103,6 +103,7 @@ Route::group([
         Route::post('/anggaran', [AnggaranController::class, 'store']);
         Route::get('/anggaran', [AnggaranController::class, 'index']);
         Route::patch('/anggaran/{anggaran}', [AnggaranController::class, 'update']);
+        Route::delete('/anggaran/{anggaran}', [AnggaranController::class, 'destroy']);
         Route::get('/anggaran/chart-data', [AnggaranController::class, 'getAnggaranData']);
         Route::delete('/anggaran/{anggaran}', [AnggaranController::class, 'destroy']);
 

@@ -183,7 +183,7 @@
                     <th>Status</th>
                     <th>Disetujui</th>
                     <th>Jabatan</th>
-                 
+                    <th>Catatan</th>
                 </tr>
             </thead>
             <tbody>
@@ -192,12 +192,13 @@
                     <td>{{ $loop->iteration }}</td>
                     <td>{{ $anggaran->nama_anggaran }}</td>
                     <td>{{ 'Rp ' . number_format($anggaran->nominal, 0, ',', '.') }}</td>
+                    <td>{{ $anggaran->deskripsi }}</td>
                     <td>{{ $anggaran->tanggal_pengajuan }}</td>
                     <td>{{ $anggaran->target_terealisasikan }}</td>
                     <td>{{ $anggaran->status }}</td>
                     <td>{{ $anggaran->pengapprove }}</td>
                     <td>{{ $anggaran->pengapprove_jabatan }}</td>
-                
+                    <td>{{ $anggaran->catatan }}</td>
                 </tr>
                 @endforeach
             </tbody>
