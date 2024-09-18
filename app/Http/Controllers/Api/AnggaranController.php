@@ -45,7 +45,7 @@ class AnggaranController extends Controller
             'tanggal_pengajuan' => 'date',
             'target_terealisasikan' => 'date|nullable',
             'status' => 'integer|in:1,2,3,4',
-            'pengapprove' => 'nullable|string|max:225',
+            'pengapprove' => 'string',
             'pengapprove_jabatan' => 'nullable|string|max:225',
             'nominal_diapprove' => 'numeric|nullable',
             'catatan' => 'nullable|string',

@@ -8,11 +8,16 @@ use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\LogoutController;
 use App\Models\Anggaran;
+use App\Models\User;
 
 // Register and Login Routes
 Route::post('register', [RegisterController::class, 'register']);
 Route::post('login', [LoginController::class, 'login']);
-
+Route::get('select/principal', fn() => response()->json([
+    "sucess" => true,
+    "message" => "Berhasil mendapatkan kepala sekolah",
+    "data" => User::where('role', 'Kepala Sekolah')->get()
+]));
 Route::group([
     'middleware' => ['auth:api'],
 ], function () {
@@ -27,8 +32,8 @@ Route::group([
         // CRUD Routes
         Route::post('/anggaran', [AnggaranController::class, 'store']);
         Route::get('/anggaran', [AnggaranController::class, 'index']);
+        Route::get('/anggaran/chart-data', [AnggaranController::class, 'getAnggaranData']);
         Route::patch('/anggaran/{anggaran}', [AnggaranController::class, 'update']);
-        Route::delete('/anggaran/{anggaran}', [AnggaranController::class, 'destroy']);
 
         // Additional Routes
         Route::get('/monitoring', [MonitoringController::class, 'getLastSevenAnggaran']);
@@ -64,7 +69,9 @@ Route::group([
         // CRUD Routes
         Route::post('/anggaran', [AnggaranController::class, 'store']);
         Route::get('/anggaran', [AnggaranController::class, 'index']);
+        Route::get('/anggaran/chart-data', [AnggaranController::class, 'getAnggaranData']);
         Route::patch('/anggaran/{anggaran}', [AnggaranController::class, 'update']);
+        Route::delete('/anggaran/{anggaran}', [AnggaranController::class, 'destroy']);
 
         // Laporan Anggaran
         Route::get('/laporan/anggaran', function () {
@@ -84,6 +91,7 @@ Route::group([
 
             return $pdf->stream($fileName);
         })->name('laporan.anggaran');
+        Route::get('/laporan/deviasi', [AnggaranController::class, 'printDeviasi'])->name('laporan.deviasi');
     });
 
     // Role: Kepala Sekolah
@@ -92,9 +100,11 @@ Route::group([
         'prefix' => 'Kepala Sekolah'
     ], function () {
         // Read Routes
+        Route::post('/anggaran', [AnggaranController::class, 'store']);
         Route::get('/anggaran', [AnggaranController::class, 'index']);
         Route::patch('/anggaran/{anggaran}', [AnggaranController::class, 'update']);
         Route::get('/anggaran/chart-data', [AnggaranController::class, 'getAnggaranData']);
+        Route::delete('/anggaran/{anggaran}', [AnggaranController::class, 'destroy']);
 
         // Laporan Anggaran
         Route::get('/laporan/anggaran', function () {
@@ -114,5 +124,7 @@ Route::group([
 
             return $pdf->stream($fileName);
         })->name('laporan.anggaran');
+
+        Route::get('/laporan/deviasi', [AnggaranController::class, 'printDeviasi'])->name('laporan.deviasi');
     });
 });
