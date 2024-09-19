@@ -41,35 +41,37 @@ class AnggaranController extends Controller
         $validator = Validator::make($request->all(), [
             'nama_anggaran' => 'string|max:225',
             'nominal' => 'numeric',
-            'deskripsi' => 'string',
+            'deskripsi' => 'nullable|string', 
             'tanggal_pengajuan' => 'date',
             'target_terealisasikan' => 'date|nullable',
             'status' => 'integer|in:1,2,3,4',
-            'pengapprove' => 'string',
+            'pengapprove' => 'nullable|string|max:225', 
             'pengapprove_jabatan' => 'nullable|string|max:225',
             'nominal_diapprove' => 'numeric|nullable',
             'catatan' => 'nullable|string',
         ]);
-
+    
         if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
-
-        // Additional validation if status is 'Diapprove'
+    
         if ($request->input('status') == 2) {
-            $validator->sometimes('pengapprove', 'required|string|max:225', function ($input) {
-                return !empty($input->pengapprove);
-            });
-            $validator->sometimes('pengapprove_jabatan', 'required|string|max:225', function ($input) {
-                return !empty($input->pengapprove_jabatan);
-            });
+            $validator = Validator::make($request->all(), [
+                'pengapprove' => 'required|string|max:225',
+                'pengapprove_jabatan' => 'required|string|max:225',
+            ]);
+    
+            if ($validator->fails()) {
+                return response()->json($validator->errors(), 422);
+            }
         }
-
-        $anggaran = Anggaran::create($validator->validated());
-
+    
+        $anggaran = Anggaran::create($request->all());
+    
         return new AnggaranResource(true, 'Anggaran Baru Berhasil Ditambahkan!', $anggaran);
     }
-
+    
+    
     public function show($id)
     {
         $anggaran = Anggaran::find($id);
@@ -84,13 +86,13 @@ class AnggaranController extends Controller
         $validator = Validator::make($request->all(), [
             'nama_anggaran' => 'string|max:225',
             'nominal' => 'numeric',
-            'deskripsi' => 'string',
+            'deskripsi' => 'nullable|string', 
             'tanggal_pengajuan' => 'date',
-            'target_terealisasikan' => 'date',
+            'target_terealisasikan' => 'date|nullable',
             'status' => 'integer|in:1,2,3,4',
-            'pengapprove' => 'nullable|string|max:225',
+            'pengapprove' => 'nullable|string|max:225', 
             'pengapprove_jabatan' => 'nullable|string|max:225',
-            'nominal_diapprove' => 'numeric',
+            'nominal_diapprove' => 'numeric|nullable',
             'catatan' => 'nullable|string',
         ]);
 
