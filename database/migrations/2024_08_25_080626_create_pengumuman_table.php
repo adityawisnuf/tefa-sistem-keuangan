@@ -16,7 +16,7 @@ return new class extends Migration
             $table->tinyInteger('status')->default(1); // 1=diajukan, 2=diapprove, 3=direject
             $table->string('judul');
             $table->text('isi');
-            $table->text('pesan_ditolak')->default(null);
+            $table->text('pesan_ditolak')->nullable();
             $table->timestamps();
             $table->foreignId('user_id')->constrained('users');
         });

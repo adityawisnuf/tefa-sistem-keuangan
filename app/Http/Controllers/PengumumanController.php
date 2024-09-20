@@ -86,12 +86,21 @@ class PengumumanController extends Controller
             ], 422);
         }
 
-        $pengumuman = Pengumuman::create([
-            'judul' => $request->judul,
-            'isi' => $request->isi,
-            'status' => 1,
-            'user_id' => Auth::user()->id
-        ]);
+        if (Auth::user()->role == "KepalaSekolah") {
+            $pengumuman = Pengumuman::create([
+                'judul' => $request->judul,
+                'isi' => $request->isi,
+                'status' => 2,
+                'user_id' => Auth::user()->id
+            ]);
+        } else {
+            $pengumuman = Pengumuman::create([
+                'judul' => $request->judul,
+                'isi' => $request->isi,
+                'status' => 1,
+                'user_id' => Auth::user()->id
+            ]);
+        }
 
         return response()->json([
             'success' => true,
