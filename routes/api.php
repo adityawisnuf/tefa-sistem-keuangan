@@ -35,6 +35,6 @@ Route::group(['middleware' => ['auth:api']], function () {
     Route::patch('/pengeluaran/{id}/accept', [PengeluaranController::class, 'acceptPengeluaran'])
         ->middleware('checkrole:Bendahara');
 
-    Route::post('/pengeluaran/{id}/reject', [PengeluaranController::class, 'rejectPengeluaran'])
+    Route::patch('/pengeluaran/{id}/reject', [PengeluaranController::class, 'rejectPengeluaran'])
         ->middleware('checkrole:Bendahara');
 });
