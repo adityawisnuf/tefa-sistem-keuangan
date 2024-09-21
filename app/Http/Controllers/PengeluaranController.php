@@ -60,6 +60,39 @@ class PengeluaranController extends Controller
         ]);
     }
 
+    public function rejectPengeluaran(string $id)
+    {
+        $pengeluaran = Pengeluaran::find($id);
+
+        if (!$pengeluaran) {
+            return response()->json([
+                'success' => false,
+                'message' => 'pengeluaran tidak ditemukan'
+            ], 404);
+        }
+
+        $role = auth()->user()->role;
+        if ($role !== 'Bendahara') {
+            abort(403);
+        }
+
+        if (!$pengeluaran->disetujui_pada) {
+            return response()->json([
+                'success' => false,
+                'message' => 'pengeluaran belum disetujui, tidak dapat ditolak',
+            ], 409);
+        }
+
+        $pengeluaran->disetujui_pada = null;
+        $pengeluaran->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'pengeluaran berhasil ditolak',
+            'data' => $pengeluaran
+        ]);
+    }
+
     public function getPengeluaranBelumDisetujui()
     {
         $pengeluaran = Pengeluaran::with('pengeluaran_kategori')->where('disetujui_pada', '=', null)->get();
