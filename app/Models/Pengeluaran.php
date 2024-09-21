@@ -12,7 +12,7 @@ class Pengeluaran extends Model
     protected $table = 'pengeluaran';
 
     protected $fillable = [
-        'pengeluaran_kategori_id', 'keperluan', 'nominal', 'diajukan_pada', 'disetujui_pada',
+        'pengeluaran_kategori_id', 'keperluan', 'nominal', 'diajukan_pada', 'disetujui_pada', 'status'
     ];
 
     public function pengeluaran_kategori()

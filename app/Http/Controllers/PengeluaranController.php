@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\Status;
 use App\Models\Pengeluaran;
 use App\Models\PengeluaranKategori;
 use Illuminate\Http\RedirectResponse;
@@ -76,14 +77,8 @@ class PengeluaranController extends Controller
             abort(403);
         }
 
-        if (!$pengeluaran->disetujui_pada) {
-            return response()->json([
-                'success' => false,
-                'message' => 'pengeluaran belum disetujui, tidak dapat ditolak',
-            ], 409);
-        }
-
         $pengeluaran->disetujui_pada = null;
+        $pengeluaran->status = Status::Declined;
         $pengeluaran->save();
 
         return response()->json([
@@ -95,7 +90,7 @@ class PengeluaranController extends Controller
 
     public function getPengeluaranBelumDisetujui()
     {
-        $pengeluaran = Pengeluaran::with('pengeluaran_kategori')->where('disetujui_pada', '=', null)->get();
+        $pengeluaran = Pengeluaran::with('pengeluaran_kategori')->where('status', Status::Pending)->get();
 
         if ($pengeluaran->isEmpty()) {
             return response()->json([
@@ -228,7 +223,7 @@ class PengeluaranController extends Controller
             abort(403);
         }
 
-        if ($pengeluaran->disetujui_pada) {
+        if ($pengeluaran->status === Status::Accepted) {
             return response()->json([
                 'success' => false,
                 'message' => 'pengeluaran sudah diterima',
@@ -236,7 +231,8 @@ class PengeluaranController extends Controller
         }
 
         $pengeluaran->update([
-            'disetujui_pada' => now()
+            'disetujui_pada' => now(),
+            'status' => Status::Accepted
         ]);
 
         return response()->json([
