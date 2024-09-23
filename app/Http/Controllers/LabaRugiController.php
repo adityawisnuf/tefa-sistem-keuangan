@@ -28,7 +28,7 @@ class LabaRugiController extends Controller
             $this->startDate = Carbon::createFromDate($tahun ?? date('Y'), $bulan ?? date('m'), 1);
             $this->endDate = $this->startDate->copy()->endOfMonth();
 
-            if (!$tahun && !$bulan) {
+            if ($tahun || !$tahun && !$bulan) {
                 $this->startDate = Carbon::createFromDate($tahun, 1, 1);
                 $this->endDate = Carbon::createFromDate($tahun, 12, 31);
             }
