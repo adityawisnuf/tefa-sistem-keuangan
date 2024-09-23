@@ -59,7 +59,12 @@ class NeracaController extends Controller
         try {
             $data = $this->retrieveData($request);
 
-            if ($data['assets']->isEmpty() && $data['expenses']->isEmpty() && $data['liabilities']->isEmpty()) {
+            if (
+                $data['assets']->isEmpty() && $data['expenses']->isEmpty() &&
+                $data['liabilities']->isEmpty() && $data['studentPayments']->isEmpty() &&
+                $data['ppdbPayments']->isEmpty() && $data['approvedBudgets']->isEmpty() &&
+                $data['receivables']->isEmpty() // Tambahkan ini
+            ) {
                 return response()->json(['message' => 'Tidak ada data untuk periode ini.'], 404);
             }
 
@@ -222,7 +227,7 @@ class NeracaController extends Controller
                     'labels' => $month,
                 ];
             } else {
-                error_log("Month not found: $month");
+                continue; // Skip invalid months without logging
             }
         }
 
