@@ -8,6 +8,7 @@ use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\LogoutController;
 use App\Models\Anggaran;
+use App\Models\Sekolah;
 use App\Models\User;
 
 // Register and Login Routes
@@ -51,7 +52,9 @@ Route::group([
                 $fileName = "Data Keseluruhan Anggaran.pdf";
             }
 
-            $data = ['anggarans' => $anggaran];
+            $data = ['anggarans' => $anggaran, 
+        'sekolah'=>Sekolah::first()
+        ];
             $pdf = Pdf::loadView('print.anggaran', $data);
 
             return $pdf->stream($fileName);
@@ -86,7 +89,9 @@ Route::group([
                 $fileName = "Data Keseluruhan Anggaran.pdf";
             }
 
-            $data = ['anggarans' => $anggaran];
+            $data = ['anggarans' => $anggaran,
+            'sekolah'=>Sekolah::first()
+        ];
             $pdf = Pdf::loadView('print.anggaran', $data);
 
             return $pdf->stream($fileName);
@@ -120,7 +125,9 @@ Route::group([
                 $fileName = "Data Keseluruhan Anggaran.pdf";
             }
 
-            $data = ['anggarans' => $anggaran];
+            $data = ['anggarans' => $anggaran,
+            'sekolah'=>Sekolah::first()
+        ];
             $pdf = Pdf::loadView('print.anggaran', $data);
 
             return $pdf->stream($fileName);

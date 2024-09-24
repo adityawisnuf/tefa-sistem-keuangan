@@ -7,6 +7,7 @@ use App\Models\Anggaran;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\AnggaranResource;
+use App\Models\Sekolah;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Response;
 
@@ -259,21 +260,25 @@ class AnggaranController extends Controller
 }
 
 public function printDeviasi(Request $request)
-    {
-        $tgl_awal = request('tgl_awal');
-            $tgl_akhir = request('tgl_akhir');
+{
+    $tgl_awal = $request->query('tgl_awal'); // gunakan query parameter
+    $tgl_akhir = $request->query('tgl_akhir');
 
-            if ($tgl_awal && $tgl_akhir) {
-                $anggaran = Anggaran::whereBetween('created_at', [$tgl_awal, $tgl_akhir])->get();
-                $fileName = "Aset {$tgl_awal} - {$tgl_akhir}.pdf";
-            } else {
-                $anggaran = Anggaran::all();
-                $fileName = "Data Keseluruhan Deviasi.pdf";
-            }
-
-            $data = ['deviasis' => $anggaran];
-            $pdf = Pdf::loadView('Print.Deviasi', $data);
-
-            return $pdf->stream($fileName);
+    if ($tgl_awal && $tgl_akhir) {
+        $anggaran = Anggaran::whereBetween('created_at', [$tgl_awal, $tgl_akhir])->get();
+        $fileName = "Laporan Deviasi {$tgl_awal} - {$tgl_akhir}.pdf";
+    } else {
+        $anggaran = Anggaran::all();
+        $fileName = "Laporan Deviasi Keseluruhan.pdf";
     }
+
+    $data = ['deviasis' => $anggaran,
+'sekolah'=>Sekolah::first()
+];
+
+    $pdf = Pdf::loadView('Print.Deviasi', $data);
+
+    return $pdf->stream($fileName);
+}
+
 }

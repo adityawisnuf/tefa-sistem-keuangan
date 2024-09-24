@@ -36,7 +36,8 @@
         }
 
         .logo {
-            width: 100px;
+            position: absolute;
+            width: 90px;
             height: auto;
         }
 
@@ -148,7 +149,7 @@
     <!-- Kop Surat -->
     <header>
         <!-- Logo Sekolah -->
-        <!-- <img src="{{ asset('foto/logosmk.jpeg') }}" alt="Logo Sekolah" class="logo"> -->
+        <img src="{{ public_path($sekolah->logo) }}" class="logo" />
 
         <div class="kop-surat">
             <h2>PEMERINTAH DAERAH PROVINSI JAWA BARAT</h2>
@@ -204,7 +205,7 @@
                 </div>
                 <div class="signature">
                     <p style="font-weight: bold;">Dra. Elis Herawati, M.Pd.</p>
-                    <p>NIP. 196702021993032006</p>
+                    <p>{{ $sekolah->nip_kepsek }}</p>
     
 </body>
 
