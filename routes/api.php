@@ -145,8 +145,12 @@ Route::group([
         'prefix' => 'bendahara',
         'middleware' => 'checkrole:Bendahara'
     ], function () {
-        Route::get('/laporan', [BendaharaLaporanController::class, 'getUsahaTransaksi']);
-        Route::get('/laporan/{transaksi}', [BendaharaLaporanController::class, 'getUsahaTransaksi']);
+        Route::get('/kantin/laporan', [BendaharaLaporanController::class, 'getKantinTransaksi']);
+        Route::get('/kantin/laporan/{id}', [BendaharaLaporanController::class, 'getDetailKantinTransaksi']);
+
+        Route::get('/laundry/laporan', [BendaharaLaporanController::class, 'getLaundryTransaksi']);
+        Route::get('/laundry/laporan/{id}', [BendaharaLaporanController::class, 'getDetailLaundryTransaksi']);
+
         Route::get('/pengajuan', [BendaharaPengajuanController::class, 'getUsahaPengajuan']);
         Route::put('/pengajuan/{pengajuan}', [BendaharaPengajuanController::class, 'confirmUsahaPengajuan']);
     });
