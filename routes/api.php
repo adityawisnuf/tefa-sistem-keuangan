@@ -8,6 +8,7 @@ use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\LogoutController;
 use App\Models\AsetSekolah;
+use App\Models\Sekolah;
 
 // ROLE : Admin; KepalaSekolah; Bendahara; OrangTua; Siswa; Kantin; Laundry;
 
@@ -43,7 +44,9 @@ Route::group([
             $fileName = "Data Keseluruhan Asset.pdf";
         }
 
-        $data = ['assets' => $asset];
+        $data = ['assets' => $asset,
+    'sekolah'=>Sekolah::first()
+    ];
         $pdf = Pdf::loadView('print.inventaris', $data);
 
         return $pdf->stream($fileName);
@@ -68,7 +71,9 @@ Route::group([
             $fileName = "Data Keseluruhan Asset.pdf";
         }
 
-        $data = ['assets' => $asset];
+        $data = ['assets' => $asset,
+        'sekolah'=>Sekolah::first()
+    ];
         $pdf = Pdf::loadView('print.inventaris', $data);
 
         return $pdf->stream($fileName);
@@ -98,7 +103,9 @@ Route::group([
             $fileName = "Data Keseluruhan Asset.pdf";
         }
 
-        $data = ['assets' => $asset];
+        $data = ['assets' => $asset,
+        'sekolah'=>Sekolah::first()
+    ];
         $pdf = Pdf::loadView('print.inventaris', $data);
 
         return $pdf->stream($fileName);
