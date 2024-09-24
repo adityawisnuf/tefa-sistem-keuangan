@@ -35,7 +35,8 @@
         }
 
         .logo {
-            width: 100px;
+            position: absolute;
+            width: 90px;
             height: auto;
         }
 
@@ -155,12 +156,12 @@
     </style>
 </head>
 
-<>
+<body> <!-- Mengubah typo '<>' menjadi '<body>' -->
+
     <!-- Kop Surat -->
     <header>
         <!-- Logo Sekolah -->
-        <!-- <img src="{{ asset('foto/logosmk.jpeg') }}" alt="Logo Sekolah" class="logo"> -->
-
+        <img src="{{ public_path($sekolah->logo) }}" class="logo" />
         <div class="kop-surat">
             <h2>PEMERINTAH DAERAH PROVINSI JAWA BARAT</h2>
             <h2>DINAS PENDIDIKAN</h2>
@@ -198,18 +199,18 @@
                     <tr>
                     <td>{{ $loop->iteration }}</td>
                     <td>{{ $pengeluaran->pengeluaran_kategori ? $pengeluaran->pengeluaran_kategori->nama : 'Data tidak tersedia' }}</td>
-            <td>{{ $pengeluaran->keperluan }}</td>
-            <td>{{ 'Rp ' . number_format($pengeluaran->nominal, 0, ',', '.') }}</td>
-            <td>{{ is_object($pengeluaran->diajukan_pada) ? $pengeluaran->diajukan_pada->format('d-m-Y') : date('d-m-Y', strtotime($pengeluaran->diajukan_pada)) }}</td>
-            <td>{{ $pengeluaran->disetujui_pada ? (is_object($pengeluaran->disetujui_pada) ? $pengeluaran->disetujui_pada->format('d-m-Y') : date('d-m-Y', strtotime($pengeluaran->disetujui_pada))) : 'Belum disetujui' }}</td>
+                    <td>{{ $pengeluaran->keperluan }}</td>
+                    <td>{{ 'Rp ' . number_format($pengeluaran->nominal, 0, ',', '.') }}</td>
+                    <td>{{ is_object($pengeluaran->diajukan_pada) ? $pengeluaran->diajukan_pada->format('d-m-Y') : date('d-m-Y', strtotime($pengeluaran->diajukan_pada)) }}</td>
+                    <td>{{ $pengeluaran->disetujui_pada ? (is_object($pengeluaran->disetujui_pada) ? $pengeluaran->disetujui_pada->format('d-m-Y') : date('d-m-Y', strtotime($pengeluaran->disetujui_pada))) : 'Belum disetujui' }}</td>
                     </tr>
                 @endforeach
             </tbody>
         </table>
     </div>
 
-      <!-- Area Tanda Tangan -->
-      <div style="display: flex; justify-content: end;">
+    <!-- Area Tanda Tangan -->
+    <div style="display: flex; justify-content: end;">
         <div style="width: 35%; position: absolute; right: 0;">
             <div class="signature">
                 <p>Sumedang, {{ date('d F Y') }}</p>
@@ -217,7 +218,7 @@
             </div>
             <div class="signature">
                 <p style="font-weight: bold;">Dra. Elis Herawati, M.Pd.</p>
-                <p>NIP. 196702021993032006</p>
+                <p>{{ $sekolah->nip_kepsek }}</p>
             </div>
         </div>
     </div>

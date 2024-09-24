@@ -11,8 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-          $table->string('role', 255)->default('OrangTua')->comment('Admin; KepalaSekolah; Bendahara; OrangTua; Siswa; Kantin; Laundry;')->change();
+        Schema::table('sekolah', function (Blueprint $table) {
+            $table->string('logo')->after('nama')->nullable();
+            $table->string('nip_kepsek')->after('logo')->nullable();
+
         });
     }
 
@@ -21,8 +23,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('pembayaran_kategori', function (Blueprint $table) {
-           $table->string('role', 255)->default('OrangTua')->change();
+        Schema::table('sekolah', function (Blueprint $table) {
+            $table->dropColumn('logo');
+            $table->dropColumn('nip_kepsek');
         });
     }
 };

@@ -15,6 +15,7 @@ use App\Models\PembayaranSiswa;
 use App\Models\Pengeluaran;
 use App\Models\Siswa;
 use App\Models\Pembayaran;
+use App\Models\Sekolah;
 
 // Register and Login Routes
 Route::post('register', [RegisterController::class, 'register']);
@@ -89,7 +90,9 @@ Route::middleware(['auth:api'])->group(function () {
                     $fileName = "Data_Keseluruhan_Pembayaran.pdf";
                 }
 
-                $data = ['pembayarans' => $pembayaran];
+                $data = ['pembayarans' => $pembayaran,
+                'sekolah'=>Sekolah::first()
+            ];
                 $pdf = Pdf::loadView('print.pembayaran', $data);
 
                 return $pdf->stream($fileName);
@@ -107,7 +110,9 @@ Route::middleware(['auth:api'])->group(function () {
                     $fileName = "Data_Keseluruhan_Pengeluaran.pdf";
                 }
 
-                $data = ['pengeluarans' => $semua_pengeluaran];
+                $data = ['pengeluarans' => $semua_pengeluaran,
+                'sekolah'=>Sekolah::first()
+            ];
                 $pdf = Pdf::loadView('print.pengeluaran', $data);
 
                 return $pdf->stream($fileName);
