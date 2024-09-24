@@ -22,7 +22,7 @@ class BendaharaPengajuanController extends Controller
             'tanggal_akhir' => ['nullable', 'date', 'after_or_equal:tanggal_awal'],
             'per_page' => ['nullable', 'integer', 'min:1'],
             'role' => ['nullable', 'in:Kantin,Laundry'],
-            'status' => ['nullable', 'in:active,completed'],
+            'status' => ['nullable', 'in:aktif,selesai'],
             'nama_usaha' => ['nullable', 'string'],
         ]);
 
@@ -51,10 +51,10 @@ class BendaharaPengajuanController extends Controller
                 //         Carbon::now()->endOfMonth()
                 //     ]);
                 // })
-                ->when($status === 'active', function ($query) {
+                ->when($status === 'aktif', function ($query) {
                     $query->whereIn('status', ['pending']);
                 })
-                ->when('status' === 'completed', function ($query) {
+                ->when('status' === 'selesai', function ($query) {
                     $query->whereIn('status', ['disetujui', 'ditolak']);
                 })
                 ->whereRelation('usaha.user', 'role', 'like', "%$role%")

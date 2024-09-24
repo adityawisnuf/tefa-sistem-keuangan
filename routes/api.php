@@ -146,6 +146,7 @@ Route::group([
         'middleware' => 'checkrole:Bendahara'
     ], function () {
         Route::get('/laporan', [BendaharaLaporanController::class, 'getUsahaTransaksi']);
+        Route::get('/laporan/{transaksi}', [BendaharaLaporanController::class, 'getUsahaTransaksi']);
         Route::get('/pengajuan', [BendaharaPengajuanController::class, 'getUsahaPengajuan']);
         Route::put('/pengajuan/{pengajuan}', [BendaharaPengajuanController::class, 'confirmUsahaPengajuan']);
     });
@@ -155,10 +156,10 @@ Route::group([
         'middleware' => 'checkrole:KepalaSekolah'
     ], function () {
         Route::get('/kantin/laporan', [KepsekLaporanController::class, 'getKantinTransaksi']);
-        Route::get('/kantin/laporan/{laporan}', [KepsekLaporanController::class, 'getDetailKantinTransaksi']);
+        Route::get('/kantin/laporan/{transaksi}', [KepsekLaporanController::class, 'getDetailKantinTransaksi']);
 
         Route::get('/laundry/laporan', [KepsekLaporanController::class, 'getLaundryTransaksi']);
-        Route::get('/laundry/laporan/{laporan}', [KepsekLaporanController::class, 'getDetailLaundryTransaksi']);
+        Route::get('/laundry/laporan/{transaksi}', [KepsekLaporanController::class, 'getDetailLaundryTransaksi']);
 
         Route::get('/pengajuan', [KepsekPengajuanController::class, 'getUsahaPengajuan']);
     });

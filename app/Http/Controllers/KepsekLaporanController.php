@@ -131,7 +131,7 @@ class KepsekLaporanController extends Controller
         }
     }
 
-    public function getDetailKantinTransaksi($id)
+    public function getDetailKantinTransaksi(KantinTransaksi $transaksi)
     {
         $validator = Validator::make(request()->all(), [
             'tanggal_awal' => ['nullable', 'date'],
@@ -146,19 +146,19 @@ class KepsekLaporanController extends Controller
         $perPage = request('per_page', 10);
 
         try {
-            $transaksi =KantinTransaksi::find($id)
+            $data = $transaksi
                     ->kantin_transaksi_detail()
                     ->with(['kantin_produk'])
                     ->paginate($perPage);
 
 
-            return response()->json(['data' => [$transaksi]], Response::HTTP_OK);
+            return response()->json(['data' => $data], Response::HTTP_OK);
         } catch (\Exception $e) {
             Log::error('getDetailUsahaTransaksi: ' . $e->getMessage());
             return response()->json(['error' => 'Terjadi kesalahan saat mengambil data transaksi.' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
-    public function getDetailLaundryTransaksi($id)
+    public function getDetailLaundryTransaksi(LaundryTransaksi $transaksi)
     {
         $validator = Validator::make(request()->all(), [
             'tanggal_awal' => ['nullable', 'date'],
@@ -173,13 +173,13 @@ class KepsekLaporanController extends Controller
         $perPage = request('per_page', 10);
 
         try {
-            $transaksi =LaundryTransaksi::find($id)
+            $data = $transaksi
                     ->laundry_transaksi_detail()
                     ->with(['laundry_layanan'])
                     ->paginate($perPage);
 
 
-            return response()->json(['data' => [$transaksi]], Response::HTTP_OK);
+            return response()->json(['data' => $data], Response::HTTP_OK);
         } catch (\Exception $e) {
             Log::error('getDetailLaundryTransaksi: ' . $e->getMessage());
             return response()->json(['error' => 'Terjadi kesalahan saat mengambil data transaksi.' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);

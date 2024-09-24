@@ -73,7 +73,7 @@ class OrangTuaController extends Controller
             ], Response::HTTP_OK);
         } catch (\Exception $e) {
             Log::error('getRiwayatWalletSiswa: ' . $e->getMessage());
-            return response()->json(['error' => 'Terjadi kesalahan saat mengambil data pengajuan: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+            return response()->json(['error' => 'Terjadi kesalahan saat mengambil data pengajuan.'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -108,7 +108,7 @@ class OrangTuaController extends Controller
             return response()->json(['data' => $riwayat], Response::HTTP_OK);
         } catch (\Exception $e) {
             Log::error('getRiwayatTransaksiSiswa: ' . $e->getMessage());
-            return response()->json(['error' => 'Terjadi kesalahan saat mengambil data riwayat: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+            return response()->json(['error' => 'Terjadi kesalahan saat mengambil data riwayat.'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 }

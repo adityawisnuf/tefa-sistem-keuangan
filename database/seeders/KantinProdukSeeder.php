@@ -18,8 +18,5 @@ class KantinProdukSeeder extends Seeder
                 'usaha_id' => $usahaId,
             ]);
         }
-        KantinProduk::factory(4)->create([
-            'usaha_id' => 1,
-        ]);
     }
 }
