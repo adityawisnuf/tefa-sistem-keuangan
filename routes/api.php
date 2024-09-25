@@ -8,11 +8,13 @@ use App\Http\Controllers\LogoutController;
 use App\Http\Controllers\SekolahController;
 use App\Http\Controllers\OrangTuaController;
 use App\Http\Controllers\RegisterController;
+use App\Http\Controllers\PembayaranController;
 use App\Http\Controllers\PengeluaranController;
 use App\Http\Controllers\PembayaranSiswaController;
-use App\Http\Controllers\PembayaranKategoriController;
 use App\Http\Controllers\PembayaranDuitkuController;
-use App\Http\Controllers\PembayaranController;
+use App\Http\Controllers\PembayaranKategoriController;
+use App\Http\Controllers\PembayaranSiswaCicilanController;
+
 // ROLE : Admin; KepalaSekolah; Bendahara; OrangTua; Siswa; Kantin; Laundry;
 
 Route::post('register', [RegisterController::class, 'register']);
@@ -80,6 +82,8 @@ Route::get('filter-orangtua/{id}', [SiswaController::class, 'filterByOrangTua'])
 Route::resource('pembayaran_siswa', PembayaranSiswaController::class);
 Route::resource('pembayaran_duitku', PembayaranDuitkuController::class);
 Route::resource('pembayaran', PembayaranController::class);
+Route::apiResource('pembayaransiswacicilan', PembayaranSiswaCicilanController::class);
+
 
 
 Route::get('/pembayaran-siswa', [PembayaranSiswaController::class, 'index']);
