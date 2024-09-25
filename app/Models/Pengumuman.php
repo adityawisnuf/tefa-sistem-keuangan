@@ -17,6 +17,7 @@ class Pengumuman extends Model
         'judul',
         'isi',
         'pesan_ditolak',
+        'approved_at',
         'user_id'
     ];
 

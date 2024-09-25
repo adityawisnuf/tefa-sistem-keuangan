@@ -4,21 +4,23 @@ namespace App\Http\Controllers;
 
 use App\Models\Pengumuman;
 use App\Models\User;
+use App\Notifications\NewPengumumanNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Validator;
 
 class PengumumanController extends Controller
 {
     private function getSiswaAndOrangTua() {
-        return User::whereIn('role', ['Siswa', 'OrangTua'])->get();
+        return User::whereIn('role', ['Siswa', 'Orang Tua'])->get();
     }
 
     // semua pengumuman yang disetujui
     public function AllAnnouncements(): JsonResponse
     {
-        if (Auth::user()->role === 'KepalaSekolah') {
+        if (Auth::user()->role === 'Kepala Sekolah') {
             $pengumuman = Pengumuman::whereIn('status', [2, 3])->get();
 
             return response()->json([
@@ -101,13 +103,17 @@ class PengumumanController extends Controller
             ], 422);
         }
 
-        if (Auth::user()->role === "KepalaSekolah") {
+        if (Auth::user()->role === "Kepala Sekolah") {
             $pengumuman = Pengumuman::create([
                 'judul' => $request->judul,
                 'isi' => $request->isi,
                 'status' => 2,
-                'user_id' => Auth::user()->id
+                'user_id' => Auth::user()->id,
+                'approved_at' => now()
             ]);
+
+            // $users = $this->getSiswaAndOrangTua();
+            // Notification::send($users, new NewPengumumanNotification($pengumuman));
         } else {
             $pengumuman = Pengumuman::create([
                 'judul' => $request->judul,
@@ -175,7 +181,7 @@ class PengumumanController extends Controller
             ], 422);
         }
 
-        if (Auth::user()->role === 'KepalaSekolah') {
+        if (Auth::user()->role === 'Kepala Sekolah') {
             $pengumuman->update([
                 'judul' => $request->judul,
                 'isi' => $request->isi
@@ -184,7 +190,8 @@ class PengumumanController extends Controller
             $pengumuman->update([
                 'judul' => $request->judul,
                 'isi' => $request->isi,
-                'status' => 1
+                'status' => 1,
+                'approved_at' => null
             ]);
         }
 
@@ -207,7 +214,7 @@ class PengumumanController extends Controller
             ], 404);
         }
 
-        if ($pengumuman->user_id === Auth::id() || Auth::user()->role === 'KepalaSekolah') {
+        if ($pengumuman->user_id === Auth::id() || Auth::user()->role === 'Kepala Sekolah') {
             $pengumuman->delete();
         
             return response()->json([
@@ -235,8 +242,15 @@ class PengumumanController extends Controller
         }
 
         $pengumuman->update([
-            'status' => 2
+            'status' => 2,
+            'approved_at' => now()
         ]);
+
+        // $users = $this->getSiswaAndOrangTua();
+        // Notification::send($users, new NewPengumumanNotification($pengumuman));
+
+        // $user = User::where('id', 1);
+        // $user->notify(new NewPengumumanNotification($pengumuman));
 
         return response()->json([
             'success' => true,
