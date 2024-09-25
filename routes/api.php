@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\LogoutController;
+use App\Http\Controllers\PengeluaranAnalysis;
 use App\Http\Controllers\OrangTuaController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\PengeluaranController;
@@ -11,15 +12,14 @@ use App\Http\Controllers\SekolahController;
 use App\Http\Controllers\SiswaController;
 use App\Http\Controllers\KelasController;
 use App\Http\Controllers\PengumumanController;
+use App\Http\Controllers\PengeluaranKategoriController;
 
 // ROLE : Admin; KepalaSekolah; Bendahara; OrangTua; Siswa; Kantin; Laundry;
 
 Route::post('register', [RegisterController::class, 'register']);
 Route::post('login', [LoginController::class, 'login']);
 
-Route::group([
-    'middleware' => ['auth:api']
-], function () {
+Route::group(['middleware' => ['auth:api']], function () {
     Route::post('logout', [LogoutController::class, 'logout']);
 
 
@@ -67,6 +67,26 @@ Route::delete('siswa/{id}', [SiswaController::class, 'destroy']);
 
 // pengumuman
 Route::middleware(['auth:api'])->group(function () {
+            // Pengeluaran Kategori
+            Route::apiResource('pengeluaran/kategori', PengeluaranKategoriController::class);
+
+            // Pengeluaran actions
+            Route::get('pengeluaran/disetujui', [PengeluaranController::class, 'getPengeluaranDisetujui']);
+            Route::get('pengeluaran/belum-disetujui', [PengeluaranController::class, 'getPengeluaranBelumDisetujui']);
+            Route::get('pengeluaran/riwayat', [PengeluaranController::class, 'riwayatPengeluaran']);
+            Route::get('pengeluaran/periode/{periode}', [PengeluaranController::class, 'rekapitulasiPengeluaran']);
+            Route::get('pengeluaran/analisis/{periode}', [PengeluaranAnalysis::class, 'getPengeluaranPeriode']);
+
+            // Pengeluaran resource
+            Route::apiResource('pengeluaran', PengeluaranController::class);
+        });
+
+        Route::patch('/pengeluaran/{id}/accept', [PengeluaranController::class, 'acceptPengeluaran']);
+
+
+        Route::patch('/pengeluaran/{id}/reject', [PengeluaranController::class, 'rejectPengeluaran']);
+
+
     Route::group(['middleware' => 'checkrole:Kepala Sekolah'], function () {
         Route::put('/pengumuman/{id}/approve', [PengumumanController::class, 'approve']);
         Route::put('/pengumuman/{id}/reject', [PengumumanController::class, 'reject']);
