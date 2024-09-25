@@ -1,14 +1,17 @@
 <?php
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\KelasController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\SiswaController;
 use App\Http\Controllers\LogoutController;
+use App\Http\Controllers\SekolahController;
 use App\Http\Controllers\OrangTuaController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\PengeluaranController;
-use App\Http\Controllers\SekolahController;
-use App\Http\Controllers\SiswaController;
-use App\Http\Controllers\KelasController;
+use App\Http\Controllers\PembayaranSiswaController;
+use App\Http\Controllers\PembayaranKategoriController;
+use App\Http\Controllers\PembayaranDuitkuController;
 
 // ROLE : Admin; KepalaSekolah; Bendahara; OrangTua; Siswa; Kantin; Laundry;
 
@@ -73,4 +76,7 @@ Route::get('/filter-sekolah', [KelasController::class, 'filterBySekolah']);
 Route::get('filter-orangtua/{id}', [SiswaController::class, 'filterByOrangTua']);
 
 
-
+// pembayaran
+Route::resource('pembayaran_siswa', PembayaranSiswaController::class);
+Route::resource('pembayaran_kategori', PembayaranKategoriController::class);
+Route::resource('pembayaran_duitku', PembayaranDuitkuController::class);
