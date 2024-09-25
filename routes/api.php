@@ -12,7 +12,7 @@ use App\Http\Controllers\PengeluaranController;
 use App\Http\Controllers\PembayaranSiswaController;
 use App\Http\Controllers\PembayaranKategoriController;
 use App\Http\Controllers\PembayaranDuitkuController;
-
+use App\Http\Controllers\PembayaranController;
 // ROLE : Admin; KepalaSekolah; Bendahara; OrangTua; Siswa; Kantin; Laundry;
 
 Route::post('register', [RegisterController::class, 'register']);
@@ -78,5 +78,12 @@ Route::get('filter-orangtua/{id}', [SiswaController::class, 'filterByOrangTua'])
 
 // pembayaran
 Route::resource('pembayaran_siswa', PembayaranSiswaController::class);
-Route::resource('pembayaran_kategori', PembayaranKategoriController::class);
 Route::resource('pembayaran_duitku', PembayaranDuitkuController::class);
+Route::resource('pembayaran', PembayaranController::class);
+
+
+Route::get('/pembayaran-siswa', [PembayaranSiswaController::class, 'index']);
+Route::post('/pembayaran-siswa', [PembayaranSiswaController::class, 'store']);
+Route::get('/pembayaran-siswa/{id}', [PembayaranSiswaController::class, 'show']);
+Route::put('/pembayaran-siswa/{id}', [PembayaranSiswaController::class, 'update']);
+Route::delete('/pembayaran-siswa/{id}', [PembayaranSiswaController::class, 'destroy']);
