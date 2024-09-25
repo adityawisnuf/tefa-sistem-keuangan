@@ -83,6 +83,7 @@ Route::resource('pembayaran_siswa', PembayaranSiswaController::class);
 Route::resource('pembayaran_duitku', PembayaranDuitkuController::class);
 Route::resource('pembayaran', PembayaranController::class);
 Route::apiResource('pembayaransiswacicilan', PembayaranSiswaCicilanController::class);
+Route::apiResource('pembayaran_kategori', PembayaranKategoriController::class);
 
 
 
