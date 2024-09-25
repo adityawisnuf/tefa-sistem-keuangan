@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pengumuman;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -10,30 +11,32 @@ use Illuminate\Support\Facades\Validator;
 
 class PengumumanController extends Controller
 {
+    private function getSiswaAndOrangTua() {
+        return User::whereIn('role', ['Siswa', 'OrangTua'])->get();
+    }
+
     // semua pengumuman yang disetujui
-    public function allApprovedAnnouncements(): JsonResponse
+    public function AllAnnouncements(): JsonResponse
     {
-        $pengumuman = Pengumuman::where('status', 2)->get();
+        if (Auth::user()->role === 'KepalaSekolah') {
+            $pengumuman = Pengumuman::whereIn('status', [2, 3])->get();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'pengumuman berhasil ditampilkan',
-            'pengumuman' => $pengumuman
-        ], 200);
+            return response()->json([
+                'success' => true,
+                'message' => 'pengumuman berhasil ditampilkan',
+                'pengumuman' => $pengumuman
+            ], 200);
+        } else {
+            $pengumuman = Pengumuman::where('status', 2)->get();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'pengumuman berhasil ditampilkan',
+                'pengumuman' => $pengumuman
+            ], 200);
+        }
     }
-
-    // semua pengumuman yang diajukan
-    public function allSubmittedAnnouncements(): JsonResponse
-    {
-        $pengumuman = Pengumuman::where('status', 1)->get();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'pengumuman yang diajukan berhasil ditampilkan',
-            'pengumuman' => $pengumuman
-        ], 200);
-    }
-
+  
     // pengumuman user (saat ini) yang disetujui
     public function approvedAnnouncements(): JsonResponse
     {
@@ -46,16 +49,28 @@ class PengumumanController extends Controller
         ], 200);
     }
 
-    // pengumuman user (saat ini) yang diajukan
+    // pengumuman yang diajukan
     public function submittedAnnouncements(): JsonResponse
     {
-        $pengumuman = Pengumuman::where('user_id', Auth::user()->id)->where('status', 1)->get();
+        // admin dan bendahara
+        if (Auth::user()->role === 'Admin' || Auth::user()->role === 'Bendahara') {
+            $pengumuman = Pengumuman::where('user_id', Auth::user()->id)->where('status', 1)->get();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'pengumuman yang diajukan berhasil ditampilkan',
-            'pengumuman' => $pengumuman
-        ], 200);
+            return response()->json([
+                'success' => true,
+                'message' => 'pengumuman yang diajukan berhasil ditampilkan',
+                'pengumuman' => $pengumuman
+            ], 200);
+        } else {
+            // kepala sekolah
+            $pengumuman = Pengumuman::where('status', 1)->get();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'pengumuman yang diajukan berhasil ditampilkan',
+                'pengumuman' => $pengumuman
+            ], 200);
+        }
     }
 
     // pengumuman user (saat ini) yang ditolak
@@ -86,7 +101,7 @@ class PengumumanController extends Controller
             ], 422);
         }
 
-        if (Auth::user()->role == "KepalaSekolah") {
+        if (Auth::user()->role === "KepalaSekolah") {
             $pengumuman = Pengumuman::create([
                 'judul' => $request->judul,
                 'isi' => $request->isi,
@@ -160,10 +175,18 @@ class PengumumanController extends Controller
             ], 422);
         }
 
-        $pengumuman->update([
-            'judul' => $request->judul,
-            'isi' => $request->isi
-        ]);
+        if (Auth::user()->role === 'KepalaSekolah') {
+            $pengumuman->update([
+                'judul' => $request->judul,
+                'isi' => $request->isi
+            ]);
+        } else {
+            $pengumuman->update([
+                'judul' => $request->judul,
+                'isi' => $request->isi,
+                'status' => 1
+            ]);
+        }
 
         return response()->json([
             'success' => true,
@@ -184,19 +207,19 @@ class PengumumanController extends Controller
             ], 404);
         }
 
-        if ($pengumuman->user_id !== Auth::id()) {
+        if ($pengumuman->user_id === Auth::id() || Auth::user()->role === 'KepalaSekolah') {
+            $pengumuman->delete();
+        
             return response()->json([
-                'success' => false,
-                'message' => 'Anda tidak memiliki izin untuk menghapus pengumuman ini'
-            ], 403);
+                'success' => true,
+                'message' => 'pengumuman berhasil dihapus'
+            ], 200);
         }
-
-        $pengumuman->delete();
-
+        
         return response()->json([
-            'success' => true,
-            'message' => 'pengumuman berhasil dihapus'
-        ], 200);
+            'success' => false,
+            'message' => 'Anda tidak memiliki izin untuk menghapus pengumuman ini'
+        ], 403);
     }
 
     // menyetujui pengumuman

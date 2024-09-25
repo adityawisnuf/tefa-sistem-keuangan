@@ -68,28 +68,24 @@ Route::delete('siswa/{id}', [SiswaController::class, 'destroy']);
 // pengumuman
 Route::middleware(['auth:api'])->group(function () {
     Route::group(['middleware' => 'checkrole:KepalaSekolah'], function () {
-        Route::get('/pengumuman/all-submitted', [PengumumanController::class, 'allSubmittedAnnouncements']);
         Route::put('/pengumuman/{id}/approve', [PengumumanController::class, 'approve']);
         Route::put('/pengumuman/{id}/reject', [PengumumanController::class, 'reject']);
     });
 
-    Route::group(['middleware' => 'checkrole:KepalaSekolah,OrangTua,Siswa'], function () {
-        Route::get('/pengumuman', [PengumumanController::class, 'allApprovedAnnouncements']);
-    });
-
     Route::group(['middleware' => 'checkrole:Admin,Bendahara'], function () {
         Route::get('/pengumuman/approved', [PengumumanController::class, 'approvedAnnouncements']);
-        Route::get('/pengumuman/submitted', [PengumumanController::class, 'submittedAnnouncements']);
         Route::get('/pengumuman/rejected', [PengumumanController::class, 'rejectedAnnouncements']);
+    });
+
+    Route::group(['middleware' => 'checkrole:KepalaSekolah,Admin,Bendahara'], function () {
+        Route::get('/pengumuman/submitted', [PengumumanController::class, 'submittedAnnouncements']);
+        Route::post('/pengumuman', [PengumumanController::class, 'store']);
+        Route::put('/pengumuman/{id}', [PengumumanController::class, 'update']);
+        Route::delete('/pengumuman/{id}', [PengumumanController::class, 'destroy']);
     });
 
     Route::group(['middleware' => 'checkrole:KepalaSekolah,OrangTua,Siswa,Admin,Bendahara'], function () {
         Route::get('/pengumuman/{id}', [PengumumanController::class, 'show']);
-    });
-
-    Route::group(['middleware' => 'checkrole:KepalaSekolah,Admin,Bendahara'], function () {
-        Route::post('/pengumuman', [PengumumanController::class, 'store']);
-        Route::put('/pengumuman/{id}', [PengumumanController::class, 'update']);
-        Route::delete('/pengumuman/{id}', [PengumumanController::class, 'destroy']);
+        Route::get('/pengumuman', [PengumumanController::class, 'AllAnnouncements']);
     });
 });

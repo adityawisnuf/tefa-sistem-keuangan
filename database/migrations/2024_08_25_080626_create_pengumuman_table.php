@@ -18,6 +18,7 @@ return new class extends Migration
             $table->text('isi');
             $table->text('pesan_ditolak')->nullable();
             $table->timestamps();
+            $table->timestamp('approved_at')->nullable();
             $table->foreignId('user_id')->constrained('users');
         });
     }
