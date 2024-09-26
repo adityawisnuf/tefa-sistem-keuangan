@@ -194,6 +194,4 @@ class SiswaController extends Controller
         'data' => $siswa,
     ], 200);
 }
-
-
 }

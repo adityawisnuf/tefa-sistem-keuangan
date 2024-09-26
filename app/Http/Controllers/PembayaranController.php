@@ -13,8 +13,6 @@ class PembayaranController extends Controller
         $pembayarans = Pembayaran::all();
         return response()->json($pembayarans);
     }
-
-    // Menampilkan form untuk membuat pembayaran baru (jika diperlukan)
     public function create()
     {
         //
