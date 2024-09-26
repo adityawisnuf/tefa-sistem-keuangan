@@ -61,7 +61,7 @@ class PembayaranController extends Controller
             'kelas_id' => 'required|exists:kelas,id',
         ]);
 
-        $pembayaran = Pembayaran::findOrFail($id);
+        $pembayaran = Pembayaran::find($id);
         $pembayaran->update($validatedData);
 
         return response()->json([
