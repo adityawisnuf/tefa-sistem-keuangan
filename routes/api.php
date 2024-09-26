@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PpdbController;
 use App\Http\Controllers\KelasController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\SiswaController;
@@ -9,16 +10,16 @@ use App\Http\Controllers\LogoutController;
 use App\Http\Controllers\SekolahController;
 use App\Http\Controllers\OrangTuaController;
 use App\Http\Controllers\RegisterController;
+use App\Http\Controllers\PengeluaranAnalysis;
 use App\Http\Controllers\PembayaranController;
+use App\Http\Controllers\PengumumanController;
 use App\Http\Controllers\PengeluaranController;
 use App\Http\Controllers\PembayaranSiswaController;
 use App\Http\Controllers\PembayaranDuitkuController;
+use App\Http\Controllers\PendaftarAkademikController;
 use App\Http\Controllers\PembayaranKategoriController;
-use App\Http\Controllers\PembayaranSiswaCicilanController;
-use App\Http\Controllers\PengeluaranAnalysis;
-use App\Http\Controllers\PengumumanController;
 use App\Http\Controllers\PengeluaranKategoriController;
-use App\Http\Controllers\PpdbController;
+use App\Http\Controllers\PembayaranSiswaCicilanController;
 
 
 // ROLE : Admin; KepalaSekolah; Bendahara; OrangTua; Siswa; Kantin; Laundry;
@@ -97,3 +98,8 @@ Route::post('/ppdb', [PpdbController::class, 'store']);           // POST: Menam
 Route::get('/ppdb/{id}', [PpdbController::class, 'show']);        // GET: Menampilkan data berdasarkan ID
 Route::put('/ppdb/{id}', [PpdbController::class, 'update']);      // PUT: Mengubah data berdasarkan ID
 Route::delete('/ppdb/{id}', [PpdbController::class, 'destroy']);  // DELETE: Menghapus data berdasarkan ID
+
+
+// route akademik
+Route::apiResource('pendaftar_akademik', PendaftarAkademikController::class);
+
