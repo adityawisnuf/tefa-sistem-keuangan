@@ -24,7 +24,7 @@ class UserSeeder extends Seeder
             'name' => 'Kepala Sekolah',
             'email' => 'kepalasekolah@gmail.com',
             'password' => bcrypt('password'),
-            'role' => 'KepalaSekolah'
+            'role' => 'Kepala Sekolah'
         ]);
         User::create([
             'name' => 'Bendahara',
@@ -36,7 +36,7 @@ class UserSeeder extends Seeder
             'name' => 'Orang Tua',
             'email' => 'orangtua@gmail.com',
             'password' => bcrypt('password'),
-            'role' => 'OrangTua'
+            'role' => 'Orang Tua'
         ]);
         User::create([
             'name' => 'Siswa',
