@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PpdbController;
 use App\Http\Controllers\KelasController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\SiswaController;
@@ -9,16 +10,17 @@ use App\Http\Controllers\LogoutController;
 use App\Http\Controllers\SekolahController;
 use App\Http\Controllers\OrangTuaController;
 use App\Http\Controllers\RegisterController;
+use App\Http\Controllers\PendaftarController;
+use App\Http\Controllers\PengeluaranAnalysis;
 use App\Http\Controllers\PembayaranController;
+use App\Http\Controllers\PengumumanController;
 use App\Http\Controllers\PengeluaranController;
 use App\Http\Controllers\PembayaranSiswaController;
 use App\Http\Controllers\PembayaranDuitkuController;
+use App\Http\Controllers\PendaftarDokumenController;
 use App\Http\Controllers\PembayaranKategoriController;
-use App\Http\Controllers\PembayaranSiswaCicilanController;
-use App\Http\Controllers\PengeluaranAnalysis;
-use App\Http\Controllers\PengumumanController;
 use App\Http\Controllers\PengeluaranKategoriController;
-use App\Http\Controllers\PpdbController;
+use App\Http\Controllers\PembayaranSiswaCicilanController;
 
 // ROLE : Admin; KepalaSekolah; Bendahara; OrangTua; Siswa; Kantin; Laundry;
 
@@ -91,8 +93,12 @@ Route::middleware(['auth:api'])->group(function () {
 });
 
 // route ppdb
-Route::get('/ppdb', [PpdbController::class, 'index']);            // GET: Menampilkan semua data PPDB
-Route::post('/ppdb', [PpdbController::class, 'store']);           // POST: Menambahkan data baru
-Route::get('/ppdb/{id}', [PpdbController::class, 'show']);        // GET: Menampilkan data berdasarkan ID
-Route::put('/ppdb/{id}', [PpdbController::class, 'update']);      // PUT: Mengubah data berdasarkan ID
-Route::delete('/ppdb/{id}', [PpdbController::class, 'destroy']);  // DELETE: Menghapus data berdasarkan ID
+// Route::get('/ppdb', [PpdbController::class, 'index']);
+// Route::post('/ppdb', [PpdbController::class, 'store']);
+// Route::get('/ppdb/{id}', [PpdbController::class, 'show']);
+// Route::put('/ppdb/{id}', [PpdbController::class, 'update']);
+// Route::delete('/ppdb/{id}', [PpdbController::class, 'destroy']);
+
+Route::apiResource('ppdb', PpdbController::class);
+Route::apiResource('pendaftar', PendaftarController::class);
+Route::apiResource('pendaftar-dokumen', PendaftarDokumenController::class);
