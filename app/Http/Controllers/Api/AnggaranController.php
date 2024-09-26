@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Api;
+
 use Barryvdh\DomPDF\Facade\Pdf;
 
 use App\Models\Anggaran;
@@ -16,7 +17,7 @@ class AnggaranController extends Controller
     public function index(Request $request)
     {
         $search = $request->query('search', '');
-        $query = Anggaran::oldest(); // Mengurutkan berdasarkan tanggal terlama
+        $query = Anggaran::oldest();
 
         if ($search) {
             $query->where(function ($q) use ($search) {
@@ -42,37 +43,37 @@ class AnggaranController extends Controller
         $validator = Validator::make($request->all(), [
             'nama_anggaran' => 'string|max:225',
             'nominal' => 'numeric',
-            'deskripsi' => 'nullable|string', 
+            'deskripsi' => 'nullable|string',
             'tanggal_pengajuan' => 'date',
             'target_terealisasikan' => 'date|nullable',
             'status' => 'integer|in:1,2,3,4',
-            'pengapprove' => 'nullable|string|max:225', 
+            'pengapprove' => 'nullable|string|max:225',
             'pengapprove_jabatan' => 'nullable|string|max:225',
             'nominal_diapprove' => 'numeric|nullable',
             'catatan' => 'nullable|string',
         ]);
-    
+
         if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
-    
+
         if ($request->input('status') == 2) {
             $validator = Validator::make($request->all(), [
                 'pengapprove' => 'required|string|max:225',
                 'pengapprove_jabatan' => 'required|string|max:225',
             ]);
-    
+
             if ($validator->fails()) {
                 return response()->json($validator->errors(), 422);
             }
         }
-    
+
         $anggaran = Anggaran::create($request->all());
-    
+
         return new AnggaranResource(true, 'Anggaran Baru Berhasil Ditambahkan!', $anggaran);
     }
-    
-    
+
+
     public function show($id)
     {
         $anggaran = Anggaran::find($id);
@@ -87,11 +88,11 @@ class AnggaranController extends Controller
         $validator = Validator::make($request->all(), [
             'nama_anggaran' => 'string|max:225',
             'nominal' => 'numeric',
-            'deskripsi' => 'nullable|string', 
+            'deskripsi' => 'nullable|string',
             'tanggal_pengajuan' => 'date',
             'target_terealisasikan' => 'date|nullable',
             'status' => 'integer|in:1,2,3,4',
-            'pengapprove' => 'nullable|string|max:225', 
+            'pengapprove' => 'nullable|string|max:225',
             'pengapprove_jabatan' => 'nullable|string|max:225',
             'nominal_diapprove' => 'numeric|nullable',
             'catatan' => 'nullable|string',
@@ -132,153 +133,112 @@ class AnggaranController extends Controller
 
     public function getAnggaranData(Request $request)
     {
-        $period = $request->query('period', 'monthly');
-        
-        $query = Anggaran::query();
-        
-        switch ($period) {
-            case 'weekly':
-                $query->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()]);
-                break;
-            case 'monthly':
-                $query->whereYear('created_at', now()->year)
-                      ->whereMonth('created_at', now()->month);
-                break;
-            case 'yearly':
-                $query->whereYear('created_at', now()->year);
-                break;
-            case 'all':
-                // No additional filters for 'all'
-                break;
-            default:
-                // Handle invalid period
-                return response()->json(['error' => 'Invalid period'], 400);
-        }
-    
-        $diajukan = $query->where('status', 1)->sum('nominal');
-        $diapprove = $query->where('status', 2)->sum('nominal');
-        $total = $diajukan + $diapprove;
-        $persentaseRealisasi = ($total > 0) ? ($diapprove / $total) * 100 : 0;
-    
-        $data = [
-            'series' => [
-                $diajukan,
-                $diapprove
-            ],
-            'labels' => ['Diajukan', 'Diapprove'],
-            'percentage' => $persentaseRealisasi
+        $weekdays = ["Senin", "Selasa", "Rabu", "Kamis", "Jum'at", "Sabtu"];
+        $months = [
+            "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+            "Juli", "Agustus", "September", "Oktober", "November", "Desember"
         ];
-    
+        $thisYear = now()->year;
+        $thisMonth = now()->format('m'); // Always ensures 2-digit month
+        $fiveYears = range($thisYear - 2, $thisYear + 2); // Range of 5 years
+
+        // Donut Data
+        $donut = [
+            'week' => [
+                'terealisasi' => Anggaran::whereBetween('updated_at', [now()->startOfWeek(), now()->endOfWeek()])
+                    ->whereIn('status', [2, 3])->count(),
+                'keseluruhan' => Anggaran::whereBetween('tanggal_pengajuan', [now()->startOfWeek(), now()->endOfWeek()])->count(),
+            ],
+            'month' => [
+                'terealisasi' => Anggaran::whereYear('updated_at', $thisYear)
+                    ->whereMonth('updated_at', $thisMonth)
+                    ->whereIn('status', [2, 3])->count(),
+                'keseluruhan' => Anggaran::whereYear('tanggal_pengajuan', $thisYear)
+                    ->whereMonth('tanggal_pengajuan', $thisMonth)->count(),
+            ],
+            'year' => [
+                'terealisasi' => Anggaran::whereYear('updated_at', $thisYear)
+                    ->whereIn('status', [2, 3])->count(),
+                'keseluruhan' => Anggaran::whereYear('tanggal_pengajuan', $thisYear)->count(),
+            ],
+            'all' => [
+                'terealisasi' => Anggaran::whereIn('status', [2, 3])->count(),
+                'keseluruhan' => Anggaran::count(),
+            ],
+        ];
+
+        // Daily Data
+        $daily = [];
+        foreach ($weekdays as $key => $day) {
+            $currentDay = now()->startOfWeek()->addDays($key); // Adjust the day within the week
+            $daily[$day] = [
+                'realized' => Anggaran::whereDate('updated_at', $currentDay)
+                    ->whereIn('status', [2, 3])->count(),
+                'planned' => Anggaran::whereDate('tanggal_pengajuan', $currentDay)
+                    ->whereIn('status', [2, 3])->count(),
+            ];
+        }
+
+        // Monthly Data
+        $monthly = [];
+        foreach ($months as $key => $month) {
+            $monthIndex = $key + 1;
+            $monthly[$month] = [
+                'realized' => Anggaran::whereYear('updated_at', $thisYear)
+                    ->whereMonth('updated_at', $monthIndex)
+                    ->whereIn('status', [2, 3])->count(),
+                'planned' => Anggaran::whereYear('tanggal_pengajuan', $thisYear)
+                    ->whereMonth('tanggal_pengajuan', $monthIndex)
+                    ->whereIn('status', [2, 3])->count(),
+            ];
+        }
+
+        // Yearly Data
+        $yearly = [];
+        foreach ($fiveYears as $year) {
+            $yearly[$year] = [
+                'realized' => Anggaran::whereYear('updated_at', $year)
+                    ->whereIn('status', [2, 3])->count(),
+                'planned' => Anggaran::whereYear('tanggal_pengajuan', $year)
+                    ->whereIn('status', [2, 3])->count(),
+            ];
+        }
+
+        // Compile all the data
+        $chart = [
+            'daily' => $daily,
+            'monthly' => $monthly, // Fixed typo from "montly"
+            'yearly' => $yearly,
+        ];
+
+        $data = [
+            'donut' => $donut,
+            'chart' => $chart,
+        ];
+
         return response()->json($data);
     }
 
-    
+    public function printDeviasi(Request $request)
+    {
+        $tgl_awal = $request->query('tgl_awal'); // gunakan query parameter
+        $tgl_akhir = $request->query('tgl_akhir');
 
-    public function getAnggaranColum(Request $request)
-{
-    $period = $request->query('period', 'monthly');
+        if ($tgl_awal && $tgl_akhir) {
+            $anggaran = Anggaran::whereBetween('created_at', [$tgl_awal, $tgl_akhir])->get();
+            $fileName = "Laporan Deviasi {$tgl_awal} - {$tgl_akhir}.pdf";
+        } else {
+            $anggaran = Anggaran::all();
+            $fileName = "Laporan Deviasi Keseluruhan.pdf";
+        }
 
-    $query = Anggaran::query();
-    
-    switch ($period) {
-        case 'weekly':
-            $query->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()]);
-            break;
-        case 'monthly':
-            $query->whereYear('created_at', now()->year)
-                  ->whereMonth('created_at', now()->month);
-            break;
-        case 'yearly':
-            $query->whereYear('created_at', now()->year);
-            break;
-        case 'all':
-            // No additional filters for 'all'
-            break;
-        default:
-            // Handle invalid period
-            return response()->json(['error' => 'Invalid period'], 400);
+        $data = [
+            'deviasis' => $anggaran,
+            'sekolah' => Sekolah::first()
+        ];
+
+        $pdf = Pdf::loadView('Print.Deviasi', $data);
+
+        return $pdf->stream($fileName);
     }
-
-    $keseluruhan = $query->whereNot('status', 3)->count();
-    $terealisasi = $query->where('status', 3)->count();
-    
-    $jumlahTerapproveTahunIni = $query->whereYear('created_at', now()->year)
-                                      ->where('status', 3)
-                                      ->count();
-    $jumlahTerapproveBulanIni = $query->whereYear('created_at', now()->year)
-                                      ->whereMonth('created_at', now()->month)
-                                      ->where('status', 3)
-                                      ->count();
-
-    $jumlahtahunini = $query->selectRaw('MONTH(created_at) as month, COUNT(*) as count, SUM(nominal) as sum')
-                            ->whereYear('created_at', now()->year)
-                            ->where('status', 3)
-                            ->groupBy('month')
-                            ->orderBy('month')
-                            ->get()
-                            ->mapWithKeys(function ($item) {
-                                return [
-                                    strtolower(now()->startOfYear()->addMonths($item->month - 1)->format('M')) => [
-                                        'count' => $item->count,
-                                        'sum of nominal' => $item->sum
-                                    ]
-                                ];
-                            });
-
-    $jumlahbulanini = $query->selectRaw('WEEK(created_at, 1) as week, COUNT(*) as count, SUM(nominal) as sum')
-                            ->whereYear('created_at', now()->year)
-                            ->whereMonth('created_at', now()->month)
-                            ->where('status', 3)
-                            ->groupBy('week')
-                            ->orderBy('week')
-                            ->get()
-                            ->mapWithKeys(function ($item) {
-                                return [
-                                    'minggu' . $item->week => [
-                                        'count' => $item->count,
-                                        'sum of nominal' => $item->sum
-                                    ]
-                                ];
-                            });
-
-    $totalRencanaAnggaranTahunIni = $query->whereYear('created_at', now()->year)
-                                         ->sum('nominal');
-    $totalRencanaAnggaranBulanIni = $query->whereYear('created_at', now()->year)
-                                          ->whereMonth('created_at', now()->month)
-                                          ->sum('nominal');
-
-    return response()->json([
-        'total_keseluruhan' => $keseluruhan,
-        'total_terealisasi' => $terealisasi,
-        'jumlah_terapprove_tahun_ini' => $jumlahTerapproveTahunIni,
-        'jumlah_terapprove_bulan_ini' => $jumlahTerapproveBulanIni,
-        'jumlah_tahun_ini' => $jumlahtahunini,
-        'jumlah_bulan_ini' => $jumlahbulanini,
-        'total_rencana_anggaran_tahun_ini' => $totalRencanaAnggaranTahunIni,
-        'total_rencana_anggaran_bulan_ini' => $totalRencanaAnggaranBulanIni,
-    ]);
-}
-
-public function printDeviasi(Request $request)
-{
-    $tgl_awal = $request->query('tgl_awal'); // gunakan query parameter
-    $tgl_akhir = $request->query('tgl_akhir');
-
-    if ($tgl_awal && $tgl_akhir) {
-        $anggaran = Anggaran::whereBetween('created_at', [$tgl_awal, $tgl_akhir])->get();
-        $fileName = "Laporan Deviasi {$tgl_awal} - {$tgl_akhir}.pdf";
-    } else {
-        $anggaran = Anggaran::all();
-        $fileName = "Laporan Deviasi Keseluruhan.pdf";
-    }
-
-    $data = ['deviasis' => $anggaran,
-'sekolah'=>Sekolah::first()
-];
-
-    $pdf = Pdf::loadView('Print.Deviasi', $data);
-
-    return $pdf->stream($fileName);
-}
-
 }
