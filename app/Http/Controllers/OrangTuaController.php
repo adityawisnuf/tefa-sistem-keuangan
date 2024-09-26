@@ -10,7 +10,7 @@ class OrangTuaController extends Controller
 {
 
 
-    public function getAllSekolah()
+    public function index()
     {
         try {
             $orangtuashow = Orangtua::all();

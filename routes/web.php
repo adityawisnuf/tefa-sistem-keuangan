@@ -1,4 +1,4 @@
-<?php
+    <?php
 
 use App\Http\Controllers\PembayaranController;
 use Illuminate\Support\Facades\Route;

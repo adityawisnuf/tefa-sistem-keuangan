@@ -3,101 +3,81 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pembayaran;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 
 class PembayaranController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index(): JsonResponse
+    // Menampilkan semua data pembayaran
+    public function index()
     {
-        $daftarPembayaran = Pembayaran::all();
-        return response()->json($daftarPembayaran);
+        $pembayarans = Pembayaran::all();
+        return response()->json($pembayarans);
     }
-
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         //
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request): JsonResponse
+    // Menyimpan pembayaran baru
+    public function store(Request $request)
     {
-        $siswaId = $request->get('siswa_id');
-        $pembayaranKategoriId = $request->get('pembayaran_kategori_id');
-        $nominal = $request->get('nominal');
-        $status = $request->get('status');
-        $kelasId = $request->get('kelas_id');
-
-        $pembayaran = Pembayaran::create([
-            'siswa_id' => $siswaId,
-            'pembayaran_kategori_id' => $pembayaranKategoriId,
-            'nominal' => $nominal,
-            'status' => $status,
-            'kelas_id' => $kelasId
+        $validatedData = $request->validate([
+            'siswa_id' => 'required|exists:siswa,id',
+            'pembayaran_kategori_id' => 'required|exists:pembayaran_kategori,id',
+            'nominal' => 'required|numeric',
+            'status' => 'required|string',
+            'kelas_id' => 'required|exists:kelas,id',
         ]);
 
-        return response()->json($pembayaran);
+        $pembayaran = Pembayaran::create($validatedData);
+
+        return response()->json([
+            'message' => 'Pembayaran berhasil ditambahkan',
+            'data' => $pembayaran
+        ], 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id): JsonResponse
+    // Menampilkan detail pembayaran berdasarkan ID
+    public function show($id)
     {
-        $pembayaran = Pembayaran::where('id', $id)->first();
+        $pembayaran = Pembayaran::findOrFail($id);
         return response()->json($pembayaran);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    // Menampilkan form untuk mengedit pembayaran (jika diperlukan)
+    public function edit($id)
     {
         //
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    // Memperbarui data pembayaran
+    public function update(Request $request, $id)
     {
-        $pembayaran = Pembayaran::find($id);
-
-        $siswaId = $request->get('siswa_id');
-        $pembayaranKategoriId = $request->get('pembayaran_kategori_id');
-        $nominal = $request->get('nominal');
-        $status = $request->get('status');
-        $kelasId = $request->get('kelas_id');
-
-        $pembayaran->update([
-            'siswa_id' => $siswaId,
-            'pembayaran_kategori_id' => $pembayaranKategoriId,
-            'nominal' => $nominal,
-            'status' => $status,
-            'kelas_id' => $kelasId
+        $validatedData = $request->validate([
+            'siswa_id' => 'required|exists:siswa,id',
+            'pembayaran_kategori_id' => 'required|exists:pembayaran_kategori,id',
+            'nominal' => 'required|numeric',
+            'status' => 'required|string',
+            'kelas_id' => 'required|exists:kelas,id',
         ]);
 
-        return response()->json($pembayaran);
+        $pembayaran = Pembayaran::findOrFail($id);
+        $pembayaran->update($validatedData);
+
+        return response()->json([
+            'message' => 'Pembayaran berhasil diperbarui',
+            'data' => $pembayaran
+        ], 200);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    // Menghapus pembayaran (soft delete)
+    public function destroy($id)
     {
-        $pembayaran = Pembayaran::find($id);
-
+        $pembayaran = Pembayaran::findOrFail($id);
         $pembayaran->delete();
 
-        return response()->json(['pesan' => 'pembayaran berhasil dihapus!']);
+        return response()->json([
+            'message' => 'Pembayaran berhasil dihapus'
+        ], 200);
     }
 }

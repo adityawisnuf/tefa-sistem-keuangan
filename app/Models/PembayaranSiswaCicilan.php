@@ -14,13 +14,14 @@ class PembayaranSiswaCicilan extends Model
     protected $fillable = [
         'pembayaran_siswa_id',
         'nominal_cicilan',
-        'status',
+        'merchant_order_id',  // Tambahkan merchant_order_id
     ];
 
     public function pembayaran_siswa()
     {
         return $this->belongsTo(PembayaranSiswa::class, 'pembayaran_siswa_id');
     }
+
     public function pembayaran_duitku()
     {
         return $this->belongsTo(PembayaranDuitku::class, 'merchant_order_id');

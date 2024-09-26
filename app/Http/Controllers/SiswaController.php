@@ -3,12 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\Siswa;
+use App\Models\Orangtua;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class SiswaController extends Controller
 {
-    public function getAllSiswa()
+    public function index()
     {
         $siswa = Siswa::all();
 
@@ -80,7 +81,7 @@ class SiswaController extends Controller
         ], 201);
     }
 
-    public function updateSiswa(Request $request, $id)
+    public function update(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
             'user_id' => 'required',
@@ -172,4 +173,25 @@ class SiswaController extends Controller
         ]);
     }
 
+    public function filterByOrangTua($id)
+{
+    // Cari data orang tua berdasarkan ID
+    $orangTua = Orangtua::find($id);
+
+    if (!$orangTua) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Orang tua tidak ditemukan',
+        ], 404);
+    }
+
+    // Ambil semua siswa yang memiliki ID orang tua yang sama
+    $siswa = Siswa::where('orangtua_id', $id)->get();
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Data siswa dengan orang tua berhasil ditemukan',
+        'data' => $siswa,
+    ], 200);
+}
 }
