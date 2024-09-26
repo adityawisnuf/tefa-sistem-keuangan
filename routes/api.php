@@ -20,7 +20,6 @@ use App\Http\Controllers\PengumumanController;
 use App\Http\Controllers\PengeluaranKategoriController;
 use App\Http\Controllers\PpdbController;
 
-
 // ROLE : Admin; KepalaSekolah; Bendahara; OrangTua; Siswa; Kantin; Laundry;
 
 Route::post('register', [RegisterController::class, 'register']);
