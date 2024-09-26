@@ -81,14 +81,7 @@ Route::get('filter-orangtua/{id}', [SiswaController::class, 'filterByOrangTua'])
 // pembayaran
 Route::resource('pembayaran_siswa', PembayaranSiswaController::class);
 Route::resource('pembayaran_duitku', PembayaranDuitkuController::class);
-Route::resource('pembayaran', PembayaranController::class);
+Route::resource('pembayaran', controller: PembayaranController::class);
 Route::apiResource('pembayaransiswacicilan', PembayaranSiswaCicilanController::class);
 Route::apiResource('pembayaran_kategori', PembayaranKategoriController::class);
-
-
-
-Route::get('/pembayaran-siswa', [PembayaranSiswaController::class, 'index']);
-Route::post('/pembayaran-siswa', [PembayaranSiswaController::class, 'store']);
-Route::get('/pembayaran-siswa/{id}', [PembayaranSiswaController::class, 'show']);
-Route::put('/pembayaran-siswa/{id}', [PembayaranSiswaController::class, 'update']);
-Route::delete('/pembayaran-siswa/{id}', [PembayaranSiswaController::class, 'destroy']);
+Route::apiResource('pembayaran-siswa', PembayaranSiswaController::class);
