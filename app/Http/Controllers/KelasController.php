@@ -124,7 +124,6 @@ class KelasController extends Controller
         ]);
     }
 
-
     // get sortir per kelas
     public function filterKelas(Request $request)
 {
@@ -175,5 +174,3 @@ public function filterBySekolah(Request $request)
 }
 
 }
-
-
