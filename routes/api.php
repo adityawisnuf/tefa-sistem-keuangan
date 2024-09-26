@@ -36,9 +36,6 @@ Route::group([
         Route::get('/anggaran/chart-data', [AnggaranController::class, 'getAnggaranData']);
         Route::patch('/anggaran/{anggaran}', [AnggaranController::class, 'update']);
 
-        // Additional Routes
-        Route::get('/monitoring', [MonitoringController::class, 'getLastSevenAnggaran']);
-
         // Laporan Anggaran
         Route::get('/laporan/anggaran', function () {
             $tgl_awal = request('tgl_awal');
@@ -52,7 +49,7 @@ Route::group([
                 $fileName = "Data Keseluruhan Anggaran.pdf";
             }
 
-            $data = ['anggarans' => $anggaran, 
+            $data = ['anggarans' => $anggaran,
         'sekolah'=>Sekolah::first()
         ];
             $pdf = Pdf::loadView('print.anggaran', $data);
