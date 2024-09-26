@@ -13,10 +13,6 @@ use Illuminate\Support\Facades\Validator;
 
 class PengumumanController extends Controller
 {
-    private function getSiswaAndOrangTua() {
-        return User::whereIn('role', ['Siswa', 'Orang Tua'])->get();
-    }
-
     // semua pengumuman yang disetujui
     public function AllAnnouncements(): JsonResponse
     {
@@ -111,9 +107,6 @@ class PengumumanController extends Controller
                 'user_id' => Auth::user()->id,
                 'approved_at' => now()
             ]);
-
-            // $users = $this->getSiswaAndOrangTua();
-            // Notification::send($users, new NewPengumumanNotification($pengumuman));
         } else {
             $pengumuman = Pengumuman::create([
                 'judul' => $request->judul,
@@ -161,45 +154,45 @@ class PengumumanController extends Controller
             ], 404);
         }
 
-        if ($pengumuman->user_id !== Auth::id()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Anda tidak memiliki izin untuk mengupdate pengumuman ini'
-            ], 403);
-        }
-
-        $validator = Validator::make($request->all(), [
-            'judul' => 'required',
-            'isi' => 'required'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'gagal mengupdate pengumuman',
-                'error' => $validator->errors()
-            ], 422);
-        }
-
-        if (Auth::user()->role === 'Kepala Sekolah') {
-            $pengumuman->update([
-                'judul' => $request->judul,
-                'isi' => $request->isi
+        if ($pengumuman->user_id === Auth::user()->id || Auth::user()->role === 'Kepala Sekolah') {
+            $validator = Validator::make($request->all(), [
+                'judul' => 'required',
+                'isi' => 'required'
             ]);
-        } else {
-            $pengumuman->update([
-                'judul' => $request->judul,
-                'isi' => $request->isi,
-                'status' => 1,
-                'approved_at' => null
-            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'gagal mengupdate pengumuman',
+                    'error' => $validator->errors()
+                ], 422);
+            }
+            
+            if (Auth::user()->role === 'Kepala Sekolah') {
+                $pengumuman->update([
+                    'judul' => $request->judul,
+                    'isi' => $request->isi
+                ]);
+            } else {
+                $pengumuman->update([
+                    'judul' => $request->judul,
+                    'isi' => $request->isi,
+                    'status' => 1,
+                    'approved_at' => null
+                ]);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'pengumuman berhasil diupdate',
+                'pengumuman' => $pengumuman
+            ], 200);
         }
 
         return response()->json([
-            'success' => true,
-            'message' => 'pengumuman berhasil diupdate',
-            'pengumuman' => $pengumuman
-        ], 200);
+            'success' => false,
+            'message' => 'Anda tidak memiliki izin untuk mengupdate pengumuman ini'
+        ], 403);
     }
 
     // menghapus pengumuman
@@ -243,14 +236,9 @@ class PengumumanController extends Controller
 
         $pengumuman->update([
             'status' => 2,
-            'approved_at' => now()
+            'approved_at' => now(),
+            'pesan_ditolak' => null
         ]);
-
-        // $users = $this->getSiswaAndOrangTua();
-        // Notification::send($users, new NewPengumumanNotification($pengumuman));
-
-        // $user = User::where('id', 1);
-        // $user->notify(new NewPengumumanNotification($pengumuman));
 
         return response()->json([
             'success' => true,
