@@ -21,6 +21,7 @@ use App\Http\Controllers\PendaftarDokumenController;
 use App\Http\Controllers\PembayaranKategoriController;
 use App\Http\Controllers\PengeluaranKategoriController;
 use App\Http\Controllers\PembayaranSiswaCicilanController;
+use App\Http\Controllers\PendaftarAkademikController;
 
 // ROLE : Admin; KepalaSekolah; Bendahara; OrangTua; Siswa; Kantin; Laundry;
 
@@ -102,3 +103,4 @@ Route::middleware(['auth:api'])->group(function () {
 Route::apiResource('ppdb', PpdbController::class);
 Route::apiResource('pendaftar', PendaftarController::class);
 Route::apiResource('pendaftar-dokumen', PendaftarDokumenController::class);
+Route::apiResource('pendaftar_akademik', PendaftarAkademikController::class);
