@@ -15,17 +15,11 @@ use App\Http\Controllers\PembayaranDuitkuController;
 use App\Http\Controllers\PembayaranKategoriController;
 use App\Http\Controllers\PembayaranSiswaCicilanController;
 use App\Http\Controllers\PengeluaranAnalysis;
-use App\Http\Controllers\OrangTuaController;
-use App\Http\Controllers\RegisterController;
-use App\Http\Controllers\PengeluaranController;
-use App\Http\Controllers\SekolahController;
-use App\Http\Controllers\SiswaController;
-use App\Http\Controllers\KelasController;
 use App\Http\Controllers\PengumumanController;
 use App\Http\Controllers\PengeluaranKategoriController;
 
 // ROLE : Admin; KepalaSekolah; Bendahara; OrangTua; Siswa; Kantin; Laundry;
-  
+
 Route::post('register', [RegisterController::class, 'register']);
 Route::post('login', [LoginController::class, 'login']);
 
@@ -36,6 +30,7 @@ Route::group(['middleware' => ['auth:api']], function () {
     // pengeluaran
     Route::post('pengeluaran/kategori', [PengeluaranController::class, 'addPengeluaranKategori']);
 
+});
 
 Route::get('orangtua', [OrangTuaController::class, 'getAllSekolah']);
 Route::get('orangtua/{id}', [OrangTuaController::class, 'show']);
@@ -166,7 +161,7 @@ Route::get('filter-orangtua/{id}', [SiswaController::class, 'filterByOrangTua'])
 // pembayaran
 Route::resource('pembayaran_siswa', PembayaranSiswaController::class);
 Route::resource('pembayaran_duitku', PembayaranDuitkuController::class);
-Route::resource('pembayaran', controller: PembayaranController::class);
+Route::resource('pembayaran', PembayaranController::class);
 Route::apiResource('pembayaransiswacicilan', PembayaranSiswaCicilanController::class);
 Route::apiResource('pembayaran_kategori', PembayaranKategoriController::class);
 Route::apiResource('pembayaran-siswa', PembayaranSiswaController::class);
