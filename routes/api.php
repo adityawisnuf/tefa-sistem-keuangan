@@ -18,6 +18,7 @@ use App\Http\Controllers\PembayaranSiswaCicilanController;
 use App\Http\Controllers\PengeluaranAnalysis;
 use App\Http\Controllers\PengumumanController;
 use App\Http\Controllers\PengeluaranKategoriController;
+use App\Http\Controllers\PpdbController;
 
 // ROLE : Admin; KepalaSekolah; Bendahara; OrangTua; Siswa; Kantin; Laundry;
 
@@ -88,3 +89,10 @@ Route::middleware(['auth:api'])->group(function () {
         Route::get('/pengumuman', [PengumumanController::class, 'AllAnnouncements']);
     });
 });
+
+// route ppdb
+Route::get('/ppdb', [PpdbController::class, 'index']);            // GET: Menampilkan semua data PPDB
+Route::post('/ppdb', [PpdbController::class, 'store']);           // POST: Menambahkan data baru
+Route::get('/ppdb/{id}', [PpdbController::class, 'show']);        // GET: Menampilkan data berdasarkan ID
+Route::put('/ppdb/{id}', [PpdbController::class, 'update']);      // PUT: Mengubah data berdasarkan ID
+Route::delete('/ppdb/{id}', [PpdbController::class, 'destroy']);  // DELETE: Menghapus data berdasarkan ID

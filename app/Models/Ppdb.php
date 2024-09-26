@@ -9,28 +9,20 @@ class Ppdb extends Model
 {
     use HasFactory;
 
-    protected $table= 'ppdb';
+    // Kolom yang diizinkan untuk diisi
+protected $table = "ppdb";
 
-    protected $fillable= [
-        'dokumen_pendaftar_id', 'status', 'merchant_order_id',
+    protected $fillable = [
+        'status',
+        'merchant_order_id',
+        'created_at',
+        'updated_at'
     ];
 
-    public function pembayaran_duitku()
-    {
-        return $this->belongsTo(PembayaranDuitku::class, 'merchant_order_id');
-    }
-
-    public function pendaftaran_akademik()
-    {
-        return $this->hasOne(PendaftarAkademik::class, 'ppdb_id');
-    }
-    public function pendaftar()
-    {
-        return $this->hasOne(Pendaftar::class, 'ppdb_id');
-    }
-    public function pendaftar_dokumen()
-    {
-        return $this->hasOne(PendaftarDokumen::class, 'ppdb_id');
-    }
-
+    // Optional: Jika Anda ingin mendefinisikan tipe kolom secara lebih eksplisit
+    protected $casts = [
+        'status' => 'integer', // 1, 2, 3
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
 }
