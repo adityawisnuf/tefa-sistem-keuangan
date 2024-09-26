@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Validator;
 
 class SiswaController extends Controller
 {
-    public function getAllSiswa()
+    public function index()
     {
         $siswa = Siswa::all();
 
@@ -81,7 +81,7 @@ class SiswaController extends Controller
         ], 201);
     }
 
-    public function updateSiswa(Request $request, $id)
+    public function update(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
             'user_id' => 'required',

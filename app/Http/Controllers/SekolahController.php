@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Validator;
 class SekolahController extends Controller
 {
     // Get all sekolah
-    public function getAllSekolah()
+    public function index()
     {
         try {
             $sekolah = Sekolah::all();
