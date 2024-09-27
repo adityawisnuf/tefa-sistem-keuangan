@@ -22,7 +22,7 @@ use App\Http\Controllers\PendaftarDokumenController;
 use App\Http\Controllers\PembayaranKategoriController;
 use App\Http\Controllers\PengeluaranKategoriController;
 use App\Http\Controllers\PembayaranSiswaCicilanController;
-
+use App\Http\Controllers\VillageController;
 
 // ROLE : Admin; KepalaSekolah; Bendahara; OrangTua; Siswa; Kantin; Laundry;
 
@@ -38,6 +38,8 @@ Route::apiResource('orangtua', OrangTuaController::class);
 Route::apiResource('sekolah', SekolahController::class);
 Route::apiResource('kelas', KelasController::class);
 Route::apiResource('siswa', SiswaController::class);
+
+Route::apiResource('village', VillageController::class);
 
 // sortir kelas
 Route::get('filter-kelas', [KelasController::class, 'filterKelas']);

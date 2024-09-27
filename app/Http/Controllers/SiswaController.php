@@ -11,7 +11,7 @@ class SiswaController extends Controller
 {
     public function index()
     {
-        $siswa = Siswa::all();
+        $siswa = Siswa::with(['user', 'orangtua', 'village', 'kelas'])->get();
 
         return response()->json([
             'success' => true,
@@ -22,7 +22,7 @@ class SiswaController extends Controller
 
     public function show($id)
     {
-        $siswa = Siswa::find($id);
+        $siswa = Siswa::with(['user', 'orangtua', 'village', 'kelas'])->find($id);
 
         if (!$siswa) {
             return response()->json([
