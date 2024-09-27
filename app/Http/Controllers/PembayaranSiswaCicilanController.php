@@ -52,4 +52,43 @@ class PembayaranSiswaCicilanController extends Controller
         // Mengembalikan data cicilan yang diminta
         return response()->json($cicilan);
     }
+
+    public function update(Request $request, $id)
+{
+    // Validasi input
+    $validatedData = $request->validate([
+        'pembayaran_siswa_id' => 'sometimes|required|exists:pembayaran_siswa,id',
+        'nominal_cicilan' => 'sometimes|required|numeric',
+        'merchant_order_id' => 'sometimes|required|string', // Validasi untuk merchant_order_id
+    ]);
+
+    // Mencari cicilan berdasarkan id
+    $cicilan = PembayaranSiswaCicilan::findOrFail($id);
+
+    // Memperbarui data cicilan
+    $cicilan->update($validatedData);
+
+    // Mengembalikan response sukses
+    return response()->json([
+        'message' => 'Cicilan siswa berhasil diperbarui',
+        'data' => $cicilan,
+    ]);
+}
+
+/**
+ * Remove the specified resource from storage.
+ */
+public function destroy($id)
+{
+    // Mencari cicilan berdasarkan id
+    $cicilan = PembayaranSiswaCicilan::findOrFail($id);
+
+    // Menghapus cicilan dari database
+    $cicilan->delete();
+
+    // Mengembalikan response sukses
+    return response()->json([
+        'message' => 'Cicilan siswa berhasil dihapus',
+    ]);
+}
 }

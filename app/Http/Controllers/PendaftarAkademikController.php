@@ -2,73 +2,88 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\PendaftarAkademik;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Http\Request;
 
 class PendaftarAkademikController extends Controller
 {
+    /**
+     * Display a listing of the resource.
+     */
     public function index()
     {
-        $pendaftarAkademik = PendaftarAkademik::all();
-        return response()->json($pendaftarAkademik);
+        $akademik = PendaftarAkademik::all();
+        return response()->json($akademik);
     }
 
+    /**
+     * Store a newly created resource in storage.
+     */
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'ppdb_id' => 'required|integer|exists:ppdbs,id',
+        $validatedData = $request->validate([
+            'ppdb_id' => 'required|exists:ppdb,id',  // Validasi untuk memastikan ppdb_id ada di tabel ppdb
             'sekolah_asal' => 'required|string|max:255',
-            'tahun_lulus' => 'required|date_format:Y',
-            'jurusan_tujuan' => 'required|string|max:255'
+            'tahun_lulus' => 'required|date',  // Menggunakan validasi date
+            'jurusan_tujuan' => 'required|string|max:255',
         ]);
 
-        if ($validator->fails()) {
-            return response()->json($validator->errors(), 400);
-        }
+        // Format tahun_lulus menjadi datetime sebelum disimpan
+        $validatedData['tahun_lulus'] = date('Y-m-d H:i:s', strtotime($validatedData['tahun_lulus']));
 
-        $pendaftarAkademik = PendaftarAkademik::create($request->all());
-        return response()->json($pendaftarAkademik, 201);
+        $akademik = PendaftarAkademik::create($validatedData);
+
+        return response()->json([
+            'message' => 'Data akademik berhasil ditambahkan',
+            'data' => $akademik,
+        ], 201);
     }
 
+    /**
+     * Display the specified resource.
+     */
     public function show($id)
     {
-        $pendaftarAkademik = PendaftarAkademik::find($id);
-        if (!$pendaftarAkademik) {
-            return response()->json(['message' => 'Not Found!'], 404);
-        }
-        return response()->json($pendaftarAkademik);
+        $akademik = PendaftarAkademik::findOrFail($id);
+        return response()->json($akademik);
     }
 
+    /**
+     * Update the specified resource in storage.
+     */
     public function update(Request $request, $id)
     {
-        $pendaftarAkademik = PendaftarAkademik::find($id);
-        if (!$pendaftarAkademik) {
-            return response()->json(['message' => 'Not Found!'], 404);
-        }
-
-        $validator = Validator::make($request->all(), [
-            'ppdb_id' => 'integer|exists:ppdbs,id',
-            'sekolah_asal' => 'string|max:255',
-            'tahun_lulus' => 'date_format:Y',
-            'jurusan_tujuan' => 'string|max:255'
+        $validatedData = $request->validate([
+            'ppdb_id' => 'sometimes|required|exists:ppdb,id',
+            'sekolah_asal' => 'sometimes|required|string|max:255',
+            'tahun_lulus' => 'sometimes|required|date',  // Menggunakan validasi date
+            'jurusan_tujuan' => 'sometimes|required|string|max:255',
         ]);
 
-        if ($validator->fails()) {
-            return response()->json($validator->errors(), 400);
+        if (isset($validatedData['tahun_lulus'])) {
+            // Format tahun_lulus menjadi datetime sebelum disimpan
+            $validatedData['tahun_lulus'] = date('Y-m-d H:i:s', strtotime($validatedData['tahun_lulus']));
         }
 
-        $pendaftarAkademik->update($request->all());
-        return response()->json($pendaftarAkademik);
+        $akademik = PendaftarAkademik::findOrFail($id);
+        $akademik->update($validatedData);
+
+        return response()->json([
+            'message' => 'Data akademik berhasil diperbarui',
+            'data' => $akademik,
+        ], 200);
     }
 
+    /**
+     * Remove the specified resource from storage.
+     */
     public function destroy($id)
     {
-        $pendaftarAkademik = PendaftarAkademik::find($id);
-        if (!$pendaftarAkademik) {
-            return response()->json(['message' => 'Not Found!'], 404);
-        }
-        $pendaftarAkademik->delete();
-        return response()->json(['message' => 'Deleted successfully'], 200);
+        $akademik = PendaftarAkademik::findOrFail($id);
+        $akademik->delete();
+
+        return response()->json([
+            'message' => 'Data akademik berhasil dihapus'
+        ], 200);
     }
 }
