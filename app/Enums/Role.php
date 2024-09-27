@@ -8,4 +8,5 @@ enum Role: string
     case KepalaSekolah = 'Kepala Sekolah';
     case Sekolah = 'Sekolah';
     case OrangTua = 'Orang Tua';
+    case Siswa = 'Siswa';
 }
