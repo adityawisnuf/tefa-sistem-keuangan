@@ -172,9 +172,9 @@ class AnggaranController extends Controller
         foreach ($weekdays as $key => $day) {
             $currentDay = now()->startOfWeek()->addDays($key); // Adjust the day within the week
             $daily[$day] = [
-                'realized' => Anggaran::whereDate('updated_at', $currentDay)
+                'terealisasi' => Anggaran::whereDate('updated_at', $currentDay)
                     ->whereIn('status', [2, 3])->count(),
-                'planned' => Anggaran::whereDate('tanggal_pengajuan', $currentDay)
+                'keseluruhan' => Anggaran::whereDate('tanggal_pengajuan', $currentDay)
                     ->whereIn('status', [2, 3])->count(),
             ];
         }
@@ -184,22 +184,24 @@ class AnggaranController extends Controller
         foreach ($months as $key => $month) {
             $monthIndex = $key + 1;
             $monthly[$month] = [
-                'realized' => Anggaran::whereYear('updated_at', $thisYear)
+                'terealisasi' => Anggaran::whereYear('updated_at', $thisYear)
                     ->whereMonth('updated_at', $monthIndex)
                     ->whereIn('status', [2, 3])->count(),
-                'planned' => Anggaran::whereYear('tanggal_pengajuan', $thisYear)
+                'keseluruhan' => Anggaran::whereYear('tanggal_pengajuan', $thisYear)
                     ->whereMonth('tanggal_pengajuan', $monthIndex)
                     ->whereIn('status', [2, 3])->count(),
             ];
         }
 
         // Yearly Data
-        $yearly = [];
+        $yearly = [
+            'labels' => $fiveYears
+        ];
         foreach ($fiveYears as $year) {
-            $yearly[$year] = [
-                'realized' => Anggaran::whereYear('updated_at', $year)
+            $yearly['data'][$year] = [
+                'terealisasi' => Anggaran::whereYear('updated_at', $year)
                     ->whereIn('status', [2, 3])->count(),
-                'planned' => Anggaran::whereYear('tanggal_pengajuan', $year)
+                'keseluruhan' => Anggaran::whereYear('tanggal_pengajuan', $year)
                     ->whereIn('status', [2, 3])->count(),
             ];
         }
@@ -212,8 +214,12 @@ class AnggaranController extends Controller
         ];
 
         $data = [
-            'donut' => $donut,
-            'chart' => $chart,
+            'success' => true,
+            'message' => 'Berhasil mendapatkan data chart anggaran.',
+            'data' => [
+                'donut' => $donut,
+                'chart' => $chart,
+            ],
         ];
 
         return response()->json($data);
