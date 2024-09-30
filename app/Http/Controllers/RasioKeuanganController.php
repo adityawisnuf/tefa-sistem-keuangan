@@ -215,6 +215,18 @@ class RasioKeuanganController extends Controller
             ];
         }
 
+        // Tambahkan opsi "semua" di awal list bulan dan tahun
+    array_unshift($formattedMonths, [
+        'values' => '',
+        'labels' => 'Semua',
+    ]);
+
+    array_unshift($formattedYears, [
+        'values' => '',
+        'labels' => 'Semua',
+    ]);
+
+
         return response()->json([
             'months' => $formattedMonths,
             'years' => $formattedYears,
