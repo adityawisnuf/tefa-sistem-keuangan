@@ -48,7 +48,7 @@ class Duitku
         $httpCode = curl_getinfo($this->ch, CURLINFO_HTTP_CODE);
 
         if ($httpCode != 200) {
-            $error_message = 'Server Error '.$httpCode.' '.json_decode($response)->Message;
+            $error_message = 'Server Error ' . $httpCode . ' ' . json_decode($response)->Message;
             Log::error($error_message);
             throw new HttpResponseException(response()->json(['error' => $error_message], $httpCode));
         }
@@ -62,7 +62,7 @@ class Duitku
             throw new HttpResponseException(response()->json(['error' => 'Payment amount cannot be null'], 402));
         }
 
-        $signature = hash('sha256', $this->merchantCode.$paymentAmount.$this->dateNow.$this->apiKey);
+        $signature = hash('sha256', $this->merchantCode . $paymentAmount . $this->dateNow . $this->apiKey);
         $params = [
             'merchantcode' => $this->merchantCode,
             'amount' => $paymentAmount,
@@ -70,12 +70,13 @@ class Duitku
             'signature' => $signature,
         ];
 
-        return $this->executeCurlRequest($this->apiURL.'/webapi/api/merchant/paymentmethod/getpaymentmethod', $params);
+        return $this->executeCurlRequest($this->apiURL . '/webapi/api/merchant/paymentmethod/getpaymentmethod', $params);
     }
 
     public function requestTransaction($data, $expiryPeriod = 60)
     {
-        $signature = md5($this->merchantCode.$data['merchantOrderId'].$data['payment_amount'].$this->apiKey);
+        $string = $this->merchantCode . $data['merchantOrderId'] . $data['payment_amount'] . $this->apiKey;
+        $signature = md5($string);
 
         $params = [
             'merchantCode' => $this->merchantCode,
@@ -100,13 +101,13 @@ class Duitku
             'signature' => $signature,
             'expiryPeriod' => $expiryPeriod,
         ];
-
-        return $this->executeCurlRequest($this->apiURL.'/webapi/api/merchant/v2/inquiry', $params);
+        Log::debug('requestTransaction: ', [$signature, $params, $string]);
+        return $this->executeCurlRequest($this->apiURL . '/webapi/api/merchant/v2/inquiry', $params);
     }
 
     public function callback($data)
     {
-        $signature = md5($this->merchantCode.$data['amount'].$data['merchantOrderId'].$this->apiKey);
+        $signature = md5($this->merchantCode . $data['amount'] . $data['merchantOrderId'] . $this->apiKey);
 
         if ($signature !== $data['signature']) {
             Log::warning('Invalid callback signature');

@@ -18,6 +18,7 @@ class Pembayaran extends Model
         'pembayaran_kategori_id',
         'nominal',
         'status',
+        'pembayaran_ke',
         'kelas_id',
     ];
 

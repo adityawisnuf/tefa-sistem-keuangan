@@ -95,16 +95,19 @@ class DatabaseSeeder extends Seeder
                 'kelas_id' => $Kelas->id,
             ]);
             $PembayaranKategori = \App\Models\PembayaranKategori::create([
-                'nama' => 'SPP',
+                'nama' => 'SPP 2024/2025',
                 'jenis_pembayaran' => 1,
                 'tanggal_pembayaran' => '2024-08-29',
                 'status' => 1,
             ]);
-            $Pembayaran = \App\Models\Pembayaran::create([
-                'pembayaran_kategori_id' => $PembayaranKategori->id,
-                'kelas_id' => $Kelas->id,
-                'nominal' => 10000,
-            ]);
+            for ($i = 1; $i <= 12; $i++) {
+                \App\Models\Pembayaran::create([
+                    'pembayaran_kategori_id' => 2,
+                    'kelas_id' => 1,
+                    'nominal' => 100000,
+                    'pembayaran_ke' => $i,
+                ]);
+            }
         } catch (\Throwable $th) {
             DB::rollBack();
             throw $th;
