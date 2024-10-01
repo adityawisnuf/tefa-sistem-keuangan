@@ -154,7 +154,12 @@ class SiswaKantinController extends Controller
 
         try {
             $riwayat = $siswa->kantin_transaksi()
-                ->with(['usaha', 'kantin_transaksi_detail.kantin_produk'])
+                ->select('id', 'usaha_id', 'status', 'tanggal_pemesanan', 'tanggal_selesai')
+                ->with(
+                    'usaha:id,nama_usaha', 
+                    'kantin_transaksi_detail:id,kantin_transaksi_id,kantin_produk_id,jumlah,harga',
+                    'kantin_transaksi_detail.kantin_produk:id,nama_produk,foto_produk,deskripsi,harga_jual'
+                )
                 ->when($status == 'aktif', function ($query) {
                     $query->whereIn('status', ['pending', 'proses', 'siap_diambil']);
                 })
@@ -164,20 +169,11 @@ class SiswaKantinController extends Controller
                 ->paginate($perPage);
 
             $riwayat->getCollection()->transform(function ($riwayat) {
-                return [
-                    'id' => $riwayat->id,
-                    'nama_usaha' => $riwayat->usaha->nama_usaha,
-                    'jumlah_layanan' => count($riwayat->kantin_transaksi_detail),
-                    'nama_produk' => $riwayat->kantin_transaksi_detail->first()->kantin_produk->nama_produk,
-                    'jumlah' => $riwayat->kantin_transaksi_detail->first()->jumlah,
-                    'harga' => $riwayat->kantin_transaksi_detail->first()->harga,
-                    'harga_total' => array_reduce($riwayat->kantin_transaksi_detail->toArray(), function ($scary, $item) {
-                        return $scary += $item['harga_total'];
-                    }),
-                    'status' => $riwayat->status,
-                    'tanggal_pemesanan' => $riwayat->tanggal_pemesanan,
-                    'tanggal_selesai' => $riwayat->tanggal_selesai,
-                ];
+                return array_merge(
+                    collect($riwayat)->forget(['usaha', 'kantin_transaksi_detail'])->toArray(),
+                    $riwayat->usaha->toArray(),
+                    ['kantin_transaksi_detail' => $riwayat->kantin_transaksi_detail],
+                );
             });
 
             return response()->json(['data' => $riwayat], Response::HTTP_OK);

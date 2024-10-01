@@ -110,7 +110,8 @@ class LaundryLayananController extends Controller
             $layanan = LaundryLayanan::findOrFail($id);
             Storage::delete(self::IMAGE_STORAGE_PATH . $layanan->foto_layanan);
             $layanan->delete();
-            return response(null, Response::HTTP_NO_CONTENT);
+
+            return response()->json(['message' => 'Data berhasil dihapus.'], Response::HTTP_OK);
         } catch (Exception $e) {
             return response()->json(['error' => 'Terjadi kesalahan saat menghapus data layanan.'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }

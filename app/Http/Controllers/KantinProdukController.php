@@ -115,19 +115,11 @@ class KantinProdukController extends Controller
     {
         try {
             $produk = KantinProduk::findOrFail($id);
-
-            // Cek izin dengan policy
-            $this->authorize('delete', $produk);
-
-            // Hapus foto produk jika ada
             Storage::delete(self::IMAGE_STORAGE_PATH . $produk->foto_produk);
-
-            // Hapus produk dari database
             $produk->delete();
 
-            return response(null, Response::HTTP_NO_CONTENT);
+            return response()->json(['message' => 'Data berhasil dihapus.'], Response::HTTP_OK);
         } catch (Exception $e) {
-            // Tangani error lainnya
             Log::error('destroy: ' . $e->getMessage());
             return response()->json(['error' => 'Terjadi kesalahan saat menghapus data produk.'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }

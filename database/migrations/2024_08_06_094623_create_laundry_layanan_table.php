@@ -22,6 +22,7 @@ return new class extends Migration
             $table->enum('satuan',['pcs','kg']);
             $table->enum('status',['aktif','tidak_aktif'])->default('tidak_aktif');
             $table->timestamps();
+            $table->softDeletes();
 
             $table->foreign('usaha_id')->references('id')->on('usaha');
         });

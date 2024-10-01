@@ -30,6 +30,6 @@ class KantinTransaksiDetail extends Model
     }
     public function kantin_produk()
     {
-        return $this->belongsTo(KantinProduk::class, 'kantin_produk_id');
+        return $this->belongsTo(KantinProduk::class, 'kantin_produk_id')->withTrashed();
     }
 }

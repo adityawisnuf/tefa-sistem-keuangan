@@ -63,8 +63,18 @@ class SiswaLaundryController extends Controller
 
     public function getLayananTransaksi()
     {
-        $siswa = Auth::user()->siswa()->first();
-        $perPage = request('per_page', 10);
+        $validator = Validator::make(request()->all(), [
+            'per_page' => ['nullable', 'integer', 'min:1'],
+            'status' => ['nullable', 'string', 'in:aktif,selesai']
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()], Response::HTTP_BAD_REQUEST);
+        }
+
+        $siswa = Auth::user()->siswa->firstOrFail();
+        $perPage = request()->input('per_page', 10);
+        $status = request()->input('status', 'aktif');
 
         try {
             $riwayat = $siswa->laundry_transaksi()
@@ -88,6 +98,29 @@ class SiswaLaundryController extends Controller
                     'tanggal_selesai' => $riwayat->tanggal_selesai,
                 ];
             });
+
+            $riwayat = $siswa->laundry_transaksi()
+            ->select('id', 'usaha_id', 'status', 'tanggal_pemesanan', 'tanggal_selesai')
+            ->with(
+                'usaha:id,nama_usaha', 
+                'laundry_transaksi_detail:id,laundry_transaksi_id,laundry_layanan_id,jumlah,harga',
+                'laundry_transaksi_detail.laundry_layanan:id,nama_layanan,foto_layanan,deskripsi,harga'
+            )
+            ->when($status == 'aktif', function ($query) {
+                $query->whereIn('status', ['pending', 'proses', 'siap_diambil']);
+            })
+            ->when($status == 'selesai', function ($query) {
+                $query->whereIn('status', ['selesai', 'dibatalkan']);
+            })
+            ->paginate($perPage);
+
+        $riwayat->getCollection()->transform(function ($riwayat) {
+            return array_merge(
+                collect($riwayat)->forget(['usaha', 'laundry_transaksi_detail'])->toArray(),
+                $riwayat->usaha->toArray(),
+                ['laundry_transaksi_detail' => $riwayat->laundry_transaksi_detail],
+            );
+        });
 
             return response()->json(['data' => $riwayat], Response::HTTP_OK);
         } catch (Exception $e) {

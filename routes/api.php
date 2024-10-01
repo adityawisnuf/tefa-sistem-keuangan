@@ -44,11 +44,9 @@ Route::group([
     ], function () {
         Route::group(['prefix' => 'siswa'], function() {
             Route::get('/', [OrangTuaController::class, 'getSiswa']);
-
-            Route::group(['prefix' => 'riwayat'], function() {
-                Route::get('/wallet/{id}', [OrangTuaController::class, 'getRiwayatWalletSiswa']);
-                Route::get('/transaksi/{id}', [OrangTuaController::class, 'getRiwayatTransaksiSiswa']);
-            });
+            Route::get('/wallet/{id}', [OrangTuaController::class, 'getRiwayatWalletSiswa']);
+            Route::get('/kantin/transaksi/{id}', [OrangTuaController::class, 'getRiwayatKantinSiswa']);
+            Route::get('/laundry/transaksi/{id}', [OrangTuaController::class, 'getRiwayatLaundrySiswa']);
         });
     });
 
@@ -90,7 +88,7 @@ Route::group([
             Route::post('/', [KantinProdukController::class, 'create']);
             Route::get('/{produk}', [KantinProdukController::class, 'show']);
             Route::put('/{produk}', [KantinProdukController::class, 'update']);
-            Route::delete('/{produk}', [KantinProdukController::class, 'destroy']);
+            Route::delete('/{id}', [KantinProdukController::class, 'destroy']);
         });
 
         //kategori crud

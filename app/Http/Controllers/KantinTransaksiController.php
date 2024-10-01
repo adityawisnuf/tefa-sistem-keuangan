@@ -42,27 +42,36 @@ class KantinTransaksiController extends Controller
         $status = request('status', 'aktif');
         $perPage = request()->input('per_page', 10);
 
-        try {
-            $transaksi = $usaha->kantin_transaksi()
-                ->with(['kantin_transaksi_detail.kantin_produk:id,nama_produk', 'siswa:id,nama_depan,nama_belakang'])
-                ->when($status == 'aktif', function ($query) {
-                    $query->whereIn('status', ['pending', 'proses', 'siap_diambil']);
-                })
-                ->when($status == 'selesai', function ($query) {
-                    $query->whereIn('status', ['selesai', 'dibatalkan']);
-                })
-                ->paginate($perPage);
+        $transaksi = $usaha->kantin_transaksi()
+            ->select('id', 'siswa_id', 'status', 'tanggal_pemesanan', 'tanggal_selesai')
+            ->with(
+                'kantin_transaksi_detail:id,kantin_transaksi_id,kantin_produk_id,jumlah,harga',
+                'kantin_transaksi_detail.kantin_produk:id,nama_produk,foto_produk,deskripsi,harga_jual',
+                'siswa:id,nama_depan,nama_belakang'
+            )
+            ->when($status == 'aktif', function ($query) {
+                $query->whereIn('status', ['pending', 'proses', 'siap_diambil']);
+            })
+            ->when($status == 'selesai', function ($query) {
+                $query->whereIn('status', ['selesai', 'dibatalkan']);
+            })
+            ->paginate($perPage);
 
-            return response()->json(['data' => $transaksi], Response::HTTP_OK);
-        } catch (Exception $e) {
-            Log::error('index: ' . $e->getMessage());
-            return response()->json(['error' => 'Terjadi kesalahan pada saat menampilkan data Kantin Transaksi']);
-        }
+            $transaksi->getCollection()->transform(function ($transaksi) {
+                return array_merge(
+                    collect($transaksi)->forget(['kantin_transaksi_detail', 'siswa'])->toArray(),
+                    ['nama_siswa' => $transaksi->siswa->nama_siswa],
+                    ['kantin_transaksi_detail' => $transaksi->kantin_transaksi_detail],
+                );
+            });
+
+        return response()->json(['data' => $transaksi], Response::HTTP_OK);
     }
 
     public function update($id, SocketIOService $socketIOService)
     {
         $transaksi = KantinTransaksi::findOrFail($id);
+
         try {
             $this->statusService->update($transaksi);
             if ($transaksi->status === 'selesai') {
@@ -87,6 +96,7 @@ class KantinTransaksiController extends Controller
         $usaha = $transaksi->usaha;
 
         DB::beginTransaction();
+        
         try {
             $this->statusService->confirmInitialTransaction($fields['confirm'], $transaksi);
 
@@ -117,6 +127,5 @@ class KantinTransaksiController extends Controller
             Log::error('confirm: ' . $e->getMessage());
             return response()->json(['error' => 'Terjadi Kesalahan pada saat melakukan Confirm Transaksi'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
-    }
-
+    }    
 }

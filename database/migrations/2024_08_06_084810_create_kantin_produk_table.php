@@ -23,6 +23,7 @@ return new class extends Migration
             $table->unsignedInteger('harga_jual');
             $table->unsignedInteger('stok')->default(0);
             $table->enum('status',['aktif','tidak_aktif'])->default('tidak_aktif');
+            $table->softDeletes();
 
             $table->timestamps();
             $table->foreign('usaha_id')->references('id')->on('usaha');
