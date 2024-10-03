@@ -22,6 +22,7 @@ use App\Http\Controllers\PendaftarDokumenController;
 use App\Http\Controllers\PembayaranKategoriController;
 use App\Http\Controllers\PengeluaranKategoriController;
 use App\Http\Controllers\PembayaranSiswaCicilanController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\VillageController;
 
 // ROLE : Admin; KepalaSekolah; Bendahara; OrangTua; Siswa; Kantin; Laundry;
@@ -107,3 +108,5 @@ Route::apiResource('ppdb', PpdbController::class);
 Route::apiResource('pendaftar', PendaftarController::class);
 Route::apiResource('pendaftar-dokumen', PendaftarDokumenController::class);
 Route::apiResource('pendaftar_akademik', PendaftarAkademikController::class);
+
+Route::apiResource('users', UserController::class);;
