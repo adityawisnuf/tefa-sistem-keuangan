@@ -21,31 +21,31 @@ class ArusKasController extends Controller
         $tahun = $request->query('tahun');
 
         $payments = PembayaranSiswa::where('status', 1)
-                        ->when($bulan, function ($query) use ($bulan) {
-                            return $query->whereMonth('created_at', $bulan);
-                        })
-                        ->when($tahun, function ($query) use ($tahun) {
-                            return $query->whereYear('created_at', $tahun);
-                        })
-                        ->paginate(20);
+            ->when($bulan, function ($query) use ($bulan) {
+                return $query->whereMonth('created_at', $bulan);
+            })
+            ->when($tahun, function ($query) use ($tahun) {
+                return $query->whereYear('created_at', $tahun);
+            })
+            ->paginate(20);
 
         $paymentsPpdb = PembayaranPpdb::where('status', 1)
-                            ->when($bulan, function ($query) use ($bulan) {
-                                return $query->whereMonth('created_at', $bulan);
-                            })
-                            ->when($tahun, function ($query) use ($tahun) {
-                                return $query->whereYear('created_at', $tahun);
-                            })
-                            ->paginate(20);
+            ->when($bulan, function ($query) use ($bulan) {
+                return $query->whereMonth('created_at', $bulan);
+            })
+            ->when($tahun, function ($query) use ($tahun) {
+                return $query->whereYear('created_at', $tahun);
+            })
+            ->paginate(20);
 
         $expenses = Pengeluaran::whereNotNull('disetujui_pada') // Tambahkan kondisi ini untuk menyaring pengeluaran yang belum disetujui
-                            ->when($bulan, function ($query) use ($bulan) {
-                                return $query->whereMonth('created_at', $bulan); // Sesuaikan dengan kolom yang benar jika diperlukan
-                            })
-                            ->when($tahun, function ($query) use ($tahun) {
-                                return $query->whereYear('created_at', $tahun); // Sesuaikan dengan kolom yang benar jika diperlukan
-                            })
-                            ->paginate(20);
+            ->when($bulan, function ($query) use ($bulan) {
+                return $query->whereMonth('disetujui_pada', $bulan); // Sesuaikan dengan kolom yang benar jika diperlukan
+            })
+            ->when($tahun, function ($query) use ($tahun) {
+                return $query->whereYear('disetujui_pada', $tahun); // Sesuaikan dengan kolom yang benar jika diperlukan
+            })
+            ->paginate(20);
 
 
         // Prepare an array to hold the profit data
@@ -61,7 +61,7 @@ class ArusKasController extends Controller
                 $profit[$key] = [
                     'tanggal' => $periode,
                     'keterangan' => $kategori,
-                    'pemasukan' => 0,
+                    'pemasukan' =>  0,
                     'pengeluaran' => '-',
                 ];
             }
@@ -99,7 +99,7 @@ class ArusKasController extends Controller
         }
 
         // Sort the profit array by the date (in descending order)
-        usort($profit, function($a, $b) {
+        usort($profit, function ($a, $b) {
             return strtotime($b['tanggal']) - strtotime($a['tanggal']);
         });
 
@@ -113,19 +113,19 @@ class ArusKasController extends Controller
         $total = [];
         if ($totalIncome > 0 || $totalExpense > 0) {
             $total = [
-                'pemasukan' => number_format($totalIncome, 0, ',', '.'),
-                'pengeluaran' => number_format($totalExpense, 0, ',', '.'),
-                'pemasukan_sekarang' => number_format($totalPaymentNow, 0, ',', '.'),
-                'pengeluaran_sekarang' => number_format($totalExpensesNow, 0, ',', '.'),
-                'saldo_akhir'   => number_format($totalIncome - $totalExpense, 0, ',', '.')
+                'pemasukan' => 'Rp ' . number_format($totalIncome, 0, ',', '.'),
+                'pengeluaran' => 'Rp ' . number_format($totalExpense, 0, ',', '.'),
+                'pemasukan_sekarang' => 'Rp ' .  number_format($totalPaymentNow, 0, ',', '.'),
+                'pengeluaran_sekarang' => 'Rp ' .  number_format($totalExpensesNow, 0, ',', '.'),
+                'saldo_akhir'   => 'Rp ' .  number_format($totalIncome - $totalExpense, 0, ',', '.')
             ];
         }
         foreach ($profit as &$item) {
             if ($item['pemasukan'] !== '-') {
-                $item['pemasukan'] = number_format($item['pemasukan'], 0, ',', '.');
+                $item['pemasukan'] = 'Rp ' . number_format($item['pemasukan'], 0, ',', '.');
             }
             if ($item['pengeluaran'] !== '-') {
-                $item['pengeluaran'] = number_format($item['pengeluaran'], 0, ',', '.');
+                $item['pengeluaran'] = 'Rp ' .  number_format($item['pengeluaran'], 0, ',', '.');
             }
         }
 
@@ -221,5 +221,4 @@ class ArusKasController extends Controller
             'years' => $formattedYears,
         ]);
     }
-
 }
