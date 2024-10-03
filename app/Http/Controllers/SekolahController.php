@@ -12,7 +12,7 @@ class SekolahController extends Controller
     public function index()
     {
         try {
-            $sekolah = Sekolah::all();
+            $sekolah = Sekolah::with('kelas')->get();
 
             return response()->json([
                 'success' => true,
@@ -32,7 +32,7 @@ class SekolahController extends Controller
     public function show($id)
     {
         // Find the sekolah by ID
-        $sekolah = Sekolah::find($id);
+        $sekolah = Sekolah::with('kelas')->find($id);
 
         if (!$sekolah) {
             return response()->json([
