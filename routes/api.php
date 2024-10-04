@@ -170,4 +170,4 @@ Route::group([
 Route::post('/test', function (Request $request) {
     $siswa = Auth::user()->usaha->firstOrFail();
     return $siswa;
-})->middleware('auth:api');
+})->middleware('auth:api'); 
