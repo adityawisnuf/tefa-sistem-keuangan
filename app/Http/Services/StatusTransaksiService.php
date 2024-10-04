@@ -20,7 +20,7 @@ class StatusTransaksiService
                 $model->update(['status' => 'selesai']);
                 break;
             default:
-                throw new \Exception('Invalid status');
+                throw new \Exception('Invalid status!');
         }
     }
 
