@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -14,7 +15,7 @@ class OrangTuaController extends Controller
     public function getSiswa()
     {
         try {
-            $orangtua = Auth::user()->orangtua->firstOrFail();
+            $orangtua = Auth::user()->orangtua;
             $siswa = $orangtua->siswa()->select('id', 'nama_depan', 'nama_belakang')->get();
 
             return response()->json(['data' => $siswa], Response::HTTP_OK);
@@ -24,11 +25,11 @@ class OrangTuaController extends Controller
         }
     }
 
-    public function getRiwayatWalletSiswa($id)
+    public function getRiwayatWalletSiswa(Request $request, $id)
     {
-        $orangtua = Auth::user()->orangtua->firstOrFail();
+        $orangtua = Auth::user()->orangtua;
 
-        $validator = Validator::make(request()->all(), [
+        $validator = Validator::make($request->all(), [
             'tanggal_awal' => ['nullable', 'date'],
             'tanggal_akhir' => ['nullable', 'date', 'after_or_equal:tanggal_awal'],
         ]);
@@ -37,8 +38,8 @@ class OrangTuaController extends Controller
             return response()->json(['error' => $validator->errors()], Response::HTTP_BAD_REQUEST);
         }
 
-        $startDate = request('tanggal_awal');
-        $endDate = request('tanggal_akhir');
+        $startDate = $request->input('tanggal_awal');
+        $endDate = $request->input('tanggal_akhir');
 
         try {
             $siswa = $orangtua->siswa()

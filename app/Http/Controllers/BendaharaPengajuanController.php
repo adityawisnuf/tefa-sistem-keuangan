@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\UsahaPengajuanRequest;
 use App\Http\Services\SocketIOService;
 use App\Models\UsahaPengajuan;
 use Carbon\Carbon;
@@ -10,7 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
-use Process;
+use Illuminate\Validation\Rule;
 use Symfony\Component\HttpFoundation\Response;
 
 class BendaharaPengajuanController extends Controller
@@ -82,8 +81,16 @@ class BendaharaPengajuanController extends Controller
         }
     }
 
-    public function confirmUsahaPengajuan(UsahaPengajuanRequest $request, $id, SocketIOService $socketIOService)
+    public function confirmUsahaPengajuan(Request $request, $id, SocketIOService $socketIOService)
     {
+        $validator = Validator::make($request->all(), [
+            'alasan_penolakan' => ['string', Rule::requiredIf($request->input('status') == 'ditolak')],
+            'status' => ['required', Rule::in('disetujui', 'ditolak')],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()], Response::HTTP_BAD_REQUEST);
+        }
 
         $pengajuan = UsahaPengajuan::findOrFail($id);
         $usaha = $pengajuan->usaha;

@@ -4,22 +4,18 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\KantinProdukRequest;
 use App\Models\KantinProduk;
-use Exception;
-use Illuminate\Auth\Access\AuthorizationException;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 
 class KantinProdukController extends Controller
 {
     const IMAGE_STORAGE_PATH = 'public/kantin/produk/';
 
-    public function index()
+    public function index(Request $request)
     {
-        $validator = Validator::make(request()->all(), [
+        $validated = $request->validate([
             'usaha' => ['nullable', 'integer', 'min:1'],
             'nama_kategori' => ['nullable', 'in:makanan,minuman'],
             'nama_produk' => ['nullable', 'string'],
@@ -27,101 +23,92 @@ class KantinProdukController extends Controller
             'per_page' => ['nullable', 'integer', 'min:1'],
         ]);
 
-        if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()], Response::HTTP_BAD_REQUEST);
-        }
+        $usaha = Auth::user()->usaha;
+        $namaKategori = $validated['nama_kategori'] ?? null;
+        $namaProduk = $validated['nama_produk'] ?? null;
+        $status = $validated['status'] ?? null;
+        $perPage = $validated['per_page'] ?? 10;
 
-        $usaha = Auth::user()->usaha->firstOrFail();
-        $namaKategori = request('nama_kategori');
-        $namaProduk = request('nama_produk');
-        $status = request('status');
-        $perPage = request('per_page', 10);
+        $produk = $usaha
+            ->kantin_produk()
+            ->select('id', 'nama_produk', 'foto_produk', 'deskripsi', 'harga_jual', 'stok')
+            ->when($status, function ($query) use ($status) {
+                $query->where('status', 'like', "%$status%");
+            })
+            ->when($namaProduk, function ($query) use ($namaProduk) {
+                $query->where('nama_produk', 'like', "%$namaProduk%");
+            })
+            ->when($namaKategori, function ($query) use ($namaKategori) {
+                $query->whereRelation('kantin_produk_kategori', 'nama_kategori', 'like', "%$namaKategori%");
+            })
+            ->paginate($perPage);
 
-        try {
-            $produk = $usaha
-                ->kantin_produk()
-                ->when($status, function ($query) use ($status) {
-                    $query->where('status', 'like', "%$status%");
-                })
-                ->when($namaProduk, function ($query) use ($namaProduk) {
-                    $query->where('nama_produk', 'like', "%$namaProduk%");
-                })
-                ->when($namaKategori, function ($query) use ($namaKategori) {
-                    $query->whereRelation('kantin_produk_kategori', 'nama_kategori', 'like', "%$namaKategori%");
-                })
-                ->paginate($perPage);
-
-            return response()->json(['data' => $produk], Response::HTTP_OK);
-        } catch (Exception $e) {
-            Log::error('index: ' . $e->getMessage());
-            return response()->json(['error' => 'Terjadi kesalahan saat mengambil data produk.'], Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
+        return response()->json(['data' => $produk], Response::HTTP_OK);
     }
 
-    public function create(KantinProdukRequest $request)
+    public function create(Request $request)
     {
-        $validator = Validator::make(request()->all(), [
-            'usaha' => ['nullable', 'integer', 'min:1'],
+        $validated = $request->validate([
+            'kantin_produk_kategori_id' => ['required', 'exists:kantin_produk_kategori,id'],
+            'nama_produk' => ['required', 'string', 'max:255'],
+            'foto_produk' => ['required', 'image', 'mimes:png,jpg,jpeg', 'max:2048'],
+            'deskripsi' => ['required', 'string'],
+            'harga_pokok' => ['required', 'integer', 'min:0'],
+            'harga_jual' => ['required', 'integer', 'min:0'],
+            'stok' => ['sometimes', 'integer', 'min:0'],
         ]);
 
-        if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()], Response::HTTP_BAD_REQUEST);
-        }
+        $usaha = Auth::user()->usaha;
+        $path = Storage::putFile(self::IMAGE_STORAGE_PATH, $validated['foto_produk']);
+        $validated['foto_produk'] = basename($path);
+        $validated['usaha_id'] = $usaha->id;
+        $data = KantinProduk::create($validated);
 
-        $usaha = Auth::user()->usaha->firstOrFail();
-        $fields = $request->validated();
-
-        try {
-            $path = Storage::putFile(self::IMAGE_STORAGE_PATH, $fields['foto_produk']);
-            $fields['foto_produk'] = basename($path);
-            $fields['usaha_id'] = $usaha->id;
-            $item = KantinProduk::create($fields);
-            return response()->json(['data' => $item], Response::HTTP_CREATED);
-        } catch (Exception $e) {
-            Log::error('create: ' . $e->getMessage());
-            return response()->json(['error' => 'Terjadi kesalahan saat membuat data produk.'], Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
+        return response()->json(['data' => $data], Response::HTTP_CREATED);
     }
 
     public function show($id)
     {
-        try {
-            $produk = KantinProduk::findOrFail($id);
-            return response()->json(['data' => $produk], Response::HTTP_OK);
-        } catch (Exception $e) {
-            Log::error('show: ' . $e->getMessage());
-            return response()->json(['error' => 'Produk tidak ditemukan.'], Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
+        $produk = KantinProduk
+            ::select('id', 'nama_produk', 'foto_produk', 'deskripsi', 'harga_jual', 'stok')
+            ->findOrFail($id);
+
+        return response()->json(['data' => $produk], Response::HTTP_OK);
     }
 
-    public function update(KantinProdukRequest $request, $id)
+    public function update(Request $request, $id)
     {
-        $fields = $request->validated();    
-        $produk = KantinProduk::findOrFail($id);
-        $this->authorize('update', $produk);
+        $validated = $request->validate([
+            'kantin_produk_kategori_id' => ['sometimes', 'required', 'exists:kantin_produk_kategori,id'],
+            'nama_produk' => ['sometimes', 'required', 'string', 'max:255'],
+            'foto_produk' => ['sometimes', 'required', 'image', 'mimes:png,jpg,jpeg', 'max:2048'],
+            'deskripsi' => ['sometimes', 'required', 'string'],
+            'harga_pokok' => ['sometimes', 'required', 'integer', 'min:0'],
+            'harga_jual' => ['sometimes', 'required', 'integer', 'min:0'],
+            'stok' => ['sometimes', 'required', 'integer', 'min:0'],
+            'status' => ['sometimes', 'required', 'in:aktif,tidak_aktif'],
+        ]);
 
-        if (isset($fields['foto_produk'])) {
-            $path = Storage::putFile(self::IMAGE_STORAGE_PATH, $fields['foto_produk']);
+        $produk = KantinProduk::findOrFail($id);
+
+        if (isset($validated['foto_produk'])) {
+            $path = Storage::putFile(self::IMAGE_STORAGE_PATH, $validated['foto_produk']);
             Storage::delete(self::IMAGE_STORAGE_PATH . $produk->foto_produk);
-            $fields['foto_produk'] = basename($path);
+            $validated['foto_produk'] = basename($path);
         }
 
-        $produk->update($fields);
+        $produk->update($validated);
 
         return response()->json(['data' => $produk], Response::HTTP_OK);
     }
 
     public function destroy($id)
     {
-        try {
-            $produk = KantinProduk::findOrFail($id);
-            Storage::delete(self::IMAGE_STORAGE_PATH . $produk->foto_produk);
-            $produk->delete();
+        $produk = KantinProduk::findOrFail($id);
 
-            return response()->json(['message' => 'Data berhasil dihapus.'], Response::HTTP_OK);
-        } catch (Exception $e) {
-            Log::error('destroy: ' . $e->getMessage());
-            return response()->json(['error' => 'Terjadi kesalahan saat menghapus data produk.'], Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
+        $produk->delete();
+        Storage::delete(self::IMAGE_STORAGE_PATH . $produk->foto_produk);
+
+        return response()->json(['message' => 'Data berhasil dihapus.'], Response::HTTP_OK);
     }
 }

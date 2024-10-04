@@ -34,7 +34,7 @@ class TopUpController extends Controller
         $fields = $request->validated();
 
         $user = isset($fields['siswa_id'])
-            ? Auth::user()->orangtua->firstOrFail()->siswa->findOrFail($fields['siswa_id'])->user
+            ? Auth::user()->orangtua->firstOrFail()->siswa()->findOrFail($fields['siswa_id'])->user
             : Auth::user();
         
         $fields['email'] = $user->email;
