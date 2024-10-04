@@ -34,9 +34,9 @@ class TopUpController extends Controller
         $fields = $request->validated();
 
         $user = isset($fields['siswa_id'])
-            ? Auth::user()->orangtua->firstOrFail()->siswa->find($fields['siswa_id'])->user
+            ? Auth::user()->orangtua->firstOrFail()->siswa->findOrFail($fields['siswa_id'])->user
             : Auth::user();
-
+        
         $fields['email'] = $user->email;
         $result = $this->duitkuService->requestTransaction($fields);
         return response()->json($result['data'], $result['statusCode']);
@@ -45,17 +45,15 @@ class TopUpController extends Controller
     public function callback()
     {
         $callbackData = request()->all();
-        if (!$this->duitkuService->verifySignature($callbackData))
-            return;
+
+        if (!$this->duitkuService->verifySignature($callbackData)) return;
+
         $resultCode = $callbackData['resultCode'] ?? null;
-
         Log::info(json_encode($callbackData));
 
-        Log::info(json_encode($callbackData));
-
+        DB::beginTransaction();
         try {
             $pembayaranDuitku = PembayaranDuitku::findOrFail($callbackData['merchantOrderId'])->first();
-            DB::beginTransaction();
             $pembayaranDuitku->update([
                 'callback_response' => json_encode($callbackData),
                 'status' => $resultCode

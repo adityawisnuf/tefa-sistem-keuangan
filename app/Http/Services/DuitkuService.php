@@ -24,7 +24,7 @@ class DuitkuService
     public function getPaymentMethod(int $paymentAmount = 0)
     {
         $datetime = date('Y-m-d H:i:s');
-        $signatureString = $this->merchantCode . $paymentAmount . $datetime . $this->apiKey; // Gabungkan string
+        $signatureString = $this->merchantCode . $paymentAmount . $datetime . $this->apiKey;
         $signature = hash('sha256', $signatureString);
 
         $params = [
@@ -189,15 +189,17 @@ class DuitkuService
 
         if (!empty($merchantCode) && !empty($amount) && !empty($merchantOrderId) && !empty($signature)) {
             $calcSignature = md5($merchantCode . $amount . $merchantOrderId . $this->apiKey);
+
             if ($signature == $calcSignature) {
                 Log::info('Success Callback');
                 return true;
             }
-            Log::error('Bad Signature Callback');
-        } else {
-            Log::error('Bad Parameter Callback');
+
+            Log::error('Bad Signature Callback: signature doesn\'t match.');
+            return;
         }
 
+        Log::error('Bad Parameter Callback: one of the fields is null.');
         return false;
     }
 }

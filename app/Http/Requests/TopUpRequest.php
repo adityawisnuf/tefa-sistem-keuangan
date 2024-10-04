@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
 class TopUpRequest extends FormRequest
 {
@@ -21,10 +22,16 @@ class TopUpRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            'siswa_id' => ['sometimes', 'exists:siswa,id'],
+        $rules = [
+            'siswa_id' => ['exists:siswa,id'],
             'paymentAmount' => ['required', 'numeric', 'min:1'],
             'paymentMethod' => ['required'],
         ];
+
+        if (Auth::user()->role == 'OrangTua') {
+            $rules['siswa_id' ][] = 'required';
+        };
+
+        return $rules;
     }
 }

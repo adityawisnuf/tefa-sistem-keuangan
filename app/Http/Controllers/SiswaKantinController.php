@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\SiswaKantinRequest;
+use Illuminate\Http\Request;
 use App\Models\KantinProduk;
 use App\Models\KantinTransaksi;
 use App\Models\KantinTransaksiDetail;
@@ -17,9 +17,9 @@ use App\Http\Services\SocketIoService;
 
 class SiswaKantinController extends Controller
 {
-    public function getProduk()
+    public function getProduk(Request $request)
     {
-        $validator = Validator::make(request()->all(), [
+        $validator = Validator::make($request->all(), [
             'per_page' => ['nullable', 'integer', 'min:1'],
             'nama_produk' => ['nullable', 'string'],
             'nama_kategori' => ['nullable', 'string']
@@ -29,9 +29,9 @@ class SiswaKantinController extends Controller
             return response()->json(['error' => $validator->errors()], Response::HTTP_BAD_REQUEST);
         }
 
-        $perPage = request('per_page', 10);
-        $nama_produk = request('nama_produk');
-        $nama_kategori = request('nama_kategori');
+        $perPage = $request->input('per_page', 10);
+        $nama_produk = $request->input('nama_produk');
+        $nama_kategori = $request->input('nama_kategori');
 
         try {
             $produk = KantinProduk::where('status', 'aktif')
@@ -65,10 +65,20 @@ class SiswaKantinController extends Controller
         }
     }
 
-    public function createProdukTransaksi(SiswaKantinRequest $request, SocketIoService $socketIoService)
+    public function createProdukTransaksi(Request $request, SocketIoService $socketIoService)
     {
+        $validator = Validator::make($request->all(), [
+            'detail_pesanan' => ['required', 'array', 'min:1'],
+            'detail_pesanan.*.kantin_produk_id' => ['required', 'exists:kantin_produk,id'],
+            'detail_pesanan.*.jumlah' => ['required', 'numeric', 'min:1'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()], Response::HTTP_BAD_REQUEST);
+        }
+
         $siswa = Auth::user()->siswa->firstOrFail();
-        $fields = $request->validated();
+        $fields = $request->all();
 
         try {
             $productIds = collect($fields['detail_pesanan'])->pluck('kantin_produk_id')->toArray();
@@ -137,9 +147,9 @@ class SiswaKantinController extends Controller
 
 
 
-    public function getKantinTransaksi()
+    public function getKantinTransaksi(Request $request)
     {
-        $validator = Validator::make(request()->all(), [
+        $validator = Validator::make($request->all(), [
             'per_page' => ['nullable', 'integer', 'min:1'],
             'status' => ['nullable', 'string', 'in:aktif,selesai']
         ]);
@@ -149,8 +159,8 @@ class SiswaKantinController extends Controller
         }
 
         $siswa = Auth::user()->siswa->firstOrFail();
-        $perPage = request()->input('per_page', 10);
-        $status = request()->input('status', 'aktif');
+        $perPage = $request->input('per_page', 10);
+        $status = $request->input('status', 'aktif');
 
         try {
             $riwayat = $siswa->kantin_transaksi()
@@ -182,6 +192,4 @@ class SiswaKantinController extends Controller
             return response()->json(['error' => 'Terjadi kesalahan saat melihat data kantin riwayat.'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
-
-
 }

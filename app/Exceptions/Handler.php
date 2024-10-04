@@ -34,25 +34,4 @@ class Handler extends ExceptionHandler
             //
         });
     }
-
-    public function render($request, Throwable $e)
-    {
-        if ($e instanceof ModelNotFoundException) {
-            Log::error($e);
-            return response()->json(['error' => 'Data not found.'], Response::HTTP_NOT_FOUND);
-        }
-
-        if ($e instanceof AuthorizationException) {
-            Log::error($e);
-            return response()->json(['error' => 'Unauthorized.'], Response::HTTP_FORBIDDEN);
-        }
-        
-        if ($e instanceof AuthenticationException) {
-            Log::error($e);
-            return response()->json(['error' => 'Unauthenticated.'], Response::HTTP_UNAUTHORIZED);
-
-        }
-
-        return parent::render($request, $e);
-    }
 }
