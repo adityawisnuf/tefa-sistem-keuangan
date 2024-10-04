@@ -67,7 +67,7 @@ class UsahaPengajuanController extends Controller
 
     public function create(UsahaPengajuanRequest $request, SocketIOService $socketIOService)
     {
-        $usaha = Auth::user()->usaha->firstOrFail();
+        $usaha = Auth::user()->usaha;
         $fields = $request->validated();
 
         try {

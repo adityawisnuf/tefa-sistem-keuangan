@@ -72,33 +72,11 @@ class SiswaLaundryController extends Controller
             return response()->json(['error' => $validator->errors()], Response::HTTP_BAD_REQUEST);
         }
 
-        $siswa = Auth::user()->siswa->firstOrFail();
+        $siswa = Auth::user()->siswa;
         $perPage = request()->input('per_page', 10);
         $status = request()->input('status', 'aktif');
 
         try {
-            $riwayat = $siswa->laundry_transaksi()
-                ->with(['usaha', 'laundry_transaksi_detail.laundry_layanan'])
-                ->whereIn('status', ['pending', 'proses', 'siap_diambil'])
-                ->paginate($perPage);
-
-            $riwayat->getCollection()->transform(function ($riwayat) {
-                return [
-                    'id' => $riwayat->id,
-                    'nama_usaha' => $riwayat->usaha->nama_usaha,
-                    'jumlah_layanan' => count($riwayat->laundry_transaksi_detail),
-                    'nama_layanan' => $riwayat->laundry_transaksi_detail->first()->laundry_layanan->nama_layanan,
-                    'jumlah' => $riwayat->laundry_transaksi_detail->first()->jumlah,
-                    'harga' => $riwayat->laundry_transaksi_detail->first()->harga,
-                    'harga_total' => array_reduce($riwayat->laundry_transaksi_detail->toArray(), function ($scary, $item) {
-                        return $scary += $item['harga_total']; //horror sikit
-                    }),
-                    'status' => $riwayat->status,
-                    'tanggal_pemesanan' => $riwayat->tanggal_pemesanan,
-                    'tanggal_selesai' => $riwayat->tanggal_selesai,
-                ];
-            });
-
             $riwayat = $siswa->laundry_transaksi()
             ->select('id', 'usaha_id', 'status', 'tanggal_pemesanan', 'tanggal_selesai')
             ->with(

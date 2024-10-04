@@ -32,7 +32,7 @@ class LaundryTransaksiController extends Controller
     {
         $validator = Validator::make(request()->all(), [
             'usaha' => ['nullable', 'integer', 'min:1'],
-            'status' => ['nullable', 'string', 'in:pending,proses,siap_diambil,selesai,dibatalkan'],
+            'status' => ['nullable', 'string', 'in:aktif,selesai'],
             'per_page' => ['nullable', 'integer', 'min:1']
         ]);
 
@@ -40,7 +40,7 @@ class LaundryTransaksiController extends Controller
             return response()->json(['error' => $validator->errors()], Response::HTTP_BAD_REQUEST);
         }
 
-        $usaha = Auth::user()->usaha->firstOrFail();
+        $usaha = Auth::user()->usaha;
         $status = request('status', 'aktif');
         $perPage = request('per_page', 10);
 
