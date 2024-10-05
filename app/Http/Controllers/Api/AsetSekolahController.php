@@ -19,26 +19,18 @@ class AsetSekolahController extends Controller
      */
     public function index(Request $request)
     {
-        // Ambil parameter pencarian dari query string, jika ada
         $search = $request->query('search', '');
-
-        // Mulai dengan query untuk mengambil data terbaru
         $query = AsetSekolah::oldest();
 
-        // Tambahkan kondisi pencarian jika ada parameter 'search'
         if ($search) {
             $query->where(function ($q) use ($search) {
-                // Anda dapat menyesuaikan kolom yang dicari sesuai kebutuhan
                 $q->where('nama', 'like', "%$search%")
                     ->orWhere('kondisi', 'like', "%$search%")
                     ->orWhere('penggunaan', 'like', "%$search%");
             });
         }
 
-        // Lakukan paginasi pada hasil query
         $asset = $request->input('page') === 'all' ? $query->get() : $query->paginate(5);
-
-        // Kembalikan hasil dalam format resource
         return new AssetResource(true, 'List Inventaris', $asset);
     }
 
@@ -50,24 +42,19 @@ class AsetSekolahController extends Controller
      */
     public function store(Request $request)
     {
-        //define validation rules
         $validator = Validator::make($request->all(), [
             'nama' => 'required|string|max:255',
-            'tipe' => 'required|string|max:255',
-            'kondisi' => 'required|string|max:255',
+            'tipe' => 'integer|in:1,2',
+            'kondisi' => 'integer|in:1,2,3',
             'harga' => 'required|numeric|min:0',
             'penggunaan' => 'required|string',
-
         ]);
 
-        //check if validation fails
         if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
 
         $asset = AsetSekolah::create($validator->validated());
-
-        //return response
         return new AssetResource(true, 'Asset Baru Berhasil Ditambahkan!', $asset);
     }
     /**
@@ -90,11 +77,11 @@ class AsetSekolahController extends Controller
     public function update(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
-            'tipe' => 'required|string|max:225',
             'nama' => 'required|string|max:255',
-            'kondisi' => 'required|string',
-            'harga' => 'required|numeric',
-            'penggunaan' => 'required|string'
+            'tipe' => 'integer|in:1,2',
+            'kondisi' => 'integer|in:1,2,3',
+            'harga' => 'required|numeric|min:0',
+            'penggunaan' => 'required|string',
         ]);
 
         if ($validator->fails()) {

@@ -154,8 +154,8 @@
             <h2>PEMERINTAH DAERAH PROVINSI JAWA BARAT</h2>
             <h2>DINAS PENDIDIKAN</h2>
             <h2>CABANG DINAS PENDIDIKAN WILAYAH VIII</h2>
-            <h1>SMK NEGERI 2 SUMEDANG</h1>
-            <p>Jalan Arief Rahman Hakim No 59 Telp. 0216-201531, Fax. 0261-210097</p>
+            <h1><?php echo e($sekolah->nama); ?></h1>
+            <p><?php echo e($sekolah->alamat); ?> Telp. 0216-201531, Fax. 0261-210097</p>
             <p>http://www.smkn2sumedang.sch.id - email.smkn2sumedang@yahoo.com</p>
             <p class="kabupaten">KABUPATEN SUMEDANG 45323</p>
         </div>
@@ -188,9 +188,9 @@
                 <tr>
                     <td><?php echo e($loop->iteration); ?></td>
                     <td><?php echo e($asset->nama); ?></td>
-                    <td><?php echo e($asset->kondisi); ?></td>
+                    <td><?php echo e($asset->getKondisiText()); ?></td>
                     <td><?php echo e($asset->penggunaan); ?></td>
-                    <td><?php echo e($asset->tipe); ?></td>
+                    <td ><?php echo e($asset->getTipeText()); ?></td>
                     <td><?php echo e('Rp ' . number_format($asset->harga, 0, ',', '.')); ?></td>
                 </tr>
                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
