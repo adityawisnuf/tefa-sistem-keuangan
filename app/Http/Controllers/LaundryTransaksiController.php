@@ -7,6 +7,7 @@ use App\Models\LaundryTransaksi;
 use App\Models\SiswaWalletRiwayat;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Auth;
 
@@ -40,6 +41,23 @@ class LaundryTransaksiController extends Controller
             ->paginate($perPage);
 
         return response()->json(['data' => $transaksi], Response::HTTP_OK);
+    }
+    
+    public function show(Request $request, LaundryTransaksi $transaksi)
+    {
+        $validated = $request->validate([
+            'per_page' => ['nullable', 'integer', 'min:1']
+        ]);
+
+        $perPage = $validated['per_page'] ?? 10;
+
+        $data = $transaksi
+            ->laundry_transaksi_detail()
+            ->select('id', 'laundry_layanan_id', 'laundry_transaksi_id', 'jumlah', 'harga')
+            ->with('laundry_layanan:id,nama_layanan,foto_layanan,deskripsi,harga,tipe,satuan')
+            ->paginate($perPage);
+
+        return response()->json(['data' => $data], Response::HTTP_OK);
     }
 
     public function update(LaundryTransaksi $transaksi, SocketIOService $socketIOService)

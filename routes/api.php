@@ -43,7 +43,7 @@ Route::group([
     ], function () {
         Route::group(['prefix' => 'siswa'], function() {
             Route::get('/', [OrangTuaController::class, 'getSiswa']);
-            Route::get('/wallet/{id}', [OrangTuaController::class, 'getRiwayatWalletSiswa']);
+            Route::get('/wallet/{siswa}', [OrangTuaController::class, 'getRiwayatWalletSiswa']);
             Route::get('/kantin/transaksi/{id}', [OrangTuaController::class, 'getRiwayatKantinSiswa']);
             Route::get('/laundry/transaksi/{id}', [OrangTuaController::class, 'getRiwayatLaundrySiswa']);
         });
@@ -123,7 +123,7 @@ Route::group([
 
         Route::group(['prefix' => 'transaksi'], function () {
             Route::get('/', [LaundryTransaksiController::class, 'index']);
-            // Route::get('/{transaksi}', [LaundryTransaksiController::class, 'getDetailUsahaTransaksi']);
+            Route::get('/{transaksi}', [LaundryTransaksiController::class, 'show']);
             Route::post('/{transaksi}', [LaundryTransaksiController::class, 'update']);
             Route::post('/{transaksi}/konfirmasi', [LaundryTransaksiController::class, 'confirm']);
         });
