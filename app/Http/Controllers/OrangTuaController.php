@@ -6,8 +6,6 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\Response;
 
 class OrangTuaController extends Controller
@@ -99,7 +97,8 @@ class OrangTuaController extends Controller
 
         $siswa = $orangTua->siswa()->findOrFail($id);
 
-        $riwayat = $siswa->laundry_transaksi()
+        $riwayat = $siswa
+            ->laundry_transaksi()
             ->select('id', 'siswa_id', 'status', 'tanggal_pemesanan', 'tanggal_selesai')
             ->with(
                 'laundry_transaksi_detail:id,laundry_layanan_id,laundry_transaksi_id,jumlah,harga',
