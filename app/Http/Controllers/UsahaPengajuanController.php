@@ -22,7 +22,7 @@ class UsahaPengajuanController extends Controller
             'status' => ['nullable', 'string', 'in:aktif,selesai'],
         ]);
 
-        $usaha = Auth::user()->usaha->firstOrFail();
+        $usaha = Auth::user()->usaha;
 
         $startDate = $validated['tanggal_awal'] ?? null;
         $endDate = $validated['tanggal_akhir'] ?? null;
@@ -30,7 +30,7 @@ class UsahaPengajuanController extends Controller
         $status = $validated['status'] ?? 'aktif';
 
         $pengajuan = $usaha->usaha_pengajuan()
-            ->select(['jumlah_pengajuan', 'status', 'alasan_penolakan', 'tanggal_pengajuan', 'tanggal_selesai'])
+            ->select('jumlah_pengajuan', 'status', 'alasan_penolakan', 'tanggal_pengajuan', 'tanggal_selesai')
             ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
                 $query->whereBetween('tanggal_pengajuan', [
                     Carbon::parse($startDate)->startOfDay(),

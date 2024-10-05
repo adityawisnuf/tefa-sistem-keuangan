@@ -55,13 +55,11 @@ class KantinTransaksiController extends Controller
         return response()->json(['data' => $transaksi], Response::HTTP_OK);
     }
 
-    public function update($id, SocketIOService $socketIOService)
+    public function update(KantinTransaksi $transaksi, SocketIOService $socketIOService)
     {
-        $transaksi = KantinTransaksi::findOrFail($id);
-
-        if ($transaksi->status == 'selesai' || $transaksi->status == 'dibatalkan') 
+        if ($transaksi->status == 'selesai' || $transaksi->status == 'dibatalkan')
             return response()->json(['message' => 'Pesanan sudah selesai!'], Response::HTTP_BAD_REQUEST);
-        
+
         switch ($transaksi->status) {
             case 'proses':
                 $transaksi->update(['status' => 'siap_diambil']);
@@ -81,17 +79,16 @@ class KantinTransaksiController extends Controller
         return response()->json(['data' => $transaksi], Response::HTTP_OK);
     }
 
-    public function confirm(Request $request, $id, SocketIOService $socketIOService)
+    public function confirm(Request $request, KantinTransaksi $transaksi, SocketIOService $socketIOService)
     {
         $validated = $request->validate([
             'confirm' => ['required', 'boolean']
         ]);
 
-        $transaksi = KantinTransaksi::findOrFail($id);
         $siswaWallet = $transaksi->siswa->siswa_wallet;
         $usaha = $transaksi->usaha;
 
-        if ($transaksi->status != 'pending') 
+        if ($transaksi->status != 'pending')
             return response()->json(['message' => 'Pesanan sudah dikonfirmasi!'], Response::HTTP_BAD_REQUEST);
 
         DB::beginTransaction();
@@ -104,7 +101,7 @@ class KantinTransaksiController extends Controller
             $harga_total = $transaksi->kantin_transaksi_detail->sum(function ($detail) {
                 return $detail->harga * $detail->jumlah;
             });
-            
+
             $transaksi->update(['tanggal_selesai' => now()]);
             $usaha->update(['saldo' => $usaha->saldo - $harga_total]);
             $siswaWallet->update(['nominal' => $siswaWallet->nominal + $harga_total]);

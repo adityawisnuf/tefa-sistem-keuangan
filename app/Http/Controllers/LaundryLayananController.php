@@ -5,115 +5,92 @@ namespace App\Http\Controllers;
 use App\Http\Requests\LaundryLayananRequest;
 use App\Models\LaundryLayanan;
 use illuminate\Support\Facades\Auth;
-use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Log;
-
 use Symfony\Component\HttpFoundation\Response;
 
 class LaundryLayananController extends Controller
 {
     const IMAGE_STORAGE_PATH = 'public/laundry/layanan/';
 
-    public function index()
+    public function index(Request $request)
     {
-        $validator = Validator::make(request()->all(), [
+        $validated = $request->validate([
             'usaha' => ['nullable', 'integer', 'min:1'],
             'per_page' => ['nullable', 'integer', 'min:1'],
             'nama_layanan' => ['nullable', 'string']
         ]);
 
-        if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()], Response::HTTP_BAD_REQUEST);
-        }
+        $usaha = Auth::user()->usaha;
+        $perPage = $validated['per_page'] ?? 10;
+        $namaLayanan = $validated['nama_layanan'] ?? null;
 
-        $usaha = Auth::user()->usaha->first();
-        $perPage = request('per_page', 10);
-        $namaLayanan = request('nama_layanan');
-
-        try {
-            $layanan = $usaha->laundry_layanan()
-                ->when($namaLayanan, function ($query) use ($namaLayanan) {
-                    $query->where('nama_layanan', 'like', "%$namaLayanan%");
-                })
-                ->latest()->paginate($perPage);
-            return response()->json(['data' => $layanan], Response::HTTP_OK);
-        } catch (Exception $e) {
-            Log::error('index: ' . $e->getMessage());
-            return response()->json(['error' => 'Terjadi kesalahan saat mengambil data layanan.'], Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
+        $layanan = $usaha
+            ->laundry_layanan()
+            ->when($namaLayanan, function ($query) use ($namaLayanan) {
+                $query->where('nama_layanan', 'like', "%$namaLayanan%");
+            })
+            ->paginate($perPage);
+        return response()->json(['data' => $layanan], Response::HTTP_OK);
     }
 
-    public function create(LaundryLayananRequest $request)
+    public function create(Request $request)
     {
 
-        $validator = Validator::make(request()->all(), [
-            'usaha' => ['nullable', 'integer', 'min:1'],
+        $validated = $request->validate([
+            'nama_layanan' => ['required', 'string', 'max:255'],
+            'foto_layanan' => ['required', 'image', 'mimes:png,jpg,jpeg', 'max:2048'],
+            'deskripsi' => ['required', 'string'],
+            'harga' => ['required', 'integer', 'min:0'],
+            'tipe' => ['required', 'in:satuan,kiloan'],
+            'status' => ['nullable', 'in:aktif,tidak_aktif'],
         ]);
 
-        if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()], Response::HTTP_BAD_REQUEST);
-        }
-
         $usaha = Auth::user()->usaha->first();
-        $fields = $request->validated();
 
-        try {
+        $path = Storage::putFile(self::IMAGE_STORAGE_PATH, $validated['foto_layanan']);
+        $validated['foto_layanan'] = basename($path);
+        $validated['usaha_id'] = $usaha->id;
+        $validated['satuan'] = $validated['tipe'] == 'satuan' ? 'pcs' : 'kg';
+        $layanan = LaundryLayanan::create($validated);
+        return response()->json(['data' => $layanan], Response::HTTP_CREATED);
+    }
+
+    public function show(LaundryLayanan $layanan)
+    {
+        return response()->json(['data' => $layanan], Response::HTTP_OK);
+    }
+
+    public function update(LaundryLayananRequest $request, LaundryLayanan $layanan)
+    {
+        $validated = $request->validate([
+            'nama_layanan' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'foto_layanan' => ['sometimes', 'nullable', 'image', 'mimes:png,jpg,jpeg', 'max:2048'],
+            'deskripsi' => ['sometimes', 'nullable', 'string'],
+            'harga' => ['sometimes', 'nullable', 'integer', 'min:0'],
+            'tipe' => ['sometimes', 'nullable', 'in:satuan,kiloan'],
+            'status' => ['sometimes', 'nullable', 'in:aktif,tidak_aktif'],
+        ]);
+
+        $fields = array_filter($validated);
+
+        if (isset($fields['foto_layanan'])) {
             $path = Storage::putFile(self::IMAGE_STORAGE_PATH, $fields['foto_layanan']);
-            $fields['foto_layanan'] = basename($path);
-            $fields['usaha_id'] = $usaha->id;
-            $fields['satuan'] = $fields['tipe'] == 'satuan' ? 'pcs' : 'kg';
-            $layanan = LaundryLayanan::create($fields);
-            return response()->json(['data' => $layanan], Response::HTTP_CREATED);
-        } catch (Exception $e) {
-            Log::error('create: ' . $e->getMessage());
-            return response()->json(['error' => 'Terjadi kesalahan saat membuat data layanan.'], Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    public function show($id)
-    {
-        try {
-            $layanan = LaundryLayanan::findOrFail($id);
-            return response()->json(['data' => $layanan], Response::HTTP_OK);
-        } catch (Exception $e) {
-            Log::error('show: ' . $e->getMessage());
-            return response()->json(['error' => 'Terjadi kesalahan saat menampilkan data layanan.'], Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    public function update(LaundryLayananRequest $request, $id)
-    {
-        $fields = array_filter($request->validated());
-
-        try {
-            $layanan = LaundryLayanan::findOrFail($id);
-            if (isset($fields['foto_layanan'])) {
-                $path = Storage::putFile(self::IMAGE_STORAGE_PATH, $fields['foto_layanan']);
-                Storage::delete(self::IMAGE_STORAGE_PATH . $layanan->foto_layanan);
-                $fields['foto_layanan'] = basename($path);
-            }
-            $fields['satuan'] = $fields['tipe'] == 'satuan' ? 'pcs' : 'kg';
-            $layanan->update($fields);
-            return response()->json(['data' => $layanan], Response::HTTP_OK);
-        } catch (Exception $e) {
-            Log::error('update: ' . $e->getMessage());
-            return response()->json(['error' => 'Terjadi kesalahan saat mengubah data layanan.'], Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    public function destroy($id)
-    {
-        try {
-            $layanan = LaundryLayanan::findOrFail($id);
             Storage::delete(self::IMAGE_STORAGE_PATH . $layanan->foto_layanan);
-            $layanan->delete();
-
-            return response()->json(['message' => 'Data berhasil dihapus.'], Response::HTTP_OK);
-        } catch (Exception $e) {
-            return response()->json(['error' => 'Terjadi kesalahan saat menghapus data layanan.'], Response::HTTP_INTERNAL_SERVER_ERROR);
+            $fields['foto_layanan'] = basename($path);
         }
+
+        $fields['satuan'] = $fields['tipe'] == 'satuan' ? 'pcs' : 'kg';
+        $layanan->update($fields);
+
+        return response()->json(['data' => $layanan], Response::HTTP_OK);
+    }
+
+    public function destroy(LaundryLayanan $layanan)
+    {
+        $layanan->delete();
+        Storage::delete(self::IMAGE_STORAGE_PATH . $layanan->foto_layanan);
+
+        return response()->json(['message' => 'Data berhasil dihapus.'], Response::HTTP_OK);
     }
 }

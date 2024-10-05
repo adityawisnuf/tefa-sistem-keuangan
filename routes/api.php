@@ -1,6 +1,5 @@
     <?php
 
-use App\Http\Controllers\BendaharaController;
 use App\Http\Controllers\BendaharaLaporanController;
 use App\Http\Controllers\BendaharaPengajuanController;
 use App\Http\Controllers\KepsekLaporanController;
@@ -82,16 +81,14 @@ Route::group([
         'prefix' => 'kantin',
         'middleware' => 'checkrole:Kantin'
     ], function () {
-        //produk crud
         Route::group(['prefix' => 'produk'], function () {
             Route::get('/', [KantinProdukController::class, 'index']);
             Route::post('/', [KantinProdukController::class, 'create']);
             Route::get('/{produk}', [KantinProdukController::class, 'show']);
             Route::put('/{produk}', [KantinProdukController::class, 'update']);
-            Route::delete('/{id}', [KantinProdukController::class, 'destroy']);
+            Route::delete('/{produk}', [KantinProdukController::class, 'destroy']);
         });
 
-        //kategori crud
         Route::group(['prefix' => 'kategori'], function () {
             Route::get('/', [KantinProdukKategoriController::class, 'index']);
             Route::post('/', [KantinProdukKategoriController::class, 'create']);
@@ -100,14 +97,12 @@ Route::group([
             Route::delete('/{kategori}', [KantinProdukKategoriController::class, 'destroy']);
         });
 
-        //transaksi
         Route::group(['prefix' => 'transaksi'], function () {
             Route::get('/', [KantinTransaksiController::class, 'index']);
             Route::post('/{transaksi}', [KantinTransaksiController::class, 'update']);
-            Route::put('/{transaksi}/konfirmasi', [KantinTransaksiController::class, 'confirm']);
+            Route::post('/{transaksi}/konfirmasi', [KantinTransaksiController::class, 'confirm']);
         });
         
-        //pengajuan
         Route::group(['prefix' => 'pengajuan'], function () {
             Route::post('/create', [UsahaPengajuanController::class, 'create']);
             Route::get('/', [UsahaPengajuanController::class, 'index']);
@@ -127,10 +122,10 @@ Route::group([
         });
 
         Route::group(['prefix' => 'transaksi'], function () {
-            Route::get('/', [LaundryTransaksiController::class, 'getTransaction']);
-            Route::get('/{transaksi}', [LaundryTransaksiController::class, 'getDetailUsahaTransaksi']);
+            Route::get('/', [LaundryTransaksiController::class, 'index']);
+            // Route::get('/{transaksi}', [LaundryTransaksiController::class, 'getDetailUsahaTransaksi']);
             Route::post('/{transaksi}', [LaundryTransaksiController::class, 'update']);
-            Route::put('/{transaksi}/konfirmasi', [LaundryTransaksiController::class, 'confirm']);
+            Route::post('/{transaksi}/konfirmasi', [LaundryTransaksiController::class, 'confirm']);
         });
 
         Route::group(['prefix' => 'pengajuan'], function () {

@@ -35,29 +35,27 @@ class KantinProdukKategoriController extends Controller
     }
 
 
-    public function show($id)
+    public function show(KantinProdukKategori $kategori)
     {
-        $kategori = KantinProdukKategori::findOrFail($id);
-
         return response()->json(['data' => $kategori], Response::HTTP_OK);
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, KantinProdukKategori $kategori)
     {
         $validated = $request->validate([
-            'nama_kategori' => ['required', 'string', 'max:255'],
-            'deskripsi' => ['required', 'string', 'max:255'],
+            'nama_kategori' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'deskripsi' => ['sometimes', 'nullable', 'string', 'max:255'],
         ]);
 
-        $kategori = KantinProdukKategori::findOrFail($id);
-        $kategori->update($validated);
+        $fields = array_filter($validated);
+
+        $kategori->update($fields);
 
         return response()->json(['data' => $kategori], Response::HTTP_OK);
     }
 
-    public function destroy($id)
+    public function destroy(KantinProdukKategori $kategori)
     {
-        $kategori = KantinProdukKategori::findOrFail($id);
         $kategori->delete();
 
         return response()->json(['message' => 'Kategori berhasil dihapus.'], Response::HTTP_OK);

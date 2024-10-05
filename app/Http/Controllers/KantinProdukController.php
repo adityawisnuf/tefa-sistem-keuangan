@@ -67,45 +67,39 @@ class KantinProdukController extends Controller
         return response()->json(['data' => $data], Response::HTTP_CREATED);
     }
 
-    public function show($id)
+    public function show(KantinProduk $produk)
     {
-        $produk = KantinProduk
-            ::select('id', 'nama_produk', 'foto_produk', 'deskripsi', 'harga_jual', 'stok')
-            ->findOrFail($id);
-
         return response()->json(['data' => $produk], Response::HTTP_OK);
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, KantinProduk $produk)
     {
         $validated = $request->validate([
-            'kantin_produk_kategori_id' => ['sometimes', 'required', 'exists:kantin_produk_kategori,id'],
-            'nama_produk' => ['sometimes', 'required', 'string', 'max:255'],
-            'foto_produk' => ['sometimes', 'required', 'image', 'mimes:png,jpg,jpeg', 'max:2048'],
-            'deskripsi' => ['sometimes', 'required', 'string'],
-            'harga_pokok' => ['sometimes', 'required', 'integer', 'min:0'],
-            'harga_jual' => ['sometimes', 'required', 'integer', 'min:0'],
-            'stok' => ['sometimes', 'required', 'integer', 'min:0'],
-            'status' => ['sometimes', 'required', 'in:aktif,tidak_aktif'],
+            'kantin_produk_kategori_id' => ['sometimes', 'nullable', 'exists:kantin_produk_kategori,id'],
+            'nama_produk' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'foto_produk' => ['sometimes', 'nullable', 'image', 'mimes:png,jpg,jpeg', 'max:2048'],
+            'deskripsi' => ['sometimes', 'nullable', 'string'],
+            'harga_pokok' => ['sometimes', 'nullable', 'integer', 'min:0'],
+            'harga_jual' => ['sometimes', 'nullable', 'integer', 'min:0'],
+            'stok' => ['sometimes', 'nullable', 'integer', 'min:0'],
+            'status' => ['sometimes', 'nullable', 'in:aktif,tidak_aktif'],
         ]);
 
-        $produk = KantinProduk::findOrFail($id);
+        $fields = array_filter($validated);
 
-        if (isset($validated['foto_produk'])) {
-            $path = Storage::putFile(self::IMAGE_STORAGE_PATH, $validated['foto_produk']);
+        if (isset($fields['foto_produk'])) {
+            $path = Storage::putFile(self::IMAGE_STORAGE_PATH, $fields['foto_produk']);
             Storage::delete(self::IMAGE_STORAGE_PATH . $produk->foto_produk);
-            $validated['foto_produk'] = basename($path);
+            $fields['foto_produk'] = basename($path);
         }
 
-        $produk->update($validated);
+        $produk->update($fields);
 
         return response()->json(['data' => $produk], Response::HTTP_OK);
     }
 
-    public function destroy($id)
+    public function destroy(KantinProduk $produk)
     {
-        $produk = KantinProduk::findOrFail($id);
-
         $produk->delete();
         Storage::delete(self::IMAGE_STORAGE_PATH . $produk->foto_produk);
 
