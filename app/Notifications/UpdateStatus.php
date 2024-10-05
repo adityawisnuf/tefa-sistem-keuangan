@@ -45,8 +45,7 @@ class UpdateStatus extends Notification
 
             ->subject('Penerimaan Siswa')
             ->greeting('Hello ' . $fullName . ',')
-            ->line('New Status: ' . $this->getStatusLabel($this->ppdb->status))
-            ->line('Thank you for using our application!');
+            ->line('Status Pendaftaran: ' . $this->getStatusLabel($this->ppdb->status));
     }
 
     protected function getStatusLabel($status)

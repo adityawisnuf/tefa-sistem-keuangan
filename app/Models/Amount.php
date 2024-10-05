@@ -15,7 +15,7 @@ class Amount extends Model
     // Accessor untuk format `updated_at` menjadi dd/mm/yyyy saat ditampilkan
     public function getUpdatedAtAttribute($value)
     {
-        return Carbon::parse($value)->format('d-M-Y H:i:s');
+        return Carbon::parse($value)->format('d-M-Y');
 
 
     // Accessor untuk format `paymentAmount` menjadi 1.000

@@ -79,13 +79,11 @@ class PpdbController extends Controller
                 'jurusan_tujuan'
             ]);
 
-            // Add file paths to the user data
             $dataUserResponse['akte_kelahiran'] = $akteKelahiranPath;
             $dataUserResponse['kartu_keluarga'] = $kartuKeluargaPath;
             $dataUserResponse['ijazah'] = $ijazahPath;
             $dataUserResponse['raport'] = $raportPath;
 
-            // Create `PembayaranDuitku` record with encoded user data
             $pembayaranDuitku = PembayaranDuitku::create([
                 'merchant_order_id' => $merchantOrderId,
                 'status' => 'pending',
@@ -177,7 +175,6 @@ class PpdbController extends Controller
         $ppdb->status = $status;
         $ppdb->save();
 
-        // Retrieve the associated User and Pendaftar
         $user = User::where('id', $ppdb->user_id)->first();
         $pendaftar = Pendaftar::where('ppdb_id', $ppdbId)->first();
 
@@ -188,7 +185,6 @@ class PpdbController extends Controller
             Log::warning('User or Pendaftar not found for PPDB ID: ' . $ppdbId);
         }
 
-        // Return a success response with human-readable status
         $statusLabels = [
             1 => 'Mendaftar',
             2 => 'Telah Membayar',

@@ -25,7 +25,7 @@ class pendaftarExport implements FromCollection, WithHeadings, WithStyles
                 'pendaftar.nama_depan',
                 'pendaftar.nama_belakang',
                 DB::raw("CASE WHEN pendaftar.jenis_kelamin = 1 THEN 'Laki-laki' WHEN pendaftar.jenis_kelamin = 2 THEN 'Perempuan' END as jenis_kelamin"),
-                DB::raw("CONCAT('\'', pendaftar.nik) as nik"), // Menambahkan tanda kutip di depan NIK
+                DB::raw("CONCAT('\'', pendaftar.nik) as nik"),
                 'pendaftar.alamat',
                 DB::raw('IFNULL(SUM(pembayaran.nominal), 0) as nominal')
             )
