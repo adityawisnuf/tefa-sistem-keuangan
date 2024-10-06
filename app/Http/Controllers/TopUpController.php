@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\TopUpRequest;
 use App\Http\Services\DuitkuService;
 use App\Models\PembayaranDuitku;
-use App\Models\Siswa;
 use App\Models\SiswaWalletRiwayat;
 use App\Models\User;
 use Exception;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -22,29 +21,43 @@ class TopUpController extends Controller
         $this->duitkuService = new DuitkuService();
     }
 
-    public function getPaymentMethod()
+    public function getPaymentMethod(Request $request)
     {
-        $paymentAmount = request('paymentAmount', 0);
+        $validated = $request->validate([
+            'paymentAmont' => ['integer', 'min:1']
+        ]);
+
+        $paymentAmount = $validated['paymentAmount'] ?? 0;
         $result = $this->duitkuService->getPaymentMethod($paymentAmount);
         return response()->json($result['data'], $result['statusCode']);
     }
 
-    public function requestTransaction(TopUpRequest $request)
+    public function requestTransaction(Request $request)
     {
-        $fields = $request->validated();
+        $rules = [
+            'siswa_id' => ['exists:siswa,id'],
+            'paymentAmount' => ['required', 'numeric', 'min:1'],
+            'paymentMethod' => ['required'],
+        ];
 
-        $user = isset($fields['siswa_id'])
-            ? Auth::user()->orangtua->firstOrFail()->siswa()->findOrFail($fields['siswa_id'])->user
+        if (Auth::user()->role == 'OrangTua') {
+            $rules['siswa_id' ][] = 'required';
+        };
+
+        $validated = $request->validate($rules);
+
+        $user = isset($validated['siswa_id'])
+            ? Auth::user()->orangtua->siswa()->findOrFail($validated['siswa_id'])->user
             : Auth::user();
         
-        $fields['email'] = $user->email;
-        $result = $this->duitkuService->requestTransaction($fields);
+        $validated['email'] = $user->email;
+        $result = $this->duitkuService->requestTransaction($validated);
         return response()->json($result['data'], $result['statusCode']);
     }
 
-    public function callback()
+    public function callback(Request $request)
     {
-        $callbackData = request()->all();
+        $callbackData = $request->all();
 
         if (!$this->duitkuService->verifySignature($callbackData)) return;
 

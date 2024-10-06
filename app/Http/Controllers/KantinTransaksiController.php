@@ -2,15 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\KantinTransaksiRequest;
 use App\Http\Services\SocketIOService;
 use App\Models\KantinTransaksi;
 use App\Models\SiswaWalletRiwayat;
 use Illuminate\Http\Request;
 use illuminate\Support\Facades\Auth;
-use Exception;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 
 class KantinTransaksiController extends Controller

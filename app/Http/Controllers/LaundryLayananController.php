@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\LaundryLayananRequest;
 use App\Models\LaundryLayanan;
 use illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
@@ -61,7 +60,7 @@ class LaundryLayananController extends Controller
         return response()->json(['data' => $layanan], Response::HTTP_OK);
     }
 
-    public function update(LaundryLayananRequest $request, LaundryLayanan $layanan)
+    public function update(Request $request, LaundryLayanan $layanan)
     {
         $validated = $request->validate([
             'nama_layanan' => ['sometimes', 'nullable', 'string', 'max:255'],
