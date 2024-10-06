@@ -7,11 +7,8 @@ use App\Models\KantinProduk;
 use App\Models\KantinTransaksi;
 use App\Models\KantinTransaksiDetail;
 use App\Models\SiswaWalletRiwayat;
-use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 use App\Http\Services\SocketIoService;
 
@@ -49,7 +46,7 @@ class SiswaKantinController extends Controller
     {
         if ($produk->status == 'aktif')
             return response()->json(['data' => $produk], Response::HTTP_OK);
-        return response()->json(['data' => 'produk tidak tersedia'], Response::HTTP_BAD_REQUEST);
+        return response()->json(['message' => 'Produk tidak tersedia.'], Response::HTTP_BAD_REQUEST);
     }
 
     public function createProdukTransaksi(Request $request, SocketIoService $socketIoService)
@@ -78,6 +75,9 @@ class SiswaKantinController extends Controller
         foreach ($validated['detail_pesanan'] as $productDetail) {
             $product = $products->firstWhere('id', $productDetail['kantin_produk_id']);
             $qty = $productDetail['jumlah'];
+
+            if ($product->status == 'tidak_aktif')
+                return response()->json(['message' => "Produk tidak tersedia."], Response::HTTP_BAD_REQUEST);
 
             if ($product->stok < $qty)
                 return response()->json(['message' => "Stok produk {$product->nama_produk} tidak mencukupi."], Response::HTTP_BAD_REQUEST);
