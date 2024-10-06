@@ -51,15 +51,15 @@ class OrangTuaController extends Controller
             ])
             ->findOrFail($id);
 
-        $data = [
-            'id' => $siswa->id,
-            'nama_siswa' => $siswa->nama_siswa,
-            'saldo_siswa' => $siswa->siswa_wallet->nominal,
-            'total_pemasukan' => $siswa->siswa_wallet->siswa_wallet_riwayat->first()->total_pemasukan ?? 0,
-            'total_pengeluaran' => $siswa->siswa_wallet->siswa_wallet_riwayat->first()->total_pengeluaran ?? 0,
-        ];
-
-        return response()->json(['data' => $data], Response::HTTP_OK);
+        return response()->json([
+            'data' => [
+                'id' => $siswa->id,
+                'nama_siswa' => $siswa->nama_siswa,
+                'saldo_siswa' => $siswa->siswa_wallet->nominal,
+                'total_pemasukan' => $siswa->siswa_wallet->siswa_wallet_riwayat->first()->total_pemasukan ?? 0,
+                'total_pengeluaran' => $siswa->siswa_wallet->siswa_wallet_riwayat->first()->total_pengeluaran ?? 0,
+            ]
+        ], Response::HTTP_OK);
     }
 
     public function getRiwayatKantinSiswa(Request $request, $id)
@@ -71,9 +71,9 @@ class OrangTuaController extends Controller
         $orangTua = Auth::user()->orangtua;
         $perPage = $validated['per_page'] ?? 10;
 
-        $siswa = $orangTua->siswa()->findOrFail($id);
-
-        $riwayat = $siswa
+        $riwayat = $orangTua
+            ->siswa()
+            ->findOrFail($id)
             ->kantin_transaksi()
             ->select('id', 'siswa_id', 'status', 'tanggal_pemesanan', 'tanggal_selesai')
             ->with(
@@ -86,27 +86,4 @@ class OrangTuaController extends Controller
         return response()->json(['data' => $riwayat], Response::HTTP_OK);
     }
 
-    public function getRiwayatLaundrySiswa(Request $request, $id)
-    {
-        $validated = $request->validate([
-            'per_page' => ['nullable', 'integer', 'min:1'],
-        ]);
-
-        $orangTua = Auth::user()->orangtua;
-        $perPage = $validated['per_page'] ?? 10;
-
-        $siswa = $orangTua->siswa()->findOrFail($id);
-
-        $riwayat = $siswa
-            ->laundry_transaksi()
-            ->select('id', 'siswa_id', 'status', 'tanggal_pemesanan', 'tanggal_selesai')
-            ->with(
-                'laundry_transaksi_detail:id,laundry_layanan_id,laundry_transaksi_id,jumlah,harga',
-                'laundry_transaksi_detail.laundry_layanan:id,nama_layanan,foto_layanan,harga'
-            )
-            ->whereIn('status', ['dibatalkan', 'selesai'])
-            ->paginate($perPage);
-
-        return response()->json(['data' => $riwayat], Response::HTTP_OK);
-    }
 }

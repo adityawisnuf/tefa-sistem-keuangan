@@ -1,4 +1,3 @@
-//INDEX.JS
 const express = require("express");
 const cors = require("cors");
 const http = require("http");
@@ -40,40 +39,6 @@ io.on("connection", (socket) => {
         }
     });
 });
-
-// function emitToTarget(targetIdKey, targetId, eventName) {
-//     const targetSocketId = clientConnections[targetIdKey][targetId];
-
-//     if (!targetSocketId) {
-//         console.log(`${targetIdKey} dengan ID ${targetId} tidak ditemukan`);
-//         return;
-//     }
-
-//     io.to(targetSocketId).emit(eventName);
-// }
-
-// io.on("connection", (socket) => {
-//     socket.on("user-connected", (roleIdKey, roleId, socketId) => {
-//         clientConnections[roleIdKey][roleId] = socketId;
-//         console.log("user connected: ", socketId);
-//     });
-
-//     socket.on("siswa-transaksi", (data) => {
-//         emitToTarget(`${data.role}Id`, data.roleId, "siswa-transaksi");
-//     });
-
-//     socket.on("usaha-transaksi", (data) => {
-//         emitToTarget("siswaId", data.roleId, "usaha-transaksi");
-//     });
-
-//     socket.on("usaha-pengajuan", (data) => {
-//         emitToTarget(`bendaharaId`, data.roleId, "usaha-pengajuan");
-//     });
-
-//     socket.on("bendahara-pengajuan", (data) => {
-//         emitToTarget(`${data.role}Id`, data.roleId, "bendahara-pengajuan");
-//     });
-// });
 
 server.listen(port, () => {
     console.log(`Server started at: http://0.0.0.0:${port}`);

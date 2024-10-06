@@ -10,6 +10,7 @@ use App\Models\LaundryTransaksiDetail;
 use App\Models\SiswaWalletRiwayat;
 use Exception;
 use GuzzleHttp\Client;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -18,21 +19,17 @@ use Symfony\Component\HttpFoundation\Response;
 
 class SiswaLaundryController extends Controller
 {
-    public function getLayanan()
+    public function index(Request $request)
     {
-        $validator = Validator::make(request()->all(), [
+        $validated = $request->validate([
             'per_page' => ['nullable', 'integer', 'min:1'],
             'tipe' => ['nullable', 'string', 'in:kiloan,satuan'],
             'nama_layanan' => ['nullable', 'string']
         ]);
 
-        if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()], Response::HTTP_BAD_REQUEST);
-        }
-
-        $perPage = request()->input('per_page', 10);
-        $tipe = request('tipe', 'kiloan');
-        $namaLayanan = request('nama_layanan');
+        $perPage = $validated['per_page'] ?? 10;
+        $tipe = $validated['tipe'] ?? 'kiloan';
+        $namaLayanan = $validated['nama_layanan'] ?? null;
 
         try {
             $items = LaundryLayanan::where('status', 'aktif')
@@ -50,7 +47,7 @@ class SiswaLaundryController extends Controller
         }
     }
 
-    public function getLayananDetail($id)
+    public function show($id)
     {
         try {
             $layanan = LaundryLayanan::findOrFail($id);
@@ -116,7 +113,6 @@ class SiswaLaundryController extends Controller
             $usaha = LaundryLayanan::find($fields['detail_pesanan'][0]['laundry_layanan_id'])->usaha;
             $siswaWallet = $siswa->siswa_wallet;
 
-            // periksa saldo sebelum melanjutkan transaksi
             $totalHarga = 0;
             foreach ($fields['detail_pesanan'] as $layananDetail) {
                 $layanan = $usaha->laundry_layanan()->findOrFail($layananDetail['laundry_layanan_id']);
@@ -145,7 +141,6 @@ class SiswaLaundryController extends Controller
                 ]);
             }
 
-            // update saldo secara atomik
             $usaha->increment('saldo', $totalHarga);
 
             $siswaWallet->update([

@@ -16,7 +16,6 @@ class LaundryTransaksiController extends Controller
     public function index(Request $request)
     {
         $validated = $request->validate([
-            'usaha' => ['nullable', 'integer', 'min:1'],
             'status' => ['nullable', 'string', 'in:aktif,selesai'],
             'per_page' => ['nullable', 'integer', 'min:1']
         ]);

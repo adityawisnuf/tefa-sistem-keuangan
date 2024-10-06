@@ -60,19 +60,19 @@ Route::group([
 
         Route::group(['prefix' => 'kantin'], function () {
             Route::group(['prefix' => 'produk'], function () {
-                Route::get('/', [SiswaKantinController::class, 'getProduk']);
+                Route::get('/', [SiswaKantinController::class, 'index']);
                 Route::get('/transaksi', [SiswaKantinController::class, 'getKantinTransaksi']);
                 Route::post('/transaksi/create', [SiswaKantinController::class, 'createProdukTransaksi']);
-                Route::get('/{produk}', [SiswaKantinController::class, 'getProdukDetail']);
+                Route::get('/{produk}', [SiswaKantinController::class, 'show']);
             });
         });
 
         Route::group(['prefix' => 'laundry'], function () {
             Route::group(['prefix' => 'layanan'], function () {
-                Route::get('/', [SiswaLaundryController::class, 'getLayanan']);
+                Route::get('/', [SiswaLaundryController::class, 'index']);
                 Route::get('/transaksi', [SiswaLaundryController::class, 'getLayananTransaksi']);
                 Route::post('/transaksi/create', [SiswaLaundryController::class, 'createLayananTransaksi']);
-                Route::get('/{layanan}', [SiswaLaundryController::class, 'getLayananDetail']);
+                Route::get('/{layanan}', [SiswaLaundryController::class, 'show']);
             });
         });
     });
