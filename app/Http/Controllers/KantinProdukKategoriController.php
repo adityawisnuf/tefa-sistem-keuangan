@@ -17,7 +17,7 @@ class KantinProdukKategoriController extends Controller
 
         $perPage = $validated['per_page'] ?? 10;
 
-        $items = KantinProdukKategori::latest()->paginate($perPage);
+        $items = KantinProdukKategori::paginate($perPage);
 
         return response()->json(['data' => $items], Response::HTTP_OK);
     }

@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 
 class TopUpController extends Controller
 {
@@ -35,21 +36,17 @@ class TopUpController extends Controller
     public function requestTransaction(Request $request)
     {
         $rules = [
-            'siswa_id' => ['exists:siswa,id'],
+            'siswa_id' => ['exists:siswa,id', Rule::requiredIf(Auth::user()->role == 'OrangTua')],
             'paymentAmount' => ['required', 'numeric', 'min:1'],
             'paymentMethod' => ['required'],
         ];
-
-        if (Auth::user()->role == 'OrangTua') {
-            $rules['siswa_id' ][] = 'required';
-        };
 
         $validated = $request->validate($rules);
 
         $user = isset($validated['siswa_id'])
             ? Auth::user()->orangtua->siswa()->findOrFail($validated['siswa_id'])->user
             : Auth::user();
-        
+
         $validated['email'] = $user->email;
         $result = $this->duitkuService->requestTransaction($validated);
         return response()->json($result['data'], $result['statusCode']);
@@ -59,7 +56,8 @@ class TopUpController extends Controller
     {
         $callbackData = $request->all();
 
-        if (!$this->duitkuService->verifySignature($callbackData)) return;
+        if (!$this->duitkuService->verifySignature($callbackData))
+            return;
 
         $resultCode = $callbackData['resultCode'] ?? null;
         Log::info(json_encode($callbackData));
