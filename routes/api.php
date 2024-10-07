@@ -71,7 +71,7 @@ Route::group([
         Route::get('/anggaran', [AnggaranController::class, 'index']);
         Route::get('/anggaran/chart-data', [AnggaranController::class, 'getAnggaranData']);
         Route::patch('/anggaran/{anggaran}', [AnggaranController::class, 'update']);
-        Route::delete('/anggaran/{anggaran}', [AnggaranController::class, 'destroy']);
+        //Route::delete('/anggaran/{anggaran}', [AnggaranController::class, 'destroy']);
 
         // Laporan Anggaran
         Route::get('/laporan/anggaran', function () {
