@@ -113,6 +113,9 @@ class NeracaController extends Controller
 
             return response()->json(['data' => $response], 200);
         } catch (\Exception $e) {
+            // Log error
+            logger()->error($e->getMessage());
+            // Return error response
             return response()->json(['message' => 'Terjadi kesalahan saat memproses data.'], 500);
         }
     }

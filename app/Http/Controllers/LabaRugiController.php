@@ -71,7 +71,7 @@ class LabaRugiController extends Controller
             // Log error
             logger()->error($e->getMessage());
             // Return error response
-            return response()->json(['error' => 'Terjadi kesalahan'], 500);
+            return response()->json(['message' => 'Terjadi kesalahan saat memproses data'], 500);
         }
     }
 
