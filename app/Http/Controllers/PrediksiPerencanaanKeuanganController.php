@@ -9,11 +9,19 @@ use Illuminate\Support\Facades\DB;
 
 class PrediksiPerencanaanKeuanganController extends Controller
 {
+    
     public function index(Request $request)
     {
-        $data = $this->retrieveData($request);
+        try {
+            $data = $this->retrieveData($request);
 
-        return response()->json(['data' => $data], 200);
+            return response()->json(['data' => $data], 200);
+        } catch (\Exception $e) {
+            // Log error
+            logger()->error($e->getMessage());
+            // Return error response
+            return response()->json(['data' => 'Error terjadi kesalahan'], 500);
+        }
     }
 
     private function retrieveData(Request $request)

@@ -17,6 +17,7 @@ class ArusKasController extends Controller
 {
     public function index(Request $request)
     {
+        try {
         $bulan = $request->query('bulan');
         $tahun = $request->query('tahun');
 
@@ -118,7 +119,7 @@ class ArusKasController extends Controller
                 'pemasukan_sekarang' => 'Rp ' .  number_format($totalPaymentNow, 0, ',', '.'),
                 'pengeluaran_sekarang' => 'Rp ' .  number_format($totalExpensesNow, 0, ',', '.'),
                 'saldo_akhir'   => 'Rp ' .  number_format($totalIncome - $totalExpense, 0, ',', '.')
-            ];
+            ];   
         }
         foreach ($profit as &$item) {
             if ($item['pemasukan'] !== '-') {
@@ -136,6 +137,12 @@ class ArusKasController extends Controller
         ];
 
         return response()->json(['data' => $data], 200);
+        } catch (\Exception $e) {
+            // Log error
+            logger()->error($e->getMessage());
+            // Return error response
+            return response()->json(['data' => 'Error terjadi kesalahan'], 500);
+        }
     }
     public function getOptions()
     {
