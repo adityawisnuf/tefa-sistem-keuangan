@@ -36,8 +36,8 @@ class TrackingPendaftaran extends Controller
     {
         $ppdbs = Ppdb::with([
             'pendaftar',
-            'pendaftaranAkademik', // Gunakan nama metode relasi yang benar
-            'pendaftarDokumen', // Gunakan nama metode relasi yang benar
+            'pendaftaranAkademik', 
+            'pendaftarDokumen', 
         ])->paginate(5);
 
         return response()->json([

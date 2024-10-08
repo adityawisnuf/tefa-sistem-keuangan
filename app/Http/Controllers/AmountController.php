@@ -46,14 +46,11 @@ class AmountController extends Controller
         return response()->json(['data' => $amount->toArray()]);
     }
 
-    // Show the form for editing the specified amount
     public function edit($id)
     {
-        // Typically, you'd return a view here, but for API just return a response
         return response()->json(['message' => 'Display form for editing the amount with ID ' . $id]);
     }
 
-    // Update the specified amount in the database
     public function update(Request $request, $id)
     {
         $amount = Amount::find($id);
@@ -68,12 +65,9 @@ class AmountController extends Controller
 
         $amount->update($validatedData);
 
-        // Format paymentAmount before returning the response
-
         return response()->json($amount);
     }
 
-    // Remove the specified amount from the database
     public function destroy($id)
     {
         $amount = Amount::find($id);
