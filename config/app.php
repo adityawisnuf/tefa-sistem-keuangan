@@ -28,6 +28,7 @@ return [
     | services the application utilizes. Set this in your ".env" file.
     |
     */
+    
 
     'env' => env('APP_ENV', 'production'),
 
@@ -164,10 +165,16 @@ return [
          * Application Service Providers...
          */
         App\Providers\AppServiceProvider::class,
+        Barryvdh\Dompdf\ServiceProvider::class,
         App\Providers\AuthServiceProvider::class,
+        // Barryvdh\DomPDF\ServiceProvider::class,
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
+        Ichtrojan\Otp\OtpServiceProvider::class,
+        Illuminate\Mail\MailServiceProvider::class,
+        Maatwebsite\Excel\ExcelServiceProvider::class,
+        // Webklex\PDFMerger\Providers\PDFMergerServiceProvider::class
     ])->toArray(),
 
     /*
@@ -183,6 +190,13 @@ return [
 
     'aliases' => Facade::defaultAliases()->merge([
         // 'Example' => App\Facades\Example::class,
+        'Otp' => Ichtrojan\Otp\Otp::class,
+        'PDFMerger' => Webklex\PDFMerger\Facades\PDFMergerFacade::class,
+        'Excel' => Maatwebsite\Excel\Facades\Excel::class,
+
+
     ])->toArray(),
+
+
 
 ];

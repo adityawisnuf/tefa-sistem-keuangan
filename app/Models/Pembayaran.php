@@ -34,9 +34,14 @@ class Pembayaran extends Model
     {
         return $this->hasMany(PembayaranSiswa::class, 'pembayaran_id');
     }
-
+    public function pembayaran_ppdb()
+    {
+        return $this->hasOne(PembayaranPpdb::class, 'pembayaran_id');
+    }
     public function kelas()
     {
         return $this->belongsTo(Kelas::class, 'kelas_id');
     }
+
+    
 }

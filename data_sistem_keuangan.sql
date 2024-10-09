@@ -30,8 +30,8 @@ SET time_zone = "+00:00";
 CREATE TABLE `anggaran` (
   `id` int(11) NOT NULL,
   `nama_anggaran` varchar(255) NOT NULL,
-  `nominal` double NOT NULL DEFAULT 0,
-  `deskripsi` text DEFAULT NULL,
+    `nominal` double NOT NULL DEFAULT 0,
+    `deskripsi` text DEFAULT NULL,
   `tanggal_pengajuan` datetime NOT NULL,
   `target_terealisasikan` datetime DEFAULT NULL,
   `status` tinyint(4) NOT NULL DEFAULT 1 COMMENT '1=diajukan; 2=diapprove; 3=terealisasikan; 4=gagal terealisasikan;',
