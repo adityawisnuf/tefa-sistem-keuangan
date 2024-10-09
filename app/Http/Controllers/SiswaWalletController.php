@@ -46,31 +46,19 @@ class SiswaWalletController extends Controller
     {
         $validated = $request->validate([
             'per_page' => ['nullable', 'integer', 'min:1'],
-            'tanggal_awal' => ['nullable', 'date'],
-            'tanggal_akhir' => ['nullable', 'date', 'after_or_equal:tanggal_awal'],
-            'tipe_transaksi' => ['nullable', 'string', '']
+            'bulan' => ['nullable', 'integer', 'min:1', 'max:12'],
+            'tipe_transaksi' => ['nullable', 'string', 'in:pemasukan,pengeluaran']
         ]);
 
         $siswaWallet = Auth::user()->siswa->siswa_wallet;
-        $startDate = $validated['tanggal_awal'] ?? null;
-        $endDate = $validated['tanggal_akhir'] ?? null;
+        $bulan = $validated['bulan'] ?? Carbon::now()->month;
         $tipeTransaksi = $validated['tipe_transaksi'] ?? null;
         $perPage = $validated['per_page'] ?? 10;
 
         $siswaWalletRiwayat = $siswaWallet
             ->siswa_wallet_riwayat()
             ->select('id', 'tipe_transaksi', 'nominal', 'tanggal_riwayat')
-            ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
-                $query->whereBetween('tanggal_riwayat', [
-                    Carbon::parse($startDate)->startOfDay(),
-                    Carbon::parse($endDate)->endOfDay()
-                ]);
-            }, function ($query) {
-                $query->whereBetween('tanggal_riwayat', [
-                    Carbon::now()->startOfMonth(),
-                    Carbon::now()->endOfMonth()
-                ]);
-            })
+            ->whereMonth('tanggal_riwayat', $bulan)
             ->when($tipeTransaksi, function ($query) use ($tipeTransaksi) {
                 $query->where('tipe_transaksi', $tipeTransaksi);
             })

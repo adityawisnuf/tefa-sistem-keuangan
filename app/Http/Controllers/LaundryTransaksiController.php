@@ -7,7 +7,6 @@ use App\Models\LaundryTransaksi;
 use App\Models\SiswaWalletRiwayat;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Auth;
 
