@@ -116,42 +116,42 @@ class RasioKeuanganController extends Controller
 
     private function currentRatio($asetLancar, $currentLiabilities)
     {
-        return $asetLancar / $currentLiabilities < 0 ? 0 : $asetLancar/$currentLiabilities;
+        return $asetLancar && $currentLiabilities !== 0 ? $asetLancar/$currentLiabilities : 0;
     }
 
     private function quickRatio($asetLancar, $inventory, $currentLiabilities)
     {
-        return ($asetLancar - $inventory) / $currentLiabilities < 0 ? 0 : ($asetLancar - $inventory) / $currentLiabilities;
+        return $asetLancar && $inventory && $currentLiabilities !== 0 ? ($asetLancar - $inventory) / $currentLiabilities : 0;
     }
 
     private function netProfitMargin($profit, $totalPayment)
     {
-        return $profit / $totalPayment < 0 ? 0 : $profit / $totalPayment;
+        return $profit && $totalPayment !== 0 ?  $profit / $totalPayment : 0;
     }
 
     private function returnOnAsset($profit, $asset)
     {
 
-        return $profit / $asset < 0 ? 0 : $profit / $asset;
+        return $profit && $asset !== 0 ?  $profit / $asset : 0;
     }
 
     private function operatingExpenseRatio($expenses, $totalPayment)
     {
-        return $expenses / $totalPayment < 0 ? 0 : $expenses / $totalPayment;
+        return $expenses && $totalPayment !== 0 ?  $expenses / $totalPayment : 0;
     }
 
     private function turnoverAsset($totalPayment, $fixedAssets)
     {
-        return $totalPayment / $fixedAssets < 0 ? 0 : $totalPayment / $fixedAssets;
+        return $totalPayment && $fixedAssets !== 0 ?  $totalPayment / $fixedAssets : 0;
     }
 
     private function debtToEquityRatio($totalLiabilities, $equity)
     {
-        return $totalLiabilities / $equity < 0 ? 0 : $totalLiabilities / $equity;
+        return $totalLiabilities && $equity !== 0 ? $totalLiabilities / $equity : 0;
     }
     private function debtRatio($totalLiabilities, $asset)
     {
-        return $totalLiabilities / $asset < 0 ? 0 : $totalLiabilities / $asset;
+        return $totalLiabilities && $asset !== 0 ?  $totalLiabilities / $asset : 0;
     }
     public function getOptions()
     {
