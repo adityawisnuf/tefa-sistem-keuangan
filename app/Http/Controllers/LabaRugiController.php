@@ -28,15 +28,13 @@ class LabaRugiController extends Controller
             $this->startDate = Carbon::createFromDate($tahun ?? date('Y'), $bulan ?? date('m'), 1);
             $this->endDate = $this->startDate->copy()->endOfMonth();
 
-            if ($tahun || !$tahun && !$bulan) {
+            if ($tahun && !$bulan || !$tahun && !$bulan) {
                 $this->startDate = Carbon::createFromDate($tahun, 1, 1);
                 $this->endDate = Carbon::createFromDate($tahun, 12, 31);
             }
 
             $financialData = $this->retrieveFinancialData();
             $financialMetrics = $this->calculateFinancialMetrics($financialData);
-
-            // Ambil kategori pengeluaran
             $categories = PengeluaranKategori::pluck('nama', 'id')->toArray();
 
             // Kelompokkan pengeluaran berdasarkan kategori
