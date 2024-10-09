@@ -56,10 +56,10 @@ class RasioKeuanganController extends Controller
                 ->when($tahun, fn($query) => $query->whereYear('diajukan_pada', $tahun))
                 ->sum('nominal');
 
-            $currentLiability = DB::table('pengeluaran')
+            $currentLiabilities = DB::table('pengeluaran')
                 ->join('pengeluaran_kategori', 'pengeluaran.pengeluaran_kategori_id', '=', 'pengeluaran_kategori.id')
                 ->whereNull('pengeluaran.disetujui_pada')
-                ->where('pengeluaran_kategori.tipe_utang', 'jangka pendek')
+                ->where('pengeluaran_kategori.tipe_utang', 1)
                 ->when($bulan, fn($query) => $query->whereMonth('pengeluaran.created_at', $bulan))
                 ->when($tahun, fn($query) => $query->whereYear('pengeluaran.created_at', $tahun))
                 ->sum('pengeluaran.nominal');
@@ -80,15 +80,14 @@ class RasioKeuanganController extends Controller
             $profit = $totalPayment - $expenses;
 
             // Menghitung rasio
-            $cr = $this->currentRatio($asetLancar, $currentLiability);
-            $qr = $this->quickRatio($asetLancar, $inventory, $currentLiability);
+            $cr = $this->currentRatio($asetLancar, $currentLiabilities);
+            $qr = $this->quickRatio($asetLancar, $inventory, $currentLiabilities);
             $npm = $this->netProfitMargin($profit, $totalPayment) * 100;
             $roa = $this->returnOnAsset($profit, $asset) * 100;
             $oer = $this->operatingExpenseRatio($expenses, $totalPayment) * 100;
             $toa = $this->turnoverAsset($totalPayment, $asetTetap);
             $dter = $this->debtToEquityRatio($totalLiability, $equity);
             $dr = $this->debtRatio($totalLiability, $asset) * 100;
-
             $data = [
                 'current_ratio' => $cr,
                 'quick_ratio' => $qr,
@@ -117,41 +116,42 @@ class RasioKeuanganController extends Controller
 
     private function currentRatio($asetLancar, $currentLiabilities)
     {
-        return $currentLiabilities || $asetLancar  < 1 ? 0 : $asetLancar / $currentLiabilities;
+        return $asetLancar / $currentLiabilities < 0 ? 0 : $asetLancar/$currentLiabilities;
     }
 
     private function quickRatio($asetLancar, $inventory, $currentLiabilities)
     {
-        return $currentLiabilities == 0 ? 0 : ($asetLancar - $inventory) / $currentLiabilities;
+        return ($asetLancar - $inventory) / $currentLiabilities < 0 ? 0 : ($asetLancar - $inventory) / $currentLiabilities;
     }
 
     private function netProfitMargin($profit, $totalPayment)
     {
-        return $totalPayment   == 0 ? 0 : $profit / $totalPayment;
+        return $profit / $totalPayment < 0 ? 0 : $profit / $totalPayment;
     }
 
     private function returnOnAsset($profit, $asset)
     {
-        return $asset  == 0 ? 0 : $profit / $asset;
+
+        return $profit / $asset < 0 ? 0 : $profit / $asset;
     }
 
     private function operatingExpenseRatio($expenses, $totalPayment)
     {
-        return $totalPayment  == 0 ? 0 : $expenses / $totalPayment;
+        return $expenses / $totalPayment < 0 ? 0 : $expenses / $totalPayment;
     }
 
     private function turnoverAsset($totalPayment, $fixedAssets)
     {
-        return $fixedAssets  == 0 ? 0 : $totalPayment / $fixedAssets;
+        return $totalPayment / $fixedAssets < 0 ? 0 : $totalPayment / $fixedAssets;
     }
 
     private function debtToEquityRatio($totalLiabilities, $equity)
     {
-        return $equity || $totalLiabilities < 1 ? 0 : $totalLiabilities / $equity;
+        return $totalLiabilities / $equity < 0 ? 0 : $totalLiabilities / $equity;
     }
     private function debtRatio($totalLiabilities, $asset)
     {
-        return $asset  == 0 ? 0 : $totalLiabilities / $asset;
+        return $totalLiabilities / $asset < 0 ? 0 : $totalLiabilities / $asset;
     }
     public function getOptions()
     {
@@ -287,7 +287,7 @@ class RasioKeuanganController extends Controller
                 ->selectRaw('MONTH(diajukan_pada) as month, sum(nominal) as value')
                 ->groupBy('month')->get();
 
-            $currentLiability = DB::table('pengeluaran')
+            $currentLiabilities = DB::table('pengeluaran')
                 ->join('pengeluaran_kategori', 'pengeluaran.pengeluaran_kategori_id', '=', 'pengeluaran_kategori.id')
                 ->whereNull('pengeluaran.disetujui_pada')
                 ->where('pengeluaran_kategori.tipe_utang', 'jangka pendek')
@@ -423,8 +423,8 @@ class RasioKeuanganController extends Controller
             }
 
 
-            $cr = formatFinalData(formatMidData(formatData($asetLancar), formatData($currentLiability)));
-            $qr = formatFinalData(formatMidData(formatData($asetLancar), formatData($inventory), formatData($currentLiability)));
+            $cr = formatFinalData(formatMidData(formatData($asetLancar), formatData($currentLiabilities)));
+            $qr = formatFinalData(formatMidData(formatData($asetLancar), formatData($inventory), formatData($currentLiabilities)));
             $npm = formatFinalData(formatMidData($profit, $totalPayment, false, true));
             $roa = formatFinalData(formatMidData($profit, formatData($asset), false, true));
             $oer = formatFinalData(formatMidData(formatData($expenses), $totalPayment, false, true));
