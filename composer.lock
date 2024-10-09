@@ -5153,8 +5153,6 @@
             "time": "2024-04-27T21:32:50+00:00"
         },
         {
-<<<<<<< HEAD
-=======
             "name": "royryando/laravel-duitku",
             "version": "v1.0.6",
             "source": {
@@ -5479,7 +5477,6 @@
             "time": "2024-06-22T23:04:52+00:00"
         },
         {
->>>>>>> smakzie_ppdb
             "name": "stella-maris/clock",
             "version": "0.1.7",
             "source": {
