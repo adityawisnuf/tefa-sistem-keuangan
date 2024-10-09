@@ -11,17 +11,35 @@ class KantinTransaksi extends Model
 
     protected $table = 'kantin_transaksi';
 
-    protected $fillable =[
-        'kantin_id', 'qty', 'total_harga', 'merchant_order_id',
+    protected $fillable = [
+        'siswa_id',
+        'usaha_id',
+    'status',
+        'tanggal_pemesanan',
+        'tanggal_selesai',
     ];
 
-    public function pembayaran_duitku ()
+
+    public function kantin_transaksi_detail()
     {
-        return $this->belongsTo(PembayaranDuitku::class, 'merchant_order_id');
+        return $this->hasMany(KantinTransaksiDetail::class, 'kantin_transaksi_id');
     }
 
-    public function kantin () 
+    public function usaha()
     {
-        return $this->belongsTo(Kantin::class, 'kantin_id');
+        return $this->belongsTo(Usaha::class, 'usaha_id');
     }
+
+    public function siswa()
+    {
+        return $this->belongsTo(Siswa::class, 'siswa_id');
+    }
+
+    // public function getHargaTotalAttribute()
+    // {
+    //     return $this->kantin_transaksi_detail->sum(function ($detail) {
+    //         return $detail->harga * $detail->jumlah;
+    //     });
+    // }
+
 }
