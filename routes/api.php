@@ -16,6 +16,9 @@ use App\Http\Controllers\SiswaLaundryController;
 use App\Http\Controllers\SiswaWalletController;
 use App\Http\Controllers\TopUpController;
 
+use App\Http\Controllers\ArusKasController;
+use App\Http\Controllers\LabaRugiController;
+use App\Http\Controllers\PrediksiPerencanaanKeuanganController;
 use Illuminate\Http\Request;
 
 use App\Http\Controllers\EmailVerificationController;
@@ -28,6 +31,8 @@ use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\PendaftarController;
 use App\Http\Controllers\LogoutController;
+use App\Http\Controllers\NeracaController;
+use App\Http\Controllers\RasioKeuanganController;
 
 use Illuminate\Support\Facades\Auth;
 
@@ -260,3 +265,19 @@ Route::get('get-village/{districtId}', [IndoRegionController::class, 'getVillage
 Route::post('/validate-nik', [NIKController::class, 'validateNik']);
 Route::post('/payment-callback', [PembayaranController::class, 'handleCallback']);
 Route::get('test');
+
+Route::group([
+    'middleware' => ['auth:api', 'checkrole:KepalaSekolah,Bendahara']
+], function () {
+    Route::get('neraca', [NeracaController::class, 'index']);
+    Route::get('laba-rugi', [LabaRugiController::class, 'index']);
+    Route::get('arus-kas', [ArusKasController::class, 'index']);
+    Route::get('rasio-keuangan', [RasioKeuanganController::class, 'index']);
+    Route::get('rasio-keuangan-grafik', [RasioKeuanganController::class, 'getGraphicRatioByMonth']);
+    Route::get('prediksi-perencanaan', [PrediksiPerencanaanKeuanganController::class, 'index']);
+    Route::get('get-options-n', [NeracaController::class, 'getOptions']);
+    Route::get('get-options-lr', [LabaRugiController::class, 'getOptions']);
+    Route::get('get-options-ak', [ArusKasController::class, 'getOptions']);
+    Route::get('get-options-rk', [RasioKeuanganController::class, 'getOptions']);
+    Route::get('get-options-pp', [PrediksiPerencanaanKeuanganController::class, 'getOptions']);
+});
