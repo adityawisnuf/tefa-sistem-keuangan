@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
 use App\Models\Pengeluaran;
 use Illuminate\Http\Request;
 
@@ -15,6 +16,7 @@ class PengeluaranController extends Controller
             'disetujui' => ['date', 'nullable'],
         ]);
 
+        // Query untuk mendapatkan data pengeluaran
         $query = Pengeluaran::with('anggaran', 'pengeluaran_kategori')->latest();
 
         // Filter berdasarkan tanggal diajukan
@@ -33,14 +35,16 @@ class PengeluaranController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Berhasil mendapatkan data pengeluaran',
-            'data' => $allPengeluaran
+            'data' => $allPengeluaran,
         ]);
     }
 
     public function show($id)
     {
+        // Mendapatkan pengeluaran berdasarkan ID
         $pengeluaran = Pengeluaran::with('anggaran', 'pengeluaran_kategori')->find($id);
 
+        // Jika data pengeluaran tidak ditemukan
         if (!$pengeluaran) {
             return response()->json([
                 'success' => false,
@@ -48,10 +52,11 @@ class PengeluaranController extends Controller
             ], 404);
         }
 
+        // Jika data pengeluaran ditemukan
         return response()->json([
             'success' => true,
             'message' => 'Berhasil mendapatkan data pengeluaran',
-            'data' => $pengeluaran
+            'data' => $pengeluaran,
         ]);
     }
 }

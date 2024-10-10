@@ -99,9 +99,7 @@
                     <td>{{ $pengeluaran->keperluan }}</td>
                     <td>{{ 'Rp ' . number_format($pengeluaran->nominal, 0, ',', '.') }}</td>
                     <td>{{ is_object($pengeluaran->diajukan_pada) ? $pengeluaran->diajukan_pada->format('d-m-Y') : date('d-m-Y', strtotime($pengeluaran->diajukan_pada)) }}</td>
-                     <td>{{ $pengeluaran->disetujui_pada ? (is_object($pengeluaran->disetujui_pada) ?
-                         $pengeluaran->disetujui_pada->format('d-m-Y') : date('d-m-Y', strtotime($pengeluaran->disetujui_pada))) : 
-                            'Belum disetujui' }}</td>
+                    <td>{{ $pengeluaran->disetujui_pada ? (is_object($pengeluaran->disetujui_pada) ? $pengeluaran->disetujui_pada->format('d-m-Y') : date('d-m-Y', strtotime($pengeluaran->disetujui_pada))) : 'Belum disetujui' }}</td>
                     </tr>
                 @endforeach
             </tbody>

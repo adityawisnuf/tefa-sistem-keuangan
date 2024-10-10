@@ -100,7 +100,9 @@
                         <td>{{ $pembayaran->siswa->kelas->kelas }}</td>
                         <td>{{ $pembayaran->pembayaran->pembayaran_kategori->jenis_pembayaran === 1 ? "Bulanan" : "Tahunan" }}</td>
                         <td>{{ 'Rp ' . number_format($pembayaran->nominal, 0, ',', '.') }}</td>
-                        <td>{{ $pembayaran->duitku_tunai->created_at ? $pembayaran->duitku_tunai->created_at->format('d-m-Y') : 'Tanggal tidak tersedia' }}</td>
+                        <td>
+                            {{ $pembayaran->created_at ? \Carbon\Carbon::parse($pembayaran->created_at)->format('d-m-Y') : 'Tidak ada tanggal' }}
+                        </td>
                     </tr>
                 @endforeach
             </tbody>

@@ -182,34 +182,35 @@
     <h3>Laporan Buku Kas</h3>
 
     <!-- Tabel Buku Kas -->
-    <div class="table-container">
-        <table>
-            <thead>
-                <tr>
-                    <th>No</th>
-                    <th>Kode Transaksi</th>
-                    <th>Nama Siswa</th>
-                    <th>Kelas</th>
-                    <th>Jenis Pembayaran</th>
-                    <th>Nominal</th>
-                    <th>Tanggal Pembayaran</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($pembayarans as $pembayaran)
-                    <tr>
-                        <td>{{ $loop->iteration }}</td>
-                        <td>{{ $pembayaran->merchant_order_id }}</td>
-                        <td>{{ $pembayaran->siswa->nama_depan . ' ' . $pembayaran->siswa->nama_belakang }}</td>
-                        <td>{{ $pembayaran->siswa->kelas->kelas }}</td>
-                        <td>{{ $pembayaran->pembayaran->pembayaran_kategori->jenis_pembayaran === 1 ? "Bulanan" : "Tahunan" }}</td>
-                        <td>{{ 'Rp ' . number_format($pembayaran->nominal, 0, ',', '.') }}</td>
-                        <td>{{ $pembayaran->duitku_tunai->created_at ? $pembayaran->duitku_tunai->created_at->format('d-m-Y') : 'Tanggal tidak tersedia' }}</td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
-    </div>
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>No</th>
+                <th>Kode Transaksi</th>
+                <th>Nama Siswa</th>
+                <th>Kelas</th>
+                <th>Jenis Pembayaran</th>
+                <th>Nominal</th>
+                <th>Tanggal Pembayaran</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach ($pembayarans as $pembayaran)
+    <tr>
+        <td>{{ $loop->iteration }}</td>
+        <td>{{ $pembayaran->merchant_order_id }}</td>
+        <td>{{ $pembayaran->siswa->nama_depan . ' ' . $pembayaran->siswa->nama_belakang }}</td>
+        <td>{{ $pembayaran->siswa->kelas->kelas }}</td>
+        <td>{{ $pembayaran->pembayaran->pembayaran_kategori->jenis_pembayaran === 1 ? "Bulanan" : "Tahunan" }}</td>
+        <td>{{ 'Rp ' . number_format($pembayaran->nominal, 0, ',', '.') }}</td>
+        <td>{{ \Carbon\Carbon::parse($pembayaran->created_at)->format('d-m-Y') }}</td>
+    </tr>
+@endforeach
+        </tbody>            
+    </table>
+</div>
+
 
   <!-- Area Tanda Tangan -->
   <div style="display: flex; justify-content: end;">
