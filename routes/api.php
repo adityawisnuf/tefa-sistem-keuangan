@@ -26,32 +26,6 @@ Route::middleware('auth:api')->group(function () {
     Route::post('logout', [LogoutController::class, 'logout']);
 
     
-    // Pendaftar Routes
-    Route::group(['prefix'=>'pendaftar', 'middleware'=> 'checkrole:OrangTua'], function () {
-        Route::post('/', [PendaftarController::class, 'store']);
-        Route::get('/', [PendaftarController::class, 'index']);
-        Route::get('{id}', [PendaftarController::class, 'show']);
-        Route::put('{id}', [PendaftarController::class, 'update']);
-        Route::delete('{id}', [PendaftarController::class, 'destroy']);
-    });
-    
-    // Pendaftaran Akademik Routes
-    Route::group(['prefix'=>'pendaftar-akademik', 'middleware'=> 'checkrole:OrangTua'], function () {
-        Route::post('/', [PendaftaranAkademikController::class, 'store']);
-        Route::get('/', [PendaftaranAkademikController::class, 'index']);
-        Route::get('{id}', [PendaftaranAkademikController::class, 'show']);
-        Route::put('{id}', [PendaftaranAkademikController::class, 'update']);
-        Route::delete('{id}', [PendaftaranAkademikController::class, 'destroy']);
-    });
-    
-    Route::group(['prefix'=>'pendaftar-dokumen', 'middleware'=> 'checkrole:OrangTua'], function () {
-        Route::post('/', [PendaftarDokumenController::class, 'store']);
-        Route::get('/', [PendaftarDokumenController::class, 'index']);
-        Route::get('{id}', [PendaftarDokumenController::class, 'show']);
-        Route::put('{id}', [PendaftarDokumenController::class, 'update']);
-        Route::delete('{id}', [PendaftarDokumenController::class, 'destroy']);
-    });
-    
     Route::group(['prefix'=>'pembayaran', 'middleware'=> 'checkrole:KepalaSekolah,Admin,Bendahara'], function () {
         Route::get('/export-pembayaran-ppdb', [PembayaranController::class, 'exportPembayaranPpdb']);
         Route::get('/laporan-keuangan', [LaporanKeuanganController::class, 'searchLaporanKeuangan']);
@@ -67,7 +41,7 @@ Route::middleware('auth:api')->group(function () {
         Route::post('/', [PpdbController::class, 'store']);
         Route::get('/track', [TrackingPendaftaran::class, 'trackPendaftaran']);
         Route::get('/all/pendaftaran', [TrackingPendaftaran::class, 'searchPendaftarans']);
-        Route::get('/export-pendaftar', [PendaftarController::class, 'export']);
+        Route::get('/export-pendaftar', [PpdbController::class, 'export']);
         Route::get('download/{id}', [PpdbController::class, 'downloadDocuments']);
         Route::post('/update-status', [PpdbController::class, 'updateStatus']);
     });
@@ -76,7 +50,6 @@ Route::middleware('auth:api')->group(function () {
         Route::get('{id}', [KelasController::class, 'show']);
         Route::post('/', [KelasController::class, 'store']);
         Route::put('{id}', [KelasController::class, 'update']);
-        Route::get('/download-berkas/{id}', [PendaftarDokumenController::class, 'mergePendaftarDokumen']);
         Route::delete('{id}', [KelasController::class, 'destroy']);
         
     });
