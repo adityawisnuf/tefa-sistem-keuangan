@@ -13,6 +13,11 @@ use Illuminate\Support\Facades\Validator;
 
 class PengumumanController extends Controller
 {
+    private function getSiswaAndOrangTua() {
+        return User::whereIn('role', ['Siswa', 'OrangTua'])->get();
+        return User::whereIn('role', ['Siswa', 'Orang Tua'])->get();
+    }
+
     // semua pengumuman yang disetujui
     public function AllAnnouncements(): JsonResponse
     {
@@ -34,7 +39,7 @@ class PengumumanController extends Controller
             ], 200);
         }
     }
-  
+
     // pengumuman user (saat ini) yang disetujui
     public function approvedAnnouncements(): JsonResponse
     {
@@ -107,6 +112,9 @@ class PengumumanController extends Controller
                 'user_id' => Auth::user()->id,
                 'approved_at' => now()
             ]);
+
+            $users = $this->getSiswaAndOrangTua();
+            Notification::send($users, new NewPengumumanNotification($pengumuman));
         } else {
             $pengumuman = Pengumuman::create([
                 'judul' => $request->judul,
@@ -167,7 +175,7 @@ class PengumumanController extends Controller
                     'error' => $validator->errors()
                 ], 422);
             }
-            
+
             if (Auth::user()->role === 'Kepala Sekolah') {
                 $pengumuman->update([
                     'judul' => $request->judul,
@@ -209,13 +217,13 @@ class PengumumanController extends Controller
 
         if ($pengumuman->user_id === Auth::id() || Auth::user()->role === 'Kepala Sekolah') {
             $pengumuman->delete();
-        
+
             return response()->json([
                 'success' => true,
                 'message' => 'pengumuman berhasil dihapus'
             ], 200);
         }
-        
+
         return response()->json([
             'success' => false,
             'message' => 'Anda tidak memiliki izin untuk menghapus pengumuman ini'
