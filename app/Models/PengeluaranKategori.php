@@ -9,10 +9,11 @@ class PengeluaranKategori extends Model
 {
     use HasFactory;
 
-    protected $table= 'pengeluaran_kategori';
+    protected $table = 'pengeluaran_kategori';
 
-    protected $fillable= [
-        'nama', 'status',
+    protected $fillable = [
+        'nama',
+        'status',
     ];
 
     public function pengeluaran()

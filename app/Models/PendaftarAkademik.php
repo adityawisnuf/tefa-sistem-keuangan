@@ -9,7 +9,7 @@ class PendaftarAkademik extends Model
 {
     use HasFactory;
 
-    protected $table='pendaftar_akademik';
+    protected $table = 'pendaftar_akademik';
 
     protected $fillable=[
         'ppdb_id', 'sekolah_asal', 'tahun_lulus', 'jurusan_tujuan',
@@ -19,5 +19,4 @@ class PendaftarAkademik extends Model
     {
         return $this->belongsTo(Ppdb::class, 'ppdb_id');
     }
-
 }

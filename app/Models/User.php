@@ -63,12 +63,12 @@ class User extends Authenticatable implements JWTSubject
         ];
     }
 
-    public function siswa ()
+    public function siswa()
     {
         return $this->hasOne(Siswa::class, 'user_id');
     }
 
-    public function orangtua ()
+    public function orangtua()
     {
         return $this->hasOne(Orangtua::class, 'user_id');
     }
@@ -82,4 +82,8 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasOne(Usaha::class, 'user_id');
     }
 
+    public function pengumuman()
+    {
+        return $this->hasMany('pengumuman');
+    }
 }

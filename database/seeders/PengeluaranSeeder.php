@@ -1,13 +1,28 @@
 <?php
 
+namespace Database\Seeders;
+
 use Illuminate\Database\Seeder;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use App\Models\PengeluaranKategori;
 
 class PengeluaranSeeder extends Seeder
 {
-    public function run()
+    /**
+     * Run the database seeds.
+     */
+    public function run(): void
     {
+        $datas = ['gaji guru', 'operasional', 'investasi', 'pembangunan', 'lainnya'];
+        // tes commit
+
+        foreach ($datas as $data) {
+            PengeluaranKategori::create([
+                'nama' => $data
+            ]);
+        }
+
         $categories = DB::table('pengeluaran_kategori')->pluck('id')->toArray();
 
         foreach (range(1, Carbon::now()->month) as $month) {
@@ -25,4 +40,3 @@ class PengeluaranSeeder extends Seeder
         }
     }
 }
-

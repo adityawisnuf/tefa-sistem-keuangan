@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Pembayaran;
+use Illuminate\Http\Request;
 use App\Exports\PembayaranExport;
 use App\Models\PembayaranDuitku;
 use App\Models\PembayaranPpdb;
-use App\Models\Pembayaran;
 use App\Models\Ppdb;
 use App\Models\Role;
 use Illuminate\Support\Facades\Hash;
@@ -16,7 +17,6 @@ use App\Models\PendaftarDokumen;
 use App\Models\User;
 use App\Notifications\CredentialsEmailNotification;
 use GrahamCampbell\ResultType\Success;
-use Illuminate\Http\Request;
 use GuzzleHttp\Client;
 use Illuminate\Support\Str;
 use GuzzleHttp\Exception\RequestException;
@@ -30,6 +30,80 @@ class PembayaranController extends Controller
 {
     const PDF_STORAGE_PATH = 'storage/app/documents/';
 
+    // Menampilkan semua data pembayaran
+    public function index()
+    {
+        $pembayarans = Pembayaran::all();
+        return response()->json($pembayarans);
+    }
+    public function create()
+    {
+        //
+    }
+
+    // Menyimpan pembayaran baru
+    public function store(Request $request)
+    {
+        $validatedData = $request->validate([
+            'siswa_id' => 'required|exists:siswa,id',
+            'pembayaran_kategori_id' => 'required|exists:pembayaran_kategori,id',
+            'nominal' => 'required|numeric',
+            'status' => 'required|string',
+            'kelas_id' => 'required|exists:kelas,id',
+        ]);
+
+        $pembayaran = Pembayaran::create($validatedData);
+
+        return response()->json([
+            'message' => 'Pembayaran berhasil ditambahkan',
+            'data' => $pembayaran
+        ], 201);
+    }
+
+    // Menampilkan detail pembayaran berdasarkan ID
+    public function show($id)
+    {
+        $pembayaran = Pembayaran::findOrFail($id);
+        return response()->json($pembayaran);
+    }
+
+    // Menampilkan form untuk mengedit pembayaran (jika diperlukan)
+    public function edit($id)
+    {
+        //
+    }
+
+    // Memperbarui data pembayaran
+    public function update(Request $request, $id)
+    {
+        $validatedData = $request->validate([
+            'siswa_id' => 'required|exists:siswa,id',
+            'pembayaran_kategori_id' => 'required|exists:pembayaran_kategori,id',
+            'nominal' => 'required|numeric',
+            'status' => 'required|string',
+            'kelas_id' => 'required|exists:kelas,id',
+        ]);
+
+        $pembayaran = Pembayaran::find($id);
+        $pembayaran->update($validatedData);
+
+        return response()->json([
+            'message' => 'Pembayaran berhasil diperbarui',
+            'data' => $pembayaran
+        ], 200);
+    }
+
+    // Menghapus pembayaran (soft delete)
+    public function destroy($id)
+    {
+        $pembayaran = Pembayaran::findOrFail($id);
+        $pembayaran->delete();
+
+        return response()->json([
+            'message' => 'Pembayaran berhasil dihapus'
+        ], 200);
+    }
+
     public function exportPembayaranPpdb(Request $request)
     {
         $year = $request->input('tahun_awal', date('Y')); // Default ke tahun sekarang jika tidak ada parameter
@@ -37,6 +111,7 @@ class PembayaranController extends Controller
         // Pass the selected year to the export class
         return Excel::download(new PembayaranExport($year), 'dataPPDB.xlsx');
     }
+    
     public function getPaymentMethod(Request $request)
     {
         // Validate input from request
@@ -336,4 +411,4 @@ class PembayaranController extends Controller
             return response()->json(['error' => 'Unexpected Error', 'message' => $e->getMessage()], 500);
         }
     }
-}    
+}

@@ -1,5 +1,8 @@
 <?php
 
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+
 use App\Http\Controllers\BendaharaLaporanController;
 use App\Http\Controllers\BendaharaPengajuanController;
 use App\Http\Controllers\KepsekLaporanController;
@@ -19,13 +22,11 @@ use App\Http\Controllers\TopUpController;
 use App\Http\Controllers\ArusKasController;
 use App\Http\Controllers\LabaRugiController;
 use App\Http\Controllers\PrediksiPerencanaanKeuanganController;
-use Illuminate\Http\Request;
 
 use App\Http\Controllers\EmailVerificationController;
 use App\Http\Controllers\IndoRegionController;
 use App\Http\Controllers\LaporanKeuanganController;
 
-use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\LoginController;
@@ -36,6 +37,19 @@ use App\Http\Controllers\RasioKeuanganController;
 
 use Illuminate\Support\Facades\Auth;
 
+use App\Http\Controllers\SiswaController;
+use App\Http\Controllers\SekolahController;
+use App\Http\Controllers\PengeluaranAnalysis;
+use App\Http\Controllers\PengumumanController;
+use App\Http\Controllers\PengeluaranController;
+use App\Http\Controllers\PembayaranSiswaController;
+use App\Http\Controllers\PembayaranDuitkuController;
+use App\Http\Controllers\PendaftarAkademikController;
+use App\Http\Controllers\PembayaranKategoriController;
+use App\Http\Controllers\PengeluaranKategoriController;
+use App\Http\Controllers\PembayaranSiswaCicilanController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\VillageController;
 use App\Http\Controllers\NIKController;
 use App\Http\Controllers\AmountController;
 use App\Http\Controllers\KelasController;
@@ -50,6 +64,24 @@ Route::post('register', [RegisterController::class, 'register']);
 Route::post('login', [LoginController::class, 'login']);
 
 Route::post('/duitku/callback', [TopUpController::class, 'callback']);
+
+Route::apiResource('orangtua', OrangTuaController::class);
+Route::apiResource('sekolah', SekolahController::class);
+Route::apiResource('siswa', SiswaController::class);
+Route::apiResource('village', VillageController::class);
+
+// sortir kelas
+Route::get('filter-kelas', [KelasController::class, 'filterKelas']);
+Route::get('/filter-sekolah', [KelasController::class, 'filterBySekolah']);
+Route::get('filter-orangtua/{id}', [SiswaController::class, 'filterByOrangTua']);
+
+// pembayaran
+Route::apiResource('pembayaran_siswa', PembayaranSiswaController::class);
+Route::apiResource('pembayaran_duitku', PembayaranDuitkuController::class);
+Route::apiResource('pembayaran', PembayaranController::class);
+Route::apiResource('pembayaransiswacicilan', PembayaranSiswaCicilanController::class);
+Route::apiResource('pembayaran_kategori', PembayaranKategoriController::class);
+Route::apiResource('pembayaran-siswa', PembayaranSiswaController::class);
 
 Route::group([
     'middleware' => ['auth:api']
@@ -249,6 +281,45 @@ Route::group([
         Route::get('/{id}', [AmountController::class, 'show']);
         Route::put('/{id}', [AmountController::class, 'update']);
         Route::delete('/{id}', [AmountController::class, 'destroy']);
+    });
+
+    // Pengeluaran Kategori
+    Route::apiResource('pengeluaran/kategori', PengeluaranKategoriController::class);
+
+    // Pengeluaran actions
+    Route::get('pengeluaran/disetujui', [PengeluaranController::class, 'getPengeluaranDisetujui']);
+    Route::get('pengeluaran/belum-disetujui', [PengeluaranController::class, 'getPengeluaranBelumDisetujui']);
+    Route::get('pengeluaran/riwayat', [PengeluaranController::class, 'riwayatPengeluaran']);
+    Route::get('pengeluaran/periode/{periode}', [PengeluaranController::class, 'rekapitulasiPengeluaran']);
+    Route::get('pengeluaran/analisis/{periode}', [PengeluaranAnalysis::class, 'getPengeluaranPeriode']);
+
+    // Pengeluaran resource
+    Route::apiResource('pengeluaran', PengeluaranController::class);
+    Route::patch('/pengeluaran/{id}/accept', [PengeluaranController::class, 'acceptPengeluaran']);
+    Route::patch('/pengeluaran/{id}/reject', [PengeluaranController::class, 'rejectPengeluaran']);
+
+
+    Route::group(['middleware' => 'checkrole:Kepala Sekolah'], function () {
+        Route::put('/pengumuman/{id}/approve', [PengumumanController::class, 'approve']);
+        Route::put('/pengumuman/{id}/reject', [PengumumanController::class, 'reject']);
+    });
+
+    // pengumuman
+    Route::group(['middleware' => 'checkrole:Admin,Bendahara'], function () {
+        Route::get('/pengumuman/approved', [PengumumanController::class, 'approvedAnnouncements']);
+        Route::get('/pengumuman/rejected', [PengumumanController::class, 'rejectedAnnouncements']);
+    });
+
+    Route::group(['middleware' => 'checkrole:Kepala Sekolah,Admin,Bendahara'], function () {
+        Route::get('/pengumuman/submitted', [PengumumanController::class, 'submittedAnnouncements']);
+        Route::post('/pengumuman', [PengumumanController::class, 'store']);
+        Route::put('/pengumuman/{id}', [PengumumanController::class, 'update']);
+        Route::delete('/pengumuman/{id}', [PengumumanController::class, 'destroy']);
+    });
+
+    Route::group(['middleware' => 'checkrole:Kepala Sekolah,Orang Tua,Siswa,Admin,Bendahara'], function () {
+        Route::get('/pengumuman/{id}', [PengumumanController::class, 'show']);
+        Route::get('/pengumuman', [PengumumanController::class, 'AllAnnouncements']);
     });
 });
 

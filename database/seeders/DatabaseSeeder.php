@@ -270,10 +270,17 @@ class DatabaseSeeder extends Seeder
             'deskripsi' => 'minuman',
         ]);
 
+        // \App\Models\User::factory()->create([
+        //     'name' => 'Test User',
+        //     'email' => 'test@example.com',
+        // ]);
+
         $this->call([
+            IndoRegionSeeder::class,
+            PengeluaranSeeder::class,
+            UserSeeder::class,
             KantinProdukSeeder::class,
             LaundryLayananSeeder::class
         ]);
-
     }
 }

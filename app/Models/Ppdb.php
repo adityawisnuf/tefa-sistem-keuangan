@@ -17,6 +17,13 @@ class Ppdb extends Model
         'merchant_order_id',
     ];
 
+    // Optional: Jika Anda ingin mendefinisikan tipe kolom secara lebih eksplisit
+    protected $casts = [
+        'status' => 'integer', // 1, 2, 3
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
+
     // Relasi dengan PembayaranDuitku
     public function pembayaranDuitku()
     {
