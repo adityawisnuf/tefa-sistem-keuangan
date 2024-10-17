@@ -275,5 +275,8 @@ class DatabaseSeeder extends Seeder
             KantinProdukSeeder::class,
             LaundryLayananSeeder::class
         ]);
+        $this->call([SekolahSeeder::class]);
+        $this->call([AmountSeeder::class]);
+        $this->call([PembayaranKategori::class]);
     }
 }

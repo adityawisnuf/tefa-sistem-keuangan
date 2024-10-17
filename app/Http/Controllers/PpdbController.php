@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Exports\pendaftarExport;
 use App\Http\Requests\PpdbRequest;
 use App\Models\PembayaranDuitku;
 use App\Models\Pendaftar;
@@ -16,6 +17,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Maatwebsite\Excel\Facades\Excel;
 use ZipArchive;
 
 class PpdbController extends Controller
@@ -211,5 +213,14 @@ class PpdbController extends Controller
             'message' => 'Failed to update status. Please try again later.'
         ], 500);
     }
+}
+
+
+public function export(Request $request)
+{
+    // Ambil parameter tahun dari request
+    $year = $request->input('tahun_awal', date('Y')); // Default ke tahun sekarang jika tidak ada parameter
+
+    return Excel::download(new pendaftarExport($year), 'pendaftar_data.xlsx');
 }
 }

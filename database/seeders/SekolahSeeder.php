@@ -31,5 +31,10 @@ class SekolahSeeder extends Seeder
         }
 
         
+        \App\Models\Sekolah::create([
+            'nama' => 'SMKN 1 Cianjur',
+            'alamat' => 'JL.Siliwangi',
+            'telepon' => '08123456789',
+        ]);
     }
 }
