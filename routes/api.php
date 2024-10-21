@@ -36,10 +36,10 @@ Route::middleware(['auth:api'])->group(function () {
                 return [
                     'value' => $siswa->id,
                     'label' => $siswa->nama_depan . " " . $siswa->nama_belakang
-                    ];
-                })
-            ]);
-        });
+                ];
+            })
+        ]);
+    });
 
     Route::get('/select/kelas', function () {
         $kelasData = Kelas::all();
@@ -80,23 +80,7 @@ Route::middleware(['auth:api'])->group(function () {
             ->name('pembayaran.exportExcel');
 
         // Laporan pembayaran PDF
-        Route::get('/laporan/pembayaran', function () {
-            $tgl_awal = request('tgl_awal');
-            $tgl_akhir = request('tgl_akhir');
-
-            if ($tgl_awal && $tgl_akhir) {
-                $pembayaran = PembayaranSiswa::whereBetween('created_at', [$tgl_awal, $tgl_akhir])->get();
-                $fileName = "Pembayaran_{$tgl_awal}-{$tgl_akhir}.pdf";
-            } else {
-                $pembayaran = PembayaranSiswa::all();
-                $fileName = "Data_Keseluruhan_Pembayaran.pdf";
-            }
-
-            $data = ['pembayarans' => $pembayaran, 'sekolah' => Sekolah::first()];
-            $pdf = Pdf::loadView('print.pembayaran', $data);
-
-            return $pdf->stream($fileName);
-        })->name('laporan.pembayaran');
+        Route::get('/laporan/pembayaran', [PembayaranController::class, 'report'])->name('laporan.pembayaran');
 
         // Laporan pengeluaran PDF
         Route::get('/laporan/pengeluaran', function () {
