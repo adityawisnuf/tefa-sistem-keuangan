@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DuitkuCallbackController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -63,7 +64,7 @@ use App\Http\Controllers\TrackingPendaftaran;
 Route::post('register', [RegisterController::class, 'register']);
 Route::post('login', [LoginController::class, 'login']);
 
-Route::post('/duitku/callback', [TopUpController::class, 'callback']);
+Route::post('/duitku/callback', DuitkuCallbackController::class);
 
 Route::apiResource('orangtua', OrangTuaController::class);
 Route::apiResource('sekolah', SekolahController::class);

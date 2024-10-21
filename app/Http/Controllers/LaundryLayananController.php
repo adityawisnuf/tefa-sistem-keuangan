@@ -17,17 +17,22 @@ class LaundryLayananController extends Controller
         $validated = $request->validate([
             'usaha' => ['nullable', 'integer', 'min:1'],
             'per_page' => ['nullable', 'integer', 'min:1'],
-            'nama_layanan' => ['nullable', 'string']
+            'nama_layanan' => ['nullable', 'string'],
+            'tipe' => ['nullable', 'string', 'in:satuan,kiloan']
         ]);
 
         $usaha = Auth::user()->usaha;
         $perPage = $validated['per_page'] ?? 10;
         $namaLayanan = $validated['nama_layanan'] ?? null;
+        $tipe = $validated['tipe'] ?? null;
 
         $layanan = $usaha
             ->laundry_layanan()
             ->when($namaLayanan, function ($query) use ($namaLayanan) {
                 $query->where('nama_layanan', 'like', "%$namaLayanan%");
+            })
+            ->when($tipe, function ($query) use ($tipe) {
+                $query->where('tipe', 'like', "%$tipe%");
             })
             ->paginate($perPage);
         return response()->json(['data' => $layanan], Response::HTTP_OK);
@@ -45,7 +50,7 @@ class LaundryLayananController extends Controller
             'status' => ['nullable', 'in:aktif,tidak_aktif'],
         ]);
 
-        $usaha = Auth::user()->usaha->first();
+        $usaha = Auth::user()->usaha;
 
         $path = Storage::putFile(self::IMAGE_STORAGE_PATH, $validated['foto_layanan']);
         $validated['foto_layanan'] = basename($path);
