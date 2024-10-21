@@ -12,7 +12,7 @@ class PendaftarController extends Controller
      */
     public function index()
     {
-        $pendaftar = Pendaftar::with('ppdb')->get();
+        $pendaftar = Pendaftar::with('ppdb', 'village')->get();
         return response()->json($pendaftar);
     }
 
@@ -49,7 +49,7 @@ class PendaftarController extends Controller
      */
     public function show($id)
     {
-        $pendaftar = Pendaftar::with('ppdb')->findOrFail($id);
+        $pendaftar = Pendaftar::with('ppdb', 'village')->findOrFail($id);
         return response()->json($pendaftar);
     }
 
