@@ -10,7 +10,7 @@ class PembayaranDuitkuController extends Controller
     // Menampilkan daftar semua pembayaran Duitku
     public function index()
     {
-        $pembayaranDuitku = PembayaranDuitku::all();
+        $pembayaranDuitku = PembayaranDuitku::with('ppdb', 'siswa_wallet_riwayat', 'kantin_transaksi', 'laundry_transaksi', 'pembayaran_siswa', 'pembayaran_siswa_cicilan')->get();
         return response()->json([
             'status' => 'success',
             'data' => $pembayaranDuitku
@@ -74,7 +74,7 @@ class PembayaranDuitkuController extends Controller
     // Menampilkan pembayaran Duitku berdasarkan merchant_order_id
     public function show($merchant_order_id)
     {
-        $pembayaranDuitku = PembayaranDuitku::where('merchant_order_id', $merchant_order_id)->firstOrFail();
+        $pembayaranDuitku = PembayaranDuitku::with('ppdb', 'siswa_wallet_riwayat', 'kantin_transaksi', 'laundry_transaksi', 'pembayaran_siswa', 'pembayaran_siswa_cicilan')->where('merchant_order_id', $merchant_order_id)->firstOrFail();
 
         return response()->json([
             'status' => 'success',
