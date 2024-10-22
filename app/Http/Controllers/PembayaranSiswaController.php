@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Pembayaran;
 use App\Models\PembayaranSiswa;
 use Illuminate\Http\Request;
 
@@ -22,8 +23,12 @@ class PembayaranSiswaController extends Controller
             'pembayaran_id' => 'required|exists:pembayaran,id',
             'nominal' => 'required|numeric',
             'merchant_order_id' => 'required|string',
-            'status' => 'required|boolean', // Menggunakan boolean untuk status
+            'status' => 'nullable|boolean', // Menggunakan boolean untuk status
         ]);
+
+        $pembayaran = Pembayaran::where('pembayaran_id', $validatedData['pembayaran_id'])->first();
+        // jika nominal siswa nya kurang dari yang ditentukan, maka statusnya belum selesai
+        $validatedData['status'] = $request->nominal < $pembayaran->nominal ? false : true;
 
         // Membuat entri baru di tabel pembayaran_siswa
         $pembayaran_siswa = PembayaranSiswa::create($validatedData);
