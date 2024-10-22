@@ -48,6 +48,10 @@ class TopUpController extends Controller
             : Auth::user();
 
         $validated['email'] = $user->email;
+        $validated['additionalParam'] = json_encode([
+            'type' => 'topup',
+            'data' => $user->email
+        ]);
         $result = $this->duitkuService->requestTransaction($validated);
         return response()->json($result['data'], $result['statusCode']);
     }
@@ -60,7 +64,8 @@ class TopUpController extends Controller
             return;
 
         $resultCode = $callbackData['resultCode'] ?? null;
-        Log::info(json_encode($callbackData));
+
+        $email = json_decode($callbackData['additionalParam'], true)['data'];
 
         DB::beginTransaction();
         try {
@@ -71,7 +76,7 @@ class TopUpController extends Controller
             ]);
 
             if ($resultCode === '00') {
-                $siswaWallet = User::where('email', $callbackData['additionalParam'])->first()->siswa->first()->siswa_wallet;
+                $siswaWallet = User::where('email', $email)->first()->siswa->siswa_wallet;
                 SiswaWalletRiwayat::create([
                     'siswa_wallet_id' => $siswaWallet->id,
                     'merchant_order_id' => $callbackData['merchantOrderId'],
