@@ -10,7 +10,7 @@ class PembayaranSiswaController extends Controller
     // Menampilkan semua data pembayaran siswa
     public function index()
     {
-        $pembayaran_siswa = PembayaranSiswa::with('siswa', 'pembayaran_kategori')->get();
+        $pembayaran_siswa = PembayaranSiswa::with('siswa.user', 'pembayaran.pembayaran_kategori')->get();
         return response()->json($pembayaran_siswa);
     }
 
@@ -37,7 +37,7 @@ class PembayaranSiswaController extends Controller
     // Menampilkan detail pembayaran siswa berdasarkan ID
     public function show($id)
     {
-        $pembayaran_siswa = PembayaranSiswa::with('siswa', 'pembayaran_kategori')->findOrFail($id);
+        $pembayaran_siswa = PembayaranSiswa::with('siswa.user', 'pembayaran.pembayaran_kategori')->findOrFail($id);
         return response()->json($pembayaran_siswa);
     }
 

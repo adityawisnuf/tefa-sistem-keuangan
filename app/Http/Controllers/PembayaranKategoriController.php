@@ -40,7 +40,7 @@ class PembayaranKategoriController extends Controller
         return response()->json(['message' => 'Kategori berhasil diperbarui', 'data' => $kategori]);
     }
 
-    public function destroy($id)        
+    public function destroy($id)
     {
         $kategori = PembayaranKategori::findOrFail($id);
         $kategori->delete();
