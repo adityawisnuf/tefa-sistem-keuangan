@@ -41,6 +41,10 @@ Route::apiResource('kelas', KelasController::class);
 Route::apiResource('siswa', SiswaController::class);
 
 Route::apiResource('village', VillageController::class);
+Route::get('province', [VillageController::class, 'getProvince']);
+Route::get('regency/{id}', [VillageController::class, 'getRegency']);
+Route::get('district/{id}', [VillageController::class, 'getDistrict']);
+Route::get('villages/{id}', [VillageController::class, 'getVillage']);
 
 // sortir kelas
 Route::get('filter-kelas', [KelasController::class, 'filterKelas']);
