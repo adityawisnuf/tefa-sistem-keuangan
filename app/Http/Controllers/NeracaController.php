@@ -124,6 +124,7 @@ class NeracaController extends Controller
     {
         return $assets->filter(fn($asset) => $asset->tipe === $type)
             ->map(fn($asset) => ['name' => $asset->nama, 'value' => $this->formatCurrency($asset->harga)])
+            ->values() // Ensures the keys are sequential
             ->toArray();
     }
 
