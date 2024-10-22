@@ -14,6 +14,12 @@ class LaporanKeuanganController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
+    // public function searchLaporanKeuangan(Request $request) {
+    //     $query = 'anjas';
+
+    //     return $query;
+    // }
+
     public function searchLaporanKeuangan(Request $request)
     {
         try {

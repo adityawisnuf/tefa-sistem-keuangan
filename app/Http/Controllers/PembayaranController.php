@@ -21,6 +21,7 @@ use GuzzleHttp\Client;
 use Illuminate\Support\Str;
 use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
@@ -181,14 +182,15 @@ class PembayaranController extends Controller
 
     public function createTransaction(Request $request)
     {
-        $merchantCode = 'DS19869';
-        $apiKey = '8093b2c02b8750e4e73845f307325566';
+        $merchantCode = env('DUITKU_MERCHANT_CODE');
+        $apiKey = env('DUITKU_API_KEY');  
         $paymentAmount = $request->input('paymentAmount');
         $first_name = $request->input('nama_depan');
         $last_name = $request->input('nama_belakang');
         $paymentMethod = $request->input('paymentMethod');
+        $additionalParam = 'PPDB';
         $merchantOrderId = $request->input('merchantOrderId');
-        $callbackUrl = 'https://355b-114-122-102-252.ngrok-free.app/api/payment-callback';
+        $callbackUrl = env('DUITKU_CALLBACK_URL');
         $returnUrl = 'http://localhost:5173/orang-tua/cek-pembayaran';
         $expiryPeriod = 60;
         $customerEmail = $request->input('email');
@@ -202,6 +204,7 @@ class PembayaranController extends Controller
             'nama_depan' => $first_name,
             'nama_belakang' => $last_name,
             'paymentAmount' => $paymentAmount,
+            'addtionalParam' => $additionalParam,
             'paymentMethod' => $paymentMethod,
             'merchantOrderId' => $merchantOrderId,
             'callbackUrl' => $callbackUrl,
@@ -382,6 +385,8 @@ class PembayaranController extends Controller
                                     'email' => $dataUserResponse['email'],
                                     'password' => Hash::make($plainPassword),
                                     'role' => 'Siswa',
+                                    'email_verified_at' => now(),
+                                    'remember_token' => Str::random(10),
                                 ]);
     
                                 $user->notify(new CredentialsEmailNotification($plainPassword));

@@ -202,6 +202,14 @@ Route::group([
         Route::put('/pengajuan/{pengajuan}', [BendaharaPengajuanController::class, 'confirmUsahaPengajuan']);
     });
 
+    Route::group(['prefix' => 'ppdb'], function () {
+        Route::post('/', [PpdbController::class, 'store']);
+        Route::get('/track', [TrackingPendaftaran::class, 'trackPendaftaran']);
+        Route::get('/all/pendaftaran', [TrackingPendaftaran::class, 'searchPendaftarans']);
+        Route::get('/export-pendaftar', [PpdbController::class, 'export']);
+        Route::get('/download/{id}', [PpdbController::class, 'downloadDocuments']);
+        Route::post('/update-status', [PpdbController::class, 'updateStatus']);
+    });
     Route::group([
         'prefix' => 'kepsek',
         'middleware' => 'checkrole:KepalaSekolah'
@@ -241,9 +249,11 @@ Route::group([
     //     Route::delete('{id}', [PendaftarDokumenController::class, 'destroy']);
     // });
     
-    Route::group(['prefix'=>'pembayaran', 'middleware'=> 'checkrole:KepalaSekolah,Admin,Bendahara'], function () {
+    Route::group(['prefix'=>'LaporanKeuangan', 'middleware'=> 'checkrole:KepalaSekolah,Admin,Bendahara'], function () {
         Route::get('/export-pembayaran-ppdb', [PembayaranController::class, 'exportPembayaranPpdb']);
+        Route::get('/laporan-keuangan', [PpdbController::class, 'searchPendaftarans']);
         Route::get('/laporan-keuangan', [LaporanKeuanganController::class, 'searchLaporanKeuangan']);
+        
         
     });
     
@@ -252,14 +262,6 @@ Route::group([
         Route::post('/send-email-verification', [EmailVerificationController::class, 'sendEmailVerification']);
     });
     
-    Route::group(['prefix' => 'ppdb'], function () {
-        Route::post('/', [PpdbController::class, 'store']);
-        Route::get('/track', [TrackingPendaftaran::class, 'trackPendaftaran']);
-        Route::get('/all/pendaftaran', [TrackingPendaftaran::class, 'searchPendaftarans']);
-        Route::get('/export-pendaftar', [PpdbController::class, 'export']);
-        Route::get('download/{id}', [PpdbController::class, 'downloadDocuments']);
-        Route::post('/update-status', [PpdbController::class, 'updateStatus']);
-    });
     Route::prefix('kelas')->group(function () {
         Route::get('/', [KelasController::class, 'index']);
         Route::get('{id}', [KelasController::class, 'show']);
