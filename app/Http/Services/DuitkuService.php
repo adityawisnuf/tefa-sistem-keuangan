@@ -79,7 +79,7 @@ class DuitkuService
         $merchantOrderId = time() . '';
         $productDetails = 'Tes pembayaran menggunakan Duitku';
         $email = $data['email'];
-        $additionalParam = $data['email'];
+        $additionalParam = $data['additionalParam'];
         $phoneNumber = '088888888888';
         $firstName = 'Anjasmara';
         $lastName = 'Tahu Bulat';
