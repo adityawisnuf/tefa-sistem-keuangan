@@ -26,7 +26,7 @@ class PembayaranSiswaController extends Controller
             'status' => 'nullable|boolean', // Menggunakan boolean untuk status
         ]);
 
-        $pembayaran = Pembayaran::where('pembayaran_id', $validatedData['pembayaran_id'])->first();
+        $pembayaran = Pembayaran::where('id', $validatedData['pembayaran_id'])->first();
         // jika nominal siswa nya kurang dari yang ditentukan, maka statusnya belum selesai
         $validatedData['status'] = $request->nominal < $pembayaran->nominal ? false : true;
 
