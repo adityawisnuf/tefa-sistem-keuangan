@@ -117,41 +117,41 @@ class RasioKeuanganController extends Controller
 
     private function currentRatio($asetLancar, $currentLiabilities)
     {
-        return $currentLiabilities || $asetLancar  < 1 ? 0 : $asetLancar / $currentLiabilities;
+        return $asetLancar && $currentLiabilities !== 0 ? $asetLancar / $currentLiabilities : 0;
     }
 
     private function quickRatio($asetLancar, $inventory, $currentLiabilities)
     {
-        return $currentLiabilities == 0 ? 0 : ($asetLancar - $inventory) / $currentLiabilities;
+        return $asetLancar && $inventory && $currentLiabilities !== 0 ? ($asetLancar - $inventory) / $currentLiabilities : 0;
     }
 
     private function netProfitMargin($profit, $totalPayment)
     {
-        return $totalPayment   == 0 ? 0 : $profit / $totalPayment;
+        return $profit && $totalPayment !== 0 ?  $profit / $totalPayment : 0;
     }
 
     private function returnOnAsset($profit, $asset)
     {
-        return $asset  == 0 ? 0 : $profit / $asset;
+        return $profit && $asset !== 0 ?  $profit / $asset : 0;
     }
 
     private function operatingExpenseRatio($expenses, $totalPayment)
     {
-        return $totalPayment  == 0 ? 0 : $expenses / $totalPayment;
+        return $expenses && $totalPayment !== 0 ?  $expenses / $totalPayment : 0;
     }
 
     private function turnoverAsset($totalPayment, $fixedAssets)
     {
-        return $fixedAssets  == 0 ? 0 : $totalPayment / $fixedAssets;
+        return $totalPayment && $fixedAssets !== 0 ?  $totalPayment / $fixedAssets : 0;
     }
 
     private function debtToEquityRatio($totalLiabilities, $equity)
     {
-        return $equity || $totalLiabilities < 1 ? 0 : $totalLiabilities / $equity;
+        return $totalLiabilities && $equity !== 0 ? $totalLiabilities / $equity : 0;
     }
     private function debtRatio($totalLiabilities, $asset)
     {
-        return $asset  == 0 ? 0 : $totalLiabilities / $asset;
+        return $totalLiabilities && $asset !== 0 ?  $totalLiabilities / $asset : 0;
     }
     public function getOptions()
     {
@@ -293,7 +293,7 @@ class RasioKeuanganController extends Controller
                 ->where('pengeluaran_kategori.tipe_utang', 'jangka pendek')
                 ->whereYear('pengeluaran.created_at', $tahun)
                 ->selectRaw('MONTH(pengeluaran.created_at) as month, sum(pengeluaran.nominal) as value')
-                ->groupBy('month')->get();
+                ->groupBy('month')->get()->toArray();
 
             $inventory = DB::table('pengeluaran')
                 ->join('pengeluaran_kategori', 'pengeluaran.pengeluaran_kategori_id', '=', 'pengeluaran_kategori.id')
@@ -318,45 +318,24 @@ class RasioKeuanganController extends Controller
 
             function formatData($array)
             {
-                $anjas = [];
-                if (!isset($array[0])) {
-                    for ($i = 1; $i <= 12; $i++) {
-                        $anjas[] = [
-                            'month' => $i,
-                            'total' => 0
-                        ];
-                    }
-                    return $anjas;
-                }
-                ;
-
-                $selisihBulan = $array[0]['month'] - 1;
-
-                if ($selisihBulan) {
-                    for ($i = 1; $i <= $selisihBulan; $i++) {
-                        $anjas[] = [
-                            'month' => $i,
-                            'total' => 0
-                        ];
-                    }
-                }
-
-                foreach ($array as $item) {
-                    $anjas[$item['month'] - 1] = [
-                        'month' => $item['month'],
-                        'total' => $item['value']
-                    ];
-                }
-
-                for ($i = count($anjas); $i < 12; $i++) {
-                    $anjas[$i] = [
-                        'month' => $i + 1,
+                // Inisialisasi array kosong dengan nilai default untuk setiap bulan
+                $formattedData = [];
+                for ($i = 1; $i <= 12; $i++) {
+                    $formattedData[$i - 1] = [
+                        'month' => $i,
                         'total' => 0
                     ];
                 }
 
-                return $anjas;
+                // Update data yang ada dari array input ke dalam bulan yang tepat
+                foreach ($array as $item) {
+                    $monthIndex = $item['month'] - 1; // Convert bulan ke indeks array (0-based)
+                    $formattedData[$monthIndex]['total'] = $item['value'];
+                }
+
+                return $formattedData;
             }
+
 
             function combineData($array1, $array2, $add)
             {
@@ -377,11 +356,11 @@ class RasioKeuanganController extends Controller
                 formatData($totalLiability),
                 false
             );
-
+            
             $totalPayment =
-                combineData(
-                    formatData($payments),
-                    formatData($paymentsPpdb),
+            combineData(
+                formatData($payments),
+                formatData($paymentsPpdb),
                     true
                 );
 
@@ -391,7 +370,8 @@ class RasioKeuanganController extends Controller
                     formatData($expenses),
                     false
                 );
-
+                
+                
             function formatMidData($array1, $array2, $array3 = false, $timesHundred = false)
             {
                 $formatMidDataApa = [];
@@ -422,7 +402,7 @@ class RasioKeuanganController extends Controller
                 return $formatMidDataApa;
             }
 
-
+            dd(formatData($currentLiability));
             $cr = formatFinalData(formatMidData(formatData($asetLancar), formatData($currentLiability)));
             $qr = formatFinalData(formatMidData(formatData($asetLancar), formatData($inventory), formatData($currentLiability)));
             $npm = formatFinalData(formatMidData($profit, $totalPayment, false, true));
@@ -453,8 +433,14 @@ class RasioKeuanganController extends Controller
         } catch (\Exception $e) {
             // Log error
             logger()->error($e->getMessage());
-            // Return error response
-            return response()->json(['data' => 'Error terjadi kesalahan'], 500);
+
+            // Return detailed error response for development environment
+            return response()->json([
+                'error' => $e->getMessage(), // Include the error message in response
+                'file' => $e->getFile(),     // Optional: file where error occurred
+                'line' => $e->getLine(),     // Optional: line number of the error
+                'trace' => $e->getTraceAsString(),
+            ], 500);
         }
     }
 }

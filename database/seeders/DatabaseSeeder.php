@@ -11,7 +11,7 @@ class DatabaseSeeder extends Seeder
      * Seed the application's database.
      */
     public function run(): void
-    {   
+    {
         \App\Models\User::factory()->create([
             'name' => 'siswa',
             'email' => 'siswa@example.com',
@@ -86,21 +86,21 @@ class DatabaseSeeder extends Seeder
             'password' => 'bendahara123',
             'role' => 'Bendahara',
         ]);
-        
+
         \App\Models\User::factory()->create([
             'name' => 'orangtua',
             'email' => 'orangtua@example.com',
             'password' => 'orangtua123',
             'role' => 'OrangTua',
         ]);
-        
+
         \App\Models\User::factory()->create([
             'name' => 'siswa2',
             'email' => 'siswa2@example.com',
             'password' => 'siswa2123',
             'role' => 'Siswa',
         ]);
-        
+
         \App\Models\Sekolah::create([
             'nama' => 'SMKN 1 Cianjur',
             'alamat' => 'Cianjur',
@@ -278,5 +278,13 @@ class DatabaseSeeder extends Seeder
         $this->call([SekolahSeeder::class]);
         $this->call([AmountSeeder::class]);
         $this->call([PembayaranKategori::class]);
+
+        $this->call([
+            AnggaranSeeder::class,
+            AsetSeeder::class,
+            PembayaranSeeder::class,
+            PembayaranSiswaSeeder::class,
+            // PengeluaranSeeder::class,
+        ]);
     }
 }

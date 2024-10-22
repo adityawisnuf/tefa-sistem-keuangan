@@ -24,7 +24,7 @@ class NeracaController extends Controller
         $expenses = Pengeluaran::when($bulan, fn($query) => $query->whereMonth('created_at', $bulan))
             ->when($tahun, fn($query) => $query->whereYear('created_at', $tahun));
 
-        $liabilities = Pengeluaran::whereNull('disetujui_pada')
+        $liabilities = Pengeluaran::whereIn('status', ['pending', 'accepted']) // Filter berdasarkan status
             ->when($bulan, fn($query) => $query->whereMonth('diajukan_pada', $bulan))
             ->when($tahun, fn($query) => $query->whereYear('diajukan_pada', $tahun));
 
@@ -74,10 +74,10 @@ class NeracaController extends Controller
             $totalFixedAssets = $data['assets']->where('tipe', 'tetap')->sum('harga');
             $totalAssets = $totalFixedAssets + $totalCurrentAssets;
 
-            $currentLiabilities = $this->calculateLiabilities($data['liabilities'], '1');
+            $currentLiabilities = $this->calculateLiabilities($data['liabilities'], 'jangka panjang');
             $totalCurrentLiabilities = array_sum(array_column($currentLiabilities, 'value'));
 
-            $longTermLiabilities = $this->calculateLiabilities($data['liabilities'], '2');
+            $longTermLiabilities = $this->calculateLiabilities($data['liabilities'], 'jangka pendek');
             $totalLongTermLiabilities = array_sum(array_column($longTermLiabilities, 'value'));
 
             $totalLiabilities = $totalCurrentLiabilities + $totalLongTermLiabilities;
@@ -124,6 +124,7 @@ class NeracaController extends Controller
     {
         return $assets->filter(fn($asset) => $asset->tipe === $type)
             ->map(fn($asset) => ['name' => $asset->nama, 'value' => $this->formatCurrency($asset->harga)])
+            ->values() // Ensures the keys are sequential
             ->toArray();
     }
 
@@ -204,7 +205,6 @@ class NeracaController extends Controller
         $months = $data->pluck('month')->unique()->values()->toArray();
         $years = $data->pluck('year')->unique()->sortDesc()->values()->toArray();
 
-
         // Membuat mapping dari nama bulan ke angka bulan
         $monthNumbers = [
             'January' => '01',
@@ -253,7 +253,6 @@ class NeracaController extends Controller
             'values' => '',
             'labels' => 'Semua',
         ]);
-
 
         return response()->json([
             'months' => $formattedMonths,
