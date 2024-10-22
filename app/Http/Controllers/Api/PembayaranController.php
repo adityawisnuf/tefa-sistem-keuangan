@@ -235,23 +235,23 @@ class PembayaranController extends Controller
         ));
     }
 
-    public function getRiwayat(Request $request)
-    {
-        $siswa = auth()->user()->siswa;
+        public function getRiwayat(Request $request)
+        {
+            $siswa = auth()->user()->siswa;
 
 
-        $data = PembayaranSiswa::where('siswa_id', $siswa->id)
-            ->where('pembayaran_siswa.status', 1)
-            ->join('pembayaran_duitku', 'pembayaran_siswa.merchant_order_id', '=', 'pembayaran_duitku.merchant_order_id', 'left')
-            ->with('pembayaran.pembayaran_kategori', 'siswa.user', 'siswa.kelas')
-            ->select('pembayaran_siswa.*', 'pembayaran_duitku.*')
-            ->get();
+            $data = PembayaranSiswa::where('siswa_id', $siswa->id)
+                ->where('pembayaran_siswa.status', 1)
+                ->join('pembayaran_duitku', 'pembayaran_siswa.merchant_order_id', '=', 'pembayaran_duitku.merchant_order_id', 'left')
+                ->with('pembayaran.pembayaran_kategori', 'siswa.user', 'siswa.kelas')
+                ->select('pembayaran_siswa.*', 'pembayaran_duitku.*')
+                ->get();
 
-        return response()->json([
-            'message' => 'Riwayat pembayaran berhasil didapatkan',
-            'data' => $data,
-        ]);
-    }
+            return response()->json([
+                'message' => 'Riwayat pembayaran berhasil didapatkan',
+                'data' => $data,
+            ]);
+        }
     public function getRiwayatTahunan(Request $request)
     {
         $siswa = auth()->user()->siswa;

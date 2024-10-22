@@ -12,9 +12,11 @@ class PembayaranSiswaCicilan extends Model
     protected $table = 'pembayaran_siswa_cicilan';
 
     protected $fillable = [
-        'pembayaran_siswa_id',
-        'nominal_cicilan',
-        'status',
+        'siswa_id',
+        'jumlah_cicilan',
+        'tanggal_cicilan',
+        'total_cilan',
+        'status'
     ];
 
     public function pembayaran_siswa()
@@ -26,4 +28,14 @@ class PembayaranSiswaCicilan extends Model
     {
         return $this->hasOne(PembayaranDuitku::class, 'merchant_order_id', 'merchant_order_id');
     }
+
+      public function cicilan()
+      {
+          return $this->hasMany(PembayaranCicilan::class, 'pembayaran_siswa_cicilan_id');
+      }
+
+      public function siswa()
+      {
+          return $this->belongsTo(Siswa::class, 'siswa_id');
+      }
 }
