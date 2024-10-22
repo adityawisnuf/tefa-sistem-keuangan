@@ -203,14 +203,7 @@ Route::group([
         Route::put('/pengajuan/{pengajuan}', [BendaharaPengajuanController::class, 'confirmUsahaPengajuan']);
     });
 
-    Route::group(['prefix' => 'ppdb'], function () {
-        Route::post('/', [PpdbController::class, 'store']);
-        Route::get('/track', [TrackingPendaftaran::class, 'trackPendaftaran']);
-        Route::get('/all/pendaftaran', [TrackingPendaftaran::class, 'searchPendaftarans']);
-        Route::get('/export-pendaftar', [PpdbController::class, 'export']);
-        Route::get('/download/{id}', [PpdbController::class, 'downloadDocuments']);
-        Route::post('/update-status', [PpdbController::class, 'updateStatus']);
-    });
+
     Route::group([
         'prefix' => 'kepsek',
         'middleware' => 'checkrole:KepalaSekolah'
@@ -353,4 +346,12 @@ Route::group([
     Route::get('get-options-ak', [ArusKasController::class, 'getOptions']);
     Route::get('get-options-rk', [RasioKeuanganController::class, 'getOptions']);
     Route::get('get-options-pp', [PrediksiPerencanaanKeuanganController::class, 'getOptions']);
+});
+Route::group(['prefix' => 'ppdb'], function () {
+    Route::post('/', [PpdbController::class, 'store']);
+    Route::get('/track', [TrackingPendaftaran::class, 'trackPendaftaran']);
+    Route::get('/all/pendaftaran', [TrackingPendaftaran::class, 'searchPendaftarans']);
+    Route::get('/export-pendaftar', [PpdbController::class, 'export']);
+    Route::get('/download/{id}', [PpdbController::class, 'downloadDocuments']);
+    Route::post('/update-status', [PpdbController::class, 'updateStatus']);
 });

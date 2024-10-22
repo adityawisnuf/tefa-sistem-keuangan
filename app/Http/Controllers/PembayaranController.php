@@ -27,6 +27,8 @@ use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\Response;
 
+use function PHPSTORM_META\type;
+
 class PembayaranController extends Controller
 {
     const PDF_STORAGE_PATH = 'storage/app/documents/';
@@ -188,7 +190,9 @@ class PembayaranController extends Controller
         $first_name = $request->input('nama_depan');
         $last_name = $request->input('nama_belakang');
         $paymentMethod = $request->input('paymentMethod');
-        $additionalParam = 'PPDB';
+        $additionalParam = json_encode([
+            'type' => 'PPDB'
+        ]);
         $merchantOrderId = $request->input('merchantOrderId');
         $callbackUrl = env('DUITKU_CALLBACK_URL');
         $returnUrl = 'http://localhost:5173/orang-tua/cek-pembayaran';
@@ -286,8 +290,8 @@ class PembayaranController extends Controller
     public function handleCallback(Request $request)
     {
         try {
-            $apiKey = '8093b2c02b8750e4e73845f307325566';
-            $merchantCode = 'DS19869';
+            $merchantCode = env('DUITKU_MERCHANT_CODE');
+            $apiKey = env('DUITKU_API_KEY');  
             $amount = $request->input('amount');
             $merchantOrderId = $request->input('merchantOrderId');
             $signature = $request->input('signature');

@@ -4,6 +4,7 @@ namespace App\Exports;
 
 use App\Models\Pendaftar;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithStyles;
@@ -48,7 +49,7 @@ class pendaftarExport implements FromCollection, WithHeadings, WithStyles
 
         // Calculate the total nominal
         $this->totalNominal = $pendaftarData->sum('nominal');
-
+        Log::info($pendaftarData);
         return $pendaftarData;
     }
 

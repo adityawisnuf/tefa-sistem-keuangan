@@ -131,7 +131,7 @@ public function downloadDocuments($id)
         $namaBelakang = $pendaftar->nama_belakang;
 
         $folderName = $namaDepan . '_' . $namaBelakang;
-        $zipFileName = $folderName . '_dokumen_' . uniqid() . '.zip'; // Unique ID for the zip file
+        $zipFileName = $folderName . '_dokumen_' . $id . '.zip';
 
         $files = [
             'akte_kelahiran' => $pendaftarDokumen->akte_kelahiran,
@@ -143,37 +143,21 @@ public function downloadDocuments($id)
         $zip = new ZipArchive();
 
         if ($zip->open(storage_path($zipFileName), ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
-            $fileCount = 0;
-
             foreach ($files as $type => $file) {
                 if (Storage::exists($file)) {
+                    // Create a new name for the file using the first and last name plus the document type
                     $newFileName = $folderName . '_' . $type . '.' . pathinfo($file, PATHINFO_EXTENSION);
                     $filePath = storage_path('app/' . $file);
-                    
-                    if ($zip->addFile($filePath, $newFileName) === false) {
-                        Log::error("Failed to add file: $filePath");
-                    } else {
-                        $fileCount++;
-                    }
-                } else {
-                    Log::warning("File not found: $file");
+                    $zip->addFile($filePath, $newFileName);
                 }
             }
-
             $zip->close();
-
-            if ($fileCount === 0) {
-                Log::error("No files were added to the ZIP.");
-                return response()->json(['error' => 'No files available for download.'], 404);
-            }
-        } else {
-            Log::error("Failed to open ZIP file for writing: " . $zipFileName);
-            return response()->json(['error' => 'Failed to create ZIP file.'], 500);
         }
 
         // Download the created ZIP file
         return response()->download(storage_path($zipFileName))->deleteFileAfterSend(true);
     } catch (\Exception $e) {
+        // Log the error message
         Log::error('Error while downloading documents for ID ' . $id . ': ' . $e->getMessage());
         return response()->json(['error' => 'An error occurred while processing your request.'], 500);
     }
@@ -235,10 +219,21 @@ public function downloadDocuments($id)
         ], 500);
     }
 }
-
 public function export(Request $request)
 {
-    $year = $request->input('tahun_awal', date('Y'));
-    return Excel::download(new pendaftarExport($year), 'pendaftar_data.xlsx', \Maatwebsite\Excel\Excel::XLSX);
+    try {
+        $year = $request->input('tahun_awal', date('Y'));
+        return Excel::download(new pendaftarExport($year), 'pendaftar_data.xlsx', \Maatwebsite\Excel\Excel::XLSX);
+    } catch (\Exception $e) {
+        // Log the exception
+        Log::error('Export failed: ' . $e->getMessage(), [
+            'stack' => $e->getTraceAsString()
+        ]);
+
+        // Optionally, return a response with the error message
+        return response()->json([
+            'message' => 'Export failed. Please check the logs for details.'
+        ], 500);
+    }
 }
 }
