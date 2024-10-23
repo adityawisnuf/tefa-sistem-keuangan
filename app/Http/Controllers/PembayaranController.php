@@ -194,7 +194,7 @@ class PembayaranController extends Controller
             'type' => 'PPDB'
         ]);
         $merchantOrderId = $request->input('merchantOrderId');
-        $callbackUrl = env('DUITKU_CALLBACK_URL');
+        $callbackUrl = env('CALLBACK_URL') . '/api/duitku/callback';
         $returnUrl = 'http://localhost:5173/orang-tua/cek-pembayaran';
         $expiryPeriod = 60;
         $customerEmail = $request->input('email');
