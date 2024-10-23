@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\Status;
 use App\Models\Pengeluaran;
 use Illuminate\Http\Request;
 
@@ -43,7 +44,7 @@ class PengeluaranAnalysis extends Controller
 
     private function getPengeluaranForPeriod($periode, $type)
     {
-        $query = Pengeluaran::query();
+        $query = Pengeluaran::where('status', Status::Accepted->value);
 
         switch ($periode) {
             case 'harian':
