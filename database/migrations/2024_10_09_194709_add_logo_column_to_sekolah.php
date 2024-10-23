@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('sekolah', function (Blueprint $table) {
-          $table->string('logo')->after('nama')->nullable();
-          $table->string('nip_kepsek')->after('logo')->nullable();
+            $table->string('logo')->after('nama')->nullable();
+            $table->string('nip_kepsek')->after('logo')->nullable();
 
         });
     }
@@ -24,8 +24,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('sekolah', function (Blueprint $table) {
-         $table->dropColumn('logo');
-         $table->dropColumn('nip_kepsek');
+            $table->dropColumn('logo');
+            $table->dropColumn('nip_kepsek');
 
         });
     }

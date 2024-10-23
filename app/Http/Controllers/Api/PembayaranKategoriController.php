@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Validator;
 
 class PembayaranKategoriController extends Controller
 {
-     /**
+    /**
      * index
      *
      * @return void
@@ -29,13 +29,14 @@ class PembayaranKategoriController extends Controller
         }
 
         $kategori = $request->input('page') === 'all' ? $query->get() : $query->paginate(5);
+
         return new PembayaranKategoriResource(true, 'List Pembayaran Kategori', $kategori);
     }
 
-     /**
+    /**
      * store
      *
-     * @param  mixed $request
+     * @param  mixed  $request
      * @return void
      */
     public function store(Request $request)
@@ -56,7 +57,6 @@ class PembayaranKategoriController extends Controller
         return new PembayaranKategoriResource(true, ' Pembayaran Kategori Baru Berhasil Ditambahkan', $kategori);
     }
 
-
     public function update(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
@@ -76,12 +76,11 @@ class PembayaranKategoriController extends Controller
         return new PembayaranKategoriResource(true, 'Kategori Berhasil Diubah', $kategori);
     }
 
-
     public function destroy($id)
     {
         $kategori = PembayaranKategori::findOrFail($id);
         $kategori->delete();
+
         return new PembayaranKategoriResource(true, 'Data Kategori Berhasil Dihapus', $kategori);
     }
-
 }

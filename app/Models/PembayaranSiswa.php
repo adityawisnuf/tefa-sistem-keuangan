@@ -38,14 +38,17 @@ class PembayaranSiswa extends Model
     {
         return $this->hasMany(PembayaranSiswaCicilan::class, 'pembayaran_siswa_id');
     }
+
     public function satu_duitku()
     {
         return $this->hasOne(PembayaranDuitku::class, 'merchant_order_id', 'merchant_order_id');
     }
+
     public function orangtua()
     {
         return $this->belongsTo(Orangtua::class, 'orangtua_id');
     }
+
     public function kelas()
     {
         return $this->belongsTo(Kelas::class, 'kelas_id');

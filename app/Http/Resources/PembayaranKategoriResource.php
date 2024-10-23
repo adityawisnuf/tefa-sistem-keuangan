@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -6,6 +7,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 class PembayaranKategoriResource extends JsonResource
 {
     public $status;
+
     public $message;
 
     /**
@@ -16,7 +18,7 @@ class PembayaranKategoriResource extends JsonResource
      * @param  mixed  $resource
      * @return void
      */
-    public function __construct($resource, $status = true, $message = "")
+    public function __construct($resource, $status = true, $message = '')
     {
         parent::__construct($resource);
         $this->status = $status;

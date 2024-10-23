@@ -25,7 +25,7 @@ class CreatePembayaranCicilanTable extends Migration
 
             // Foreign key ke tabel pembayaran_siswa_cicilan
             $table->foreign('pembayaran_siswa_cicilan_id')->references('id')->on('pembayaran_siswa_cicilan')
-                  ->onDelete('cascade')->onUpdate('cascade');
+                ->onDelete('cascade')->onUpdate('cascade');
         });
     }
 

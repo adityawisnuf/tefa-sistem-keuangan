@@ -19,7 +19,7 @@ class PembayaranCicilan extends Model
         'nominal_dibayar',
         'status',
         'transaction_response',
-        'payment_method'
+        'payment_method',
     ];
 
     // Jika ingin menambahkan relasi ke model lain

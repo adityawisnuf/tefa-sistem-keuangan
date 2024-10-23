@@ -6,10 +6,10 @@ use App\Http\Controllers\Api\PembayaranSiswaController;
 use App\Http\Controllers\Api\SiswaController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\LogoutController;
+use App\Http\Controllers\PembayaranManualController;
 use App\Http\Controllers\RegisterController;
 use App\Models\Kelas;
 use App\Models\Pembayaran;
-use App\Models\Sekolah;
 use App\Models\Siswa;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
@@ -26,22 +26,23 @@ Route::middleware('auth:api')->group(function () {
 
     Route::prefix('select')->group(function () {
         Route::get('/siswa', function () {
-            Log::info('Route select/siswa accessed');
             $siswaData = Siswa::all();
+
             return response()->json([
                 'message' => 'Berhasil mendapatkan data siswa',
                 'success' => true,
                 'data' => $siswaData->map(function ($siswa) {
                     return [
                         'value' => $siswa->id,
-                        'label' => $siswa->nama_depan . " " . $siswa->nama_belakang,
+                        'label' => $siswa->nama_depan.' '.$siswa->nama_belakang,
                     ];
-                })
+                }),
             ]);
         });
-    
+
         Route::get('/kelas', function () {
             $kelasData = Kelas::all();
+
             return response()->json([
                 'message' => 'Berhasil mendapatkan data kelas',
                 'success' => true,
@@ -50,13 +51,14 @@ Route::middleware('auth:api')->group(function () {
                         'value' => $kelas->id,
                         'label' => $kelas->kelas,
                     ];
-                })
+                }),
             ]);
         });
-    
+
         Route::get('/jurusan', function () {
             Log::info('Route select/jurusan accessed');
             $jurusanData = Kelas::all();
+
             return response()->json([
                 'message' => 'Berhasil mendapatkan data jurusan',
                 'success' => true,
@@ -65,14 +67,10 @@ Route::middleware('auth:api')->group(function () {
                         'value' => $kelas->id,
                         'label' => $kelas->jurusan,
                     ];
-                })
+                }),
             ]);
         });
     });
-    
-
-
-    
     Route::prefix('payment')->group(function () {
         Route::get('/me', [PembayaranController::class, 'getCurrent'])->name('payment.transaction.getMonth');
         Route::get('/me/yearly', [PembayaranController::class, 'getCurrentYear'])->name('payment.transaction.getYear');
@@ -95,12 +93,12 @@ Route::middleware('auth:api')->group(function () {
                 ->where('nominal', $data['nominal']);
 
             // Add siswa_id to the query if it is present
-            if (!empty($data['siswa_id'])) {
+            if (! empty($data['siswa_id'])) {
                 $query->where('siswa_id', $data['siswa_id']);
             }
 
             // Add kelas_id to the query if it is present
-            if (!empty($data['kelas_id'])) {
+            if (! empty($data['kelas_id'])) {
                 $query->where('kelas_id', $data['kelas_id']);
             }
 
@@ -118,82 +116,83 @@ Route::middleware('auth:api')->group(function () {
             return response()->json(['success' => true, 'message' => 'Berhasil membuat pembayaran baru', 'data' => $pembayaran]);
         })->name('payment.assign');
     });
-
-
     //Role: ADMIN
     Route::middleware('checkrole:Admin')->prefix('Admin')->group(function () {
+        Route::get('students', [PembayaranManualController::class, 'getStudents']);
+        Route::get('payment/list', [PembayaranManualController::class, 'getStudentPaymentList']);
+        Route::post('payment/add', [PembayaranManualController::class, 'payManually']);
+
         Route::get('pembayaran-kategori', [PembayaranKategoriController::class, 'index']);
         Route::post('pembayaran-kategori', [PembayaranKategoriController::class, 'store']);
         Route::patch('pembayaran-kategori/{id}', [PembayaranKategoriController::class, 'update']);
         Route::delete('pembayaran-kategori/{id}', [PembayaranKategoriController::class, 'destroy']);
     });
-    
+
     // Role: BENDAHARA
     Route::middleware('checkrole:Bendahara')->prefix('bendahara')->group(function () {
         Route::post('/siswa', [SiswaController::class, 'index']);
 
-    //Laporan Pembayaran Tahunan 
-    Route::get('/laporan/pdf-tahunan', function (Request $request) {
+        //Laporan Pembayaran Tahunan
+        Route::get('/laporan/pdf-tahunan', function (Request $request) {
+            $tgl_awal = $request->query('tgl_awal');
+            $tgl_akhir = $request->query('tgl_akhir');
+
+            // Ambil data pembayaran siswa
+            if ($tgl_awal && $tgl_akhir) {
+                $pembayaranSiswa = Siswa::whereBetween('tanggal_pembayaran', [$tgl_awal, $tgl_akhir])->with('kelas', 'orangtua')->get();
+                $fileName = "Pembayaran Siswa {$tgl_awal} - {$tgl_akhir}.pdf";
+            } else {
+                $pembayaranSiswa = Siswa::with('kelas', 'orangtua')->get();
+                $fileName = 'Data Keseluruhan Pembayaran Siswa Tahunan.pdf';
+            }
+
+            $data = [
+                'pembayaranSiswas' => $pembayaranSiswa,
+                'sekolah' => \App\Models\Sekolah::first(),
+            ];
+
+            $pdf = Pdf::loadView('print.PrintPdfTahunan', $data);
+
+            return $pdf->stream($fileName);
+        })->name('print.PrintPdfTahunan');
+    });
+
+    //Laporan Pembayaran SPP
+    Route::get('/laporan/pdf-spp', function (Request $request) {
         $tgl_awal = $request->query('tgl_awal');
         $tgl_akhir = $request->query('tgl_akhir');
 
-        // Ambil data pembayaran siswa
         if ($tgl_awal && $tgl_akhir) {
             $pembayaranSiswa = Siswa::whereBetween('tanggal_pembayaran', [$tgl_awal, $tgl_akhir])->with('kelas', 'orangtua')->get();
             $fileName = "Pembayaran Siswa {$tgl_awal} - {$tgl_akhir}.pdf";
         } else {
             $pembayaranSiswa = Siswa::with('kelas', 'orangtua')->get();
-            $fileName = "Data Keseluruhan Pembayaran Siswa Tahunan.pdf";
+            $fileName = 'Data Keseluruhan Pembayaran Siswa SPP.pdf';
         }
 
         $data = [
             'pembayaranSiswas' => $pembayaranSiswa,
-            'sekolah' => \App\Models\Sekolah::first(), 
+            'sekolah' => \App\Models\Sekolah::first(),
         ];
 
-        $pdf = Pdf::loadView('print.PrintPdfTahunan', $data);
+        $pdf = Pdf::loadView('print.PrintPdfSPP', $data);
 
         return $pdf->stream($fileName);
-    })->name('print.PrintPdfTahunan');
+    })->name('print.PrintPdfSPP');
 });
 
-  //Laporan Pembayaran SPP
-  Route::get('/laporan/pdf-spp', function (Request $request) {
-    $tgl_awal = $request->query('tgl_awal');
-    $tgl_akhir = $request->query('tgl_akhir');
-
-    if ($tgl_awal && $tgl_akhir) {
-        $pembayaranSiswa = Siswa::whereBetween('tanggal_pembayaran', [$tgl_awal, $tgl_akhir])->with('kelas', 'orangtua')->get();
-        $fileName = "Pembayaran Siswa {$tgl_awal} - {$tgl_akhir}.pdf";
-    } else {
-        $pembayaranSiswa = Siswa::with('kelas', 'orangtua')->get();
-        $fileName = "Data Keseluruhan Pembayaran Siswa SPP.pdf";
-    }
-
-    $data = [
-        'pembayaranSiswas' => $pembayaranSiswa,
-        'sekolah' => \App\Models\Sekolah::first(), 
-    ];
-
-    $pdf = Pdf::loadView('print.PrintPdfSPP', $data);
-
-    return $pdf->stream($fileName);
-})->name('print.PrintPdfSPP');
+// Role: SISWA
+Route::middleware('checkrole:Siswa')->prefix('siswa')->group(function () {
+    Route::get('/pembayaran-siswa', [PembayaranSiswaController::class, 'index']);
+    Route::patch('/pembayaran-siswa/{id}', [PembayaranSiswaController::class, 'update']);
+    Route::get('/riwayat-pembayaran', [PembayaranSiswaController::class, 'riwayatPembayaran']);
+    Route::get('/riwayat-tagihan', [PembayaranSiswaController::class, 'riwayatTagihan']);
 });
 
-    
-    // Role: SISWA
-    Route::middleware('checkrole:Siswa')->prefix('siswa')->group(function () {
-        Route::get('/pembayaran-siswa', [PembayaranSiswaController::class, 'index']);
-        Route::patch('/pembayaran-siswa/{id}', [PembayaranSiswaController::class, 'update']);
-        Route::get('/riwayat-pembayaran', [PembayaranSiswaController::class, 'riwayatPembayaran']);
-        Route::get('/riwayat-tagihan', [PembayaranSiswaController::class, 'riwayatTagihan']);
-    });
-
-    // Role: ORANG TUA
-    Route::middleware('checkrole:Orang Tua')->prefix('orangtua')->group(function () {
-        Route::get('/pembayaran-siswa', [PembayaranSiswaController::class, 'index']);
-        Route::post('/pembayaran-siswa/{id}/bayar', [PembayaranSiswaController::class, 'bayar']);
-        Route::get('/riwayat-pembayaran', [PembayaranSiswaController::class, 'riwayatPembayaran']);
-        Route::get('/riwayat-tagihan', [PembayaranSiswaController::class, 'riwayatTagihan']);
-    });
+// Role: ORANG TUA
+Route::middleware('checkrole:Orang Tua')->prefix('orangtua')->group(function () {
+    Route::get('/pembayaran-siswa', [PembayaranSiswaController::class, 'index']);
+    Route::post('/pembayaran-siswa/{id}/bayar', [PembayaranSiswaController::class, 'bayar']);
+    Route::get('/riwayat-pembayaran', [PembayaranSiswaController::class, 'riwayatPembayaran']);
+    Route::get('/riwayat-tagihan', [PembayaranSiswaController::class, 'riwayatTagihan']);
+});

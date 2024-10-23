@@ -11,10 +11,8 @@ use App\Models\PembayaranDuitku;
 use App\Models\PembayaranKategori;
 use App\Models\PembayaranSiswa;
 use App\Models\PembayaranSiswaCicilan;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response as HttpResponse;
-use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -22,25 +20,27 @@ use Illuminate\Support\Facades\Mail;
 class PembayaranController extends Controller
 {
     protected $duitku;
+
     public $months = [
-        "Januari",
-        "Februari",
-        "Maret",
-        "April",
-        "Mei",
-        "Juni",
-        "Juli",
-        "Agustus",
-        "September",
-        "Oktober",
-        "November",
-        "Desember"
+        'Januari',
+        'Februari',
+        'Maret',
+        'April',
+        'Mei',
+        'Juni',
+        'Juli',
+        'Agustus',
+        'September',
+        'Oktober',
+        'November',
+        'Desember',
     ];
 
     public function __construct(Duitku $duitku)
     {
         $this->duitku = $duitku;
     }
+
     public function index(Request $request)
     {
         $siswa = auth()->user()->siswa;
@@ -57,6 +57,7 @@ class PembayaranController extends Controller
             'pembayaran' => $pembayaranKategori,
         ]);
     }
+
     public function getPaymentMethod(string $pembayaran_id)
     {
         $yangHarusDiBayar = Pembayaran::findOrFail($pembayaran_id);
@@ -68,12 +69,13 @@ class PembayaranController extends Controller
 
         return response()->json($paymentMethods);
     }
+
     public function batalTransaksi(Request $request, string $merchant_order_id)
     {
         DB::beginTransaction();
         try {
             $siswa = auth()->user()->siswa;
-            if (!($request->get('cicil', false))) {
+            if (! ($request->get('cicil', false))) {
                 PembayaranSiswa::where('merchant_order_id', $merchant_order_id)->delete();
                 PembayaranDuitku::where('merchant_order_id', $merchant_order_id)->delete();
             } else {
@@ -92,28 +94,30 @@ class PembayaranController extends Controller
             }
 
             DB::commit();
+
             return new PembayaranSiswaResource(true, 'Permintaan batal berhasil dilakukan!', null);
         } catch (\Exception $e) {
 
             DB::rollBack();
 
-            return response()->json(['error' => 'Gagal membatalkan transaksi: ' . $e->getMessage()], 500);
+            return response()->json(['error' => 'Gagal membatalkan transaksi: '.$e->getMessage()], 500);
         }
     }
+
     public function duitkuCallbackHandler(Request $request)
     {
-        // Check if the request comes from the correct User-Agent
+        
         if (strtolower($request->header('User-Agent')) !== 'duitku callback agent') {
             return response('Unauthorized data manipulation detected, violating applicable laws', 403);
         }
 
         Log::debug(json_encode($request->all()));
 
-        // Process the callback status
+        
         $status = $this->duitku->callback($request->all());
 
-        if (!$status) {
-            return response('failure', 500); // Exit early if callback status fails
+        if (! $status) {
+            return response('failure', 500); 
         }
 
         DB::beginTransaction();
@@ -121,20 +125,20 @@ class PembayaranController extends Controller
         try {
             $merchant_order_id = $request->merchantOrderId;
 
-            // Update PembayaranDuitku status
+            
             PembayaranDuitku::where('merchant_order_id', $merchant_order_id)
                 ->update([
                     'status' => '00',
                     'callback_response' => json_encode($request->all()),
                 ]);
 
-            // Fetch all relevant PembayaranSiswa records
+            
             $pembayarans = PembayaranSiswa::where('merchant_order_id', $merchant_order_id)
                 ->orWhereNull('merchant_order_id')
                 ->get();
 
             foreach ($pembayarans as $pembayaran) {
-                // Only process payments with status 0 (unpaid)
+                
                 if ($pembayaran->status === 0) {
                     $this->processPembayaranSiswa($pembayaran);
                 }
@@ -142,18 +146,19 @@ class PembayaranController extends Controller
 
             DB::commit();
 
-            // Send success email notification
+            
             $user = $this->getRelatedUser($merchant_order_id);
 
             if ($user) {
                 $this->sendPaymentSuccessMail($user, $request);
             }
 
-
             return response('success', 200);
         } catch (\Exception $e) {
+            
             DB::rollBack();
             Log::emergency(json_encode($e));
+
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
@@ -163,22 +168,22 @@ class PembayaranController extends Controller
      */
     protected function processPembayaranSiswa($pembayaran)
     {
-        // Check if there are existing installments (cicilan)
+        
         $hasCicilan = PembayaranSiswaCicilan::where('pembayaran_siswa_id', $pembayaran->id)->exists();
 
         if ($hasCicilan) {
-            // Calculate the total installments (cicilan) amount
+            
             $totalCicilan = PembayaranSiswaCicilan::where('pembayaran_siswa_id', $pembayaran->id)
                 ->sum('nominal_cicilan');
 
-            // Mark the payment as complete if the total installments cover the nominal amount
+            
             if ($totalCicilan >= $pembayaran->nominal) {
-                $pembayaran->status = 1; // Paid
+                $pembayaran->status = 1; 
                 $pembayaran->save();
             }
         } else {
-            // No installments, mark the payment as paid
-            $pembayaran->status = 1; // Paid
+            
+            $pembayaran->status = 1; 
             $pembayaran->save();
         }
     }
@@ -188,29 +193,28 @@ class PembayaranController extends Controller
      */
     protected function getRelatedUser($merchant_order_id)
     {
-        // Get the first PembayaranDuitku record associated with the order ID
+        
         $pembayaran_duitku = PembayaranDuitku::where('merchant_order_id', $merchant_order_id)->first();
 
-        // If no PembayaranDuitku found, return null
-        if (!$pembayaran_duitku) {
+        
+        if (! $pembayaran_duitku) {
             return null;
         }
 
-        // Try to get the related PembayaranSiswa
+        
         $pembayaran_siswa = $pembayaran_duitku->pembayaran_siswa()->first();
         if ($pembayaran_siswa) {
             return $pembayaran_siswa->siswa->user ?? null;
         }
 
-        // Try to get the related PembayaranSiswaCicilan if no PembayaranSiswa found
+        
         $pembayaran_siswa_cicilan = $pembayaran_duitku->pembayaran_siswa_cicilan()->first();
         if ($pembayaran_siswa_cicilan) {
             return $pembayaran_siswa_cicilan->siswa->user ?? null;
         }
 
-        return null; // Return null if no related user is found
+        return null; 
     }
-
 
     /**
      * Sends the payment success email.
@@ -222,7 +226,7 @@ class PembayaranController extends Controller
 
         Mail::to($user)->send(new PaymentSuccessMail(
             nama_sekolah: $sekolah->nama,
-            logo_sekolah: $sekolah->logo ?? "assets/sekolah/default.png",
+            logo_sekolah: $sekolah->logo ?? 'assets/sekolah/default.png',
             user_name: $user->name,
             nominal: $request->amount,
             ds_code: $request->reference,
@@ -231,27 +235,27 @@ class PembayaranController extends Controller
             payment_method: $request->paymentCode,
             payment_name: $request->productDetail,
             payment_time: $request->settlementDate,
-            payment_status: $request->transactionState . " " . $request->transactionStateStatus
+            payment_status: $request->transactionState.' '.$request->transactionStateStatus
         ));
     }
 
-        public function getRiwayat(Request $request)
-        {
-            $siswa = auth()->user()->siswa;
+    public function getRiwayat(Request $request)
+    {
+        $siswa = auth()->user()->siswa;
 
+        $data = PembayaranSiswa::where('siswa_id', $siswa->id)
+            ->where('pembayaran_siswa.status', 1)
+            ->join('pembayaran_duitku', 'pembayaran_siswa.merchant_order_id', '=', 'pembayaran_duitku.merchant_order_id', 'left')
+            ->with('pembayaran.pembayaran_kategori', 'siswa.user', 'siswa.kelas')
+            ->select('pembayaran_siswa.*', 'pembayaran_duitku.*')
+            ->get();
 
-            $data = PembayaranSiswa::where('siswa_id', $siswa->id)
-                ->where('pembayaran_siswa.status', 1)
-                ->join('pembayaran_duitku', 'pembayaran_siswa.merchant_order_id', '=', 'pembayaran_duitku.merchant_order_id', 'left')
-                ->with('pembayaran.pembayaran_kategori', 'siswa.user', 'siswa.kelas')
-                ->select('pembayaran_siswa.*', 'pembayaran_duitku.*')
-                ->get();
+        return response()->json([
+            'message' => 'Riwayat pembayaran berhasil didapatkan',
+            'data' => $data,
+        ]);
+    }
 
-            return response()->json([
-                'message' => 'Riwayat pembayaran berhasil didapatkan',
-                'data' => $data,
-            ]);
-        }
     public function getRiwayatTahunan(Request $request)
     {
         $siswa = auth()->user()->siswa;
@@ -266,17 +270,16 @@ class PembayaranController extends Controller
                 'pembayaran_siswa.*',
                 'pembayaran_duitku.*',
                 'pembayaran_kategori.nama',
-                'pembayaran.created_at AS pembayaran_created_at' // Alias pembayaran.created_at
+                'pembayaran.created_at AS pembayaran_created_at' 
             )
             ->get();
-
-
 
         return response()->json([
             'message' => 'Riwayat pembayaran berhasil didapatkan',
             'data' => $data,
         ]);
     }
+
     public function requestTransaksi(Request $request)
     {
         $validate = $request->validate([
@@ -290,8 +293,7 @@ class PembayaranController extends Controller
         try {
             $siswa = auth()->user()->siswa;
             $pembayaran = Pembayaran::with('pembayaran_kategori')->findOrFail($validate['id']);
-            $merchant_order_id = 'TFKT-0-' . time();
-
+            $merchant_order_id = 'ORDT-0-'.time();
 
             $data = [
                 'merchantOrderId' => $merchant_order_id,
@@ -304,13 +306,13 @@ class PembayaranController extends Controller
                 ],
                 'payment_amount' => $pembayaran->nominal,
                 'user' => [
-                    'name' => $siswa->nama_depan . ' ' . $siswa->nama_belakang,
+                    'name' => $siswa->nama_depan.' '.$siswa->nama_belakang,
                     'email' => auth()->user()->email,
                     'phone' => $siswa->telepon,
                 ],
                 'payment_method' => $validate['payment_method'],
                 'return_url' => $validate['return_url'],
-                'title' => 'Pembayaran Siswa ' . $siswa->nama_depan,
+                'title' => 'Pembayaran Siswa '.$siswa->nama_depan,
             ];
 
             $hasil = $this->duitku->requestTransaction($data);
@@ -330,16 +332,17 @@ class PembayaranController extends Controller
                 'status' => 0,
             ]);
 
-
             DB::commit();
 
             return new PembayaranSiswaResource(true, 'Permintaan bayar berhasil dilakukan!', $hasil);
         } catch (\Exception $e) {
             DB::rollBack();
+            return response()->json(['error' => 'Gagal melakukan permintaan transaksi: '.$e->getMessage()], 500);
             Log::error($e);
         }
     }
-    function requestTransaksiCicilan(Request $request)
+
+    public function requestTransaksiCicilan(Request $request)
     {
         $validate = $request->validate([
             'payment_method' => ['string', 'required'],
@@ -350,7 +353,7 @@ class PembayaranController extends Controller
 
         DB::beginTransaction();
 
-        // try {
+        
         $siswa = auth()->user()->siswa;
         $pembayaran = Pembayaran::with('pembayaran_kategori')->where('pembayaran_kategori.jenis_pembayaran', 2)->findOrFail($validate['id']);
 
@@ -367,27 +370,27 @@ class PembayaranController extends Controller
         $name = null;
 
         if ($pembayaran_siswa_exist) {
-            // Existing installment found, update it
-            $merchant_order_id = 'TFKC-' . $pembayaran_siswa_exist->id . '-' . time();
+            
+            $merchant_order_id = 'ORDC-'.$pembayaran_siswa_exist->id.'-'.time();
 
             if (PembayaranSiswaCicilan::where('pembayaran_siswa_id', $pembayaran_siswa_exist->id)->count() > 0) {
                 if ($pembayaran_siswa_exist->jumlah_tercicil < $pembayaran_siswa_exist->angsuran_cicilan) {
-                    // Increment installment count
+                    
                     $pembayaran_siswa_exist->update(['jumlah_tercicil' => $pembayaran_siswa_exist->jumlah_tercicil + 1]);
                 } else {
                     return response()->json(['success' => false, 'message' => 'Anda tidak dapat membuat cicilan baru!'], 400);
                 }
             }
 
-            // Create new installment
+            
             $pembayaran_siswa_cicilan = PembayaranSiswaCicilan::create([
                 'pembayaran_siswa_id' => $pembayaran_siswa_exist->id,
                 'nominal_cicilan' => $nominal,
                 'merchant_order_id' => $merchant_order_id,
             ]);
-            $name = 'Cicilan ' . $pembayaran->pembayaran_kategori->nama . ' Ke-' . $pembayaran_siswa_exist->jumlah_tercicil;
+            $name = 'Cicilan '.$pembayaran->pembayaran_kategori->nama.' Ke-'.$pembayaran_siswa_exist->jumlah_tercicil;
         } else {
-            // Create new payment record for the student
+            
             $pembayaran_siswa = PembayaranSiswa::create([
                 'siswa_id' => $siswa->id,
                 'pembayaran_id' => $pembayaran->id,
@@ -397,16 +400,16 @@ class PembayaranController extends Controller
                 'jumlah_tercicil' => 1,
                 'status' => 0,
             ]);
-            $merchant_order_id = 'TFKC-' . $pembayaran_siswa->id . '-' . time();
+            $merchant_order_id = 'ORDC-'.$pembayaran_siswa->id.'-'.time();
             $pembayaran_siswa_cicilan = PembayaranSiswaCicilan::create([
                 'pembayaran_siswa_id' => $pembayaran_siswa->id,
                 'nominal_cicilan' => $nominal,
                 'merchant_order_id' => $merchant_order_id,
             ]);
-            $name = 'Cicilan ' . $pembayaran->pembayaran_kategori->nama . ' Ke-1';
+            $name = 'Cicilan '.$pembayaran->pembayaran_kategori->nama.' Ke-1';
         }
 
-        // Prepare transaction data
+        
         $data = [
             'merchantOrderId' => $merchant_order_id,
             'item_details' => [
@@ -418,19 +421,19 @@ class PembayaranController extends Controller
             ],
             'payment_amount' => $nominal,
             'user' => [
-                'name' => $siswa->nama_depan . ' ' . $siswa->nama_belakang,
+                'name' => $siswa->nama_depan.' '.$siswa->nama_belakang,
                 'email' => auth()->user()->email,
                 'phone' => $siswa->telepon,
             ],
             'payment_method' => $validate['payment_method'],
             'return_url' => $request->return_url,
-            'title' => 'Pembayaran Siswa ' . $siswa->nama_depan,
+            'title' => 'Pembayaran Siswa '.$siswa->nama_depan,
         ];
 
-        // Call external payment service (Duitku)
+        
         $hasil = $this->duitku->requestTransaction($data);
 
-        // Save transaction to the database
+        
         PembayaranDuitku::create([
             'merchant_order_id' => $merchant_order_id,
             'reference' => $hasil['reference'],
@@ -439,44 +442,45 @@ class PembayaranController extends Controller
             'status' => 00,
         ]);
 
-        // Update installment with the correct merchant_order_id
+        
         $pembayaran_siswa_cicilan->update(['merchant_order_id' => $merchant_order_id]);
 
         DB::commit();
 
         return new PembayaranSiswaResource(true, 'Permintaan bayar berhasil dilakukan!', $hasil);
-        // } catch (\Exception $e) {
-        //     DB::rollBack();
-        //     Log::error("Error in requestTransaksiCicilan: " . $e->getMessage());
-        //     return response()->json(['error' => 'Terjadi kesalahan dalam pemrosesan transaksi!'], 500);
-        // }
+        
+        
+        
+        
+        
     }
+
     public function getCurrent(Request $request)
     {
         $siswa = auth()->user()->siswa;
 
-        // First, prioritize pembayaran with matching siswa_id
+        
         $pembayaranList = Pembayaran::whereHas('pembayaran_kategori', function ($query) {
             $query->where('jenis_pembayaran', 1)
-                ->where('status', 1); // Active payment categories
+                ->where('status', 1); 
         })
             ->where('siswa_id', $siswa->id)->orWhere('kelas_id', $siswa->kelas->id)
             ->with(['pembayaran_siswa' => function ($query) use ($siswa) {
                 $query->where('siswa_id', $siswa->id)
-                    ->with('pembayaran_siswa_cicilan'); // Include cicilan details
+                    ->with('pembayaran_siswa_cicilan'); 
             }, 'pembayaran_kategori'])
             ->get();
 
-        // If no pembayaran found for siswa_id, fallback to those matching kelas_id
+        
         if ($pembayaranList->isEmpty()) {
             $pembayaranList = Pembayaran::whereHas('pembayaran_kategori', function ($query) {
-                $query->where('jenis_pembayaran', 1) // jenis_pembayaran for 'tahunan'
-                    ->where('status', 1); // Active payment categories
+                $query->where('jenis_pembayaran', 1) 
+                    ->where('status', 1); 
             })
                 ->where('kelas_id', $siswa->kelas_id)
                 ->with(['pembayaran_siswa' => function ($query) use ($siswa) {
                     $query->where('siswa_id', $siswa->id)
-                        ->with('pembayaran_siswa_cicilan'); // Include cicilan details
+                        ->with('pembayaran_siswa_cicilan'); 
                 }, 'pembayaran_kategori'])
                 ->get();
         }
@@ -513,56 +517,56 @@ class PembayaranController extends Controller
             ];
         }
 
-        // Filter invalid payments
+        
         $filteredPembayaranList = collect($responseList)->filter(function ($pembayaran) {
             return $pembayaran['paid'] === false || $pembayaran['paid'] === 0;
         });
 
         return response()->json([
             'success' => true,
-            'nama' => $siswa->nama_depan . ($siswa->nama_belakang ? ' ' . $siswa->nama_belakang : ''),
+            'nama' => $siswa->nama_depan.($siswa->nama_belakang ? ' '.$siswa->nama_belakang : ''),
             'jurusan' => $siswa->kelas->jurusan,
             'kelas' => $siswa->kelas->kelas,
-            'orang_tua' => $siswa->orangtua->nama ?? "",
+            'orang_tua' => $siswa->orangtua->nama ?? '',
             'message' => 'List Pembayaran Siswa',
             'data' => $filteredPembayaranList,
         ]);
     }
+
     public function getCurrentYear(Request $request)
     {
         $siswa = auth()->user()->siswa;
 
-        // First, prioritize pembayaran with matching siswa_id
+        
         $pembayaranList = Pembayaran::whereHas('pembayaran_kategori', function ($query) {
             $query->where('jenis_pembayaran', 2)
-                ->where('status', 1) // Active payment categories
-                ->whereYear('created_at', now()->year); // Current year
+                ->where('status', 1) 
+                ->whereYear('created_at', now()->year); 
         })
             ->where(function ($query) use ($siswa) {
-                // Group siswa_id and kelas_id conditions
+                
                 $query->where('siswa_id', $siswa->id)
                     ->orWhere('kelas_id', $siswa->kelas->id);
             })
             ->with([
                 'pembayaran_siswa' => function ($query) use ($siswa) {
                     $query->where('siswa_id', $siswa->id)
-                        ->with('pembayaran_siswa_cicilan'); // Include cicilan details
+                        ->with('pembayaran_siswa_cicilan'); 
                 },
-                'pembayaran_kategori'
+                'pembayaran_kategori',
             ])
             ->get();
 
-
-        // If no pembayaran found for siswa_id, fallback to those matching kelas_id
+        
         if ($pembayaranList->isEmpty()) {
             $pembayaranList = Pembayaran::whereHas('pembayaran_kategori', function ($query) {
-                $query->where('jenis_pembayaran', 2) // jenis_pembayaran for 'tahunan'
-                    ->where('status', 1); // Active payment categories
+                $query->where('jenis_pembayaran', 2) 
+                    ->where('status', 1); 
             })
                 ->where('kelas_id', $siswa->kelas_id)
                 ->with(['pembayaran_siswa' => function ($query) use ($siswa) {
                     $query->where('siswa_id', $siswa->id)
-                        ->with('pembayaran_siswa_cicilan'); // Include cicilan details
+                        ->with('pembayaran_siswa_cicilan'); 
                 }, 'pembayaran_kategori'])
                 ->get();
         }
@@ -597,48 +601,49 @@ class PembayaranController extends Controller
             ];
         }
 
-        // Filter invalid payments
+        
         $filteredPembayaranList = collect($responseList)->filter(function ($pembayaran) {
             return $pembayaran['paid'] === false || $pembayaran['paid'] === 0;
         });
 
         return response()->json([
             'success' => true,
-            'nama' => $siswa->nama_depan . ($siswa->nama_belakang ? ' ' . $siswa->nama_belakang : ''),
+            'nama' => $siswa->nama_depan.($siswa->nama_belakang ? ' '.$siswa->nama_belakang : ''),
             'jurusan' => $siswa->kelas->jurusan,
             'kelas' => $siswa->kelas->kelas,
-            'orang_tua' => $siswa->orangtua->nama ?? "",
+            'orang_tua' => $siswa->orangtua->nama ?? '',
             'message' => 'List Pembayaran Siswa',
             'data' => $filteredPembayaranList,
         ]);
     }
+
     public function getCicilans(Request $request)
     {
         $siswa = auth()->user()->siswa;
 
-        // First, prioritize pembayaran with matching siswa_id
+        
         $pembayaranList = Pembayaran::whereHas('pembayaran_kategori', function ($query) {
             $query->where('jenis_pembayaran', 2)
-                ->where('status', 1) // Active payment categories
-                ->whereYear(now()->years); // Active payment categories
+                ->where('status', 1) 
+                ->whereYear(now()->years); 
         })
             ->where('siswa_id', $siswa->id)->orWhere('kelas_id', $siswa->kelas->id)
             ->with(['pembayaran_siswa' => function ($query) use ($siswa) {
                 $query->where('siswa_id', $siswa->id)
-                    ->with('pembayaran_siswa_cicilan'); // Include cicilan details
+                    ->with('pembayaran_siswa_cicilan'); 
             }, 'pembayaran_kategori'])
             ->get();
 
-        // If no pembayaran found for siswa_id, fallback to those matching kelas_id
+        
         if ($pembayaranList->isEmpty()) {
             $pembayaranList = Pembayaran::whereHas('pembayaran_kategori', function ($query) {
-                $query->where('jenis_pembayaran', 2) // jenis_pembayaran for 'tahunan'
-                    ->where('status', 1); // Active payment categories
+                $query->where('jenis_pembayaran', 2) 
+                    ->where('status', 1); 
             })
                 ->where('kelas_id', $siswa->kelas_id)
                 ->with(['pembayaran_siswa' => function ($query) use ($siswa) {
                     $query->where('siswa_id', $siswa->id)
-                        ->with('pembayaran_siswa_cicilan'); // Include cicilan details
+                        ->with('pembayaran_siswa_cicilan'); 
                 }, 'pembayaran_kategori'])
                 ->get();
         }
@@ -673,17 +678,17 @@ class PembayaranController extends Controller
             ];
         }
 
-        // Filter invalid payments
+        
         $filteredPembayaranList = collect($responseList)->filter(function ($pembayaran) {
             return $pembayaran['paid'] === false || $pembayaran['paid'] === 0;
         });
 
         return response()->json([
             'success' => true,
-            'nama' => $siswa->nama_depan . ($siswa->nama_belakang ? ' ' . $siswa->nama_belakang : ''),
+            'nama' => $siswa->nama_depan.($siswa->nama_belakang ? ' '.$siswa->nama_belakang : ''),
             'jurusan' => $siswa->kelas->jurusan,
             'kelas' => $siswa->kelas->kelas,
-            'orang_tua' => $siswa->orangtua->nama ?? "",
+            'orang_tua' => $siswa->orangtua->nama ?? '',
             'message' => 'List Pembayaran Siswa',
             'data' => $filteredPembayaranList,
         ]);
