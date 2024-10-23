@@ -25,7 +25,6 @@ class PembayaranController extends Controller
             'siswa_id' => 'required|exists:siswa,id',
             'pembayaran_kategori_id' => 'required|exists:pembayaran_kategori,id',
             'nominal' => 'required|numeric',
-            'status' => 'required|string',
             'kelas_id' => 'required|exists:kelas,id',
         ]);
 
@@ -57,7 +56,7 @@ class PembayaranController extends Controller
             'siswa_id' => 'required|exists:siswa,id',
             'pembayaran_kategori_id' => 'required|exists:pembayaran_kategori,id',
             'nominal' => 'required|numeric',
-            'status' => 'required|string',
+            'status' => 'required',
             'kelas_id' => 'required|exists:kelas,id',
         ]);
 
