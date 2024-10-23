@@ -10,7 +10,7 @@ class PembayaranController extends Controller
     // Menampilkan semua data pembayaran
     public function index()
     {
-        $pembayarans = Pembayaran::all();
+        $pembayarans = Pembayaran::with('siswa', 'pembayaran_kategori', 'kelas')->get();
         return response()->json($pembayarans);
     }
     public function create()
@@ -40,7 +40,7 @@ class PembayaranController extends Controller
     // Menampilkan detail pembayaran berdasarkan ID
     public function show($id)
     {
-        $pembayaran = Pembayaran::findOrFail($id);
+        $pembayaran = Pembayaran::with('siswa', 'pembayaran_kategori', 'kelas')->findOrFail($id);
         return response()->json($pembayaran);
     }
 
