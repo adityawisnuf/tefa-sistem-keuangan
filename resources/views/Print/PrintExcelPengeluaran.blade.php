@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,7 +15,7 @@
         h3 {
             color: #333;
             margin-bottom: 20px;
-            text-align: center; /* Memusatkan judul halaman */
+            text-align: center;
         }
 
         .export-button {
@@ -57,7 +56,7 @@
             background-color: #f2f2f2;
             color: #333;
             font-weight: bold;
-            text-align: center; /* Memusatkan teks di judul kolom */
+            text-align: center; 
         }
 
         tr:nth-child(even) {
@@ -75,36 +74,38 @@
         }
     </style>
 </head>
-
 <body>
     <h3>Laporan Buku Kas</h3>
     <a href="{{ route('pengeluaran.exportExcel') }}">Export Pengeluaran</a>
     <div class="table-container">
         <table>
             <thead>
-                <tr>
+            <tr>
                 <th>No</th>
-                    <th>Nama Pengeluaran</th>
-                    <th>Keperluan</th>
-                    <th>Nominal</th>
-                    <th>Tanggal Diajukan</th>
-                    <th>Tanggal Disetujui</th>
-                </tr>
+                <th>Nama Pengeluaran</th>
+                <th>Keperluan</th>
+                <th>Nominal</th>
+                <th>Tanggal Diajukan</th>
+                <th>Tanggal Disetujui</th>
+            </tr>
             </thead>
             <tbody>
-                @foreach ($pengeluaran as $pengeluaran)
+                @forelse ($pengeluaran as $pengeluaran)
                     <tr>
-                    <td>{{ $loop->iteration }}</td>
-                    <td>{{ $pengeluaran->pengeluaran_kategori ? $pengeluaran->pengeluaran_kategori->nama : 'Data tidak tersedia' }}</td>
-                    <td>{{ $pengeluaran->keperluan }}</td>
-                    <td>{{ 'Rp ' . number_format($pengeluaran->nominal, 0, ',', '.') }}</td>
-                    <td>{{ is_object($pengeluaran->diajukan_pada) ? $pengeluaran->diajukan_pada->format('d-m-Y') : date('d-m-Y', strtotime($pengeluaran->diajukan_pada)) }}</td>
-                    <td>{{ $pengeluaran->disetujui_pada ? (is_object($pengeluaran->disetujui_pada) ? $pengeluaran->disetujui_pada->format('d-m-Y') : date('d-m-Y', strtotime($pengeluaran->disetujui_pada))) : 'Belum disetujui' }}</td>
+                        <td>{{ $loop->iteration }}</td>
+                        <td>{{ $pengeluaran->pengeluaran_kategori ? $pengeluaran->pengeluaran_kategori->nama : 'Data tidak tersedia' }}</td>
+                        <td>{{ $pengeluaran->keperluan }}</td>
+                        <td>{{ 'Rp ' . number_format($pengeluaran->nominal, 0, ',', '.') }}</td>
+                        <td>{{ \Carbon\Carbon::parse($pengeluaran->diajukan_pada)->format('d-m-Y') }}</td>
+                        <td>{{ $pengeluaran->disetujui_pada ? \Carbon\Carbon::parse($pengeluaran->disetujui_pada)->format('d-m-Y') : 'Belum disetujui' }}</td>
                     </tr>
-                @endforeach
+                @empty
+                    <tr>
+                        <td colspan="6" style="text-align: center;">Data tidak ditemukan</td>
+                    </tr>
+                @endforelse
             </tbody>
         </table>
     </div>
 </body>
-
 </html>

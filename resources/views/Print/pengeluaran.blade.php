@@ -1,12 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Laporan Buku Kas</title>
     <style>
-        /* Styling umum */
         * {
             font-family: 'Arial', sans-serif;
             box-sizing: border-box;
@@ -51,7 +49,7 @@
 
         .kop-surat h2 {
             font-size: 16px;
-            font-weight: normal; /* Mengatur font-weight menjadi normal */
+            font-weight: normal; 
         }
 
         .kop-surat h1 {
@@ -67,16 +65,15 @@
             font-size: 11px;
         }
 
-        /* Garis bawah kop surat */
         .line-container {
             width: 100%;
             max-width: 1000px;
-            margin-top: 5px; /* Mengurangi jarak antara garis dan kop surat */
+            margin-top: 5px;
         }
 
         .line-container hr {
-            border: 1px solid black; /* Mengubah ketebalan garis menjadi lebih tipis */
-            margin: 2px 0; /* Mengurangi jarak antar dua garis */
+            border: 1px solid black; 
+            margin: 2px 0; 
         }
 
         /* Judul Laporan */
@@ -130,8 +127,8 @@
             width: fit-content;
             max-width: 1000px;
             margin-top: 50px;
-            text-align: right; /* Mengarahkan elemen ke kanan */
-            padding-right: 20px; /* Memberi jarak dari tepi kanan */
+            text-align: right; 
+            padding-right: 20px; 
         }
 
         .signature p {
@@ -156,8 +153,7 @@
     </style>
 </head>
 
-<body> <!-- Mengubah typo '<>' menjadi '<body>' -->
-
+<body> 
     <!-- Kop Surat -->
     <header>
         <!-- Logo Sekolah -->
@@ -173,12 +169,10 @@
         </div>
     </header>
 
-    <!-- Garis bawah kop surat -->
     <div class="line-container">
         <hr>
         <hr>
     </div>
-
     
     <!-- Judul Laporan -->
     <h3>Laporan Pengeluaran Buku Kas</h3>
@@ -195,16 +189,20 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach ($pengeluarans as $pengeluaran)
+                @forelse ($pengeluarans as $pengeluaran)
                     <tr>
-                    <td>{{ $loop->iteration }}</td>
-                    <td>{{ $pengeluaran->pengeluaran_kategori ? $pengeluaran->pengeluaran_kategori->nama : 'Data tidak tersedia' }}</td>
-                    <td>{{ $pengeluaran->keperluan }}</td>
-                    <td>{{ 'Rp ' . number_format($pengeluaran->nominal, 0, ',', '.') }}</td>
-                    <td>{{ is_object($pengeluaran->diajukan_pada) ? $pengeluaran->diajukan_pada->format('d-m-Y') : date('d-m-Y', strtotime($pengeluaran->diajukan_pada)) }}</td>
-                    <td>{{ $pengeluaran->disetujui_pada ? (is_object($pengeluaran->disetujui_pada) ? $pengeluaran->disetujui_pada->format('d-m-Y') : date('d-m-Y', strtotime($pengeluaran->disetujui_pada))) : 'Belum disetujui' }}</td>
+                        <td>{{ $loop->iteration }}</td>
+                        <td>{{ $pengeluaran->pengeluaran_kategori ? $pengeluaran->pengeluaran_kategori->nama : 'Data tidak tersedia' }}</td>
+                        <td>{{ $pengeluaran->keperluan }}</td>
+                        <td>{{ 'Rp ' . number_format($pengeluaran->nominal, 0, ',', '.') }}</td>
+                        <td>{{ \Carbon\Carbon::parse($pengeluaran->diajukan_pada)->format('d-m-Y') }}</td>
+                        <td>{{ $pengeluaran->disetujui_pada ? \Carbon\Carbon::parse($pengeluaran->disetujui_pada)->format('d-m-Y') : 'Belum disetujui' }}</td>
                     </tr>
-                @endforeach
+                @empty
+                    <tr>
+                        <td colspan="6" style="text-align: center;">Data tidak ditemukan</td>
+                    </tr>
+                @endforelse
             </tbody>
         </table>
     </div>
@@ -223,5 +221,4 @@
         </div>
     </div>
 </body>
-
 </html>

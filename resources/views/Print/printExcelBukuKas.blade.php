@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,7 +15,7 @@
         h3 {
             color: #333;
             margin-bottom: 20px;
-            text-align: center; /* Memusatkan judul halaman */
+            text-align: center; 
         }
 
         .export-button {
@@ -57,7 +56,7 @@
             background-color: #f2f2f2;
             color: #333;
             font-weight: bold;
-            text-align: center; /* Memusatkan teks di judul kolom */
+            text-align: center; 
         }
 
         tr:nth-child(even) {
@@ -92,7 +91,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach ($pembayarans as $pembayaran)
+                @forelse ($pembayarans as $pembayaran)
                     <tr>
                         <td>{{ $loop->iteration }}</td>
                         <td>{{ $pembayaran->merchant_order_id }}</td>
@@ -104,7 +103,11 @@
                             {{ $pembayaran->created_at ? \Carbon\Carbon::parse($pembayaran->created_at)->format('d-m-Y') : 'Tidak ada tanggal' }}
                         </td>
                     </tr>
-                @endforeach
+                    @empty
+                    <tr>
+                        <td colspan="7" style="text-align: center;">Data tidak ditemukan</td>
+                    </tr>
+                @endforelse
             </tbody>
         </table>
     </div>

@@ -1,12 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Laporan Buku Kas</title>
     <style>
-        /* Styling umum */
         * {
             font-family: 'Arial', sans-serif;
             box-sizing: border-box;
@@ -51,7 +49,7 @@
 
         .kop-surat h2 {
             font-size: 16px;
-            font-weight: normal; /* Mengatur font-weight menjadi normal */
+            font-weight: normal; 
         }
 
         .kop-surat h1 {
@@ -67,16 +65,15 @@
             font-size: 11px;
         }
 
-        /* Garis bawah kop surat */
         .line-container {
             width: 100%;
             max-width: 1000px;
-            margin-top: 5px; /* Mengurangi jarak antara garis dan kop surat */
+            margin-top: 5px; 
         }
 
         .line-container hr {
-            border: 1px solid black; /* Mengubah ketebalan garis menjadi lebih tipis */
-            margin: 2px 0; /* Mengurangi jarak antar dua garis */
+            border: 1px solid black; 
+            margin: 2px 0; 
         }
 
         /* Judul Laporan */
@@ -130,8 +127,8 @@
             width: fit-content;
             max-width: 1000px;
             margin-top: 50px;
-            text-align: right; /* Mengarahkan elemen ke kanan */
-            padding-right: 20px; /* Memberi jarak dari tepi kanan */
+            text-align: right; 
+            padding-right: 20px; 
         }
 
         .signature p {
@@ -155,7 +152,6 @@
         }
     </style>
 </head>
-
 <body>
     <!-- Kop Surat -->
     <header>
@@ -172,7 +168,6 @@
         </div>
     </header>
 
-    <!-- Garis bawah kop surat -->
     <div class="line-container">
         <hr>
         <hr>
@@ -182,49 +177,51 @@
     <h3>Laporan Buku Kas</h3>
 
     <!-- Tabel Buku Kas -->
-<div class="table-container">
-    <table>
-        <thead>
-            <tr>
-                <th>No</th>
-                <th>Kode Transaksi</th>
-                <th>Nama Siswa</th>
-                <th>Kelas</th>
-                <th>Jenis Pembayaran</th>
-                <th>Nominal</th>
-                <th>Tanggal Pembayaran</th>
-            </tr>
-        </thead>
-        <tbody>
-        @foreach ($pembayarans as $pembayaran)
-    <tr>
-        <td>{{ $loop->iteration }}</td>
-        <td>{{ $pembayaran->merchant_order_id }}</td>
-        <td>{{ $pembayaran->siswa->nama_depan . ' ' . $pembayaran->siswa->nama_belakang }}</td>
-        <td>{{ $pembayaran->siswa->kelas->kelas }}</td>
-        <td>{{ $pembayaran->pembayaran->pembayaran_kategori->jenis_pembayaran === 1 ? "Bulanan" : "Tahunan" }}</td>
-        <td>{{ 'Rp ' . number_format($pembayaran->nominal, 0, ',', '.') }}</td>
-        <td>{{ \Carbon\Carbon::parse($pembayaran->created_at)->format('d-m-Y') }}</td>
-    </tr>
-@endforeach
-        </tbody>            
-    </table>
-</div>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Kode Transaksi</th>
+                    <th>Nama Siswa</th>
+                    <th>Kelas</th>
+                    <th>Jenis Pembayaran</th>
+                    <th>Nominal</th>
+                    <th>Tanggal Pembayaran</th>
+                </tr>
+            </thead>
+            <tbody>
+            @forelse ($pembayarans as $pembayaran)
+                <tr>
+                    <td>{{ $loop->iteration }}</td>
+                    <td>{{ $pembayaran->merchant_order_id }}</td>
+                    <td>{{ $pembayaran->siswa->nama_depan . ' ' . $pembayaran->siswa->nama_belakang }}</td>
+                    <td>{{ $pembayaran->siswa->kelas->kelas }}</td>
+                    <td>{{ $pembayaran->pembayaran->pembayaran_kategori->jenis_pembayaran === 1 ? "Bulanan" : "Tahunan" }}</td>
+                    <td>{{ 'Rp ' . number_format($pembayaran->nominal, 0, ',', '.') }}</td>
+                    <td>{{ Carbon\Carbon::parse($pembayaran->created_at)->format('d-m-Y') }}</td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="7" style="text-align: center;">Data tidak ditemukan</td>
+                </tr>
+            @endforelse
+            </tbody>            
+        </table>
+    </div>
 
-
-  <!-- Area Tanda Tangan -->
-  <div style="display: flex; justify-content: end;">
-    <div style="width: 35%; position: absolute; right: 0;">
-        <div class="signature">
-            <p>Sumedang, {{ date('d F Y') }}</p>
-            <p>Kepala Sekolah,</p>
-        </div>
-        <div class="signature">
-            <p style="font-weight: bold;">Dra. Elis Herawati, M.Pd.</p>
-            <p>{{ $sekolah->nip_kepsek }}</p>
+   <!-- Area Tanda Tangan -->
+    <div style="display: flex; justify-content: end;">
+        <div style="width: 35%; position: absolute; right: 0;">
+            <div class="signature">
+                <p>Sumedang, {{ date('d F Y') }}</p>
+                <p>Kepala Sekolah,</p>
+            </div>
+            <div class="signature">
+                <p style="font-weight: bold;">Dra. Elis Herawati, M.Pd.</p>
+                <p>{{ $sekolah->nip_kepsek }}</p>
+            </div>
         </div>
     </div>
-</div>
 </body>
-
 </html>

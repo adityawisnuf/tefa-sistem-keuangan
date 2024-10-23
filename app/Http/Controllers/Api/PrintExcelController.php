@@ -38,16 +38,25 @@ class PrintExcelController extends Controller
         }
 
         // Logika rekapitulasi berdasarkan input pengguna
-        if ($request->rekapitulasi !== 'Semua') {
-            if ($request->rekapitulasi === 'Harian') {
-                $query->whereDate('created_at', $request->filled('tanggal_pembayaran') ? $request->tanggal_pembayaran : now());
-            } elseif ($request->rekapitulasi === 'Bulanan') {
-                $query->whereMonth('created_at', $request->filled('bulan_pembayaran') ? $request->bulan_pembayaran : now()->month)
-                    ->whereYear('created_at', $request->filled('tahun_pembayaran') ? $request->tahun_pembayaran : now()->year);
-            } elseif ($request->rekapitulasi === 'Tahunan') {
-                $query->whereYear('created_at', $request->filled('tahun_pembayaran') ? $request->tahun_pembayaran : now()->year);
-            }
+if ($request->rekapitulasi !== 'Semua') {
+    if ($request->rekapitulasi === 'Harian') {
+        $query->whereDate('created_at', $request->filled('tanggal_pembayaran') ? $request->tanggal_pembayaran : now());
+    } elseif ($request->rekapitulasi === 'Bulanan') {
+        // Mengambil bulan dan tahun dari bulan_pembayaran
+        if ($request->filled('bulan_pembayaran')) {
+            // Menggunakan explode untuk mendapatkan bulan dan tahun
+            list($tahun, $bulan) = explode('-', $request->bulan_pembayaran);
+            $query->whereYear('created_at', $tahun)
+                  ->whereMonth('created_at', $bulan);
+        } else {
+            $query->whereMonth('created_at', now()->month)
+                  ->whereYear('created_at', now()->year);
         }
+    } elseif ($request->rekapitulasi === 'Tahunan') {
+        $query->whereYear('created_at', $request->filled('tahun_pembayaran') ? $request->tahun_pembayaran : now()->year);
+    }
+}
+
 
         $allPayment = $query->get();
         return Excel::download(new PembayaranExport($allPayment), 'data_pembayaran.xlsx');

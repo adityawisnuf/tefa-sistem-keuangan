@@ -10,12 +10,21 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class PengeluaranExcelController extends Controller
 {
-    public function exportPengeluaran()
+    public function exportPengeluaran(Request $request)
     {
-        // Mengambil semua data pengeluaran beserta relasi kategori dan anggaran
-        $semua_pengeluaran = Pengeluaran::with('pengeluaran_kategori', 'anggaran')->get();
+        $query = Pengeluaran::with('pengeluaran_kategori', 'anggaran')->latest();
 
-        // Menggunakan Excel facade untuk mengunduh file dalam format .xlsx
+        // Filter berdasarkan tanggal diajukan
+        if ($request->filled('diajukan')) {
+            $query->whereDate('diajukan_pada', $request->diajukan);
+        }
+
+        // Filter berdasarkan tanggal disetujui
+        if ($request->filled('disetujui')) {
+            $query->whereDate('disetujui_pada', $request->disetujui);
+        }
+
+        $semua_pengeluaran = $query->get();
         return Excel::download(new PengeluaranExport($semua_pengeluaran), 'data_pengeluaran.xlsx');
     }
 }

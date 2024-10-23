@@ -72,7 +72,7 @@ Route::middleware(['auth:api'])->group(function () {
 
     // Routes untuk role "Bendahara"
     Route::middleware(['checkrole:Bendahara'])->prefix('Bendahara')->group(function () {
-        Route::post('/pemasukan', [PembayaranController::class, 'index']); // Route untuk pemasukan
+        Route::post('/pemasukan', [PembayaranController::class, 'index']); 
         Route::post('/pengeluaran', [PengeluaranController::class, 'index']);
         Route::get('/export-pengeluaran', [PengeluaranExcelController::class, 'exportPengeluaran'])
             ->name('pengeluaran.exportExcel');
@@ -82,71 +82,25 @@ Route::middleware(['auth:api'])->group(function () {
         // Laporan pembayaran PDF
         Route::get('/laporan/pembayaran', [PembayaranController::class, 'report'])->name('laporan.pembayaran');
 
-        // Laporan pengeluaran PDF
-        Route::get('/laporan/pengeluaran', function () {
-            $tgl_awal = request('tgl_awal');
-            $tgl_akhir = request('tgl_akhir');
-
-            if ($tgl_awal && $tgl_akhir) {
-                $semua_pengeluaran = Pengeluaran::whereBetween('created_at', [$tgl_awal, $tgl_akhir])->get();
-                $fileName = "Pengeluaran_{$tgl_awal}-{$tgl_akhir}.pdf";
-            } else {
-                $semua_pengeluaran = Pengeluaran::all();
-                $fileName = "Data_Keseluruhan_Pengeluaran.pdf";
-            }
-
-            $data = ['pengeluarans' => $semua_pengeluaran, 'sekolah' => Sekolah::first()];
-            $pdf = Pdf::loadView('print.pengeluaran', $data);
-
-            return $pdf->stream($fileName);
-        })->name('laporan.pengeluaran');
-    });
+      
+         // Laporan pengeluaran PDF
+         Route::get('/laporan/pengeluaran', [PengeluaranController::class, 'report'])->name('laporan.pengeluaran');
+        });
 
     // Routes untuk role "Kepala Sekolah"
     Route::middleware(['checkrole:Kepala Sekolah'])->prefix('Kepala Sekolah')->group(function () {
-        Route::post('/pemasukan', [PembayaranController::class, 'index']); // Route untuk pemasukan
-        Route::post('/pengeluaran', [PengeluaranController::class, 'index']); // Route untuk pengeluaran
+        Route::post('/pemasukan', [PembayaranController::class, 'index']); 
+        Route::post('/pengeluaran', [PengeluaranController::class, 'index']); 
         Route::get('/export-pengeluaran', [PengeluaranExcelController::class, 'exportPengeluaran'])
-            ->name('pengeluaran.exportExcel');
+        ->name('pengeluaran.exportExcel');
         Route::get('/pembayaran/export-excel', [PrintExcelController::class, 'exportExcel'])
             ->name('pembayaran.exportExcel');
 
         // Laporan pembayaran PDF
-        Route::get('/laporan/pembayaran', function () {
-            $tgl_awal = request('tgl_awal');
-            $tgl_akhir = request('tgl_akhir');
-
-            if ($tgl_awal && $tgl_akhir) {
-                $pembayaran = PembayaranSiswa::whereBetween('created_at', [$tgl_awal, $tgl_akhir])->get();
-                $fileName = "Pembayaran_{$tgl_awal}-{$tgl_akhir}.pdf";
-            } else {
-                $pembayaran = PembayaranSiswa::all();
-                $fileName = "Data_Keseluruhan_Pembayaran.pdf";
-            }
-
-            $data = ['pembayarans' => $pembayaran, 'sekolah' => Sekolah::first()];
-            $pdf = Pdf::loadView('print.pembayaran', $data);
-
-            return $pdf->stream($fileName);
-        })->name('laporan.pembayaran');
-
-        // Laporan pengeluaran PDF
-        Route::get('/laporan/pengeluaran', function () {
-            $tgl_awal = request('tgl_awal');
-            $tgl_akhir = request('tgl_akhir');
-
-            if ($tgl_awal && $tgl_akhir) {
-                $semua_pengeluaran = Pengeluaran::whereBetween('created_at', [$tgl_awal, $tgl_akhir])->get();
-                $fileName = "Pengeluaran_{$tgl_awal}-{$tgl_akhir}.pdf";
-            } else {
-                $semua_pengeluaran = Pengeluaran::all();
-                $fileName = "Data_Keseluruhan_Pengeluaran.pdf";
-            }
-
-            $data = ['pengeluarans' => $semua_pengeluaran, 'sekolah' => Sekolah::first()];
-            $pdf = Pdf::loadView('print.pengeluaran', $data);
-
-            return $pdf->stream($fileName);
-        })->name('laporan.pengeluaran');
+        Route::get('/laporan/pembayaran', [PembayaranController::class, 'report'])->name('laporan.pembayaran');
+        
+         // Laporan pengeluaran PDF
+         Route::get('/laporan/pengeluaran', [PengeluaranController::class, 'report'])->name('laporan.pengeluaran');
+   
     });
 });
