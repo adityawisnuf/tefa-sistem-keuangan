@@ -184,7 +184,6 @@ class RasioKeuanganController extends Controller
         $months = $data->pluck('month')->unique()->values()->toArray();
         $years = $data->pluck('year')->unique()->sortDesc()->values()->toArray();
 
-
         // Membuat mapping dari nama bulan ke angka bulan
         $monthNumbers = [
             'January' => '01',
@@ -234,7 +233,6 @@ class RasioKeuanganController extends Controller
             'labels' => 'Semua',
         ]);
 
-
         return response()->json([
             'months' => $formattedMonths,
             'years' => $formattedYears,
@@ -253,23 +251,19 @@ class RasioKeuanganController extends Controller
                 ->selectRaw('MONTH(created_at) as month, sum(nominal) as value')
                 ->groupBy('month')->get();
 
-
             $paymentsPpdb = PembayaranPpdb::where('status', 1)
                 ->whereYear('created_at', $tahun)
                 ->selectRaw('MONTH(created_at) as month, sum(nominal) as value')
                 ->groupBy('month')->get();
 
-
             $asset = AsetSekolah::whereYear('created_at', $tahun)
                 ->selectRaw('MONTH(created_at) as month, sum(harga) as value')
                 ->groupBy('month')->get();
-
 
             $asetTetap = AsetSekolah::where('tipe', 'tetap') // Filter berdasarkan tipe aset
                 ->whereYear('created_at', $tahun)
                 ->selectRaw('MONTH(created_at) as month, sum(harga) as value')
                 ->groupBy('month')->get();
-
 
             $asetLancar = AsetSekolah::where('tipe', 'lancar') // Filter berdasarkan tipe aset
                 ->whereYear('created_at', $tahun)
@@ -287,16 +281,14 @@ class RasioKeuanganController extends Controller
                 ->selectRaw('MONTH(diajukan_pada) as month, sum(nominal) as value')
                 ->groupBy('month')->get();
 
-            $currentLiability = DB::table('pengeluaran')
-                ->join('pengeluaran_kategori', 'pengeluaran.pengeluaran_kategori_id', '=', 'pengeluaran_kategori.id')
+            $currentLiability = Pengeluaran::join('pengeluaran_kategori', 'pengeluaran.pengeluaran_kategori_id', '=', 'pengeluaran_kategori.id')
                 ->whereNull('pengeluaran.disetujui_pada')
                 ->where('pengeluaran_kategori.tipe_utang', 'jangka pendek')
                 ->whereYear('pengeluaran.created_at', $tahun)
                 ->selectRaw('MONTH(pengeluaran.created_at) as month, sum(pengeluaran.nominal) as value')
-                ->groupBy('month')->get()->toArray();
+                ->groupBy('month')->get();
 
-            $inventory = DB::table('pengeluaran')
-                ->join('pengeluaran_kategori', 'pengeluaran.pengeluaran_kategori_id', '=', 'pengeluaran_kategori.id')
+            $inventory = Pengeluaran::join('pengeluaran_kategori', 'pengeluaran.pengeluaran_kategori_id', '=', 'pengeluaran_kategori.id')
                 ->where('pengeluaran_kategori.nama', 'Barang Habis Pakai')
                 ->whereYear('pengeluaran.created_at', $tahun)
                 ->selectRaw('MONTH(pengeluaran.created_at) as month, sum(pengeluaran.nominal) as value')
@@ -336,7 +328,6 @@ class RasioKeuanganController extends Controller
                 return $formattedData;
             }
 
-
             function combineData($array1, $array2, $add)
             {
                 $combinedData = [];
@@ -356,11 +347,11 @@ class RasioKeuanganController extends Controller
                 formatData($totalLiability),
                 false
             );
-            
+
             $totalPayment =
-            combineData(
-                formatData($payments),
-                formatData($paymentsPpdb),
+                combineData(
+                    formatData($payments),
+                    formatData($paymentsPpdb),
                     true
                 );
 
@@ -370,8 +361,7 @@ class RasioKeuanganController extends Controller
                     formatData($expenses),
                     false
                 );
-                
-                
+
             function formatMidData($array1, $array2, $array3 = false, $timesHundred = false)
             {
                 $formatMidDataApa = [];
@@ -402,7 +392,6 @@ class RasioKeuanganController extends Controller
                 return $formatMidDataApa;
             }
 
-            dd(formatData($currentLiability));
             $cr = formatFinalData(formatMidData(formatData($asetLancar), formatData($currentLiability)));
             $qr = formatFinalData(formatMidData(formatData($asetLancar), formatData($inventory), formatData($currentLiability)));
             $npm = formatFinalData(formatMidData($profit, $totalPayment, false, true));
@@ -422,6 +411,7 @@ class RasioKeuanganController extends Controller
                 'debt_to_equity_ratio' => $dter,
                 'debt_ratio' => $dr,
             ];
+
             $allZero = !array_filter($data, fn($value) => $value !== 0);
 
             // Return empty data array if all values are 0
@@ -436,10 +426,7 @@ class RasioKeuanganController extends Controller
 
             // Return detailed error response for development environment
             return response()->json([
-                'error' => $e->getMessage(), // Include the error message in response
-                'file' => $e->getFile(),     // Optional: file where error occurred
-                'line' => $e->getLine(),     // Optional: line number of the error
-                'trace' => $e->getTraceAsString(),
+                'error' => $e->getMessage()
             ], 500);
         }
     }
