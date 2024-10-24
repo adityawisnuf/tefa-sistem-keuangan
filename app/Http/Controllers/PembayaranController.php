@@ -22,7 +22,7 @@ class PembayaranController extends Controller
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-            'siswa_id' => 'required|exists:siswa,id',
+            'siswa_id' => 'nullable|exists:siswa,id',
             'pembayaran_kategori_id' => 'required|exists:pembayaran_kategori,id',
             'nominal' => 'required|numeric',
             'kelas_id' => 'required|exists:kelas,id',
@@ -53,7 +53,7 @@ class PembayaranController extends Controller
     public function update(Request $request, $id)
     {
         $validatedData = $request->validate([
-            'siswa_id' => 'required|exists:siswa,id',
+            'siswa_id' => 'nullable|exists:siswa,id',
             'pembayaran_kategori_id' => 'required|exists:pembayaran_kategori,id',
             'nominal' => 'required|numeric',
             'status' => 'required',
