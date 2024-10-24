@@ -68,12 +68,6 @@ class LaporanKeuanganController extends Controller
 
             $laporan = $query->paginate(5);
 
-            if ($laporan->isEmpty()) {
-                return response()->json([
-                    'error' => true,
-                    'message' => 'Data tidak ditemukan.'
-                ], 404); 
-            }
 
             $laporan->getCollection()->transform(function ($item) {
                 $item->total_nominal = number_format($item->total_nominal, 0, ',', '.');

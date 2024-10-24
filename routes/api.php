@@ -245,7 +245,6 @@ Route::group([
     
     Route::group(['prefix'=>'LaporanKeuangan', 'middleware'=> 'checkrole:KepalaSekolah,Admin,Bendahara'], function () {
         Route::get('/export-pembayaran-ppdb', [PembayaranController::class, 'exportPembayaranPpdb']);
-        Route::get('/laporan-keuangan', [PpdbController::class, 'searchPendaftarans']);
         Route::get('/laporan-keuangan', [LaporanKeuanganController::class, 'searchLaporanKeuangan']);
         
         
