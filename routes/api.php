@@ -101,13 +101,6 @@ Route::middleware(['auth:api'])->group(function () {
     });
 });
 
-// route ppdb
-// Route::get('/ppdb', [PpdbController::class, 'index']);
-// Route::post('/ppdb', [PpdbController::class, 'store']);
-// Route::get('/ppdb/{id}', [PpdbController::class, 'show']);
-// Route::put('/ppdb/{id}', [PpdbController::class, 'update']);
-// Route::delete('/ppdb/{id}', [PpdbController::class, 'destroy']);
-
 Route::apiResource('ppdb', PpdbController::class);
 Route::apiResource('pendaftar', PendaftarController::class);
 Route::apiResource('pendaftar-dokumen', PendaftarDokumenController::class);

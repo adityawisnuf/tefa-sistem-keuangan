@@ -101,10 +101,12 @@ class PengeluaranController extends Controller
             'keperluan' => $request->keperluan,
             'nominal' => $request->nominal,
             'diajukan_pada' => now(),
+            'status' => Status::Pending
         ];
 
         if (auth()->user()->role === 'Bendahara') {
             $data['disetujui_pada'] = now();
+            $data['status'] = Status::Accepted;
         }
 
         $pengeluaran = Pengeluaran::create($data);
