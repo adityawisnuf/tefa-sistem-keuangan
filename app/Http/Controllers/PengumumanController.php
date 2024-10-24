@@ -15,7 +15,6 @@ class PengumumanController extends Controller
 {
     private function getSiswaAndOrangTua() {
         return User::whereIn('role', ['Siswa', 'OrangTua'])->get();
-        return User::whereIn('role', ['Siswa', 'Orang Tua'])->get();
     }
 
     // semua pengumuman yang disetujui
@@ -247,6 +246,9 @@ class PengumumanController extends Controller
             'approved_at' => now(),
             'pesan_ditolak' => null
         ]);
+
+        $users = $this->getSiswaAndOrangTua();
+        Notification::send($users, new NewPengumumanNotification($pengumuman));
 
         return response()->json([
             'success' => true,
