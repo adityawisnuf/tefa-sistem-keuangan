@@ -15,7 +15,11 @@ class PembayaranManualController extends Controller
 {
     public function getStudents(Request $request)
     {
-        return response()->json(['success' => true, 'data' => $siswa = Siswa::whereAny(['user_id', 'nama_depan', 'nama_belakang', 'alamat', 'village_id', 'tempat_lahir', 'telepon', 'kelas_id', 'orangtua_id'], $request->input('query'))->get(), 'message' => "Berhasil mencari {$siswa->count()} data siswa"]);
+        return response()->json(['success' => true, 'data' => $siswa = Siswa::with('orangtua', 'kelas')->where('user_id', 'LIKE', "%{$request->input('query')}%")->orWhere('nama_depan', 'LIKE', "%{$request->input('query')}%")->orWhere('nama_belakang', 'LIKE', "%{$request->input('query')}%")->orWhere('alamat', 'LIKE', "%{$request->input('query')}%")->orWhere('tempat_lahir', 'LIKE', "%{$request->input('query')}%")->orWhere('telepon', 'LIKE', "%{$request->input('query')}%")->orWhereHas('kelas', function ($q) use ($request) {
+            $q->where('kelas', 'LIKE', "%{$request->input('query')}%")->orWhere('jurusan', 'LIKE', "%{$request->input('query')}%");
+        })->orWhereHas('orangtua', function ($q) use ($request) {
+            $q->where('nama', 'LIKE', "%{$request->input('query')}%");
+        })->get(), 'message' => "Berhasil mencari {$siswa->count()} data siswa"]);
     }
     public function getStudentPaymentList(Request $request)
     {
@@ -207,14 +211,15 @@ class PembayaranManualController extends Controller
     {
         $validate = $request->validate([
             'payment_method' => ['string', 'required'],
-            'bukti_transaksi' => ['required', 'array'],
-            'bukti_transaksi.nama' => ['required', 'string'],
-            'bukti_transaksi.tanggal' => ['required', 'string'],
-            'bukti_transaksi.keterangan' => ['nullable', 'string'],
-            'bukti_transaksi.gambar' => ['required', 'string'],
+            'nama' => ['required', 'string'],
+            'tanggal' => ['required', 'string'],
+            'keterangan' => ['nullable', 'string'],
+            'gambar' => ['required', 'file'],
             'siswa_id' => ['integer', 'required'],
             'pembayaran_id' => ['integer', 'exists:pembayaran,id'],
         ]);
+
+        $validate['gambar_filename'] = $request->file('gambar')->store('buktiTransaksi', 'public');
 
 
         if (PembayaranSiswa::where('siswa_id', $validate['siswa_id'])->where('pembayaran_id', $validate['pembayaran_id'])->where('status', 1)->count() > 0) {
@@ -251,7 +256,11 @@ class PembayaranManualController extends Controller
                 'merchant_order_id' => $merchant_order_id,
                 'reference' => "MANUAL",
                 'payment_method' => $validate['payment_method'],
-                'transaction_response' => json_encode($validate['bukti_transaksi']),
+                'transaction_response' => json_encode([
+                    'nama' => $validate['nama'],
+                    'tanggal' => $validate['tanggal'],
+                    'gambar' => $validate['gambar_filename'],
+                ]),
                 'status' => '00',
             ]);
             PembayaranSiswa::create([
