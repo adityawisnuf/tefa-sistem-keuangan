@@ -25,6 +25,7 @@ Route::group([
 
     Route::post('logout', [LogoutController::class, 'logout']);
 
+
     // Role: Admin
     Route::group([
         'middleware' => ['checkrole:Admin'],
@@ -34,6 +35,8 @@ Route::group([
         Route::post('/anggaran', [AnggaranController::class, 'store']);
         Route::get('/anggaran', [AnggaranController::class, 'index']);
         Route::get('/anggaran/chart-data', [AnggaranController::class, 'getAnggaranData']);
+        Route::get('/anggaran/total-rencana-anggaran', [AnggaranController::class, 'getTotalRencanaAnggaran']);
+        Route::get('/anggaran/total-realisasi-anggaran', [AnggaranController::class, 'getTotalRealisasiAnggaran']);
         Route::patch('/anggaran/{anggaran}', [AnggaranController::class, 'update']);
 
         // Laporan Anggaran
@@ -50,7 +53,7 @@ Route::group([
             }
 
             $data = ['anggarans' => $anggaran,
-        'sekolah'=>Sekolah::first()
+            'sekolah'=>Sekolah::first()
         ];
             $pdf = Pdf::loadView('print.anggaran', $data);
 
@@ -70,6 +73,8 @@ Route::group([
         Route::post('/anggaran', [AnggaranController::class, 'store']);
         Route::get('/anggaran', [AnggaranController::class, 'index']);
         Route::get('/anggaran/chart-data', [AnggaranController::class, 'getAnggaranData']);
+        Route::get('/anggaran/total-rencana-anggaran', [AnggaranController::class, 'getTotalRencanaAnggaran']);
+        Route::get('/anggaran/total-realisasi-anggaran', [AnggaranController::class, 'getTotalRealisasiAnggaran']);
         Route::patch('/anggaran/{anggaran}', [AnggaranController::class, 'update']);
         //Route::delete('/anggaran/{anggaran}', [AnggaranController::class, 'destroy']);
 
@@ -107,6 +112,8 @@ Route::group([
         Route::patch('/anggaran/{anggaran}', [AnggaranController::class, 'update']);
         Route::delete('/anggaran/{anggaran}', [AnggaranController::class, 'destroy']);
         Route::get('/anggaran/chart-data', [AnggaranController::class, 'getAnggaranData']);
+        Route::get('/anggaran/total-rencana-anggaran', [AnggaranController::class, 'getTotalRencanaAnggaran']);
+        Route::get('/anggaran/total-realisasi-anggaran', [AnggaranController::class, 'getTotalRealisasiAnggaran']);
         Route::delete('/anggaran/{anggaran}', [AnggaranController::class, 'destroy']);
 
         // Laporan Anggaran

@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\AnggaranResource;
 use App\Models\Sekolah;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Response;
 
@@ -247,4 +248,39 @@ class AnggaranController extends Controller
 
         return $pdf->stream($fileName);
     }
+
+    public function getTotalRencanaAnggaran()
+{
+    // Menghitung total nominal dari semua anggaran
+    $totalRencanaAnggaran = Anggaran::sum('nominal'); // Menghitung total untuk semua anggaran
+    // atau jika hanya ingin mengambil yang memiliki nominal tidak null
+    $totalRencanaAnggaran = Anggaran::whereNotNull('nominal')->sum('nominal');
+    $totalAnggaran = Anggaran::sum('nominal');
+    $percentageRencana = $totalAnggaran > 0 ? round(($totalRencanaAnggaran / $totalAnggaran) * 100, 1) : 0;
+
+    return response()->json([
+        'totalRencanaAnggaran' => 'Rp ' . number_format($totalRencanaAnggaran, 0, ',', '.'),
+        'percentageRencana' => $percentageRencana . '%',
+    ]);
+}
+
+
+public function getTotalRealisasiAnggaran()
+{
+    // Mengambil total 'nominal_diapprove' dari anggaran yang statusnya 2 (diapprove)
+    $totalRealisasiAnggaran = Anggaran::where('status', 2)
+        ->whereNotNull('nominal_diapprove')
+        ->sum('nominal_diapprove');
+    
+    // Mengambil total seluruh 'nominal' untuk menghitung persentase
+    $totalAnggaran = Anggaran::sum('nominal');
+
+    // Menghitung persentase realisasi anggaran
+    $percentageRealisasi = $totalAnggaran > 0 ? round(($totalRealisasiAnggaran / $totalAnggaran) * 100, 2) : 0;
+
+    return response()->json([
+        'totalRealisasiAnggaran' => 'Rp ' . number_format($totalRealisasiAnggaran, 0, ',', '.'),
+        'percentageRealisasi' => $percentageRealisasi . '%',
+    ]);
+}
 }
