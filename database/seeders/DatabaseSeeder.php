@@ -25,7 +25,8 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             PembayaranDuitkuSeeder::class,
             PPDBSeeder::class,
-            PendaftarSeeder::class
+            PendaftarSeeder::class,
+            PembayaranKategoriSeeder::class,
         ]);
     }
 }
