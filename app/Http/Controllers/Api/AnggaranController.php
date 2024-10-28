@@ -228,7 +228,7 @@ class AnggaranController extends Controller
 
     public function printDeviasi(Request $request)
     {
-        $tgl_awal = $request->query('tgl_awal'); // gunakan query parameter
+        $tgl_awal = $request->query('tgl_awal'); 
         $tgl_akhir = $request->query('tgl_akhir');
 
         if ($tgl_awal && $tgl_akhir) {
@@ -251,9 +251,7 @@ class AnggaranController extends Controller
 
     public function getTotalRencanaAnggaran()
 {
-    // Menghitung total nominal dari semua anggaran
-    $totalRencanaAnggaran = Anggaran::sum('nominal'); // Menghitung total untuk semua anggaran
-    // atau jika hanya ingin mengambil yang memiliki nominal tidak null
+    $totalRencanaAnggaran = Anggaran::sum('nominal'); 
     $totalRencanaAnggaran = Anggaran::whereNotNull('nominal')->sum('nominal');
     $totalAnggaran = Anggaran::sum('nominal');
     $percentageRencana = $totalAnggaran > 0 ? round(($totalRencanaAnggaran / $totalAnggaran) * 100, 1) : 0;
