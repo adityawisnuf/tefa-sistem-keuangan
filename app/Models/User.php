@@ -10,15 +10,19 @@ use Laravel\Sanctum\HasApiTokens;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use app\Http\Controllers\LoginController;
 
+
 class User extends Authenticatable implements JWTSubject
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasApiTokens;
 
     /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
      */
+
+protected$table ='users';
+
     protected $fillable = [
         'name',
         'email',
@@ -37,9 +41,9 @@ class User extends Authenticatable implements JWTSubject
     ];
 
     /**
-     * The attributes that should be cast.
+     * Get the attributes that should be cast.
      *
-     * @var array<string, string>
+     * @return array<string, string>
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
@@ -54,7 +58,7 @@ class User extends Authenticatable implements JWTSubject
     public function getJWTCustomClaims()
     {
         $datas = (new LoginController)->getAllDatas($this->id);
-        
+
         return [
             'user_id' => $this->id,
             'email' => $this->email,
@@ -67,7 +71,7 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasOne(Siswa::class, 'user_id');
     }
-    
+
     public function orangtua ()
     {
         return $this->hasOne(Orangtua::class, 'user_id');

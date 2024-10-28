@@ -11,10 +11,10 @@ class PembayaranSiswa extends Model
     protected $table = 'pembayaran_siswa';
 
     protected $fillable = [
-        'siswa_id', 
-        'pembayaran_kategori_id', 
-        'nominal', 
-        'merchant_order_id', 
+        'siswa_id',
+        'pembayaran_kategori_id',
+        'nominal',
+        'merchant_order_id',
         'status',
     ];
 
