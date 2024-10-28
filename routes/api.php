@@ -58,7 +58,9 @@ Route::group([
     'middleware' => ['auth:api', 'checkrole:Bendahara'],
     'prefix' => 'Bendahara'
 ], function () {
-
+   
+    Route::get('/aset', [AsetSekolahController::class, 'index']);
+   
     Route::get('/laporan/inventaris', function () {
         $tgl_awal = request('tgl_awal');
         $tgl_akhir = request('tgl_akhir');
@@ -78,9 +80,7 @@ Route::group([
 
         return $pdf->stream($fileName);
     })->name('laporan.inventaris');
-    Route::post('/aset', [AsetSekolahController::class, 'create']);
-    Route::get('/aset', [AsetSekolahController::class, 'index']);
-    Route::patch('/aset/{aset}/', [AsetSekolahController::class, 'update']);
+   
 });
 
 // Role Kepala Sekolah
