@@ -267,15 +267,11 @@ class AnggaranController extends Controller
 
 public function getTotalRealisasiAnggaran()
 {
-    // Mengambil total 'nominal_diapprove' dari anggaran yang statusnya 2 (diapprove)
     $totalRealisasiAnggaran = Anggaran::where('status', 2)
         ->whereNotNull('nominal_diapprove')
         ->sum('nominal_diapprove');
     
-    // Mengambil total seluruh 'nominal' untuk menghitung persentase
     $totalAnggaran = Anggaran::sum('nominal');
-
-    // Menghitung persentase realisasi anggaran
     $percentageRealisasi = $totalAnggaran > 0 ? round(($totalRealisasiAnggaran / $totalAnggaran) * 100, 2) : 0;
 
     return response()->json([
