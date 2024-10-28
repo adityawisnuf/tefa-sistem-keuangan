@@ -195,7 +195,7 @@ class PembayaranController extends Controller
         ]);
         $merchantOrderId = $request->input('merchantOrderId');
         $callbackUrl = env('CALLBACK_URL') . '/api/duitku/callback';
-        $returnUrl = 'http://localhost:5173/orang-tua/cek-pembayaran';
+        $returnUrl = env('DUITKU_RETURN_URL');
         $expiryPeriod = 60;
         $customerEmail = $request->input('email');
         $customerVaName = $first_name . ' ' . $last_name;
@@ -295,14 +295,14 @@ class PembayaranController extends Controller
             $amount = $request->input('amount');
             $merchantOrderId = $request->input('merchantOrderId');
             $signature = $request->input('signature');
-            $resultCode = $request->input('resultCode'); // Get resultCode from the request
+            $resultCode = $request->input('resultCode');
     
             Log::info('Data received from Duitku', [
                 'merchantCode' => $merchantCode,
                 'amount' => $amount,
                 'merchantOrderId' => $merchantOrderId,
                 'signature' => $signature,
-                'resultCode' => $resultCode, // Log resultCode
+                'resultCode' => $resultCode, 
             ]);
     
             // Calculate signature

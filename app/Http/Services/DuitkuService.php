@@ -85,7 +85,7 @@ class DuitkuService
         $lastName = 'Tahu Bulat';
         $customerVaName = $firstName . ' ' . $lastName;
         $callbackUrl = env('CALLBACK_URL') . '/api/duitku/callback';
-        $returnUrl = 'http://localhost:5173/orang-tua';
+        $returnUrl = env('DUITKU_RETURN_URL');
         $expiryPeriod = 10;
         $signature = md5($this->merchantCode . $merchantOrderId . $paymentAmount . $this->apiKey);
 
