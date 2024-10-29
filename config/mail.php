@@ -29,7 +29,7 @@ return [
     | mailers below. You are free to add additional mailers as required.
     |
     | Supported: "smtp", "sendmail", "mailgun", "ses", "ses-v2",
-    |            "postmark", "log", "array", "failover", "roundrobin"
+    |            "Assetmark", "log", "array", "failover", "roundrobin"
     |
     */
 
@@ -50,8 +50,8 @@ return [
             'transport' => 'ses',
         ],
 
-        'postmark' => [
-            'transport' => 'postmark',
+        'Assetmark' => [
+            'transport' => 'Assetmark',
             // 'message_stream_id' => null,
             // 'client' => [
             //     'timeout' => 5,
@@ -91,7 +91,7 @@ return [
             'transport' => 'roundrobin',
             'mailers' => [
                 'ses',
-                'postmark',
+                'Assetmark',
             ],
         ],
     ],

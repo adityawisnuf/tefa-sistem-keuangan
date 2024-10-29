@@ -12,7 +12,7 @@ class Anggaran extends Model
     protected $table = 'anggaran';
 
     protected $fillable = [
-        'nama_anggaran', 'nominal', 'deskripsi', 'tanggal_pengajuan', 'target_terealisasikan', 'status', 'pengapprove', 'pengapprove_jabatan', 'catatan'
+        'nama_anggaran', 'nominal', 'deskripsi', 'tanggal_pengajuan', 'target_terealisasikan', 'status', 'pengapprove', 'pengapprove_jabatan',  'nominal_diapprove', 'catatan'
     ];
 
     public function pengeluaran()
@@ -20,6 +20,20 @@ class Anggaran extends Model
         return $this->hasMany(Pengeluaran::class, 'anggaran_id');
     }
 
+    public function getStatusText()
+    {   
+        switch ($this->status) {
+            case 1:
+                return 'Diajukan';
+            case 2:
+                return 'Disetujui';
+            case 3:
+                return 'Terealisasikan';
+            case 4:
+                return 'Gagal Terealisasikan';
+            default:
+                return 'Status tidak ditemukan';
+        }
+    }
+
 }
-
-
