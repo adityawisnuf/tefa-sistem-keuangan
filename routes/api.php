@@ -303,7 +303,15 @@ Route::group([
         Route::get('/pengumuman/approved', [PengumumanController::class, 'approvedAnnouncements']);
         Route::get('/pengumuman/rejected', [PengumumanController::class, 'rejectedAnnouncements']);
     });
-
+    
+    Route::group(['prefix' => 'ppdb'], function () {
+        Route::post('/', [PpdbController::class, 'store']);
+        Route::get('/track', [TrackingPendaftaran::class, 'trackPendaftaran']);
+        Route::get('/all/pendaftaran', [TrackingPendaftaran::class, 'searchPendaftarans']);
+        Route::get('/export-pendaftar', [PpdbController::class, 'export']);
+        Route::get('/download/{id}', [PpdbController::class, 'downloadDocuments']);
+        Route::post('/update-status', [PpdbController::class, 'updateStatus']);
+    });
     Route::group(['middleware' => 'checkrole:Kepala Sekolah,Admin,Bendahara'], function () {
         Route::get('/pengumuman/submitted', [PengumumanController::class, 'submittedAnnouncements']);
         Route::post('/pengumuman', [PengumumanController::class, 'store']);
@@ -345,12 +353,4 @@ Route::group([
     Route::get('get-options-ak', [ArusKasController::class, 'getOptions']);
     Route::get('get-options-rk', [RasioKeuanganController::class, 'getOptions']);
     Route::get('get-options-pp', [PrediksiPerencanaanKeuanganController::class, 'getOptions']);
-});
-Route::group(['prefix' => 'ppdb'], function () {
-    Route::post('/', [PpdbController::class, 'store']);
-    Route::get('/track', [TrackingPendaftaran::class, 'trackPendaftaran']);
-    Route::get('/all/pendaftaran', [TrackingPendaftaran::class, 'searchPendaftarans']);
-    Route::get('/export-pendaftar', [PpdbController::class, 'export']);
-    Route::get('/download/{id}', [PpdbController::class, 'downloadDocuments']);
-    Route::post('/update-status', [PpdbController::class, 'updateStatus']);
 });

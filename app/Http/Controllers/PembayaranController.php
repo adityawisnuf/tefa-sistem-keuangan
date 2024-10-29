@@ -211,7 +211,7 @@ class PembayaranController extends Controller
             'addtionalParam' => $additionalParam,
             'paymentMethod' => $paymentMethod,
             'merchantOrderId' => $merchantOrderId,
-            'callbackUrl' => $callbackUrl,
+            'callbackUrl' => $callbackUrl,                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
             'returnUrl' => $returnUrl,
             'signature' => $signature,
             'expiryPeriod' => $expiryPeriod,

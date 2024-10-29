@@ -6,6 +6,7 @@ use App\Models\Ppdb;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class TrackingPendaftaran extends Controller
 {
@@ -26,7 +27,7 @@ class TrackingPendaftaran extends Controller
             $ppdbArray['created_at'] = Carbon::parse($ppdbs->created_at)->format('d-m-Y');
             return $ppdbArray;
         });
-
+        Log::info($userId);
         return response()->json($ppdb);
     }
 
