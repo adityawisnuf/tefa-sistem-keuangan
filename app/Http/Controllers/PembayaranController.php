@@ -195,7 +195,7 @@ class PembayaranController extends Controller
         ]);
         $merchantOrderId = $request->input('merchantOrderId');
         $callbackUrl = env('CALLBACK_URL') . '/api/duitku/callback';
-        $returnUrl = env('CALLBAK_URL') . '/orang-tua/cek-pembayaran';
+        $returnUrl = env('RETURN_URL') . '/orang-tua/cek-pembayaran';
         $expiryPeriod = 60;
         $customerEmail = $request->input('email');
         $customerVaName = $first_name . ' ' . $last_name;
