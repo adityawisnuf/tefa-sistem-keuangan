@@ -3,6 +3,7 @@
 use App\Http\Controllers\EmailVerificationController;
 use App\Http\Controllers\IndoRegionController;
 use App\Http\Controllers\LaporanKeuanganController;
+
 use App\Http\Controllers\BendaharaLaporanController;
 use App\Http\Controllers\BendaharaPengajuanController;
 use App\Http\Controllers\KepsekLaporanController;
@@ -18,6 +19,14 @@ use App\Http\Controllers\SiswaKantinController;
 use App\Http\Controllers\SiswaLaundryController;
 use App\Http\Controllers\SiswaWalletController;
 use App\Http\Controllers\TopUpController;
+
+use App\Http\Controllers\ArusKasController;
+use App\Http\Controllers\LabaRugiController;
+use App\Http\Controllers\PrediksiPerencanaanKeuanganController;
+
+use App\Http\Controllers\NeracaController;
+use App\Http\Controllers\RasioKeuanganController;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RegisterController;
@@ -213,6 +222,22 @@ Route::middleware('auth:api')->group(function () {
 
         Route::get('/pengajuan', [KepsekPengajuanController::class, 'getUsahaPengajuan']);
     });
+});
+
+Route::group([
+    'middleware' => ['auth:api', 'checkrole:KepalaSekolah,Bendahara']
+], function () {
+    Route::get('neraca', [NeracaController::class, 'index']);
+    Route::get('laba-rugi', [LabaRugiController::class, 'index']);
+    Route::get('arus-kas', [ArusKasController::class, 'index']);
+    Route::get('rasio-keuangan', [RasioKeuanganController::class, 'index']);
+    Route::get('rasio-keuangan-grafik', [RasioKeuanganController::class, 'getGraphicRatioByMonth']);
+    Route::get('prediksi-perencanaan', [PrediksiPerencanaanKeuanganController::class, 'index']);
+    Route::get('get-options-n', [NeracaController::class, 'getOptions']);
+    Route::get('get-options-lr', [LabaRugiController::class, 'getOptions']);
+    Route::get('get-options-ak', [ArusKasController::class, 'getOptions']);
+    Route::get('get-options-rk', [RasioKeuanganController::class, 'getOptions']);
+    Route::get('get-options-pp', [PrediksiPerencanaanKeuanganController::class, 'getOptions']);
 });
 
 Route::get('get-province', [IndoRegionController::class, 'getAllProvinces']);
