@@ -12,16 +12,26 @@ class LaundryTransaksi extends Model
     protected $table = 'laundry_transaksi';
 
     protected $fillable = [
-        'laundry_id', 'qty', 'total_harga', 'merchant_order_id',
+        'siswa_id',
+        'usaha_id',
+        'status',
+        'tanggal_pemesanan',
+        'tanggal_selesai',
     ];
 
-    public function pembayaran_duitku ()
+    public function laundry_transaksi_detail ()
     {
-        return $this->belongsTo(PembayaranDuitku::class, 'merchant_order_id');
+        return $this->hasMany(LaundryTransaksiDetail::class, 'laundry_transaksi_id');
     }
 
-    public function laundry () 
+    public function usaha()
     {
-        return $this->belongsTo(Laundry::class, 'laundry_id');
+        return $this->belongsTo(Usaha::class, 'usaha_id');
     }
+
+    public function siswa ()
+    {
+        return $this->belongsTo(Siswa::class, 'siswa_id');
+    }
+
 }

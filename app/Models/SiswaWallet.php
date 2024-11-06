@@ -12,15 +12,16 @@ class SiswaWallet extends Model
     protected $table = 'siswa_wallet';
 
     protected $fillable = [
-        'siswa_id', 'nominal',
+        'siswa_id',
+        'nominal',
     ];
 
-    public function siswa ()
+    public function siswa()
     {
         return $this->belongsTo(Siswa::class, 'siswa_id');
     }
-    public function siswa_wallet_riwayat ()
+    public function siswa_wallet_riwayat()
     {
-        return $this->hasMany(Siswa::class, 'siswa_wallet_id');
+        return $this->hasMany(SiswaWalletRiwayat::class, 'siswa_wallet_id');
     }
 }
