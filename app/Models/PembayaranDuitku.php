@@ -16,8 +16,6 @@ class PembayaranDuitku extends Model
     protected $fillable = [
         'merchant_order_id', 'reference', 'payment_method', 'transaction_response', 'data_user_response', 'callback_response', 'status',
     ];
-
-    protected $primaryKey = 'merchant_order_id';
     public $incrementing = false;
     protected $keyType = 'string';
 

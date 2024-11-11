@@ -50,7 +50,7 @@ use Illuminate\Support\Facades\Auth;
 Route::post('register', [RegisterController::class, 'register']);
 Route::post('login', [LoginController::class, 'login']);
 
-Route::post('/duitku/callback', [DuitkuCallbackController::class, 'callback']);
+Route::post('/duitku/callback', [DuitkuCallbackController::class]);
 
 // Routes for authenticated users
 Route::middleware('auth:api')->group(function () {
