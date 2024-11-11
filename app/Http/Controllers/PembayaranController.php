@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Pembayaran;
+use Illuminate\Http\Request;
 use App\Exports\PembayaranExport;
 use App\Models\PembayaranDuitku;
 use App\Models\PembayaranPpdb;
-use App\Models\Pembayaran;
 use App\Models\Ppdb;
 use App\Models\Role;
 use Illuminate\Support\Facades\Hash;
@@ -13,22 +14,99 @@ use App\Models\PembayaranKategori;
 use App\Models\Pendaftar;
 use App\Models\PendaftarAkademik;
 use App\Models\PendaftarDokumen;
+use App\Models\Siswa;
 use App\Models\User;
 use App\Notifications\CredentialsEmailNotification;
 use GrahamCampbell\ResultType\Success;
-use Illuminate\Http\Request;
 use GuzzleHttp\Client;
 use Illuminate\Support\Str;
 use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\Response;
 
+use function PHPSTORM_META\type;
+
 class PembayaranController extends Controller
 {
     const PDF_STORAGE_PATH = 'storage/app/documents/';
+
+    // Menampilkan semua data pembayaran
+    public function index()
+    {
+        $pembayarans = Pembayaran::all();
+        return response()->json($pembayarans);
+    }
+    public function create()
+    {
+        //
+    }
+
+    // Menyimpan pembayaran baru
+    public function store(Request $request)
+    {
+        $validatedData = $request->validate([
+            'siswa_id' => 'required|exists:siswa,id',
+            'pembayaran_kategori_id' => 'required|exists:pembayaran_kategori,id',
+            'nominal' => 'required|numeric',
+            'status' => 'required|string',
+            'kelas_id' => 'required|exists:kelas,id',
+        ]);
+
+        $pembayaran = Pembayaran::create($validatedData);
+
+        return response()->json([
+            'message' => 'Pembayaran berhasil ditambahkan',
+            'data' => $pembayaran
+        ], 201);
+    }
+
+    // Menampilkan detail pembayaran berdasarkan ID
+    public function show($id)
+    {
+        $pembayaran = Pembayaran::findOrFail($id);
+        return response()->json($pembayaran);
+    }
+
+    // Menampilkan form untuk mengedit pembayaran (jika diperlukan)
+    public function edit($id)
+    {
+        //
+    }
+
+    // Memperbarui data pembayaran
+    public function update(Request $request, $id)
+    {
+        $validatedData = $request->validate([
+            'siswa_id' => 'required|exists:siswa,id',
+            'pembayaran_kategori_id' => 'required|exists:pembayaran_kategori,id',
+            'nominal' => 'required|numeric',
+            'status' => 'required|string',
+            'kelas_id' => 'required|exists:kelas,id',
+        ]);
+
+        $pembayaran = Pembayaran::find($id);
+        $pembayaran->update($validatedData);
+
+        return response()->json([
+            'message' => 'Pembayaran berhasil diperbarui',
+            'data' => $pembayaran
+        ], 200);
+    }
+
+    // Menghapus pembayaran (soft delete)
+    public function destroy($id)
+    {
+        $pembayaran = Pembayaran::findOrFail($id);
+        $pembayaran->delete();
+
+        return response()->json([
+            'message' => 'Pembayaran berhasil dihapus'
+        ], 200);
+    }
 
     public function exportPembayaranPpdb(Request $request)
     {
@@ -37,6 +115,7 @@ class PembayaranController extends Controller
         // Pass the selected year to the export class
         return Excel::download(new PembayaranExport($year), 'dataPPDB.xlsx');
     }
+    
     public function getPaymentMethod(Request $request)
     {
         // Validate input from request
@@ -106,15 +185,18 @@ class PembayaranController extends Controller
 
     public function createTransaction(Request $request)
     {
-        $merchantCode = 'DS19869';
-        $apiKey = '8093b2c02b8750e4e73845f307325566';
+        $merchantCode = env('DUITKU_MERCHANT_CODE');
+        $apiKey = env('DUITKU_API_KEY');  
         $paymentAmount = $request->input('paymentAmount');
         $first_name = $request->input('nama_depan');
         $last_name = $request->input('nama_belakang');
         $paymentMethod = $request->input('paymentMethod');
+        $additionalParam = json_encode([
+            'type' => 'PPDB'
+        ]);
         $merchantOrderId = $request->input('merchantOrderId');
-        $callbackUrl = 'https://355b-114-122-102-252.ngrok-free.app/api/payment-callback';
-        $returnUrl = 'http://localhost:5173/orang-tua/cek-pembayaran';
+        $callbackUrl = env('CALLBACK_URL') . '/api/duitku/callback';
+        $returnUrl = env('RETURN_URL') . '/orang-tua/cek-pembayaran';
         $expiryPeriod = 60;
         $customerEmail = $request->input('email');
         $customerVaName = $first_name . ' ' . $last_name;
@@ -127,9 +209,10 @@ class PembayaranController extends Controller
             'nama_depan' => $first_name,
             'nama_belakang' => $last_name,
             'paymentAmount' => $paymentAmount,
+            'addtionalParam' => $additionalParam,
             'paymentMethod' => $paymentMethod,
             'merchantOrderId' => $merchantOrderId,
-            'callbackUrl' => $callbackUrl,
+            'callbackUrl' => $callbackUrl,                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
             'returnUrl' => $returnUrl,
             'signature' => $signature,
             'expiryPeriod' => $expiryPeriod,
@@ -208,19 +291,19 @@ class PembayaranController extends Controller
     public function handleCallback(Request $request)
     {
         try {
-            $apiKey = '8093b2c02b8750e4e73845f307325566';
-            $merchantCode = 'DS19869';
+            $merchantCode = env('DUITKU_MERCHANT_CODE');
+            $apiKey = env('DUITKU_API_KEY');  
             $amount = $request->input('amount');
             $merchantOrderId = $request->input('merchantOrderId');
             $signature = $request->input('signature');
-            $resultCode = $request->input('resultCode'); // Get resultCode from the request
+            $resultCode = $request->input('resultCode');
     
             Log::info('Data received from Duitku', [
                 'merchantCode' => $merchantCode,
                 'amount' => $amount,
                 'merchantOrderId' => $merchantOrderId,
                 'signature' => $signature,
-                'resultCode' => $resultCode, // Log resultCode
+                'resultCode' => $resultCode, 
             ]);
     
             // Calculate signature
@@ -307,7 +390,10 @@ class PembayaranController extends Controller
                                     'email' => $dataUserResponse['email'],
                                     'password' => Hash::make($plainPassword),
                                     'role' => 'Siswa',
+                                    'email_verified_at' => now(),
+                                    'remember_token' => Str::random(10),
                                 ]);
+
     
                                 $user->notify(new CredentialsEmailNotification($plainPassword));
     
@@ -336,4 +422,4 @@ class PembayaranController extends Controller
             return response()->json(['error' => 'Unexpected Error', 'message' => $e->getMessage()], 500);
         }
     }
-}    
+}

@@ -35,6 +35,7 @@ use App\Http\Controllers\PendaftarController;
 use App\Http\Controllers\LogoutController;
 use App\Http\Controllers\NIKController;
 use App\Http\Controllers\AmountController;
+use App\Http\Controllers\DuitkuCallbackController;
 use App\Http\Controllers\KelasController;
 use App\Http\Controllers\PendaftarDokumenController;
 use App\Http\Controllers\PendaftaranAkademikController;
@@ -49,15 +50,16 @@ use Illuminate\Support\Facades\Auth;
 Route::post('register', [RegisterController::class, 'register']);
 Route::post('login', [LoginController::class, 'login']);
 
-Route::post('/duitku/callback', [TopUpController::class, 'callback']);
+Route::post('/duitku/callback', [DuitkuCallbackController::class, 'callback']);
 
 // Routes for authenticated users
 Route::middleware('auth:api')->group(function () {
     Route::post('logout', [LogoutController::class, 'logout']);
     
-    Route::group(['prefix'=>'pembayaran', 'middleware'=> 'checkrole:KepalaSekolah,Admin,Bendahara'], function () {
+    Route::group(['prefix'=>'LaporanKeuangan', 'middleware'=> 'checkrole:KepalaSekolah,Admin,Bendahara'], function () {
         Route::get('/export-pembayaran-ppdb', [PembayaranController::class, 'exportPembayaranPpdb']);
         Route::get('/laporan-keuangan', [LaporanKeuanganController::class, 'searchLaporanKeuangan']);
+        
         
     });
     
