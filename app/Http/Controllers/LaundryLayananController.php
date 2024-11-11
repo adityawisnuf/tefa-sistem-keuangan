@@ -35,7 +35,6 @@ class LaundryLayananController extends Controller
 
     public function create(Request $request)
     {
-
         $validated = $request->validate([
             'nama_layanan' => ['required', 'string', 'max:255'],
             'foto_layanan' => ['required', 'image', 'mimes:png,jpg,jpeg', 'max:2048'],
@@ -57,11 +56,19 @@ class LaundryLayananController extends Controller
 
     public function show(LaundryLayanan $layanan)
     {
+        if ($layanan->usaha_id != Auth::user()->usaha->id) {
+            return response()->json(['message'=> 'Data tidak ditemukan'], Response::HTTP_NOT_FOUND);
+        }
+
         return response()->json(['data' => $layanan], Response::HTTP_OK);
     }
 
     public function update(Request $request, LaundryLayanan $layanan)
     {
+        if ($layanan->usaha_id != Auth::user()->usaha->id) {
+            return response()->json(['message'=> 'Data tidak ditemukan'], Response::HTTP_NOT_FOUND);
+        }
+
         $validated = $request->validate([
             'nama_layanan' => ['sometimes', 'nullable', 'string', 'max:255'],
             'foto_layanan' => ['sometimes', 'nullable', 'image', 'mimes:png,jpg,jpeg', 'max:2048'],
@@ -87,6 +94,10 @@ class LaundryLayananController extends Controller
 
     public function destroy(LaundryLayanan $layanan)
     {
+        if ($layanan->usaha_id != Auth::user()->usaha->id) {
+            return response()->json(['message'=> 'Data tidak ditemukan'], Response::HTTP_NOT_FOUND);
+        }
+        
         $layanan->delete();
         Storage::delete(self::IMAGE_STORAGE_PATH . $layanan->foto_layanan);
 
