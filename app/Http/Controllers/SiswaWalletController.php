@@ -9,25 +9,25 @@ use Symfony\Component\HttpFoundation\Response;
 
 class SiswaWalletController extends Controller
 {
-    public function getSaldo()
+    public function getSaldo(Request $request)
     {
         $siswaWallet = Auth::user()->siswa->siswa_wallet;
 
+        $validated = $request->validate([
+            'bulan' => ['nullable', 'integer', 'min:1', 'max:12'],
+        ]);
+
+        $bulan = $validated['bulan'] ?? Carbon::now()->month;
+
         $pemasukan = $siswaWallet
             ->siswa_wallet_riwayat()
-            ->whereBetween('tanggal_riwayat', [
-                Carbon::now()->startOfMonth(),
-                Carbon::now()->endOfMonth()
-            ])
+            ->whereMonth('tanggal_riwayat', $bulan)
             ->where('tipe_transaksi', 'pemasukan')
             ->sum('nominal');
 
         $pengeluaran = $siswaWallet
             ->siswa_wallet_riwayat()
-            ->whereBetween('tanggal_riwayat', [
-                Carbon::now()->startOfMonth(),
-                Carbon::now()->endOfMonth()
-            ])
+            ->whereMonth('tanggal_riwayat', $bulan)
             ->where('tipe_transaksi', 'pengeluaran')
             ->sum('nominal');
 
