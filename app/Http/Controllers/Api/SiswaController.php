@@ -10,27 +10,62 @@ class SiswaController extends Controller
 {
     public function index(Request $request)
     {
-        // Query untuk mengambil data siswa tanpa filter
+        // Validasi input dari pengguna
+        $request->validate([
+            'nama_siswa' => ['nullable', 'integer'],
+            'kelas' => ['nullable', 'integer'],
+            'jurusan' => ['nullable', 'integer'],
+        ]);
+
+        // Query data siswa dengan relasi
         $query = Siswa::with(['kelas', 'orangtua'])->oldest();
 
-        // Ambil data siswa
-        $siswaData = $request->input('page') === 'all' ? $query->get() : $query->paginate(10);
+        // Filter berdasarkan input
+        if ($request->filled('nama_siswa')) {
+            // Memfilter berdasarkan nama siswa
+            $query->where(function ($q) use ($request) {
+                $q->where('nama_depan', 'like', "%{$request->nama_siswa}%")
+                  ->orWhere('nama_belakang', 'like', "%{$request->nama_siswa}%")
+                  ->orWhere('id', $request->nama_siswa); 
+            });
+        }
 
-        // Format data yang diambil
-        $formattedData = $siswaData->map(function ($siswa) {
+        if ($request->filled('kelas')) {
+            // Memfilter berdasarkan kelas
+            $query->whereHas('kelas', function ($q) use ($request) {
+                $q->where('id', $request->kelas); 
+            });
+        }
+
+        if ($request->filled('jurusan')) {
+            // Memfilter berdasarkan jurusan
+            $query->whereHas('kelas', function ($q) use ($request) {
+                $q->where('id', $request->jurusan);
+            });
+        }
+
+        $siswaData = $query->paginate(10);
+
+        $allData = collect($siswaData->items())->map(function ($siswa) {
             return [
-                'nama_siswa' => $siswa->nama_depan.' '.$siswa->nama_belakang,
+                'nama_siswa' => $siswa->nama_depan . ' ' . $siswa->nama_belakang,
+                'kelas' => $siswa->kelas->kelas ?? null,
+                'jurusan' => $siswa->kelas->jurusan ?? null,
                 'telepon' => $siswa->telepon,
-                'kelas' => $siswa->kelas->kelas ?? null, // Mengambil nama kelas
-                'jurusan' => $siswa->kelas->jurusan ?? null, // Mengambil nama jurusan
-                'orangtua' => $siswa->orangtua->nama ?? null, // Mengambil nama orang tua
+                'orang_tua' => $siswa->orangtua->nama ?? null,
             ];
         });
 
         return response()->json([
-            'message' => 'Berhasil mendapatkan data siswa',
             'success' => true,
-            'data' => $formattedData,
+            'message' => 'Berhasil mendapatkan data siswa',
+            'data' => $allData,
+            'pagination' => [
+                'total' => $siswaData->total(),
+                'current_page' => $siswaData->currentPage(),
+                'last_page' => $siswaData->lastPage(),
+                'per_page' => $siswaData->perPage(),
+            ]
         ]);
     }
 }

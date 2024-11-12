@@ -4,39 +4,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laporan Pembayaran Siswa SPP</title>
+    <title>DATA PEMBAYARAN SPP SISWA</title>
     <style>
-        /* Styling umum */
-        * {
-            font-family: 'Arial', sans-serif;
-            box-sizing: border-box;
-        }
-
         body {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background-color: #ffffff;
-            color: #151010;
+            font-family: 'Times New Roman', serif;
             margin: 0;
             padding: 20px;
+            color: #151010;
         }
 
-        /* Header styling */
+        .title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-decoration: underline;
+            color: #080000;
+            text-align: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            background-color: #ffffff;
+            font-size: 14px;
+        }
+
+        th,
+        td {
+            padding: 5px;
+            border: 1px solid #000000;
+        }
+
+        th {
+            background-color: #0068fa;
+            color: #ffffff;
+        }
+
+        td {
+            text-align: left;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f4f4f9;
+        }
+
+        tr:hover {
+            background-color: #e0e0e0;
+        }
+
+        hr {
+            border: 1px solid black;
+            margin: 20px 0;
+        }
+
+        /* Kop Surat */
         header {
             display: flex;
-            flex-direction: column;
             align-items: center;
             width: 100%;
             max-width: 1000px;
             margin-bottom: 10px;
-            padding-bottom: 10px;
-            position: relative;
         }
 
         .logo {
-            width: 100px;
-            height: auto;
+            position: absolute;
+            width: 90px;
+            margin-right: 20px;
         }
 
         .kop-surat {
@@ -44,13 +78,15 @@
             flex: 1;
         }
 
-        .kop-surat h1, .kop-surat p, .kop-surat h2 {
+        .kop-surat h1,
+        .kop-surat p,
+        .kop-surat h2 {
             margin: 0;
         }
 
         .kop-surat h2 {
             font-size: 16px;
-            font-weight: normal; /* Mengatur font-weight menjadi normal */
+            font-weight: normal;
         }
 
         .kop-surat h1 {
@@ -66,80 +102,46 @@
             font-size: 11px;
         }
 
-        /* Garis bawah kop surat */
-        .line-container {
-            width: 100%;
-            max-width: 1000px;
-            margin-top: 5px; /* Mengurangi jarak antara garis dan kop surat */
+        /* Styling untuk informasi siswa */
+        .student-info p {
+            font-size: 12px;
         }
 
+        /* Mengatur pembatas halaman untuk setiap data pembayaran siswa */
+        .student-data {
+            page-break-before: always;
+        }
+
+        .first-payment {
+            page-break-before: auto; /* Membuat halaman pertama tidak terpisah */
+        }
+
+        /* Pembatas halaman untuk setiap data pembayaran berikutnya */
+        .student-data:not(.first-payment) {
+            page-break-before: always;
+        }
+
+        @media print {
+            /* Halaman baru pada setiap data pembayaran siswa, kecuali pembayaran pertama */
+            .student-data:not(.first-payment) {
+                page-break-before: always;
+            }
+
+            /* Menghapus margin agar bisa lebih rapat */
+            body {
+                margin: 0;
+                padding: 0;
+            }
+
+            .kop-surat hr {
+                display: none; /* Menyembunyikan garis kedua di bawah kop surat */
+            }
+        }
+
+        /* Garis setelah kop surat */
         .line-container hr {
-            border: 1px solid black; /* Mengubah ketebalan garis menjadi lebih tipis */
-            margin: 2px 0; /* Mengurangi jarak antar dua garis */
-        }
-
-        /* Judul Laporan */
-        h3 {
-            margin-bottom: 20px;
-            color: #080000;
-            width: 100%;
-            text-align: center;
-            font-size: 20px;
-            text-decoration: underline;
-        }
-
-        /* Table styling */
-        .table-container {
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            margin-bottom: 20px;
-        }
-
-        table {
-            width: 100%;
-            max-width: 1000px;
-            border-collapse: collapse;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            background-color: #ffffff;
-            color: #151010;
-            font-size: 14px;
-        }
-
-        th, td {
-            padding: 5px;
-            border: 1px solid #000000;
-        }
-
-        th {
-            background-color: #0068fa;
-            color: #ffffff;
-        }
-
-        tr:nth-child(even) {
-            background-color: #f4f4f9;
-        }
-
-        tr:hover {
-            background-color: #e0e0e0;
-        }
-
-        /* Tanda tangan styling */
-        .signature-section {
-            width: fit-content;
-            max-width: 1000px;
-            margin-top: 50px;
-            text-align: right; /* Mengarahkan elemen ke kanan */
-            padding-right: 20px; /* Memberi jarak dari tepi kanan */
-        }
-
-        .signature p {
-            margin: 5px 0;
-        }
-
-        .signature {
-            margin-top: 80px;
-            font-size: 16px;
+            border: 1px solid black;
+            margin: 20px 0;
         }
     </style>
 </head>
@@ -147,72 +149,63 @@
 <body>
     <!-- Kop Surat -->
     <header>
-        <!-- Logo Sekolah -->
-        <!-- <img src="{{ asset('foto/logosmk.jpeg') }}" alt="Logo Sekolah" class="logo"> -->
-
+        <img src="{{ public_path($sekolah->logo) }}" class="logo" />
         <div class="kop-surat">
             <h2>PEMERINTAH DAERAH PROVINSI JAWA BARAT</h2>
             <h2>DINAS PENDIDIKAN</h2>
             <h2>CABANG DINAS PENDIDIKAN WILAYAH VIII</h2>
-            <h1>SMK NEGERI 2 SUMEDANG</h1>
-            <p>Jalan Arief Rakhman Hakim No. 59 Telp. 0216-201531, Fax. 0261-210097</p>
+            <h1>{{ $sekolah->nama }}</h1>
+            <p>{{ $sekolah->alamat }} Telp. 0216-201531, Fax. 0261-210097</p>
             <p>http://www.smkn2sumedang.sch.id - email.smkn2sumedang@yahoo.com</p>
             <p class="kabupaten">KABUPATEN SUMEDANG 45323</p>
         </div>
     </header>
 
-    <!-- Garis bawah kop surat -->
+    <!-- Garis bawah kop surat (hanya satu garis) -->
     <div class="line-container">
         <hr>
-        <hr>
     </div>
 
-    <!-- Judul Laporan -->
-    <h3>LAPORAN PEMBAYARAN SISWA TAHUNAN</h3>
+    <!-- Judul Laporan Data Siswa dan Pembayaran -->
+    <h2 class="title">DATA PEMBAYARAN SPP SISWA</h2>
 
-    <!-- Tabel Anggaran -->
-    <div class="table-container">
-        <table>
-            <thead>
-                <tr>
-                    <th>No</th>
-                    <th>Nama Siswa</th>
-                    <th>Kelas</th>
-                    <th>Jurusan</th>
-                    <th>Telepon</th>
-                    <th>Orang Tua</th>
-                 
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($pembayarans as $index => $pembayarans)
-                <tr>
-                    <td>{{ $loop->iteration }}</td>
-                    <td>{{ $item->nama_depan . ' ' . $item->nama_belakang }}</td>
-                    <td>{{ $item->kelas->kelas ?? 'Tidak ada data' }}</td>
-                    <td>{{ $item->kelas->jurusan ?? 'Tidak ada data' }}</td>
-                    <td>{{ $item->telepon }}</td>
-                    <td>{{ $item->orangtua->nama ?? 'Tidak ada data' }}</td>
-                
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
-    </div>
+    @foreach ($result as $index => $data)
+        <!-- Untuk pembayaran pertama, gabungkan dengan data siswa pada halaman pertama -->
+        <div class="student-data {{ $index == 0 ? 'first-payment' : '' }}">
+            <div class="student-info">
+                <p><strong>Nama Siswa:</strong> {{ $data['nama_siswa'] }}</p>
+                <p><strong>Kelas:</strong> {{ $data['kelas'] }}</p>
+                <p><strong>Jurusan:</strong> {{ $data['jurusan'] }}</p>
+                <p><strong>Telepon:</strong> {{ $data['telepon'] }}</p>
+                <p><strong>Orang Tua:</strong> {{ $data['orangtua'] }}</p>
+                <p><strong>Sisa Tagihan:</strong> Rp{{ number_format($data['sisa_tagihan'], 0, ',', '.') }}</p>
+            </div>
 
-    <!-- Area Tanda Tangan -->
-    <div style="display: flex; justify-content: end;">
-        <div style="width: 35%; position: absolute; right: 0;">
-            <div class="signature">
-                <p>Sumedang, {{ date('d F Y') }}</p>
-                <p>Kepala Sekolah,</p>
-            </div>
-            <div class="signature">
-                <p style="font-weight: bold;">Dra. Elis Herawati, M.Pd.</p>
-                <p>NIP. 196702021993032006</p>
-            </div>
+            <!-- Tabel Pembayaran -->
+            <table>
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Pembayaran Ke</th>
+                        <th>Nominal</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($data['payments'] as $index => $payment)
+                        <tr>
+                            <td>{{ $index + 1 }}</td>
+                            <td>{{ $payment['pembayaran_ke'] }}</td>
+                            <td>Rp{{ number_format($payment['nominal'], 0, ',', '.') }}</td>
+                            <td>{{ $payment['status'] }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+
+            <hr>
         </div>
-    </div>
+    @endforeach
 </body>
 
 </html>

@@ -7,7 +7,11 @@ use App\Http\Controllers\Api\SiswaController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\LogoutController;
 use App\Http\Controllers\PembayaranManualController;
+use App\Http\Controllers\PrintPdfPiutangdanTunggakanController;
+use App\Http\Controllers\PrintPdfSPPController;
+use App\Http\Controllers\PrintPdfTahunanPemasukanController;
 use App\Http\Controllers\RegisterController;
+use App\Http\Controllers\WhatsAppController;
 use App\Models\Kelas;
 use App\Models\Pembayaran;
 use App\Models\Siswa;
@@ -22,6 +26,8 @@ Route::post('register', [RegisterController::class, 'register']);
 Route::post('login', [LoginController::class, 'login']);
 
 Route::middleware('auth:api')->group(function () {
+    Route::post('/send-whatsapp', [WhatsAppController::class, 'sendMessage']);
+    Route::get('/get-groups', [WhatsAppController::class, 'getGroups']);
     Route::post('logout', [LogoutController::class, 'logout']);
 
     Route::prefix('select')->group(function () {
@@ -129,57 +135,17 @@ Route::middleware('auth:api')->group(function () {
     });
 
     // Role: BENDAHARA
-    Route::middleware('checkrole:Bendahara')->prefix('bendahara')->group(function () {
-        Route::post('/siswa', [SiswaController::class, 'index']);
-
-        //Laporan Pembayaran Tahunan
-        Route::get('/laporan/pdf-tahunan', function (Request $request) {
-            $tgl_awal = $request->query('tgl_awal');
-            $tgl_akhir = $request->query('tgl_akhir');
-
-            // Ambil data pembayaran siswa
-            if ($tgl_awal && $tgl_akhir) {
-                $pembayaranSiswa = Siswa::whereBetween('tanggal_pembayaran', [$tgl_awal, $tgl_akhir])->with('kelas', 'orangtua')->get();
-                $fileName = "Pembayaran Siswa {$tgl_awal} - {$tgl_akhir}.pdf";
-            } else {
-                $pembayaranSiswa = Siswa::with('kelas', 'orangtua')->get();
-                $fileName = 'Data Keseluruhan Pembayaran Siswa Tahunan.pdf';
-            }
-
-            $data = [
-                'pembayaranSiswas' => $pembayaranSiswa,
-                'sekolah' => \App\Models\Sekolah::first(),
-            ];
-
-            $pdf = Pdf::loadView('print.PrintPdfTahunan', $data);
-
-            return $pdf->stream($fileName);
-        })->name('print.PrintPdfTahunan');
+ // Role: BENDAHARA
+ Route::middleware('checkrole:Bendahara')->prefix('Bendahara')->group(function () {
+    Route::post('/siswa', [SiswaController::class, 'index']);
+    Route::post('/get/payment/siswa', [PembayaranController::class, 'getPembayaran']);
+    Route::post('/get/payment/siswa/tahunan', [PembayaranController::class, 'getPembayaranTahunan']);
+    Route::post('/piutang-tunggakan', [PembayaranController::class, 'getPiutangTunggakan']);
+    Route::get('/pembayaran-tahunan', [PembayaranController::class, 'getPembayaranTahunan']);
+    Route::get('/laporan/spp', [PrintPdfSPPController::class, 'cetakSiswaPembayaran']);
+    Route::get('/laporan/pemasukan-tahunan', [PrintPdfTahunanPemasukanController::class, '__invoke']);
+    Route::get('/laporan/UtangPiutang', [PrintPdfPiutangdanTunggakanController::class, '__invoke']);
     });
-
-    //Laporan Pembayaran SPP
-    Route::get('/laporan/pdf-spp', function (Request $request) {
-        $tgl_awal = $request->query('tgl_awal');
-        $tgl_akhir = $request->query('tgl_akhir');
-
-        if ($tgl_awal && $tgl_akhir) {
-            $pembayaranSiswa = Siswa::whereBetween('tanggal_pembayaran', [$tgl_awal, $tgl_akhir])->with('kelas', 'orangtua')->get();
-            $fileName = "Pembayaran Siswa {$tgl_awal} - {$tgl_akhir}.pdf";
-        } else {
-            $pembayaranSiswa = Siswa::with('kelas', 'orangtua')->get();
-            $fileName = 'Data Keseluruhan Pembayaran Siswa SPP.pdf';
-        }
-
-        $data = [
-            'pembayaranSiswas' => $pembayaranSiswa,
-            'sekolah' => \App\Models\Sekolah::first(),
-        ];
-
-        $pdf = Pdf::loadView('print.PrintPdfSPP', $data);
-
-        return $pdf->stream($fileName);
-    })->name('print.PrintPdfSPP');
-});
 
 // Role: SISWA
 Route::middleware('checkrole:Siswa')->prefix('siswa')->group(function () {
@@ -187,6 +153,10 @@ Route::middleware('checkrole:Siswa')->prefix('siswa')->group(function () {
     Route::patch('/pembayaran-siswa/{id}', [PembayaranSiswaController::class, 'update']);
     Route::get('/riwayat-pembayaran', [PembayaranSiswaController::class, 'riwayatPembayaran']);
     Route::get('/riwayat-tagihan', [PembayaranSiswaController::class, 'riwayatTagihan']);
+    Route::get('/pembayaran/notifications', [PembayaranKategoriController::class, 'notifications']);
+    Route::get('/peringatan-jatuh-tempo', [PembayaranKategoriController::class, 'peringatanJatuhTempo']);
+    Route::post('/send-whatsapp', [WhatsAppController::class, 'sendMessage']);
+    Route::get('/get-groups', [WhatsAppController::class, 'getGroups']);
 });
 
 // Role: ORANG TUA
@@ -195,4 +165,8 @@ Route::middleware('checkrole:Orang Tua')->prefix('orangtua')->group(function () 
     Route::post('/pembayaran-siswa/{id}/bayar', [PembayaranSiswaController::class, 'bayar']);
     Route::get('/riwayat-pembayaran', [PembayaranSiswaController::class, 'riwayatPembayaran']);
     Route::get('/riwayat-tagihan', [PembayaranSiswaController::class, 'riwayatTagihan']);
+    Route::get('/pembayaran/notifications', [PembayaranKategoriController::class, 'notifications']);
+    Route::get('/peringatan-jatuh-tempo', [PembayaranKategoriController::class, 'peringatanJatuhTempo']);
+});
+
 });
