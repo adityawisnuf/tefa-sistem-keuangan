@@ -10,6 +10,7 @@ use App\Http\Controllers\KepsekLaporanController;
 use App\Http\Controllers\KepsekPengajuanController;
 use App\Http\Controllers\LaundryTransaksiController;
 use App\Http\Controllers\OrangTuaController;
+use App\Http\Controllers\UsahaController;
 use App\Http\Controllers\UsahaPengajuanController;
 use App\Http\Controllers\KantinProdukController;
 use App\Http\Controllers\KantinProdukKategoriController;
@@ -223,6 +224,14 @@ Route::middleware('auth:api')->group(function () {
         Route::get('/laundry/laporan/{transaksi}', [KepsekLaporanController::class, 'getDetailLaundryTransaksi']);
 
         Route::get('/pengajuan', [KepsekPengajuanController::class, 'getUsahaPengajuan']);
+    });
+
+    Route::group([
+        'prefix' => 'usaha',
+        'middleware' => 'checkrole:Kantin,Laundry'
+    ], function() {
+        Route::get('/status-buka', [UsahaController::class, 'getStatusBuka']);
+        Route::patch('/status-buka', [UsahaController::class, 'updateStatusBuka']);
     });
 });
 
