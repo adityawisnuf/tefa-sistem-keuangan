@@ -25,6 +25,16 @@ class PembayaranSiswaSPPExport implements FromView, ShouldAutoSize, WithStyles, 
         return view('print.PrintExcelSPP', ['data' => $this->data]);
     }
 
+    private function getNamaBulan($bulan)
+    {
+        $namaBulan = [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April', 5 => 'Mei',
+            6 => 'Juni', 7 => 'Juli', 8 => 'Agustus', 9 => 'September',
+            10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+        ];
+        return $namaBulan[$bulan] ?? 'Tidak Valid';
+    }
+
     public function styles(Worksheet $worksheet)
     {
         $row = 1;
@@ -62,7 +72,7 @@ class PembayaranSiswaSPPExport implements FromView, ShouldAutoSize, WithStyles, 
                 ],
             ]);
 
-            $row += 7; // Move down after student details
+            $row += 7;
 
             // Payment table header
             $worksheet->mergeCells("A{$row}:D{$row}");
@@ -108,7 +118,7 @@ class PembayaranSiswaSPPExport implements FromView, ShouldAutoSize, WithStyles, 
             // Payment data rows
             foreach ($siswa['payments'] as $payment) {
                 $worksheet->setCellValue("A{$row}", $payment['pembayaran_ke']);
-                $worksheet->setCellValue("B{$row}", $payment['bulan']);
+                $worksheet->setCellValue("B{$row}", $this->getNamaBulan($payment['bulan'])); // Menggunakan nama bulan
                 $worksheet->setCellValue("C{$row}", "Rp. " . number_format($payment['nominal'], 0, ',', '.'));
                 $worksheet->setCellValue("D{$row}", $payment['status']);
 
@@ -125,18 +135,15 @@ class PembayaranSiswaSPPExport implements FromView, ShouldAutoSize, WithStyles, 
                 $row++;
             }
 
-            // Add spacing between student records
             $row += 2;
         }
 
-        // Adjust column width for better appearance
         $worksheet->getColumnDimension('A')->setWidth(25);
         $worksheet->getColumnDimension('B')->setWidth(15);
         $worksheet->getColumnDimension('C')->setWidth(20);
         $worksheet->getColumnDimension('D')->setWidth(15);
 
-        // Set the height of the header row for better visibility
-        $worksheet->getRowDimension(1)->setRowHeight(30); // Adjust height of the header row
+        $worksheet->getRowDimension(1)->setRowHeight(30);
     }
 
     public function title(): string

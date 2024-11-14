@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DATA PEMBAYARAN SPP SISWA</title>
+    <title>DATA PEMBAYARAN TAHUNAN SISWA</title>
     <style>
         .student-info { margin-bottom: 20px; }
         .student-info p { margin: 5px 0; }
@@ -16,43 +16,31 @@
 </head>
 <body>
 
-    @php
-        function getNamaBulan($bulan) {
-            $namaBulan = [
-                1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April', 5 => 'Mei',
-                6 => 'Juni', 7 => 'Juli', 8 => 'Agustus', 9 => 'September',
-                10 => 'Oktober', 11 => 'November', 12 => 'Desember'
-            ];
-            return $namaBulan[$bulan] ?? 'Tidak Valid';
-        }
-    @endphp
-
-    <h2 class="title">DATA PEMBAYARAN SPP SISWA</h2>
+    <h2 class="title">DATA PEMBAYARAN TAHUNAN SISWA</h2>
 
     @foreach ($data as $index => $siswa)
     <div class="student-info">
-        <p>Nama Siswa: {{ $siswa['nama_siswa'] }}</p>
-        <p>Kelas: {{ $siswa['kelas'] }}</p>
-        <p>Jurusan: {{ $siswa['jurusan'] }}</p>
-        <p>Telepon: {{ $siswa['telepon'] }}</p>
-        <p>Orang Tua: {{ $siswa['orangtua'] }}</p>
-        <p class="sisa-tagihan">Sisa Tagihan: Rp. {{ number_format($siswa['sisa_tagihan'] ?? 0, 0, ',', '.') }}</p>
+        <p><strong>Nama Siswa:</strong> {{ $siswa['nama_siswa'] }}</p>
+        <p><strong>Kelas:</strong> {{ $siswa['kelas'] }}</p>
+        <p><strong>Jurusan:</strong> {{ $siswa['jurusan'] }}</p>
+        <p><strong>Telepon:</strong> {{ $siswa['telepon'] }}</p>
+        <p><strong>Orang Tua:</strong> {{ $siswa['orangtua'] ?? 'Data tidak tersedia' }}</p>
     </div>
 
     <table>
         <thead>
             <tr>
-                <th>Pembayaran Ke</th>
-                <th>Bulan</th>
+                <th>No</th>
+                <th>Nama Pembayaran</th>
                 <th>Nominal</th>
                 <th>Status</th>
             </tr>
         </thead>
         <tbody>
-            @foreach ($siswa['payments'] as $payment)
+            @foreach ($siswa['payments'] as $paymentIndex => $payment)
             <tr>
+                <td>{{ $paymentIndex + 1 }}</td>
                 <td>{{ $payment['pembayaran_ke'] }}</td>
-                <td>{{ getNamaBulan($payment['bulan']) }}</td>
                 <td>Rp. {{ number_format($payment['nominal'], 0, ',', '.') }}</td>
                 <td>{{ $payment['status'] }}</td>
             </tr>
@@ -60,7 +48,11 @@
         </tbody>
     </table>
 
-    <br><br>
+    <p class="sisa-tagihan"><strong>Sisa Tagihan:</strong> Rp. {{ number_format($siswa['sisa_tagihan'], 0, ',', '.') }}</p>
+
+    @if (!$loop->last)
+        <div style="margin-top: 30px;"></div> <!-- Spasi antar data siswa -->
+    @endif
     @endforeach
 
 </body>
