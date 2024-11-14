@@ -143,6 +143,16 @@
             border: 1px solid black;
             margin: 20px 0;
         }
+
+        /* Styling untuk area tanda tangan */
+        .signature {
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        .signature p {
+            margin: 5px 0;
+        }
     </style>
 </head>
 
@@ -185,27 +195,43 @@
             <table>
                 <thead>
                     <tr>
-                        <th>No</th>
+                        <th>No.</th>
                         <th>Pembayaran Ke</th>
+                        <th>Bulan Pembayaran</th>
                         <th>Nominal</th>
-                        <th>Status</th>
+                        <th>Status Pembayaran</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($data['payments'] as $index => $payment)
+                    @foreach ($data['payments'] as $payment)
                         <tr>
-                            <td>{{ $index + 1 }}</td>
+                            <td>{{ $loop->iteration }}</td>
                             <td>{{ $payment['pembayaran_ke'] }}</td>
-                            <td>Rp{{ number_format($payment['nominal'], 0, ',', '.') }}</td>
+                            <td>{{ $payment['bulan'] }}</td>
+                            <td>Rp. {{ number_format($payment['nominal'], 0, ',', '.') }}</td>
                             <td>{{ $payment['status'] }}</td>
                         </tr>
                     @endforeach
                 </tbody>
             </table>
-
             <hr>
         </div>
     @endforeach
+
+    <!-- Area Tanda Tangan -->
+    <div style="display: flex; justify-content: end;">
+        <div style="width: 35%; position: absolute; right: 0;">
+            <div class="signature">
+                <p>Sumedang, {{ date('d F Y') }}</p>
+                <p>Kepala Sekolah,</p>
+            </div>
+            <div class="signature">
+                <p style="font-weight: bold;">Dra. Elis Herawati, M.Pd.</p>
+                <p>{{ $sekolah->nip_kepsek }}</p>
+            </div>
+        </div>
+    </div>
+
 </body>
 
 </html>

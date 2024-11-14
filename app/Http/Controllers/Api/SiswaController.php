@@ -56,6 +56,18 @@ class SiswaController extends Controller
             ];
         });
 
+        // return response()->json([
+        //     'success' => true,
+        //     'message' => 'Berhasil mendapatkan data siswa',
+        //     'data' => $allData,
+        //     'pagination' => [
+        //         'total' => $siswaData->total(),
+        //         'current_page' => $siswaData->currentPage(),
+        //         'last_page' => $siswaData->lastPage(),
+        //         'per_page' => $siswaData->perPage(),
+        //     ]
+        // ]);
+
         return response()->json([
             'success' => true,
             'message' => 'Berhasil mendapatkan data siswa',
@@ -65,7 +77,12 @@ class SiswaController extends Controller
                 'current_page' => $siswaData->currentPage(),
                 'last_page' => $siswaData->lastPage(),
                 'per_page' => $siswaData->perPage(),
+                'next_page_url' => $siswaData->nextPageUrl(),
+                'prev_page_url' => $siswaData->previousPageUrl(),
+                'from' => $siswaData->firstItem(),
+                'to' => $siswaData->lastItem(),
             ]
         ]);
+        
     }
 }

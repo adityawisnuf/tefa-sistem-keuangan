@@ -7,9 +7,12 @@ use App\Http\Controllers\Api\SiswaController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\LogoutController;
 use App\Http\Controllers\PembayaranManualController;
+use App\Http\Controllers\PrintExcelSPPController;
+use App\Http\Controllers\PrintExcelTahunanController;
 use App\Http\Controllers\PrintPdfPiutangdanTunggakanController;
 use App\Http\Controllers\PrintPdfSPPController;
 use App\Http\Controllers\PrintPdfTahunanPemasukanController;
+use App\Http\Controllers\PrintSPPExcelController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\WhatsAppController;
 use App\Models\Kelas;
@@ -122,6 +125,7 @@ Route::middleware('auth:api')->group(function () {
             return response()->json(['success' => true, 'message' => 'Berhasil membuat pembayaran baru', 'data' => $pembayaran]);
         })->name('payment.assign');
     });
+    
     //Role: ADMIN
     Route::middleware('checkrole:Admin')->prefix('Admin')->group(function () {
         Route::get('students', [PembayaranManualController::class, 'getStudents']);
@@ -141,10 +145,13 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/get/payment/siswa', [PembayaranController::class, 'getPembayaran']);
     Route::post('/get/payment/siswa/tahunan', [PembayaranController::class, 'getPembayaranTahunan']);
     Route::post('/piutang-tunggakan', [PembayaranController::class, 'getPiutangTunggakan']);
-    Route::get('/pembayaran-tahunan', [PembayaranController::class, 'getPembayaranTahunan']);
+    // Route::get('/pembayaran-tahunan', [PembayaranController::class, 'getPembayaranTahunan']);
     Route::get('/laporan/spp', [PrintPdfSPPController::class, 'cetakSiswaPembayaran']);
     Route::get('/laporan/pemasukan-tahunan', [PrintPdfTahunanPemasukanController::class, '__invoke']);
     Route::get('/laporan/UtangPiutang', [PrintPdfPiutangdanTunggakanController::class, '__invoke']);
+    Route::get('/excel-tahunan', [PrintExcelTahunanController::class, 'exportExcel']);
+    Route::get('/excel-spp', [PrintExcelSPPController::class, 'exportPembayaranSiswaToExcel']);
+
     });
 
 // Role: SISWA

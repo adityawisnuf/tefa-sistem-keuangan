@@ -759,88 +759,86 @@ class PembayaranController extends Controller
     }
 
     public function getPembayaranTahunan(Request $request)
-{
-    // Jika siswa_id disediakan, ambil data spesifik siswa, jika tidak ambil semua siswa
-    $siswas = $request->siswa_id ? Siswa::where('id', $request->siswa_id)->get() : Siswa::all();
-
-    // Ambil data sekolah
-    $sekolah = Sekolah::first(); // Sesuaikan sesuai kebutuhan Anda
-
-    $result = []; 
+    {
+        // Jika siswa_id disediakan, ambil data spesifik siswa, jika tidak ambil semua siswa
+        $siswas = $request->siswa_id ? Siswa::where('id', $request->siswa_id)->get() : Siswa::all();
     
-    foreach ($siswas as $siswa) {
-        // Query untuk mengambil daftar pembayaran tahunan untuk siswa tertentu
-        $pembayaranList = Pembayaran::whereHas('pembayaran_kategori', function ($query) {
-            $query->where('jenis_pembayaran', 2) // Filter untuk jenis pembayaran tahunan
-                  ->where('status', 1); // Hanya pembayaran aktif
-        })
-        ->where('siswa_id', $siswa->id)
-        ->with(['pembayaran_siswa' => function ($query) use ($siswa) {
-            $query->where('siswa_id', $siswa->id)
-                  ->with('pembayaran_siswa_cicilan');
-        }, 'pembayaran_kategori']) // Memasukkan relasi kategori pembayaran
-        ->when($request->filled('nama_siswa'), function ($query) use ($request) {
-            $query->whereHas('siswa', function ($q) use ($request) {
-                $q->where('id', $request->nama_siswa);
-            });
-        })
-        ->when($request->filled('kelas'), function ($query) use ($request) {
-            $query->whereHas('siswa.kelas', function ($q) use ($request) {
-                $q->where('id', $request->kelas);
-            });
-        })
-        ->when($request->filled('jurusan'), function ($query) use ($request) {
-            $query->whereHas('siswa.kelas', function ($q) use ($request) {
-                $q->where('jurusan', $request->jurusan);
-            });
-        })
-        ->get();
-
-        $payments = [];
-        $totalTagihan = 0;
+        // Ambil data sekolah
+        $sekolah = Sekolah::first(); // Sesuaikan sesuai kebutuhan Anda
+    
+        $result = []; 
         
-        foreach ($pembayaranList as $pembayaran) {
-            $pembayaran_siswa = $pembayaran->pembayaran_siswa->first();
-            $nominal = $pembayaran->nominal;
-            $status = 'Belum Lunas';
-
-            if ($pembayaran_siswa && $pembayaran_siswa->status == 1) {
-                $status = 'Lunas';
-            } else {
-                $totalTagihan += $nominal;
+        foreach ($siswas as $siswa) {
+            // Query untuk mengambil daftar pembayaran tahunan untuk siswa tertentu
+            $pembayaranList = Pembayaran::whereHas('pembayaran_kategori', function ($query) {
+                $query->where('jenis_pembayaran', 2) // Filter untuk jenis pembayaran tahunan
+                      ->where('status', 1); // Hanya pembayaran aktif
+            })
+            ->where('siswa_id', $siswa->id)
+            ->with(['pembayaran_siswa' => function ($query) use ($siswa) {
+                $query->where('siswa_id', $siswa->id)
+                      ->with('pembayaran_siswa_cicilan');
+            }, 'pembayaran_kategori']) // Memasukkan relasi kategori pembayaran
+            ->when($request->filled('nama_siswa'), function ($query) use ($request) {
+                $query->whereHas('siswa', function ($q) use ($request) {
+                    $q->where('id', $request->nama_siswa);
+                });
+            })
+            ->when($request->filled('kelas'), function ($query) use ($request) {
+                $query->whereHas('siswa.kelas', function ($q) use ($request) {
+                    $q->where('id', $request->kelas);
+                });
+            })
+            ->when($request->filled('jurusan'), function ($query) use ($request) {
+                $query->whereHas('siswa.kelas', function ($q) use ($request) {
+                    $q->where('jurusan', $request->jurusan);
+                });
+            })
+            ->get();
+    
+            $payments = [];
+            $totalTagihan = 0;
+            
+            foreach ($pembayaranList as $pembayaran) {
+                $pembayaran_siswa = $pembayaran->pembayaran_siswa->first();
+                $nominal = $pembayaran->nominal;
+                $status = 'Belum Lunas';
+    
+                if ($pembayaran_siswa && $pembayaran_siswa->status == 1) {
+                    $status = 'Lunas';
+                } else {
+                    $totalTagihan += $nominal;
+                }
+    
+                $namaPembayaran = $pembayaran->pembayaran_kategori->nama ?? 'Nama Pembayaran Tidak Tersedia';
+    
+                $payments[] = [
+                    'pembayaran_ke' => $namaPembayaran,
+                    'nominal' => $nominal,
+                    'status' => $status,
+                ];
             }
-
-            $namaPembayaran = $pembayaran->pembayaran_kategori->nama ?? 'Nama Pembayaran Tidak Tersedia';
-
-            $payments[] = [
-                'pembayaran_ke' => $namaPembayaran,
-                'nominal' => $nominal,
-                'status' => $status,
+    
+            $result[] = [
+                'nama_siswa' => $siswa->nama_depan . ($siswa->nama_belakang ? ' ' . $siswa->nama_belakang : ''),
+                'kelas' => $siswa->kelas->kelas ?? 'Data tidak tersedia',
+                'jurusan' => $siswa->kelas->jurusan ?? 'Data tidak tersedia',
+                'telepon' => $siswa->telepon ?? 'Data tidak tersedia',
+                'orangtua' => $siswa->orangtua->nama ?? 'Data tidak tersedia',
+                'sisa_tagihan' => 'Rp' . number_format($totalTagihan, 0, ',', '.'),
+                'payments' => $payments,
             ];
         }
-
-        $result[] = [
-            'nama_siswa' => $siswa->nama_depan . ($siswa->nama_belakang ? ' ' . $siswa->nama_belakang : ''),
-            'kelas' => $siswa->kelas->kelas ?? 'Data tidak tersedia',
-            'jurusan' => $siswa->kelas->jurusan ?? 'Data tidak tersedia',
-            'telepon' => $siswa->telepon ?? 'Data tidak tersedia',
-            'orangtua' => $siswa->orangtua->nama ?? 'Data tidak tersedia',
-            'sisa_tagihan' => 'Rp' . number_format($totalTagihan, 0, ',', '.'),
-            'payments' => $payments,
+    
+        // Siapkan data untuk dikembalikan
+        $data = [
+            'pembayarans' => $result,
+            'siswa' => Siswa::first(),
+            'sekolah' => $sekolah, // Menambahkan variabel sekolah di sini
         ];
+    
+        return response()->json($data);
     }
-
-    $data = [
-        'pembayarans' => $result,
-        'siswa' => Siswa::first(),
-        'sekolah' => $sekolah, // Tambahkan variabel sekolah di sini
-    ];
-
-    // Generate PDF dengan data yang telah disiapkan
-    $pdf = Pdf::loadView('print.PrintPdfTahunan', $data);
-
-    return $pdf->stream('pembayaran_tahunan.pdf');
-}
       
 
 
