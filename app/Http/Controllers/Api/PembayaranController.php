@@ -843,74 +843,88 @@ class PembayaranController extends Controller
 
 
     public function getPiutangTunggakan(Request $request)
-{
-    // Ambil semua pembayaran yang aktif untuk semua siswa
-    $pembayaranList = Pembayaran::whereHas('pembayaran_kategori', function ($query) {
-        $query->where('status', 1); // Hanya pembayaran aktif
-    })
-    ->with(['pembayaran_siswa' => function ($query) {
-        $query->with('pembayaran_siswa_cicilan');
-    }, 'pembayaran_kategori'])
-    ->get();
-
-    $dataSiswa = []; // Array untuk menyimpan data siswa yang memiliki piutang
-    $totalPiutang = 0;
-    $totalTunggakan = 0;
-    $today = Carbon::now();
-
-    foreach ($pembayaranList as $pembayaran) {
-        $pembayaran_siswa = $pembayaran->pembayaran_siswa->first();
-        $nominal = $pembayaran->nominal;
-        $siswa = $pembayaran->siswa; // Ambil siswa dari pembayaran
-        $dueDate = Carbon::parse($pembayaran->due_date); // Tanggal jatuh tempo
-
-        // Cek status pembayaran
-        $status = $pembayaran_siswa ? ($pembayaran_siswa->status == 1 ? 'Lunas' : 'Belum Lunas') : 'Belum Lunas';
-
-        // Hanya pertimbangkan pembayaran yang belum lunas
-        if (!$pembayaran_siswa || $pembayaran_siswa->status != 1) {
-            // Tambahkan data siswa ke array jika belum ada
-            if (!isset($dataSiswa[$siswa->id])) {
-                $dataSiswa[$siswa->id] = [
-                    'nama_siswa' => $siswa->nama_depan . ($siswa->nama_belakang ? ' ' . $siswa->nama_belakang : ''),
-                    'kelas' => $siswa->kelas->kelas,
-                    'jurusan' => $siswa->kelas->jurusan,
-                    'telepon' => $siswa->telepon,
-                    'orang_tua' => $siswa->orangtua->nama ?? null,
-                    'piutang' => [], // Array untuk piutang
-                    'tunggakan' => [], // Array untuk tunggakan
-                ];
+    {
+        // Ambil semua pembayaran yang aktif untuk semua siswa dan pastikan 'created_at' tidak null
+        $pembayaranList = Pembayaran::whereHas('pembayaran_kategori', function ($query) {
+            $query->where('status', 1); // Hanya pembayaran aktif
+        })
+        ->whereNotNull('created_at') // Pastikan 'created_at' tidak null
+        ->with(['pembayaran_siswa', 'pembayaran_kategori'])
+        ->get();
+    
+        $dataSiswa = []; // Array untuk menyimpan data siswa yang memiliki piutang
+        $today = Carbon::now();
+    
+        foreach ($pembayaranList as $pembayaran) {
+            $pembayaran_siswa = $pembayaran->pembayaran_siswa->first();
+            $nominal = $pembayaran->nominal;
+            $siswa = $pembayaran->siswa; // Ambil siswa dari pembayaran
+            $dueDate = Carbon::parse($pembayaran->created_at); // Gunakan created_at sebagai due date
+    
+            // Menentukan nama pembayaran berdasarkan kategori
+            if ($pembayaran->pembayaran_kategori_id == 1) {
+                $namapembayaran = 'Uang Bangunan';
+            } elseif ($pembayaran->pembayaran_kategori_id == 2) {
+                $namapembayaran = 'SPP Pembayaran ke ' . $pembayaran->pembayaran_ke;
+            } else {
+                $namapembayaran = 'Tidak Dikenal';
             }
-
-            // Tambahkan detail pembayaran ke data piutang atau tunggakan
-            $pembayaranDetail = [
-                'pembayaran_ke' => $pembayaran->pembayaran_ke,
-                'nominal' => 'Rp' . number_format($nominal, 0, ',', '.'),
-                'status' => $status,
-                'due_date' => $dueDate->toDateString(),
-                'is_overdue' => $dueDate < $today // Cek jika sudah jatuh tempo
-            ];
-
-            // Tambahkan ke piutang atau tunggakan
-            $dataSiswa[$siswa->id]['piutang'][] = $pembayaranDetail;
-
-            // Jika sudah jatuh tempo, tambahkan ke tunggakan
-            if ($dueDate < $today) {
-                $dataSiswa[$siswa->id]['tunggakan'][] = $pembayaranDetail;
+    
+            // Hanya pertimbangkan pembayaran yang belum lunas atau yang sebagian dibayar
+            if (!$pembayaran_siswa || $pembayaran_siswa->status != 1) {
+                if (!isset($dataSiswa[$siswa->id])) {
+                    $dataSiswa[$siswa->id] = [
+                        'nama_siswa' => $siswa->nama_depan . ($siswa->nama_belakang ? ' ' . $siswa->nama_belakang : ''),
+                        'kelas' => $siswa->kelas->kelas,
+                        'jurusan' => $siswa->kelas->jurusan,
+                        'telepon' => $siswa->telepon,
+                        'orang_tua' => $siswa->orangtua->nama ?? null,
+                        'piutang' => [], // Array untuk piutang
+                        'tunggakan' => [], // Array untuk tunggakan
+                        'sisa_tagihan' => 0, // Inisialisasi sisa tagihan untuk setiap siswa
+                    ];
+                }
+    
+                // Menghitung sisa pembayaran
+                $sisaPembayaran = $nominal;
+                if ($pembayaran_siswa && $pembayaran_siswa->jumlah_terbayar) {
+                    $sisaPembayaran -= $pembayaran_siswa->jumlah_terbayar; // Kurangi nominal dengan jumlah yang sudah dibayar
+                }
+    
+                // Tambahkan nominal yang tersisa ke sisa tagihan total
+                $dataSiswa[$siswa->id]['sisa_tagihan'] += $sisaPembayaran;
+    
+                // Menyusun detail pembayaran
+                $pembayaranDetail = [
+                    'namapembayaran' => $namapembayaran,
+                    'nominal' => 'Rp' . number_format($nominal, 0, ',', '.'),
+                    'sisa_pembayaran' => 'Rp' . number_format($sisaPembayaran, 0, ',', '.'),
+                    'due_date' => $dueDate->toDateString(),
+                    'is_overdue' => $dueDate < $today // Cek jika sudah jatuh tempo
+                ];
+    
+                // Tambahkan detail pembayaran ke array 'piutang'
+                $dataSiswa[$siswa->id]['piutang'][] = $pembayaranDetail;
+    
+                // Jika sudah jatuh tempo, tambahkan ke tunggakan
+                if ($dueDate < $today) {
+                    $dataSiswa[$siswa->id]['tunggakan'][] = $pembayaranDetail;
+                }
             }
         }
+    
+        // Menghitung total piutang dan tunggakan
+        foreach ($dataSiswa as $siswaId => $data) {
+            $dataSiswa[$siswaId]['total_piutang'] = count($data['piutang']);
+            $dataSiswa[$siswaId]['total_tunggakan'] = count($data['tunggakan']);
+            $dataSiswa[$siswaId]['sisa_tagihan'] = 'Rp' . number_format($dataSiswa[$siswaId]['sisa_tagihan'], 0, ',', '.'); // Format sisa tagihan
+        }
+    
+        return response()->json([
+            'success' => true,
+            'data' => array_values($dataSiswa) // Kembalikan data siswa sebagai array
+        ]);
     }
-
-    // Menghitung total piutang dan tunggakan
-    foreach ($dataSiswa as $siswaId => $data) {
-        $dataSiswa[$siswaId]['total_piutang'] = count($data['piutang']);
-        $dataSiswa[$siswaId]['total_tunggakan'] = count($data['tunggakan']);
-    }
-
-    return response()->json([
-        'success' => true,
-        'data' => array_values($dataSiswa) // Kembalikan data siswa sebagai array
-    ]);
-}
-
+    
+    
 }

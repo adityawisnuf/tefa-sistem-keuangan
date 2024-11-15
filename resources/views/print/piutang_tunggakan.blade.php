@@ -176,7 +176,7 @@
 
     <h3>Laporan Piutang dan Tunggakan Siswa</h3>
 
-    <!-- Tabel Piutang -->
+    <!-- Tabel Piutang dan Tunggakan -->
     <div class="table-container">
         <table>
             <thead>
@@ -203,17 +203,24 @@
                         <td>
                             @foreach($siswa['piutang'] as $piutang)
                                 <div>
-                                    Pembayaran ke-{{ $piutang['pembayaran_ke'] }} - {{ $piutang['nominal'] }} - Due: {{ $piutang['due_date'] }}
+                                    <strong>Pembayaran ke-{{ $piutang['pembayaran_ke'] }}</strong><br>
+                                    Nominal: Rp{{ number_format((float)$piutang['nominal'], 0, ',', '.') }}<br>
+                                    Jatuh Tempo: {{ $piutang['due_date'] }}
                                 </div>
+                                <hr>
                             @endforeach
                         </td>
                         <td>
                             @foreach($siswa['tunggakan'] as $tunggakan)
                                 <div>
-                                    Pembayaran ke-{{ $tunggakan['pembayaran_ke'] }} - {{ $tunggakan['nominal'] }} - Due: {{ $tunggakan['due_date'] }}
+                                    <strong>Pembayaran ke-{{ $tunggakan['pembayaran_ke'] }}</strong><br>
+                                    Nominal: Rp{{ number_format((float)$tunggakan['nominal'], 0, ',', '.') }}<br>
+                                    Jatuh Tempo: {{ $tunggakan['due_date'] }}
                                 </div>
+                                <hr>
                             @endforeach
                         </td>
+
                     </tr>
                 @endforeach
             </tbody>

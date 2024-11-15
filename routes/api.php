@@ -12,6 +12,7 @@ use App\Http\Controllers\PrintExcelTahunanController;
 use App\Http\Controllers\PrintPdfPiutangdanTunggakanController;
 use App\Http\Controllers\PrintPdfSPPController;
 use App\Http\Controllers\PrintPdfTahunanPemasukanController;
+use App\Http\Controllers\PrintPiutangTunggakanExcelController;
 use App\Http\Controllers\PrintSPPExcelController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\WhatsAppController;
@@ -145,12 +146,12 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/get/payment/siswa', [PembayaranController::class, 'getPembayaran']);
     Route::post('/get/payment/siswa/tahunan', [PembayaranController::class, 'getPembayaranTahunan']);
     Route::post('/piutang-tunggakan', [PembayaranController::class, 'getPiutangTunggakan']);
-    // Route::get('/pembayaran-tahunan', [PembayaranController::class, 'getPembayaranTahunan']);
     Route::get('/laporan/spp', [PrintPdfSPPController::class, 'cetakSiswaPembayaran']);
     Route::get('/laporan/pemasukan-tahunan', [PrintPdfTahunanPemasukanController::class, '__invoke']);
     Route::get('/laporan/UtangPiutang', [PrintPdfPiutangdanTunggakanController::class, '__invoke']);
     Route::get('/excel-tahunan', [PrintExcelTahunanController::class, 'exportExcel']);
     Route::get('/excel-spp', [PrintExcelSPPController::class, 'exportPembayaranSiswaToExcel']);
+    Route::get('/excel-piutang-tunggakan', [PrintPiutangTunggakanExcelController::class, 'exportExcel']);
 
     });
 
