@@ -287,7 +287,7 @@ class RasioKeuanganController extends Controller
                 ->selectRaw('MONTH(diajukan_pada) as month, sum(nominal) as value')
                 ->groupBy('month')->get();
 
-            $currentLiability = DB::table('pengeluaran')
+            $currentLiabilityStd = DB::table('pengeluaran')
                 ->join('pengeluaran_kategori', 'pengeluaran.pengeluaran_kategori_id', '=', 'pengeluaran_kategori.id')
                 ->whereNull('pengeluaran.disetujui_pada')
                 ->where('pengeluaran_kategori.tipe_utang', 'jangka pendek')
@@ -295,13 +295,19 @@ class RasioKeuanganController extends Controller
                 ->selectRaw('MONTH(pengeluaran.created_at) as month, sum(pengeluaran.nominal) as value')
                 ->groupBy('month')->get();
 
-            $inventory = DB::table('pengeluaran')
+            $inventoryStd = DB::table('pengeluaran')
                 ->join('pengeluaran_kategori', 'pengeluaran.pengeluaran_kategori_id', '=', 'pengeluaran_kategori.id')
                 ->where('pengeluaran_kategori.nama', 'Barang Habis Pakai')
                 ->whereYear('pengeluaran.created_at', $tahun)
                 ->selectRaw('MONTH(pengeluaran.created_at) as month, sum(pengeluaran.nominal) as value')
                 ->groupBy('month')->get();
 
+            $currentLiability =  $currentLiabilityStd->map(function ($item) {
+                return (array) $item; // Konversi setiap item stdClass menjadi array
+            })->toArray();
+            $inventory = $inventoryStd->map(function ($item) {
+                return (array) $item;
+            })->toArray();
             function formatFinalData($array)
             {
                 $formattedData = [];
@@ -317,46 +323,28 @@ class RasioKeuanganController extends Controller
             }
 
             function formatData($array)
-            {
-                $anjas = [];
-                if (!isset($array[0])) {
-                    for ($i = 1; $i <= 12; $i++) {
-                        $anjas[] = [
-                            'month' => $i,
-                            'total' => 0
-                        ];
-                    }
-                    return $anjas;
-                }
-                ;
+{
+    $result = [];
 
-                $selisihBulan = $array[0]['month'] - 1;
+    // Inisialisasi semua bulan dengan total 0
+    for ($i = 1; $i <= 12; $i++) {
+        $result[$i] = [
+            'month' => $i,
+            'total' => 0
+        ];
+    }
 
-                if ($selisihBulan) {
-                    for ($i = 1; $i <= $selisihBulan; $i++) {
-                        $anjas[] = [
-                            'month' => $i,
-                            'total' => 0
-                        ];
-                    }
-                }
+    // Masukkan data ke dalam array berdasarkan bulan
+    foreach ($array as $item) {
+        $result[$item['month']] = [
+            'month' => $item['month'],
+            'total' => $item['value']
+        ];
+    }
 
-                foreach ($array as $item) {
-                    $anjas[$item['month'] - 1] = [
-                        'month' => $item['month'],
-                        'total' => $item['value']
-                    ];
-                }
-
-                for ($i = count($anjas); $i < 12; $i++) {
-                    $anjas[$i] = [
-                        'month' => $i + 1,
-                        'total' => 0
-                    ];
-                }
-
-                return $anjas;
-            }
+    // Reset array agar key berurutan
+    return array_values($result);
+}
 
             function combineData($array1, $array2, $add)
             {
@@ -379,22 +367,22 @@ class RasioKeuanganController extends Controller
             );
 
             $totalPayment =
-                combineData(
+            combineData(
                     formatData($payments),
                     formatData($paymentsPpdb),
                     true
                 );
 
-            $profit =
+                $profit =
                 combineData(
                     $totalPayment,
                     formatData($expenses),
                     false
                 );
 
-            function formatMidData($array1, $array2, $array3 = false, $timesHundred = false)
-            {
-                $formatMidDataApa = [];
+                function formatMidData($array1, $array2, $array3 = false, $timesHundred = false)
+                {
+                    $formatMidDataApa = [];
                 if ($array3) {
                     for ($i = 0; $i < 12; $i++) {
                         $formatMidDataApa[] = [
@@ -411,11 +399,11 @@ class RasioKeuanganController extends Controller
                             : 0;
 
                         if ($timesHundred)
-                            $result *= 100;
+                        $result *= 100;
 
-                        $formatMidDataApa[] = [
-                            'month' => $i + 1,
-                            'total' => $result
+                    $formatMidDataApa[] = [
+                        'month' => $i + 1,
+                        'total' => $result
                         ];
                     }
                 }
@@ -446,7 +434,7 @@ class RasioKeuanganController extends Controller
 
             // Return empty data array if all values are 0
             if ($allZero) {
-                return response()->json(['data' => []], 200);
+                return response()->json(['data' => []], 404);
             }
 
             return response()->json(['data' => $data], 200);
