@@ -74,10 +74,10 @@ class NeracaController extends Controller
             $totalFixedAssets = $data['assets']->where('tipe', 'tetap')->sum('harga');
             $totalAssets = $totalFixedAssets + $totalCurrentAssets;
 
-            $currentLiabilities = $this->calculateLiabilities($data['liabilities'], '1');
+            $currentLiabilities = $this->calculateLiabilities($data['liabilities'], 'jangka pendek');
             $totalCurrentLiabilities = array_sum(array_column($currentLiabilities, 'value'));
 
-            $longTermLiabilities = $this->calculateLiabilities($data['liabilities'], '2');
+            $longTermLiabilities = $this->calculateLiabilities($data['liabilities'], 'jangka panjang');
             $totalLongTermLiabilities = array_sum(array_column($longTermLiabilities, 'value'));
 
             $totalLiabilities = $totalCurrentLiabilities + $totalLongTermLiabilities;
