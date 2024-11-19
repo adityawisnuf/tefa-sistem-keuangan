@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PembayaranKategoriResource;
+use App\Http\Services\WatZapService;
 use App\Models\PembayaranKategori;
+use App\Models\Siswa;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -12,6 +14,14 @@ use Illuminate\Support\Facades\Validator;
 
 class PembayaranKategoriController extends Controller
 {
+
+    protected $watZapService;
+
+    public function __construct(WatZapService $watZapService)
+    {
+        $this->watZapService = $watZapService;
+    }
+
      /**
      * index
      *
@@ -186,4 +196,53 @@ class PembayaranKategoriController extends Controller
     // Kembalikan notifikasi dalam format JSON
     return response()->json($notifications);
 }
+
+
+
+public function sendPaymentReminder()
+{
+    $currentDate = Carbon::now();  // Initialize current date
+
+    $kategoriPembayaran = PembayaranKategori::all(); // Assuming you're fetching payment categories
+
+    foreach ($kategoriPembayaran as $kategori) {
+        // Assuming 'student_id' is the field that relates the student to the category
+        $dataSiswa = Siswa::find($kategori->siswa_id); // Modify as necessary
+
+        if (!$dataSiswa) {
+            continue; // Skip if no student is found
+        }
+
+        try {
+            // Tentukan format tanggal berdasarkan jenis pembayaran
+            if ($kategori->jenis_pembayaran == 1) { // Bulanan
+                $paymentDate = Carbon::createFromFormat('d', $kategori->tanggal_pembayaran)
+                    ->setYear($currentDate->year)
+                    ->setMonth($currentDate->month);
+            } elseif ($kategori->jenis_pembayaran == 2) { // Tahunan
+                $paymentDate = Carbon::createFromFormat('d-m', $kategori->tanggal_pembayaran)
+                    ->setYear($currentDate->year);
+            } else {
+                continue;
+            }
+
+            // Tentukan jarak hari sampai tanggal jatuh tempo
+            $daysUntilDue = $paymentDate->diffInDays($currentDate, false);
+
+            // If today is H-3, send reminder
+            if ($daysUntilDue == 3) {
+                $this->watZapService->sendReminder(
+                    $dataSiswa->telepon,
+                    $dataSiswa->nama_depan . ' ' . $dataSiswa->nama_belakang,
+                    $kategori->nama,
+                    
+                    $paymentDate->translatedFormat('d F Y')
+                );
+            }
+        } catch (\Exception $e) {
+            Log::error('Error in sendPaymentReminder: ' . $e->getMessage());
+        }
+    }
+}
+
 }

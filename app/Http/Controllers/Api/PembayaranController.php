@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PembayaranSiswaResource;
 use App\Http\Services\Duitku;
+use App\Http\Services\WatZapService;
 use App\Mail\PaymentSuccessMail;
 use App\Models\Pembayaran;
 use App\Models\PembayaranDuitku;
@@ -24,6 +25,7 @@ use Illuminate\Support\Facades\Mail;
 class PembayaranController extends Controller
 {
     protected $duitku;
+    protected $watZapService;
 
     public $months = [
         'Januari',
@@ -40,9 +42,10 @@ class PembayaranController extends Controller
         'Desember',
     ];
 
-    public function __construct(Duitku $duitku)
+    public function __construct(Duitku $duitku, WatZapService $watZapService)
     {
         $this->duitku = $duitku;
+          $this->watZapService = $watZapService;
     }
 
     public function index(Request $request)
@@ -155,8 +158,27 @@ class PembayaranController extends Controller
 
             if ($user) {
                 $this->sendPaymentSuccessMail($user, $request);
-            }
+               
+                // Generate PDF dan kirim link unduhan via WhatsApp
+            $paymentDetails = [
+                'nama_sekolah' => $user->siswa->kelas->sekolah->nama,
+                'customer_name' => $user->name,
+                'nominal' => $request->amount,
+                'merchant_order_id' => $merchant_order_id,
+                'payment_method' => $request->paymentCode,
+                'payment_status' => $request->transactionState,
+                'payment_time' => $request->settlementDate,
+            ];
 
+            $pdfLink = $this->generatePaymentReceipt($paymentDetails);
+            app(WatZapService::class)->sendPaymentSuccessWhatsApp(
+                $user->phone, 
+                $paymentDetails['nama_sekolah'], 
+                $user->name, 
+                $pdfLink
+            );
+        }
+               
             return response('success', 200);
         } catch (\Exception $e) {
             
@@ -928,3 +950,4 @@ class PembayaranController extends Controller
     
     
 }
+

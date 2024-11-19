@@ -2,6 +2,7 @@
 
 namespace App\Http\Services;
 
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Facades\Log;
 
@@ -118,5 +119,16 @@ class Duitku
 
         // Process the callback
         return $data['resultCode'] === '00';
+    }
+
+    public function generatePaymentReceipt($paymentDetails)
+    {
+        $pdf = Pdf::loadView('pdf.payment_receipt', $paymentDetails);
+    
+        // Simpan atau unduh PDF
+        $filePath = storage_path('app/public/receipts/' . $paymentDetails['merchant_order_id'] . '.pdf');
+        $pdf->save($filePath);
+    
+        return asset('storage/receipts/' . $paymentDetails['merchant_order_id'] . '.pdf');
     }
 }

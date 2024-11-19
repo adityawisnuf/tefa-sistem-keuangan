@@ -15,7 +15,7 @@ use App\Http\Controllers\PrintPdfTahunanPemasukanController;
 use App\Http\Controllers\PrintPiutangTunggakanExcelController;
 use App\Http\Controllers\PrintSPPExcelController;
 use App\Http\Controllers\RegisterController;
-use App\Http\Controllers\WhatsAppController;
+use App\Http\Controllers\SendPaymentSuccesController;
 use App\Models\Kelas;
 use App\Models\Pembayaran;
 use App\Models\Siswa;
@@ -30,8 +30,8 @@ Route::post('register', [RegisterController::class, 'register']);
 Route::post('login', [LoginController::class, 'login']);
 
 Route::middleware('auth:api')->group(function () {
-    Route::post('/send-whatsapp', [WhatsAppController::class, 'sendMessage']);
-    Route::get('/get-groups', [WhatsAppController::class, 'getGroups']);
+    Route::post('/send-whatsapp', [SendPaymentSuccesController::class, 'sendMessage']);
+    Route::get('/get-groups', [SendPaymentSuccesController::class, 'getGroups']);
     Route::post('logout', [LogoutController::class, 'logout']);
 
     Route::prefix('select')->group(function () {
@@ -163,8 +163,8 @@ Route::middleware('checkrole:Siswa')->prefix('siswa')->group(function () {
     Route::get('/riwayat-tagihan', [PembayaranSiswaController::class, 'riwayatTagihan']);
     Route::get('/pembayaran/notifications', [PembayaranKategoriController::class, 'notifications']);
     Route::get('/peringatan-jatuh-tempo', [PembayaranKategoriController::class, 'peringatanJatuhTempo']);
-    Route::post('/send-whatsapp', [WhatsAppController::class, 'sendMessage']);
-    Route::get('/get-groups', [WhatsAppController::class, 'getGroups']);
+    Route::post('/send-whatsapp', [SendPaymentSuccesController::class, 'sendMessage']);
+    Route::get('/get-groups', [SendPaymentSuccesController::class, 'getGroups']);
 });
 
 // Role: ORANG TUA
