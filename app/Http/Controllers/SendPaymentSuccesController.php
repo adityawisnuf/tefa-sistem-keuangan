@@ -60,7 +60,7 @@ class SendPaymentSuccesController extends Controller
     ];
 
 
-    $pdf = Pdf::loadView('pdf.payment_receipt', $data);
+    $pdf = Pdf::loadView('wa.payment_receipt', $data);
 
     $pdfPath = storage_path('app/public/struk_pembayaran/'.$pembayaran->merchantOrderId.'.pdf');
     $pdf->save($pdfPath);

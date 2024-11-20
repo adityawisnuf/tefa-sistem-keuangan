@@ -165,6 +165,7 @@ Route::middleware('checkrole:Siswa')->prefix('siswa')->group(function () {
     Route::get('/peringatan-jatuh-tempo', [PembayaranKategoriController::class, 'peringatanJatuhTempo']);
     Route::post('/send-whatsapp', [SendPaymentSuccesController::class, 'sendMessage']);
     Route::get('/get-groups', [SendPaymentSuccesController::class, 'getGroups']);
+    Route::get('/send-payment-reminder', [PembayaranKategoriController::class, 'sendPaymentReminder']);
 });
 
 // Role: ORANG TUA
