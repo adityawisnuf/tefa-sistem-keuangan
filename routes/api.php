@@ -74,7 +74,7 @@ Route::middleware('auth:api')->group(function () {
                 'success' => true,
                 'data' => $jurusanData->map(function ($kelas) {
                     return [
-                        'value' => $kelas->id,
+                        'value' => $kelas->jurusan,
                         'label' => $kelas->jurusan,
                     ];
                 }),

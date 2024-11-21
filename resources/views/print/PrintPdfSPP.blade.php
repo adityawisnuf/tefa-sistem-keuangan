@@ -197,7 +197,6 @@
                     <tr>
                         <th>No.</th>
                         <th>Pembayaran Ke</th>
-                        <th>Bulan Pembayaran</th>
                         <th>Nominal</th>
                         <th>Status Pembayaran</th>
                     </tr>
@@ -207,7 +206,6 @@
                         <tr>
                             <td>{{ $loop->iteration }}</td>
                             <td>{{ $payment['pembayaran_ke'] }}</td>
-                            <td>{{ $payment['bulan'] }}</td>
                             <td>Rp. {{ number_format($payment['nominal'], 0, ',', '.') }}</td>
                             <td>{{ $payment['status'] }}</td>
                         </tr>

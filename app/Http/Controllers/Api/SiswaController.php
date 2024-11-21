@@ -17,7 +17,7 @@ class SiswaController extends Controller
         $request->validate([
             'nama_siswa' => ['nullable', 'integer'],
             'kelas' => ['nullable', 'integer'],
-            'jurusan' => ['nullable', 'integer'],
+            'jurusan' => ['nullable', 'string'],
         ]);
 
         // Query data siswa dengan relasi
@@ -43,7 +43,7 @@ class SiswaController extends Controller
         if ($request->filled('jurusan')) {
             // Memfilter berdasarkan jurusan
             $query->whereHas('kelas', function ($q) use ($request) {
-                $q->where('id', $request->jurusan);
+                $q->where('jurusan', $request->jurusan);
             });
         }
 
