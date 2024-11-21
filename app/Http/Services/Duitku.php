@@ -123,8 +123,13 @@ class Duitku
 
     public function generatePaymentReceipt($paymentDetails)
     {
-        $pdf = Pdf::loadView('pdf.payment_receipt', $paymentDetails);
+        $pdf = Pdf::loadView('wa.payment_receipt', $paymentDetails);
     
+        // buat folder receipts jika folder belum dibuat
+        if (!file_exists(storage_path('app/public/receipts'))) {
+            mkdir(storage_path('app/public/receipts'), 0755, true);
+        }
+        
         // Simpan atau unduh PDF
         $filePath = storage_path('app/public/receipts/' . $paymentDetails['merchant_order_id'] . '.pdf');
         $pdf->save($filePath);

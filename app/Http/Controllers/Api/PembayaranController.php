@@ -162,7 +162,9 @@ class PembayaranController extends Controller
                 // Generate PDF dan kirim link unduhan via WhatsApp
             $paymentDetails = [
                 'nama_sekolah' => $user->siswa->kelas->sekolah->nama,
-                'customer_name' => $user->name,
+                'payment_name' => 'Nama Pembayaran',
+                'ds_code' => 'Kode Pembayaran',
+                'customer_name' => $user->siswa->nama_depan.' '.$user->siswa->nama_belakang,
                 'nominal' => $request->amount,
                 'merchant_order_id' => $merchant_order_id,
                 'payment_method' => $request->paymentCode,
@@ -170,11 +172,12 @@ class PembayaranController extends Controller
                 'payment_time' => $request->settlementDate,
             ];
 
-            $pdfLink = $this->generatePaymentReceipt($paymentDetails);
+            $pdfLink = $this->duitku->generatePaymentReceipt($paymentDetails);
+            
             app(WatZapService::class)->sendPaymentSuccessWhatsApp(
-                $user->phone, 
+                $user->siswa->telepon, 
                 $paymentDetails['nama_sekolah'], 
-                $user->name, 
+                $user->siswa->nama_depan.' '.$user->siswa->nama_belakang, 
                 $pdfLink
             );
         }
@@ -258,9 +261,9 @@ class PembayaranController extends Controller
             ds_code: $request->reference,
             merchant_order_id: $request->merchantOrderId,
             customer_name: $request->cardName ?? $user->name,
-            payment_method: $request->paymentCode,
+            payment_method: $request->paymentMethod,
             payment_name: $request->productDetail,
-            payment_time: $request->settlementDate,
+            payment_time: now(),
             payment_status: $request->transactionState.' '.$request->transactionStateStatus
         ));
     }
