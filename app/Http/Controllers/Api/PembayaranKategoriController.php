@@ -198,46 +198,75 @@ class PembayaranKategoriController extends Controller
     return response()->json($notifications);
 }
 
-public function sendPaymentReminder() 
+public function sendPaymentReminder()  
 {
+    // Ambil data pembayaran yang statusnya aktif dan jenisnya bulanan atau tahunan
     $pembayaranList = Pembayaran::whereHas('pembayaran_kategori', function ($query) {
-        $query->where('jenis_pembayaran', 1)->where('status', 1); // Pembayaran bulanan atau tahunan
+        $query->whereIn('jenis_pembayaran', [1, 2]) // Pembayaran bulanan dan tahunan
+              ->where('status', 1); // Hanya yang aktif
     })
     ->whereNull('deleted_at')
     ->get();
 
-    // Mengambil tanggal sekarang
+    // Ambil tanggal sekarang
     $currentDate = now();
 
     foreach ($pembayaranList as $pembayaran) {
-        // Menggunakan `created_at` untuk menghitung jatuh tempo
-        $createdDate = \Carbon\Carbon::parse($pembayaran->created_at);
-        $dueDate = $createdDate->addDays(3); // Menghitung 3 hari setelah `created_at`
+        // Ambil data siswa
+        $siswa = $pembayaran->siswa;
+        $phoneNumber = $siswa->telepon;
 
+        // Tentukan tanggal jatuh tempo
+        if ($pembayaran->pembayaran_kategori->jenis_pembayaran == 1) {
+            // Jenis pembayaran bulanan: Gunakan tanggal `created_at` dan hitung 3 hari setelahnya
+            $createdDate = \Carbon\Carbon::parse($pembayaran->created_at);
+            $dueDate = $createdDate->addDays(3);
+
+            // Detail pembayaran untuk bulanan: tagihan ke dan nominal
+            $paymentDetails = [
+                'tagihanKe' => $pembayaran->pembayaran_ke,
+                'nominal' => $pembayaran->nominal
+            ];
+
+        } else {
+            // Jenis pembayaran tahunan: Gunakan tanggal pembayaran yang ada (tanggal bulan tertentu)
+            $dueDate = \Carbon\Carbon::createFromFormat('d-m', $pembayaran->pembayaran_kategori->tanggal_pembayaran);
+            // Tentukan tahun jatuh tempo (gunakan tahun sekarang jika belum lewat, jika sudah gunakan tahun depan)
+            if ($dueDate->lt($currentDate)) {
+                $dueDate->addYear();
+            }
+
+            // Detail pembayaran untuk tahunan: hanya nominal
+            $paymentDetails = [
+                'nominal' => $pembayaran->nominal
+            ];
+        }
+
+        // Hitung berapa hari lagi jatuh tempo
         $daysUntilDue = $currentDate->diffInDays($dueDate);
 
+        // Kirim pengingat jika jatuh tempo dalam 3 hari
         if ($daysUntilDue == 3) {
-            $siswa = $pembayaran->siswa;
-            $phoneNumber = $siswa->telepon;
+            // Mengirim pesan pengingat via WhatsApp dengan detail pembayaran
+            $response = $this->watZapService->sendReminder(
+                $phoneNumber, 
+                $siswa->nama_depan, 
+                $pembayaran->pembayaran_kategori->nama, 
+                $dueDate->toFormattedDateString(),
+                $paymentDetails
+            );
 
-            $message = "Halo, " . $siswa->nama_depan . ". Pembayaran untuk " . $pembayaran->pembayaran_kategori->nama . " Anda akan jatuh tempo dalam 3 hari, yaitu pada " . $dueDate->toFormattedDateString() . ". Jangan lupa untuk melakukan pembayaran tepat waktu.";
-
-            // Mengirim pesan pengingat via WhatsApp
-            $response = $this->watZapService->sendReminder($phoneNumber, $siswa->nama_depan, $pembayaran->pembayaran_kategori->nama, $dueDate->toFormattedDateString());
-
-            // Menambahkan log untuk memastikan pesan berhasil terkirim
+            // Log pengiriman
             if (isset($response['error'])) {
                 Log::error('Gagal mengirim WhatsApp: ' . $response['error']);
             } else {
                 Log::info('Pesan WhatsApp berhasil terkirim ke: ' . $phoneNumber);
-            }  
+            }
         }
     }
 
     return response()->json(['success' => true, 'message' => 'Pengingat pembayaran telah dikirim.']);
 }
-
-
 
 
 }

@@ -53,10 +53,19 @@ class WatZapService
         return $this->sendMessage($phoneNumber, $message);
     }
     
-    public function sendReminder($phoneNumber, $userName, $paymentName, $dueDate)
-    {
-        $message = "Halo, $userName. Ini adalah pengingat bahwa pembayaran $paymentName Anda akan jatuh tempo pada tanggal $dueDate. Harap melakukan pembayaran tepat waktu. Terima kasih!";
-    
-        return $this->sendMessage($phoneNumber, $message);
+    public function sendReminder($phoneNumber, $userName, $paymentName, $dueDate, $paymentDetails = null)
+{
+    // Membuat pesan dengan format yang lebih kaya dan informasi tambahan
+    if ($paymentDetails) {
+        // Jika ada detail pembayaran (nominal dan tagihan ke)
+        $message = "Halo, $userName 👋\nPembayaran $paymentName Anda untuk Tagihan ke-$paymentDetails[tagihanKe] akan jatuh tempo pada:\ntanggal: $dueDate\nNominal : Rp. " . number_format($paymentDetails['nominal'], 0, ',', '.') ."\nHarap melakukan pembayaran tepat waktu,\nTerima kasih !";
+    } else {
+        // Jika tidak ada detail pembayaran (misalnya pembayaran tahunan)
+        $message = "Halo, $userName 👋\nPembayaran $paymentName Anda akan jatuh tempo pada tanggal $dueDate. Nominal: " . number_format($paymentDetails['nominal'], 0, ',', '.') . ". Harap melakukan pembayaran tepat waktu. Terima kasih!";
     }
+
+    // Mengirim pesan via WhatsApp
+    return $this->sendMessage($phoneNumber, $message);
+}
+
 }

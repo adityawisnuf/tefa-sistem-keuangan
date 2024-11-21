@@ -165,7 +165,7 @@ Route::middleware('checkrole:Siswa')->prefix('siswa')->group(function () {
     Route::get('/peringatan-jatuh-tempo', [PembayaranKategoriController::class, 'peringatanJatuhTempo']);
     Route::post('/send-whatsapp', [SendPaymentSuccesController::class, 'sendMessage']);
     Route::get('/get-groups', [SendPaymentSuccesController::class, 'getGroups']);
-    Route::get('/send-payment-reminder', [PembayaranKategoriController::class, 'sendPaymentReminder']);
+    Route::get('/send-payment-reminder', [SendPaymentSuccesController::class, 'sendPaymentReminder']);
 });
 
 // Role: ORANG TUA
@@ -176,6 +176,9 @@ Route::middleware('checkrole:Orang Tua')->prefix('orangtua')->group(function () 
     Route::get('/riwayat-tagihan', [PembayaranSiswaController::class, 'riwayatTagihan']);
     Route::get('/pembayaran/notifications', [PembayaranKategoriController::class, 'notifications']);
     Route::get('/peringatan-jatuh-tempo', [PembayaranKategoriController::class, 'peringatanJatuhTempo']);
+    Route::post('/send-whatsapp', [SendPaymentSuccesController::class, 'sendMessage']);
+    Route::get('/get-groups', [SendPaymentSuccesController::class, 'getGroups']);
+    Route::get('/send-payment-reminder', [SendPaymentSuccesController::class, 'sendPaymentReminder']);
 });
 
 });
