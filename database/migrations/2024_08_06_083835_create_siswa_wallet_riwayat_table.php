@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('merchant_order_id')->nullable();
             $table->enum('tipe_transaksi', ['pemasukan', 'pengeluaran']);
             $table->double('nominal');
-            $table->dateTime('tanggal_riwayat')->default(now());
+            $table->dateTime('tanggal_riwayat')->useCurrent();
             $table->timestamps();
 
             $table->foreign('siswa_wallet_id')->references('id')->on('siswa_wallet');

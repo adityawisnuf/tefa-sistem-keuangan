@@ -69,11 +69,19 @@ class KantinProdukController extends Controller
 
     public function show(KantinProduk $produk)
     {
+        if ($produk->usaha_id != Auth::user()->usaha->id) {
+            return response()->json(['message' => 'Data tidak ditemukan'], Response::HTTP_NOT_FOUND);
+        }
+
         return response()->json(['data' => $produk], Response::HTTP_OK);
     }
 
     public function update(Request $request, KantinProduk $produk)
     {
+        if ($produk->usaha_id != Auth::user()->usaha->id) {
+            return response()->json(['message' => 'Data tidak ditemukan'], Response::HTTP_NOT_FOUND);
+        }
+
         $validated = $request->validate([
             'kantin_produk_kategori_id' => ['sometimes', 'nullable', 'exists:kantin_produk_kategori,id'],
             'nama_produk' => ['sometimes', 'nullable', 'string', 'max:255'],
@@ -100,6 +108,10 @@ class KantinProdukController extends Controller
 
     public function destroy(KantinProduk $produk)
     {
+        if ($produk->usaha_id != Auth::user()->usaha->id) {
+            return response()->json(['message' => 'Data tidak ditemukan'], Response::HTTP_NOT_FOUND);
+        }
+
         $produk->delete();
         Storage::delete(self::IMAGE_STORAGE_PATH . $produk->foto_produk);
 

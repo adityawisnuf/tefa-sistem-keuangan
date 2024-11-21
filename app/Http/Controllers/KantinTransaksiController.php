@@ -18,11 +18,13 @@ class KantinTransaksiController extends Controller
     {
         $validated = $request->validate([
             'usaha' => ['nullable', 'integer', 'min:1'],
+            'nama_siswa' => ['nullable', 'string', 'min:1'],
             'status' => ['nullable', 'string', 'in:aktif,selesai'],
             'per_page' => ['nullable', 'integer', 'min:1']
         ]);
 
         $usaha = Auth::user()->usaha;
+        $nama_siswa = $validated['nama_siswa'] ?? null;
         $status = $validated['status'] ?? 'aktif';
         $perPage = $validated['per_page'] ?? 10;
 
@@ -33,6 +35,10 @@ class KantinTransaksiController extends Controller
                 'kantin_transaksi_detail.kantin_produk:id,nama_produk,foto_produk,deskripsi,harga_jual',
                 'siswa:id,nama_depan,nama_belakang'
             )
+            ->when($nama_siswa, function ($query) use ($nama_siswa) {
+                $query->whereRelation('siswa', 'nama_depan', 'like', '%' . $nama_siswa .'%')
+                ->orWhereRelation('siswa', 'nama_belakang', 'like', '%' . $nama_siswa .'%');
+            })
             ->when($status == 'aktif', function ($query) {
                 $query->whereIn('status', ['pending', 'proses', 'siap_diambil']);
             })

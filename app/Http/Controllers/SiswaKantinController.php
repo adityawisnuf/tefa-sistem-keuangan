@@ -28,6 +28,7 @@ class SiswaKantinController extends Controller
 
         $produk = KantinProduk
             ::select('id', 'nama_produk', 'foto_produk', 'deskripsi', 'harga_jual', 'stok')
+            ->whereRelation('usaha', 'status_buka', 'buka')
             ->where('status', 'aktif')
             ->when($nama_produk, function ($query) use ($nama_produk) {
                 $query->where('nama_produk', 'like', "%$nama_produk%");
