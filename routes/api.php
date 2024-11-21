@@ -50,7 +50,7 @@ use Illuminate\Support\Facades\Auth;
 Route::post('register', [RegisterController::class, 'register']);
 Route::post('login', [LoginController::class, 'login']);
 
-Route::post('/duitku/callback', [DuitkuCallbackController::class]);
+Route::post('/duitku/callback', [DuitkuCallbackController::class, 'index']);
 
 // Routes for authenticated users
 Route::middleware('auth:api')->group(function () {
@@ -62,12 +62,6 @@ Route::middleware('auth:api')->group(function () {
         
         
     });
-    
-    Route::group(['prefix'=>'email', 'middleware'=> 'checkrole:OrangTua'], function () {
-        Route::post('/email-verification', [EmailVerificationController::class, 'email_verification']);
-        Route::post('/send-email-verification', [EmailVerificationController::class, 'sendEmailVerification']);
-    });
-    
     Route::group(['prefix' => 'ppdb'], function () {
         Route::post('/', [PpdbController::class, 'store']);
         Route::get('/track', [TrackingPendaftaran::class, 'trackPendaftaran']);
@@ -76,6 +70,12 @@ Route::middleware('auth:api')->group(function () {
         Route::get('download/{id}', [PpdbController::class, 'downloadDocuments']);
         Route::post('/update-status', [PpdbController::class, 'updateStatus']);
     });
+    
+    Route::group(['prefix'=>'email', 'middleware'=> 'checkrole:OrangTua'], function () {
+        Route::post('/email-verification', [EmailVerificationController::class, 'email_verification']);
+        Route::post('/send-email-verification', [EmailVerificationController::class, 'sendEmailVerification']);
+    });
+    
     Route::prefix('kelas')->group(function () {
         Route::get('/', [KelasController::class, 'index']);
         Route::get('{id}', [KelasController::class, 'show']);

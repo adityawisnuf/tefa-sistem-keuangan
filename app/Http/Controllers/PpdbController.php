@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 
 use ZipArchive;
+use ZipStream\ZipStream;
 
 class PpdbController extends Controller
 {
@@ -55,7 +56,6 @@ public function store(PpdbRequest $request)
     DB::beginTransaction();
 
     try {
-        // Generate a unique merchantOrderId
         $merchantOrderId = Str::uuid()->toString();
         $akteKelahiranPath = $request->file('akte_kelahiran')->store('documents');
         $kartuKeluargaPath = $request->file('kartu_keluarga')->store('documents');
@@ -115,48 +115,50 @@ public function store(PpdbRequest $request)
     }
 }
 
-
 public function downloadDocuments($id)
 {
     try {
-        // Mengambil data dokumen berdasarkan ID
+        // Retrieve document and registrant data
         $pendaftarDokumen = PendaftarDokumen::findOrFail($id);
-
-        // Mengambil data pendaftar berdasarkan ppdb_id yang terdapat pada dokumen
         $pendaftar = Pendaftar::where('ppdb_id', $pendaftarDokumen->ppdb_id)->firstOrFail();
-
-        // Mengambil nama depan dan nama belakang dari pendaftar
-        $namaDepan = $pendaftar->nama_depan;
-        $namaBelakang = $pendaftar->nama_belakang;
-
-        $folderName = $namaDepan . '_' . $namaBelakang;
+        
+        // Generate folder and ZIP file names
+        $folderName = $pendaftar->nama_depan . '_' . $pendaftar->nama_belakang;
         $zipFileName = $folderName . '_dokumen_' . $id . '.zip';
+        $zipFilePath = storage_path('app/public/' . $zipFileName);
 
-        $files = [
-            'akte_kelahiran' => $pendaftarDokumen->akte_kelahiran,
-            'kartu_keluarga' => $pendaftarDokumen->kartu_keluarga,
-            'ijazah' => $pendaftarDokumen->ijazah,
-            'raport' => $pendaftarDokumen->raport,
-        ];
-
+        // Create ZIP archive
         $zip = new ZipArchive();
-
-        if ($zip->open(storage_path($zipFileName), ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
+        if ($zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
+            $files = [
+                'akte_kelahiran' => $pendaftarDokumen->akte_kelahiran,
+                'kartu_keluarga' => $pendaftarDokumen->kartu_keluarga,
+                'ijazah' => $pendaftarDokumen->ijazah,
+                'raport' => $pendaftarDokumen->raport,
+            ];
             foreach ($files as $type => $file) {
                 if (Storage::exists($file)) {
-                    // Create a new name for the file using the first and last name plus the document type
+                    $filePath = Storage::path($file);
                     $newFileName = $folderName . '_' . $type . '.' . pathinfo($file, PATHINFO_EXTENSION);
-                    $filePath = storage_path('app/' . $file);
                     $zip->addFile($filePath, $newFileName);
+                    Log::info('Added file to ZIP: ' . $newFileName);
+                } else {
+                    Log::error('File not found: ' . $file);
                 }
             }
             $zip->close();
+        } else {
+            throw new \Exception('Failed to create ZIP archive.');
         }
 
-        // Download the created ZIP file
-        return response()->download(storage_path($zipFileName))->deleteFileAfterSend(true);
+        // Clear output buffer and download file
+        ob_end_clean();
+        return response()->download($zipFilePath, $zipFileName, [
+            'Content-Type' => 'application/zip',
+            'Content-Disposition' => 'attachment; filename="' . $zipFileName . '"',
+        ])->deleteFileAfterSend(true);
+
     } catch (\Exception $e) {
-        // Log the error message
         Log::error('Error while downloading documents for ID ' . $id . ': ' . $e->getMessage());
         return response()->json(['error' => 'An error occurred while processing your request.'], 500);
     }
@@ -235,4 +237,4 @@ public function export(Request $request)
         ], 500);
     }
 }
-}
+}   

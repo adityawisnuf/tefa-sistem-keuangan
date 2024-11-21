@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Pembayaran;
 use Illuminate\Http\Request;
 use App\Exports\PembayaranExport;
+use App\Models\Orangtua;
 use App\Models\PembayaranDuitku;
 use App\Models\PembayaranPpdb;
 use App\Models\Ppdb;
@@ -393,10 +394,16 @@ class PembayaranController extends Controller
                                     'email_verified_at' => now(),
                                     'remember_token' => Str::random(10),
                                 ]);
+ 
 
     
-                                $user->notify(new CredentialsEmailNotification($plainPassword));
-    
+                                try {
+                                    $user->notify(new CredentialsEmailNotification($plainPassword));
+                                    Log::info("Notification sent successfully to user: {$user->email}");
+                                } catch (\Exception $e) {
+                                    Log::error("Failed to send notification to user: {$user->email}. Error: " . $e->getMessage());
+                                }
+                                
                                 Log::info("Data user successfully inserted into Pendaftar for Order ID: $merchantOrderId");
                             }
                         } catch (\Exception $e) {

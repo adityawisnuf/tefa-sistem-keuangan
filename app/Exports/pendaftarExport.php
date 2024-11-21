@@ -4,6 +4,7 @@ namespace App\Exports;
 
 use App\Models\Pendaftar;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithStyles;
@@ -25,8 +26,13 @@ class pendaftarExport implements FromCollection, WithHeadings, WithStyles
                 'pendaftar.nama_depan',
                 'pendaftar.nama_belakang',
                 DB::raw("CASE WHEN pendaftar.jenis_kelamin = 1 THEN 'Laki-laki' WHEN pendaftar.jenis_kelamin = 2 THEN 'Perempuan' END as jenis_kelamin"),
+                'pendaftar.email',
+                'pendaftar.nisn',
                 DB::raw("CONCAT('\'', pendaftar.nik) as nik"),
                 'pendaftar.alamat',
+                'pendaftar.tgl_lahir',
+                'pendaftar.nama_ayah',
+                'pendaftar.nama_ibu',
                 DB::raw('IFNULL(SUM(pembayaran.nominal), 0) as nominal')
             )
             ->leftJoin('pembayaran_ppdb', 'pendaftar.ppdb_id', '=', 'pembayaran_ppdb.ppdb_id')
@@ -35,8 +41,13 @@ class pendaftarExport implements FromCollection, WithHeadings, WithStyles
                 'pendaftar.nama_depan',
                 'pendaftar.nama_belakang',
                 'pendaftar.jenis_kelamin',
+                'pendaftar.email',
+                'pendaftar.nisn',
                 'pendaftar.nik',
-                'pendaftar.alamat'
+                'pendaftar.alamat',
+                'pendaftar.tgl_lahir',
+                'pendaftar.nama_ayah',
+                'pendaftar.nama_ibu',
             );
 
         // Apply year filter if selected year is provided
@@ -48,7 +59,7 @@ class pendaftarExport implements FromCollection, WithHeadings, WithStyles
 
         // Calculate the total nominal
         $this->totalNominal = $pendaftarData->sum('nominal');
-
+        Log::info($pendaftarData);
         return $pendaftarData;
     }
 
@@ -58,8 +69,13 @@ class pendaftarExport implements FromCollection, WithHeadings, WithStyles
             'Nama Depan',
             'Nama Belakang',
             'Jenis Kelamin',
+            'Email',
+            'NISN',
             'NIK',
             'Alamat',
+            'Tanggal Lahir',
+            'Nama Ayah',
+            'Nama Ibu',
             'Nominal',
             'Total Transaksi'
         ];
@@ -68,7 +84,7 @@ class pendaftarExport implements FromCollection, WithHeadings, WithStyles
     public function styles(Worksheet $sheet)
     {
         // Warna dan gaya untuk header
-        $sheet->getStyle('A1:G1')->applyFromArray([
+        $sheet->getStyle('A1:L1')->applyFromArray([
             'font' => [
                 'bold' => true,
                 'size' => 12,
@@ -88,7 +104,7 @@ class pendaftarExport implements FromCollection, WithHeadings, WithStyles
 
         // Warna dan gaya untuk konten
         $highestRow = $sheet->getHighestRow();
-        $sheet->getStyle("A2:G$highestRow")->applyFromArray([
+        $sheet->getStyle("A2:L$highestRow")->applyFromArray([
             'borders' => [
                 'allBorders' => [
                     'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
@@ -98,15 +114,15 @@ class pendaftarExport implements FromCollection, WithHeadings, WithStyles
         ]);
 
         // Set the format for nominal and total transaction columns as currency
-        $sheet->getStyle("F2:F$highestRow")->getNumberFormat()->setFormatCode('Rp #,##0');
-        $sheet->getStyle("G2:G$highestRow")->getNumberFormat()->setFormatCode('Rp #,##0');
+        $sheet->getStyle("K2:K$highestRow")->getNumberFormat()->setFormatCode('Rp #,##0');
+        $sheet->getStyle("L2:L$highestRow")->getNumberFormat()->setFormatCode('Rp #,##0');
 
         // Menempatkan total transaksi di sel G2, tepat di bawah header "Total Transaksi"
-        $sheet->setCellValue("G" . ($highestRow + 1), $this->totalNominal);
-        $sheet->getStyle("G" . ($highestRow + 1))->getNumberFormat()->setFormatCode('Rp #,##0');
+        $sheet->setCellValue("L" . ($highestRow + 1), $this->totalNominal);
+        $sheet->getStyle("L" . ($highestRow + 1))->getNumberFormat()->setFormatCode('Rp #,##0');
 
         // Apply border to the Total Transaksi row
-        $sheet->getStyle("G" . ($highestRow + 1))->applyFromArray([
+        $sheet->getStyle("L" . ($highestRow + 1))->applyFromArray([
             'borders' => [
                 'allBorders' => [
                     'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
@@ -116,7 +132,7 @@ class pendaftarExport implements FromCollection, WithHeadings, WithStyles
         ]);
 
         // Auto size columns to fit the content
-        foreach (range('A', 'G') as $column) {
+        foreach (range('A', 'L') as $column) {
             $sheet->getColumnDimension($column)->setAutoSize(true);
         }
     }

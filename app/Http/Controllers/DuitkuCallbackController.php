@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Log;
 
 class DuitkuCallbackController extends Controller
 {
-    public function __invoke(Request $request)
+    public function index(Request $request)
     {
         $callbackData = $request->all();
         $additionalParam = json_decode($callbackData['additionalParam'], true);
