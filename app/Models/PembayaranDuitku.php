@@ -51,4 +51,5 @@ class PembayaranDuitku extends Model
     {
         return $this->hasOne(PembayaranSiswaCicilan::class, 'merchant_order_id');
     }
+
 }

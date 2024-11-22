@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('role', 255)->default('OrangTua')->comment('Admin; KepalaSekolah; Bendahara; OrangTua; Siswa; Kantin; Laundry;')->change();
+          $table->string('role', 255)->default('OrangTua')->comment('Admin; KepalaSekolah; Bendahara; OrangTua; Siswa; Kantin; Laundry;')->change();
         });
     }
 
@@ -22,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('pembayaran_kategori', function (Blueprint $table) {
-            $table->string('role', 255)->default('OrangTua')->change();
+           $table->string('role', 255)->default('OrangTua')->change();
         });
     }
 };

@@ -13,7 +13,7 @@ class PembayaranSiswa extends Model
 
     protected $fillable = [
         'siswa_id',
-        'pembayaran_id',
+        'pembayaran_kategori_id',
         'nominal',
         'merchant_order_id',
         'status',
@@ -26,9 +26,13 @@ class PembayaranSiswa extends Model
 
     public function pembayaran_kategori()
     {
-        return $this->belongsTo(PembayaranKategori::class, 'pembayaran_kategori_id');
+        return $this->belongsToMany(PembayaranKategori::class, 'pembayaran', 'siswa_id', 'pembayaran_kategori_id');
     }
 
+    public function duitku_tunai()
+    {
+        return $this->hasOne(PembayaranDuitku::class, 'merchant_order_id', 'merchant_order_id');
+    }
     public function pembayaran()
     {
         return $this->belongsTo(Pembayaran::class, 'pembayaran_id');

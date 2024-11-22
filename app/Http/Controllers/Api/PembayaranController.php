@@ -783,6 +783,8 @@ class PembayaranController extends Controller
         ]);
     }
 
+    
+
     public function getPembayaranTahunan(Request $request)
     {
         // Jika siswa_id disediakan, ambil data spesifik siswa, jika tidak ambil semua siswa
@@ -953,4 +955,3 @@ class PembayaranController extends Controller
     
     
 }
-

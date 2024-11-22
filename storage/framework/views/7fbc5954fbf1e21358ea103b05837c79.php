@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laporan Buku Kas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+
+        h3 {
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center; 
+        }
+
+        .export-button {
+            display: inline-block;
+            padding: 10px 20px;
+            margin-bottom: 20px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .export-button:hover {
+            background-color: #45a049;
+        }
+
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            color: #333;
+            font-weight: bold;
+            text-align: center; 
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        @media (max-width: 768px) {
+            table {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h3>Laporan Buku Kas</h3>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Kode Transaksi</th>
+                    <th>Nama Siswa</th>
+                    <th>Kelas</th>
+                    <th>Jenis Pembayaran</th>
+                    <th>Nominal</th>
+                    <th>Tanggal Pembayaran</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php $__empty_1 = true; $__currentLoopData = $pembayarans; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $pembayaran): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                    <tr>
+                        <td><?php echo e($loop->iteration); ?></td>
+                        <td><?php echo e($pembayaran->merchant_order_id); ?></td>
+                        <td><?php echo e($pembayaran->siswa->nama_depan . ' ' . $pembayaran->siswa->nama_belakang); ?></td>
+                        <td><?php echo e($pembayaran->siswa->kelas->kelas); ?></td>
+                        <td><?php echo e($pembayaran->pembayaran->pembayaran_kategori->jenis_pembayaran === 1 ? "Bulanan" : "Tahunan"); ?></td>
+                        <td><?php echo e('Rp ' . number_format($pembayaran->nominal, 0, ',', '.')); ?></td>
+                        <td>
+                            <?php echo e($pembayaran->created_at ? \Carbon\Carbon::parse($pembayaran->created_at)->format('d-m-Y') : 'Tidak ada tanggal'); ?>
+
+                        </td>
+                    </tr>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
+                    <tr>
+                        <td colspan="7" style="text-align: center;">Data tidak ditemukan</td>
+                    </tr>
+                <?php endif; ?>
+            </tbody>
+        </table>
+    </div>
+</body>
+
+</html>
+<?php /**PATH D:\PKL\Buku Kas Rekapitulasi\tefa-sistem-keuangan\resources\views/print/printExcelBukuKas.blade.php ENDPATH**/ ?>
