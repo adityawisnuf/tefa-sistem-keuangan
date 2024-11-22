@@ -91,7 +91,7 @@ Route::middleware('auth:api')->group(function () {
                 'success' => true,
                 'data' => $jurusanData->map(function ($kelas) {
                     return [
-                        'value' => $kelas->id,
+                        'value' => $kelas->jurusan,
                         'label' => $kelas->jurusan,
                     ];
                 }),
@@ -113,6 +113,7 @@ Route::middleware('auth:api')->group(function () {
             })
         ]);
     });
+    
 
     Route::prefix('payment')->group(function () {
         Route::get('/me', [PembayaranController::class, 'getCurrent'])->name('payment.transaction.getMonth');
@@ -172,7 +173,7 @@ Route::middleware('auth:api')->group(function () {
         Route::delete('pembayaran-kategori/{id}', [PembayaranKategoriController::class, 'destroy']);
     });
 
-    // Role: BENDAHARA
+
  // Role: BENDAHARA
  Route::middleware('checkrole:Bendahara')->prefix('Bendahara')->group(function () {
     Route::post('/siswa', [SiswaController::class, 'index']);

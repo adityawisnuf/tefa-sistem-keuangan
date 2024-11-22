@@ -15,21 +15,20 @@ class PrintExcelSPPController extends Controller
         Log::info("File Excel diakses oleh pengguna dengan IP: " . $request->ip());
 
         $siswas = Siswa::with(['kelas', 'orangtua'])
-            ->when($request->filled('nama_siswa'), function ($query) use ($request) {
-                $query->where('nama_depan', 'like', '%' . $request->nama_siswa . '%')
-                    ->orWhere('nama_belakang', 'like', '%' . $request->nama_siswa . '%');
-            })
-            ->when($request->filled('kelas'), function ($query) use ($request) {
-                $query->whereHas('kelas', function ($q) use ($request) {
-                    $q->where('kelas', $request->kelas);
-                });
-            })
-            ->when($request->filled('jurusan'), function ($query) use ($request) {
-                $query->whereHas('kelas', function ($q) use ($request) {
-                    $q->where('jurusan', $request->jurusan);
-                });
-            })
-            ->get();
+        ->when($request->filled('nama_siswa') && $request->nama_siswa != "null", function ($query) use ($request) {
+            $query->where('id', $request->nama_siswa);
+        })
+        ->when($request->filled('kelas') && $request->kelas != "null", function ($query) use ($request) {
+            $query->whereHas('kelas', function ($q) use ($request) {
+                $q->where('id', $request->kelas);
+            });
+        })
+        ->when($request->filled('jurusan') && $request->jurusan != "null", function ($query) use ($request) {
+            $query->whereHas('kelas', function ($q) use ($request) {
+                $q->where('jurusan', $request->jurusan);
+            });
+        })
+        ->get();
 
         $result = [];
         foreach ($siswas as $siswa) {

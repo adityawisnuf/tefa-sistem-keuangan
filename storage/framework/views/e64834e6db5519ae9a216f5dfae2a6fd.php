@@ -157,7 +157,7 @@
 <body>
     <!-- Kop Surat -->
     <header>
-        <img src="{{ public_path($sekolah->logo) }}" class="logo" />
+        <img src="<?php echo e(public_path($sekolah->logo)); ?>" class="logo" />
         <div class="kop-surat">
             <h2>PEMERINTAH DAERAH PROVINSI JAWA BARAT</h2>
             <h2>DINAS PENDIDIKAN</h2>
@@ -192,26 +192,26 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach ($result as $key => $siswa)
+                <?php $__currentLoopData = $result; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $siswa): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                     <tr>
-                        <td>{{ $key + 1 }}</td>
-                        <td>{{ $siswa['nama_siswa'] }}</td>
-                        <td>{{ $siswa['kelas'] }}</td>
-                        <td>{{ $siswa['jurusan'] }}</td>
-                        <td>{{ $siswa['telepon'] }}</td>
-                        <td>{{ $siswa['orang_tua'] }}</td>
+                        <td><?php echo e($key + 1); ?></td>
+                        <td><?php echo e($siswa['nama_siswa']); ?></td>
+                        <td><?php echo e($siswa['kelas']); ?></td>
+                        <td><?php echo e($siswa['jurusan']); ?></td>
+                        <td><?php echo e($siswa['telepon']); ?></td>
+                        <td><?php echo e($siswa['orang_tua']); ?></td>
     
                         <!-- Piutang Section (Updated) -->
                         <td>
-                            @foreach ($siswa['piutang'] as $index => $piutang)
-                                <div class="student-data {{ $index == 0 ? 'first-payment' : '' }}">
+                            <?php $__currentLoopData = $siswa['piutang']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $piutang): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <div class="student-data <?php echo e($index == 0 ? 'first-payment' : ''); ?>">
                                     <div class="student-info">
-                                        <p><strong>Nama Siswa:</strong> {{ $siswa['nama_siswa'] }}</p>
-                                        <p><strong>Kelas:</strong> {{ $siswa['kelas'] }}</p>
-                                        <p><strong>Jurusan:</strong> {{ $siswa['jurusan'] }}</p>
-                                        <p><strong>Telepon:</strong> {{ $siswa['telepon'] }}</p>
-                                        <p><strong>Orang Tua:</strong> {{ $siswa['orang_tua'] }}</p>
-                                        <p><strong>Sisa Piutang:</strong> Rp{{ number_format($piutang['sisa_piutang'], 0, ',', '.') }}</p>
+                                        <p><strong>Nama Siswa:</strong> <?php echo e($siswa['nama_siswa']); ?></p>
+                                        <p><strong>Kelas:</strong> <?php echo e($siswa['kelas']); ?></p>
+                                        <p><strong>Jurusan:</strong> <?php echo e($siswa['jurusan']); ?></p>
+                                        <p><strong>Telepon:</strong> <?php echo e($siswa['telepon']); ?></p>
+                                        <p><strong>Orang Tua:</strong> <?php echo e($siswa['orang_tua']); ?></p>
+                                        <p><strong>Sisa Piutang:</strong> Rp<?php echo e(number_format($piutang['sisa_piutang'], 0, ',', '.')); ?></p>
                                     </div>
     
                                     <table>
@@ -225,32 +225,33 @@
                                         </thead>
                                         <tbody>
                                             <tr>
-                                                <td>{{ $loop->iteration }}</td>
-                                                <td>{{ $piutang['pembayaran_ke'] }}</td>
-                                                <td>Rp. {{ number_format($piutang['nominal'], 0, ',', '.') }}</td>
-                                                <td>{{ $piutang['status'] }}</td>
+                                                <td><?php echo e($loop->iteration); ?></td>
+                                                <td><?php echo e($piutang['pembayaran_ke']); ?></td>
+                                                <td>Rp. <?php echo e(number_format($piutang['nominal'], 0, ',', '.')); ?></td>
+                                                <td><?php echo e($piutang['status']); ?></td>
                                             </tr>
                                         </tbody>
                                     </table>
                                     <hr>
                                 </div>
-                            @endforeach
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </td>
     
                         <!-- Tunggakan Section (Unchanged) -->
                         <td>
-                            @foreach($siswa['tunggakan'] as $tunggakan)
+                            <?php $__currentLoopData = $siswa['tunggakan']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $tunggakan): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <div>
-                                    <strong>Pembayaran ke-{{ $tunggakan['pembayaran_ke'] }}</strong><br>
-                                    Nominal: Rp{{ number_format((float)$tunggakan['nominal'], 0, ',', '.') }}<br>
-                                    Jatuh Tempo: {{ $tunggakan['due_date'] }}
+                                    <strong>Pembayaran ke-<?php echo e($tunggakan['pembayaran_ke']); ?></strong><br>
+                                    Nominal: Rp<?php echo e(number_format((float)$tunggakan['nominal'], 0, ',', '.')); ?><br>
+                                    Jatuh Tempo: <?php echo e($tunggakan['due_date']); ?>
+
                                 </div>
                                 <hr>
-                            @endforeach
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </td>
     
                     </tr>
-                @endforeach
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
             </tbody>
         </table>
     </div>
@@ -260,14 +261,14 @@
     <div style="display: flex; justify-content: end;">
         <div style="width: 35%; position: absolute; right: 0;">
             <div class="signature">
-                <p>Sumedang, {{ date('d F Y') }}</p>
+                <p>Sumedang, <?php echo e(date('d F Y')); ?></p>
                 <p>Kepala Sekolah,</p>
             </div>
             <div class="signature">
                 <p style="font-weight: bold;">Dra. Elis Herawati, M.Pd.</p>
-                <p>{{ $sekolah->nip_kepsek }}</p>
+                <p><?php echo e($sekolah->nip_kepsek); ?></p>
             </div>
         </div>
     </div>
 </body>
-</html>
+</html><?php /**PATH C:\laragon-php-8-mariadb-11\laragon-6.0-portable\www\kelompok-1-fixing\tefa-sistem-keuangan\resources\views/print/piutang_tunggakan.blade.php ENDPATH**/ ?>

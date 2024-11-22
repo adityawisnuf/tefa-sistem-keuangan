@@ -14,19 +14,17 @@ class PrintPdfSPPController extends Controller
     public function cetakSiswaPembayaran(Request $request)
     {
         Log::info("File PDF diakses oleh pengguna dengan IP: " . $request->ip());
-        
         // Memulai query untuk mengambil data siswa dengan filter yang diminta
         $siswas = Siswa::with(['kelas', 'orangtua'])
-            ->when($request->filled('nama_siswa'), function ($query) use ($request) {
-                $query->where('nama_depan', 'like', '%' . $request->nama_siswa . '%')
-                      ->orWhere('nama_belakang', 'like', '%' . $request->nama_siswa . '%');
+            ->when($request->filled('nama_siswa') && $request->nama_siswa != "null", function ($query) use ($request) {
+                $query->where('id', $request->nama_siswa);
             })
-            ->when($request->filled('kelas'), function ($query) use ($request) {
+            ->when($request->filled('kelas') && $request->kelas != "null", function ($query) use ($request) {
                 $query->whereHas('kelas', function ($q) use ($request) {
-                    $q->where('kelas', $request->kelas);
+                    $q->where('id', $request->kelas);
                 });
             })
-            ->when($request->filled('jurusan'), function ($query) use ($request) {
+            ->when($request->filled('jurusan') && $request->jurusan != "null", function ($query) use ($request) {
                 $query->whereHas('kelas', function ($q) use ($request) {
                     $q->where('jurusan', $request->jurusan);
                 });
@@ -35,18 +33,17 @@ class PrintPdfSPPController extends Controller
 
         $result = [];
 
-        // Mengambil data pembayaran SPP untuk setiap siswa yang sesuai filter
         foreach ($siswas as $siswa) {
             $pembayaranList = Pembayaran::whereHas('pembayaran_kategori', function ($query) {
                 $query->where('jenis_pembayaran', 1) // Jenis SPP
-                      ->where('status', 1); // Status aktif
+                    ->where('status', 1); // Status aktif
             })
-            ->where('siswa_id', $siswa->id)
-            ->with(['pembayaran_siswa' => function ($query) use ($siswa) {
-                $query->where('siswa_id', $siswa->id)
-                      ->with('pembayaran_siswa_cicilan');
-            }, 'pembayaran_kategori'])
-            ->get();
+                ->where('siswa_id', $siswa->id)
+                ->with(['pembayaran_siswa' => function ($query) use ($siswa) {
+                    $query->where('siswa_id', $siswa->id)
+                        ->with('pembayaran_siswa_cicilan');
+                }, 'pembayaran_kategori'])
+                ->get();
 
             $payments = [];
             $totalTagihan = 0;
@@ -82,7 +79,6 @@ class PrintPdfSPPController extends Controller
 
         // Mengambil data sekolah
         $sekolah = Sekolah::first();
-
         // Generate PDF dan kirim data ke view
         $pdf = Pdf::loadView('print.PrintPdfSPP', compact('result', 'sekolah'));
         return $pdf->stream('Pembayaran-Siswa-SPP.pdf');

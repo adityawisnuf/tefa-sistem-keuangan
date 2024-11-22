@@ -159,13 +159,13 @@
 <body>
     <!-- Kop Surat -->
     <header>
-        <img src="{{ public_path($sekolah->logo) }}" class="logo" />
+        <img src="<?php echo e(public_path($sekolah->logo)); ?>" class="logo" />
         <div class="kop-surat">
             <h2>PEMERINTAH DAERAH PROVINSI JAWA BARAT</h2>
             <h2>DINAS PENDIDIKAN</h2>
             <h2>CABANG DINAS PENDIDIKAN WILAYAH VIII</h2>
-            <h1>{{ $sekolah->nama }}</h1>
-            <p>{{ $sekolah->alamat }} Telp. 0216-201531, Fax. 0261-210097</p>
+            <h1><?php echo e($sekolah->nama); ?></h1>
+            <p><?php echo e($sekolah->alamat); ?> Telp. 0216-201531, Fax. 0261-210097</p>
             <p>http://www.smkn2sumedang.sch.id - email.smkn2sumedang@yahoo.com</p>
             <p class="kabupaten">KABUPATEN SUMEDANG 45323</p>
         </div>
@@ -179,16 +179,16 @@
     <!-- Judul Laporan Data Siswa dan Pembayaran -->
     <h2 class="title">DATA PEMBAYARAN SPP SISWA</h2>
 
-    @foreach ($result as $index => $data)
+    <?php $__currentLoopData = $result; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $data): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
         <!-- Untuk pembayaran pertama, gabungkan dengan data siswa pada halaman pertama -->
-        <div class="student-data {{ $index == 0 ? 'first-payment' : '' }}">
+        <div class="student-data <?php echo e($index == 0 ? 'first-payment' : ''); ?>">
             <div class="student-info">
-                <p><strong>Nama Siswa:</strong> {{ $data['nama_siswa'] }}</p>
-                <p><strong>Kelas:</strong> {{ $data['kelas'] }}</p>
-                <p><strong>Jurusan:</strong> {{ $data['jurusan'] }}</p>
-                <p><strong>Telepon:</strong> {{ $data['telepon'] }}</p>
-                <p><strong>Orang Tua:</strong> {{ $data['orangtua'] }}</p>
-                <p><strong>Sisa Tagihan:</strong> Rp{{ number_format($data['sisa_tagihan'], 0, ',', '.') }}</p>
+                <p><strong>Nama Siswa:</strong> <?php echo e($data['nama_siswa']); ?></p>
+                <p><strong>Kelas:</strong> <?php echo e($data['kelas']); ?></p>
+                <p><strong>Jurusan:</strong> <?php echo e($data['jurusan']); ?></p>
+                <p><strong>Telepon:</strong> <?php echo e($data['telepon']); ?></p>
+                <p><strong>Orang Tua:</strong> <?php echo e($data['orangtua']); ?></p>
+                <p><strong>Sisa Tagihan:</strong> Rp<?php echo e(number_format($data['sisa_tagihan'], 0, ',', '.')); ?></p>
             </div>
 
             <!-- Tabel Pembayaran -->
@@ -202,34 +202,34 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($data['payments'] as $payment)
+                    <?php $__currentLoopData = $data['payments']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $payment): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <tr>
-                            <td>{{ $loop->iteration }}</td>
-                            <td>{{ $payment['pembayaran_ke'] }}</td>
-                            <td>Rp. {{ number_format($payment['nominal'], 0, ',', '.') }}</td>
-                            <td>{{ $payment['status'] }}</td>
+                            <td><?php echo e($loop->iteration); ?></td>
+                            <td><?php echo e($payment['pembayaran_ke']); ?></td>
+                            <td>Rp. <?php echo e(number_format($payment['nominal'], 0, ',', '.')); ?></td>
+                            <td><?php echo e($payment['status']); ?></td>
                         </tr>
-                    @endforeach
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </tbody>
             </table>
             <hr>
         </div>
-    @endforeach
+    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
     <!-- Area Tanda Tangan -->
     <div style="display: flex; justify-content: end;">
         <div style="width: 35%; position: absolute; right: 0;">
             <div class="signature">
-                <p>Sumedang, {{ date('d F Y') }}</p>
+                <p>Sumedang, <?php echo e(date('d F Y')); ?></p>
                 <p>Kepala Sekolah,</p>
             </div>
             <div class="signature">
                 <p style="font-weight: bold;">Dra. Elis Herawati, M.Pd.</p>
-                <p>{{ $sekolah->nip_kepsek }}</p>
+                <p><?php echo e($sekolah->nip_kepsek); ?></p>
             </div>
         </div>
     </div>
 
 </body>
 
-</html>
+</html><?php /**PATH C:\laragon-php-8-mariadb-11\laragon-6.0-portable\www\kelompok-1-fixing\tefa-sistem-keuangan\resources\views/print/PrintPdfSPP.blade.php ENDPATH**/ ?>

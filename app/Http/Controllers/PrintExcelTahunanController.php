@@ -1,81 +1,83 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Models\Siswa;
-use App\Models\Pembayaran;
+
+use App\Exports\PembayaranSiswaTahunanExport;
 use App\Exports\TahunanExcelExport;
+use App\Models\Pembayaran;
+use App\Models\Siswa;
 use Illuminate\Http\Request;
-use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Facades\Excel;
 
 class PrintExcelTahunanController extends Controller
 {
-    public function exportExcel(Request $request)
+    public function exportExce(Request $request)
     {
-        Log::info("Yearly Excel accessed by user with IP: " . $request->ip());
+        Log::info("File Excel Tahunan diakses oleh pengguna dengan IP: " . $request->ip());
 
-        // Get students with filtering options if specified
+        // Mengambil data siswa dengan filter sesuai permintaan
         $siswas = Siswa::with(['kelas', 'orangtua'])
-            ->when($request->filled('nama_siswa'), function ($query) use ($request) {
-                $query->where('nama_depan', 'like', '%' . $request->nama_siswa . '%')
-                    ->orWhere('nama_belakang', 'like', '%' . $request->nama_siswa . '%');
+            ->when($request->filled('nama_siswa') && $request->nama_siswa != "null", function ($query) use ($request) {
+                $query->where('id', $request->nama_siswa);
             })
-            ->when($request->filled('kelas'), function ($query) use ($request) {
-                $query->whereHas('kelas', fn($q) => $q->where('kelas', $request->kelas));
+            ->when($request->filled('kelas') && $request->kelas != "null", function ($query) use ($request) {
+                $query->whereHas('kelas', function ($q) use ($request) {
+                    $q->where('id', $request->kelas);
+                });
             })
-            ->when($request->filled('jurusan'), function ($query) use ($request) {
-                $query->whereHas('kelas', fn($q) => $q->where('jurusan', $request->jurusan));
+            ->when($request->filled('jurusan') && $request->jurusan != "null", function ($query) use ($request) {
+                $query->whereHas('kelas', function ($q) use ($request) {
+                    $q->where('jurusan', $request->jurusan);
+                });
             })
             ->get();
 
         $result = [];
 
-        // Gather yearly payment data for each student
         foreach ($siswas as $siswa) {
+            // Ambil data pembayaran tahunan untuk setiap siswa
             $pembayaranList = Pembayaran::whereHas('pembayaran_kategori', function ($query) {
-                $query->where('jenis_pembayaran', 2)  // Yearly payment type
-                    ->where('status', 1); // Active status
+                $query->where('jenis_pembayaran', 2) // Jenis tahunan
+                      ->where('status', 1); // Status aktif
             })
             ->where('siswa_id', $siswa->id)
             ->with(['pembayaran_siswa', 'pembayaran_kategori'])
             ->get();
 
             $payments = [];
+            $totalTagihan = 0;
 
             foreach ($pembayaranList as $pembayaran) {
-                $status = $pembayaran->pembayaran_siswa->isNotEmpty() 
-                    ? ($pembayaran->pembayaran_siswa->first()->status == 1 ? 'Lunas' : 'Belum Lunas')
-                    : 'Belum Lunas';
+                $status = 'Belum Lunas';
+                if ($pembayaran->pembayaran_siswa->isNotEmpty()) {
+                    $status = $pembayaran->pembayaran_siswa->first()->status == 1 ? 'Lunas' : 'Belum Lunas';
+                }
+
+                $nominal = $pembayaran->nominal;
+                if ($status === 'Belum Lunas') {
+                    $totalTagihan += $nominal;
+                }
 
                 $payments[] = [
-                    'pembayaran_ke' => $pembayaran->pembayaran_ke,
-                    'nominal' => $pembayaran->nominal,
+                    'pembayaran_ke' => $pembayaran->pembayaran_kategori->nama ?? 'Nama Tidak Tersedia',
+                    'nominal' => $nominal,
                     'status' => $status,
                 ];
             }
 
             $result[] = [
-                'nama_siswa' => $siswa->nama_depan . ' ' . $siswa->nama_belakang,
+                'nama_siswa' => $siswa->nama_depan . ' ' . ($siswa->nama_belakang ?? ''),
                 'kelas' => $siswa->kelas->kelas ?? '',
                 'jurusan' => $siswa->kelas->jurusan ?? '',
                 'telepon' => $siswa->telepon,
                 'orangtua' => $siswa->orangtua->nama ?? '',
-                'sisa_tagihan' => $this->calculateSisaTagihan($pembayaranList),
+                'sisa_tagihan' => $totalTagihan,
                 'payments' => $payments,
             ];
         }
 
-        // Render the view into an Excel file, pass result instead of data
-        return Excel::download(new TahunanExcelExport($result), 'data_pembayaran_tahunan.xlsx');
-    }
-
-    // Example function for calculating remaining balance, implement as needed
-    private function calculateSisaTagihan($pembayaranList)
-    {
-        $totalBayar = 0;
-        foreach ($pembayaranList as $pembayaran) {
-            $totalBayar += $pembayaran->nominal;
-        }
-        return $totalBayar; // Adjust according to your logic
+        // Unduh data dalam bentuk Excel menggunakan Export class
+        return Excel::download(new TahunanExcelExport($result), 'Pembayaran-Tahunan-Siswa.xlsx');
     }
 }

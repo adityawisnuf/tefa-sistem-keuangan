@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Pembayaran;
 use Illuminate\Http\Request;
-use Maatwebsite\Excel\Facades\Excel;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -13,13 +12,11 @@ class PrintPiutangTunggakanExcelController extends Controller
 {
     public function exportExcel(Request $request)
     {
-        // Ambil data dengan filter yang sesuai
+        // Filter data pembayaran
         $query = Pembayaran::whereHas('pembayaran_kategori', function ($query) {
                 $query->where('status', 1);
             })
-            ->with(['pembayaran_siswa' => function ($query) {
-                $query->with('pembayaran_siswa_cicilan');
-            }, 'pembayaran_kategori', 'siswa.kelas']);
+            ->with(['pembayaran_siswa', 'pembayaran_kategori', 'siswa.kelas', 'siswa.orangtua']);
 
         if ($request->filled('nama_siswa')) {
             $query->whereHas('siswa', function ($q) use ($request) {
@@ -42,11 +39,11 @@ class PrintPiutangTunggakanExcelController extends Controller
 
         $pembayaranList = $query->get();
 
-        // Buat Spreadsheet Excel baru
+        // Buat Spreadsheet
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
 
-        // Header
+        // Header kolom
         $sheet->setCellValue('A1', 'No')
               ->setCellValue('B1', 'Nama Siswa')
               ->setCellValue('C1', 'Kelas')
@@ -56,43 +53,54 @@ class PrintPiutangTunggakanExcelController extends Controller
               ->setCellValue('G1', 'Piutang')
               ->setCellValue('H1', 'Tunggakan');
 
-        // Styling header
+        // Styling Header
         $sheet->getStyle('A1:H1')->getFont()->setBold(true);
         $sheet->getStyle('A1:H1')->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->getStartColor()->setARGB('4CAF50');
         $sheet->getStyle('A1:H1')->getFont()->getColor()->setARGB('FFFFFF');
 
-        // Isi data
+        // Data
         $row = 2;
         foreach ($pembayaranList as $key => $pembayaran) {
+            $siswa = $pembayaran->siswa;
+
             $sheet->setCellValue('A' . $row, $key + 1);
-            $sheet->setCellValue('B' . $row, $pembayaran->siswa->nama_depan . ' ' . $pembayaran->siswa->nama_belakang);
-            $sheet->setCellValue('C' . $row, $pembayaran->siswa->kelas->kelas);
-            $sheet->setCellValue('D' . $row, $pembayaran->siswa->kelas->jurusan);
-            $sheet->setCellValue('E' . $row, $pembayaran->siswa->telepon);
-            $sheet->setCellValue('F' . $row, $pembayaran->siswa->orangtua->nama ?? 'N/A');
+            $sheet->setCellValue('B' . $row, $siswa->nama_depan . ' ' . $siswa->nama_belakang);
+            $sheet->setCellValue('C' . $row, $siswa->kelas->kelas ?? 'N/A');
+            $sheet->setCellValue('D' . $row, $siswa->kelas->jurusan ?? 'N/A');
+            $sheet->setCellValue('E' . $row, $siswa->telepon ?? 'N/A');
+            $sheet->setCellValue('F' . $row, $siswa->orangtua->nama ?? 'N/A');
 
-            // Isi data Piutang dan Tunggakan
+            // Menghitung Piutang
             $piutangData = '';
-            foreach ($pembayaran->pembayaran_siswa as $piutang) {
-                $piutangData .= "Pembayaran ke-{$piutang->pembayaran_ke}: Rp" . number_format($piutang->nominal, 0, ',', '.') . "\n";
-            }
-            $sheet->setCellValue('G' . $row, $piutangData);
-
             $tunggakanData = '';
-            foreach ($pembayaran->pembayaran_siswa as $tunggakan) {
-                $tunggakanData .= "Pembayaran ke-{$tunggakan->pembayaran_ke}: Rp" . number_format($tunggakan->nominal, 0, ',', '.') . "\n";
+            foreach ($pembayaran->pembayaran_siswa as $pembayaranSiswa) {
+                $nominal = $pembayaranSiswa->nominal;
+                $jatuhTempo = $pembayaranSiswa->jatuh_tempo;
+                $status = $pembayaranSiswa->status;
+
+                // Piutang (belum jatuh tempo)
+                if ($status == 0 && $jatuhTempo > now()) {
+                    $piutangData .= "Pembayaran ke-{$pembayaranSiswa->pembayaran_ke}: Rp" . number_format($nominal, 0, ',', '.') . "\n";
+                }
+
+                // Tunggakan (sudah lewat jatuh tempo)
+                if ($status == 0 && $jatuhTempo <= now()) {
+                    $tunggakanData .= "Pembayaran ke-{$pembayaranSiswa->pembayaran_ke}: Rp" . number_format($nominal, 0, ',', '.') . "\n";
+                }
             }
-            $sheet->setCellValue('H' . $row, $tunggakanData);
+
+            $sheet->setCellValue('G' . $row, $piutangData ?: 'Tidak Ada');
+            $sheet->setCellValue('H' . $row, $tunggakanData ?: 'Tidak Ada');
 
             $row++;
         }
 
-        // Atur lebar kolom agar otomatis sesuai isi
+        // Atur lebar kolom
         foreach (range('A', 'H') as $columnID) {
             $sheet->getColumnDimension($columnID)->setAutoSize(true);
         }
 
-        // Download file sebagai respons
+        // Buat file Excel untuk diunduh
         $writer = new Xlsx($spreadsheet);
         $fileName = 'piutang_tunggakan.xlsx';
 
