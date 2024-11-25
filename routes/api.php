@@ -61,7 +61,7 @@ Route::middleware('auth:api')->group(function () {
                 'data' => $siswaData->map(function ($siswa) {
                     return [
                         'value' => $siswa->id,
-                        'label' => $siswa->nama_depan.' '.$siswa->nama_belakang,
+                        'label' => $siswa->nama_depan . ' ' . $siswa->nama_belakang,
                     ];
                 }),
             ]);
@@ -99,8 +99,8 @@ Route::middleware('auth:api')->group(function () {
         });
     });
 
-     // Route untuk mendapatkan data anggaran
-     Route::get('/select/anggaran', function () {
+    // Route untuk mendapatkan data anggaran
+    Route::get('/select/anggaran', function () {
         $table = Anggaran::all();
         return response()->json([
             'message' => 'Berhasil mendapatkan data anggaran',
@@ -113,7 +113,7 @@ Route::middleware('auth:api')->group(function () {
             })
         ]);
     });
-    
+
 
     Route::prefix('payment')->group(function () {
         Route::get('/me', [PembayaranController::class, 'getCurrent'])->name('payment.transaction.getMonth');
@@ -160,7 +160,7 @@ Route::middleware('auth:api')->group(function () {
             return response()->json(['success' => true, 'message' => 'Berhasil membuat pembayaran baru', 'data' => $pembayaran]);
         })->name('payment.assign');
     });
-    
+
     //Role: ADMIN
     Route::middleware('checkrole:Admin')->prefix('Admin')->group(function () {
         Route::get('students', [PembayaranManualController::class, 'getStudents']);
@@ -174,128 +174,126 @@ Route::middleware('auth:api')->group(function () {
     });
 
 
- // Role: BENDAHARA
- Route::middleware('checkrole:Bendahara')->prefix('Bendahara')->group(function () {
-    Route::post('/siswa', [SiswaController::class, 'index']);
-    Route::post('/get/payment/siswa', [PembayaranController::class, 'getPembayaran']);
-    Route::post('/get/payment/siswa/tahunan', [PembayaranController::class, 'getPembayaranTahunan']);
-    Route::post('/piutang-tunggakan', [PembayaranController::class, 'getPiutangTunggakan']);
-    Route::get('/laporan/spp', [PrintPdfSPPController::class, 'cetakSiswaPembayaran']);
-    Route::get('/laporan/pemasukan-tahunan', [PrintPdfTahunanPemasukanController::class, '__invoke']);
-    Route::get('/laporan/UtangPiutang', [PrintPdfPiutangdanTunggakanController::class, '__invoke']);
-    Route::get('/excel-tahunan', [PrintExcelTahunanController::class, 'exportExcel']);
-    Route::get('/excel-spp', [PrintExcelSPPController::class, 'exportPembayaranSiswaToExcel']);
-    Route::get('/excel-piutang-tunggakan', [PrintPiutangTunggakanExcelController::class, 'exportExcel']);
-
+    // Role: BENDAHARA
+    Route::middleware('checkrole:Bendahara')->prefix('Bendahara')->group(function () {
+        Route::post('/siswa', [SiswaController::class, 'index']);
+        Route::post('/get/payment/siswa', [PembayaranController::class, 'getPembayaran']);
+        Route::post('/get/payment/siswa/tahunan', [PembayaranController::class, 'getPembayaranTahunan']);
+        Route::post('/piutang-tunggakan', [PembayaranController::class, 'getPiutangTunggakan']);
+        Route::get('/laporan/spp', [PrintPdfSPPController::class, 'cetakSiswaPembayaran']);
+        Route::get('/laporan/pemasukan-tahunan', [PrintPdfTahunanPemasukanController::class, '__invoke']);
+        Route::get('/laporan/UtangPiutang', [PrintPdfPiutangdanTunggakanController::class, '__invoke']);
+        Route::get('/excel-tahunan', [PrintExcelTahunanController::class, 'exportExcel']);
+        Route::get('/excel-spp', [PrintExcelSPPController::class, 'exportPembayaranSiswaToExcel']);
+        Route::get('/excel-piutang-tunggakan', [PrintPiutangTunggakanExcelController::class, 'exportExcel']);
     });
 
-// Role: SISWA
-Route::middleware('checkrole:Siswa')->prefix('siswa')->group(function () {
-    Route::get('/pembayaran-siswa', [PembayaranSiswaController::class, 'index']);
-    Route::patch('/pembayaran-siswa/{id}', [PembayaranSiswaController::class, 'update']);
-    Route::get('/riwayat-pembayaran', [PembayaranSiswaController::class, 'riwayatPembayaran']);
-    Route::get('/riwayat-tagihan', [PembayaranSiswaController::class, 'riwayatTagihan']);
-    Route::get('/pembayaran/notifications', [PembayaranKategoriController::class, 'notifications']);
-    Route::get('/peringatan-jatuh-tempo', [PembayaranKategoriController::class, 'peringatanJatuhTempo']);
-    Route::post('/send-whatsapp', [SendPaymentSuccesController::class, 'sendMessage']);
-    Route::get('/get-groups', [SendPaymentSuccesController::class, 'getGroups']);
-    Route::get('/send-payment-reminder', [SendPaymentSuccesController::class, 'sendPaymentReminder']);
-});
+    // Role: SISWA
+    Route::middleware('checkrole:Siswa')->prefix('siswa')->group(function () {
+        Route::get('/pembayaran-siswa', [PembayaranSiswaController::class, 'index']);
+        Route::patch('/pembayaran-siswa/{id}', [PembayaranSiswaController::class, 'update']);
+        Route::get('/riwayat-pembayaran', [PembayaranSiswaController::class, 'riwayatPembayaran']);
+        Route::get('/riwayat-tagihan', [PembayaranSiswaController::class, 'riwayatTagihan']);
+        Route::get('/pembayaran/notifications', [PembayaranKategoriController::class, 'notifications']);
+        Route::get('/peringatan-jatuh-tempo', [PembayaranKategoriController::class, 'peringatanJatuhTempo']);
+        Route::post('/send-whatsapp', [SendPaymentSuccesController::class, 'sendMessage']);
+        Route::get('/get-groups', [SendPaymentSuccesController::class, 'getGroups']);
+        Route::get('/send-payment-reminder', [SendPaymentSuccesController::class, 'sendPaymentReminder']);
+    });
 
-// Role: ORANG TUA
-Route::middleware('checkrole:Orang Tua')->prefix('orangtua')->group(function () {
-    Route::get('/pembayaran-siswa', [PembayaranSiswaController::class, 'index']);
-    Route::post('/pembayaran-siswa/{id}/bayar', [PembayaranSiswaController::class, 'bayar']);
-    Route::get('/riwayat-pembayaran', [PembayaranSiswaController::class, 'riwayatPembayaran']);
-    Route::get('/riwayat-tagihan', [PembayaranSiswaController::class, 'riwayatTagihan']);
-    Route::get('/pembayaran/notifications', [PembayaranKategoriController::class, 'notifications']);
-    Route::get('/peringatan-jatuh-tempo', [PembayaranKategoriController::class, 'peringatanJatuhTempo']);
-    Route::post('/send-whatsapp', [SendPaymentSuccesController::class, 'sendMessage']);
-    Route::get('/get-groups', [SendPaymentSuccesController::class, 'getGroups']);
-    Route::get('/send-payment-reminder', [SendPaymentSuccesController::class, 'sendPaymentReminder']);
-
-
-  
-   
+    // Role: ORANG TUA
+    Route::middleware('checkrole:Orang Tua')->prefix('orangtua')->group(function () {
+        Route::get('/pembayaran-siswa', [PembayaranSiswaController::class, 'index']);
+        Route::post('/pembayaran-siswa/{id}/bayar', [PembayaranSiswaController::class, 'bayar']);
+        Route::get('/riwayat-pembayaran', [PembayaranSiswaController::class, 'riwayatPembayaran']);
+        Route::get('/riwayat-tagihan', [PembayaranSiswaController::class, 'riwayatTagihan']);
+        Route::get('/pembayaran/notifications', [PembayaranKategoriController::class, 'notifications']);
+        Route::get('/peringatan-jatuh-tempo', [PembayaranKategoriController::class, 'peringatanJatuhTempo']);
+        Route::post('/send-whatsapp', [SendPaymentSuccesController::class, 'sendMessage']);
+        Route::get('/get-groups', [SendPaymentSuccesController::class, 'getGroups']);
+        Route::get('/send-payment-reminder', [SendPaymentSuccesController::class, 'sendPaymentReminder']);
+    });
 
     // Role: Admin
-Route::group([
-    'middleware' => ['checkrole:Admin'],
-    'prefix' => 'Admin'
-], function () {
-    // CRUD Routes
-    Route::post('/anggaran', [AnggaranController::class, 'store']);
-    Route::get('/anggaran', [AnggaranController::class, 'index']);
-    Route::get('/anggaran/chart-data', [AnggaranController::class, 'getAnggaranData']);
-    Route::get('/anggaran/total-rencana-anggaran', [AnggaranController::class, 'getTotalRencanaAnggaran']);
-    Route::get('/anggaran/total-realisasi-anggaran', [AnggaranController::class, 'getTotalRealisasiAnggaran']);
-    Route::patch('/anggaran/{anggaran}', [AnggaranController::class, 'update']);
+    Route::group([
+        'middleware' => ['checkrole:Admin'],
+        'prefix' => 'Admin'
+    ], function () {
+        // CRUD Routes
+        Route::post('/anggaran', [AnggaranController::class, 'store']);
+        Route::get('/anggaran', [AnggaranController::class, 'index']);
+        Route::get('/anggaran/chart-data', [AnggaranController::class, 'getAnggaranData']);
+        Route::get('/anggaran/total-rencana-anggaran', [AnggaranController::class, 'getTotalRencanaAnggaran']);
+        Route::get('/anggaran/total-realisasi-anggaran', [AnggaranController::class, 'getTotalRealisasiAnggaran']);
+        Route::patch('/anggaran/{anggaran}', [AnggaranController::class, 'update']);
 
-    // Laporan Anggaran
-    Route::get('/laporan/anggaran', function () {
-        $tgl_awal = request('tgl_awal');
-        $tgl_akhir = request('tgl_akhir');
+        // Laporan Anggaran
+        Route::get('/laporan/anggaran', function () {
+            $tgl_awal = request('tgl_awal');
+            $tgl_akhir = request('tgl_akhir');
 
-        if ($tgl_awal && $tgl_akhir) {
-            $anggaran = Anggaran::whereBetween('created_at', [$tgl_awal, $tgl_akhir])->get();
-            $fileName = "Anggaran {$tgl_awal} - {$tgl_akhir}.pdf";
-        } else {
-            $anggaran = Anggaran::all();
-            $fileName = "Data Keseluruhan Anggaran.pdf";
-        }
+            if ($tgl_awal && $tgl_akhir) {
+                $anggaran = Anggaran::whereBetween('created_at', [$tgl_awal, $tgl_akhir])->get();
+                $fileName = "Anggaran {$tgl_awal} - {$tgl_akhir}.pdf";
+            } else {
+                $anggaran = Anggaran::all();
+                $fileName = "Data Keseluruhan Anggaran.pdf";
+            }
 
-        $data = ['anggarans' => $anggaran,
-        'sekolah'=>Sekolah::first()
-    ];
-        $pdf = Pdf::loadView('print.anggaran', $data);
+            $data = [
+                'anggarans' => $anggaran,
+                'sekolah' => Sekolah::first()
+            ];
+            $pdf = Pdf::loadView('print.anggaran', $data);
 
-        return $pdf->stream($fileName);
-    })->name('laporan.anggaran');
+            return $pdf->stream($fileName);
+        })->name('laporan.anggaran');
 
-     // Laporan Deviasi
-     Route::get('/laporan/deviasi', [AnggaranController::class, 'printDeviasi'])->name('laporan.deviasi');
-});
+        // Laporan Deviasi
+        Route::get('/laporan/deviasi', [AnggaranController::class, 'printDeviasi'])->name('laporan.deviasi');
+    });
 
-// Role: Bendahara
-Route::group([
-    'middleware' => ['checkrole:Bendahara'],
-    'prefix' => 'Bendahara'
-], function () {
-    // CRUD Routes
-    Route::post('/anggaran', [AnggaranController::class, 'store']);
-    Route::get('/anggaran', [AnggaranController::class, 'index']);
-    Route::get('/anggaran/chart-data', [AnggaranController::class, 'getAnggaranData']);
-    Route::get('/anggaran/total-rencana-anggaran', [AnggaranController::class, 'getTotalRencanaAnggaran']);
-    Route::get('/anggaran/total-realisasi-anggaran', [AnggaranController::class, 'getTotalRealisasiAnggaran']);
-    Route::patch('/anggaran/{anggaran}', [AnggaranController::class, 'update']);
-    //Route::delete('/anggaran/{anggaran}', [AnggaranController::class, 'destroy']);
+    // Role: Bendahara
+    Route::group([
+        'middleware' => ['checkrole:Bendahara'],
+        'prefix' => 'Bendahara'
+    ], function () {
+        // CRUD Routes
+        Route::post('/anggaran', [AnggaranController::class, 'store']);
+        Route::get('/anggaran', [AnggaranController::class, 'index']);
+        Route::get('/anggaran/chart-data', [AnggaranController::class, 'getAnggaranData']);
+        Route::get('/anggaran/total-rencana-anggaran', [AnggaranController::class, 'getTotalRencanaAnggaran']);
+        Route::get('/anggaran/total-realisasi-anggaran', [AnggaranController::class, 'getTotalRealisasiAnggaran']);
+        Route::patch('/anggaran/{anggaran}', [AnggaranController::class, 'update']);
+        //Route::delete('/anggaran/{anggaran}', [AnggaranController::class, 'destroy']);
 
-    // Laporan Anggaran
-    Route::get('/laporan/anggaran', function () {
-        $tgl_awal = request('tgl_awal');
-        $tgl_akhir = request('tgl_akhir');
+        // Laporan Anggaran
+        Route::get('/laporan/anggaran', function () {
+            $tgl_awal = request('tgl_awal');
+            $tgl_akhir = request('tgl_akhir');
 
-        if ($tgl_awal && $tgl_akhir) {
-            $anggaran = Anggaran::whereBetween('created_at', [$tgl_awal, $tgl_akhir])->get();
-            $fileName = "Anggaran {$tgl_awal} - {$tgl_akhir}.pdf";
-        } else {
-            $anggaran = Anggaran::all();
-            $fileName = "Data Keseluruhan Anggaran.pdf";
-        }
+            if ($tgl_awal && $tgl_akhir) {
+                $anggaran = Anggaran::whereBetween('created_at', [$tgl_awal, $tgl_akhir])->get();
+                $fileName = "Anggaran {$tgl_awal} - {$tgl_akhir}.pdf";
+            } else {
+                $anggaran = Anggaran::all();
+                $fileName = "Data Keseluruhan Anggaran.pdf";
+            }
 
-        $data = ['anggarans' => $anggaran,
-        'sekolah'=>Sekolah::first()
-    ];
-        $pdf = Pdf::loadView('print.anggaran', $data);
+            $data = [
+                'anggarans' => $anggaran,
+                'sekolah' => Sekolah::first()
+            ];
+            $pdf = Pdf::loadView('print.anggaran', $data);
 
-        return $pdf->stream($fileName);
-    })->name('laporan.anggaran');
-    Route::get('/laporan/deviasi', [AnggaranController::class, 'printDeviasi'])->name('laporan.deviasi');
-});
+            return $pdf->stream($fileName);
+        })->name('laporan.anggaran');
+        Route::get('/laporan/deviasi', [AnggaranController::class, 'printDeviasi'])->name('laporan.deviasi');
+    });
 
     // Routes untuk role "Bendahara"
     Route::middleware(['checkrole:Bendahara'])->prefix('Bendahara')->group(function () {
-        Route::post('/pemasukan', [PembayaranBukuKasController::class, 'index']); 
+        Route::post('/pemasukan', [PembayaranBukuKasController::class, 'index']);
         Route::post('/pengeluaran', [PengeluaranController::class, 'index']);
         Route::get('/export-pengeluaran', [PengeluaranExcelController::class, 'exportPengeluaran'])
             ->name('pengeluaran.exportExcel');
@@ -305,157 +303,157 @@ Route::group([
         // Laporan pembayaran PDF
         Route::get('/laporan/pembayaran', [PembayaranController::class, 'report'])->name('laporan.pembayaran');
 
-      
-         // Laporan pengeluaran PDF
-         Route::get('/laporan/pengeluaran', [PengeluaranController::class, 'report'])->name('laporan.pengeluaran');
-        });
+
+        // Laporan pengeluaran PDF
+        Route::get('/laporan/pengeluaran', [PengeluaranController::class, 'report'])->name('laporan.pengeluaran');
+    });
 
     // Routes untuk role "Kepala Sekolah"
     Route::middleware(['checkrole:Kepala Sekolah'])->prefix('Kepala Sekolah')->group(function () {
-        Route::post('/pemasukan', [PembayaranBukuKasController::class, 'index']); 
-        Route::post('/pengeluaran', [PengeluaranController::class, 'index']); 
+        Route::post('/pemasukan', [PembayaranBukuKasController::class, 'index']);
+        Route::post('/pengeluaran', [PengeluaranController::class, 'index']);
         Route::get('/export-pengeluaran', [PengeluaranExcelController::class, 'exportPengeluaran'])
-        ->name('pengeluaran.exportExcel');
+            ->name('pengeluaran.exportExcel');
         Route::get('/pembayaran/export-excel', [PrintExcelController::class, 'exportExcel'])
             ->name('pembayaran.exportExcel');
 
         // Laporan pembayaran PDF
         Route::get('/laporan/pembayaran', [PembayaranController::class, 'report'])->name('laporan.pembayaran');
-        
-         // Laporan pengeluaran PDF
-         Route::get('/laporan/pengeluaran', [PengeluaranController::class, 'report'])->name('laporan.pengeluaran');
-   
+
+        // Laporan pengeluaran PDF
+        Route::get('/laporan/pengeluaran', [PengeluaranController::class, 'report'])->name('laporan.pengeluaran');
     });
 
-// Role: Kepala Sekolah
-Route::group([
-    'middleware' => ['checkrole:Kepala Sekolah'],
-    'prefix' => 'Kepala Sekolah'
-], function () {
-    // Read Routes
-    Route::post('/anggaran', [AnggaranController::class, 'store']);
-    Route::get('/anggaran', [AnggaranController::class, 'index']);
-    Route::patch('/anggaran/{anggaran}', [AnggaranController::class, 'update']);
-    Route::delete('/anggaran/{anggaran}', [AnggaranController::class, 'destroy']);
-    Route::get('/anggaran/chart-data', [AnggaranController::class, 'getAnggaranData']);
-    Route::get('/anggaran/total-rencana-anggaran', [AnggaranController::class, 'getTotalRencanaAnggaran']);
-    Route::get('/anggaran/total-realisasi-anggaran', [AnggaranController::class, 'getTotalRealisasiAnggaran']);
-    Route::delete('/anggaran/{anggaran}', [AnggaranController::class, 'destroy']);
+    // Role: Kepala Sekolah
+    Route::group([
+        'middleware' => ['checkrole:Kepala Sekolah'],
+        'prefix' => 'Kepala Sekolah'
+    ], function () {
+        // Read Routes
+        Route::post('/anggaran', [AnggaranController::class, 'store']);
+        Route::get('/anggaran', [AnggaranController::class, 'index']);
+        Route::patch('/anggaran/{anggaran}', [AnggaranController::class, 'update']);
+        Route::delete('/anggaran/{anggaran}', [AnggaranController::class, 'destroy']);
+        Route::get('/anggaran/chart-data', [AnggaranController::class, 'getAnggaranData']);
+        Route::get('/anggaran/total-rencana-anggaran', [AnggaranController::class, 'getTotalRencanaAnggaran']);
+        Route::get('/anggaran/total-realisasi-anggaran', [AnggaranController::class, 'getTotalRealisasiAnggaran']);
+        Route::delete('/anggaran/{anggaran}', [AnggaranController::class, 'destroy']);
 
-    // Laporan Anggaran
-    Route::get('/laporan/anggaran', function () {
-        $tgl_awal = request('tgl_awal');
-        $tgl_akhir = request('tgl_akhir');
+        // Laporan Anggaran
+        Route::get('/laporan/anggaran', function () {
+            $tgl_awal = request('tgl_awal');
+            $tgl_akhir = request('tgl_akhir');
 
-        if ($tgl_awal && $tgl_akhir) {
-            $anggaran = Anggaran::whereBetween('created_at', [$tgl_awal, $tgl_akhir])->get();
-            $fileName = "Anggaran {$tgl_awal} - {$tgl_akhir}.pdf";
-        } else {
-            $anggaran = Anggaran::all();
-            $fileName = "Data Keseluruhan Anggaran.pdf";
-        }
+            if ($tgl_awal && $tgl_akhir) {
+                $anggaran = Anggaran::whereBetween('created_at', [$tgl_awal, $tgl_akhir])->get();
+                $fileName = "Anggaran {$tgl_awal} - {$tgl_akhir}.pdf";
+            } else {
+                $anggaran = Anggaran::all();
+                $fileName = "Data Keseluruhan Anggaran.pdf";
+            }
 
-        $data = ['anggarans' => $anggaran,
-        'sekolah'=>Sekolah::first()
-    ];
-        $pdf = Pdf::loadView('print.anggaran', $data);
+            $data = [
+                'anggarans' => $anggaran,
+                'sekolah' => Sekolah::first()
+            ];
+            $pdf = Pdf::loadView('print.anggaran', $data);
 
-        return $pdf->stream($fileName);
-    })->name('laporan.anggaran');
+            return $pdf->stream($fileName);
+        })->name('laporan.anggaran');
 
-    Route::get('/laporan/deviasi', [AnggaranController::class, 'printDeviasi'])->name('laporan.deviasi');
-});
+        Route::get('/laporan/deviasi', [AnggaranController::class, 'printDeviasi'])->name('laporan.deviasi');
+    });
 
-// ROLE: Admin
-Route::group([
-    'middleware' => ['auth:api', 'checkrole:Admin'],
-    'prefix' => "Admin"
-], function () {
-    // CRUD
-    Route::post('/aset', [AsetSekolahController::class, 'store']);
-    Route::get('/aset', [AsetSekolahController::class, 'index']);
-    Route::patch('/aset/{aset}/', [AsetSekolahController::class, 'update']);
-    Route::delete('/aset/{aset}', [AsetSekolahController::class, 'destroy']);
+    // ROLE: Admin
+    Route::group([
+        'middleware' => ['auth:api', 'checkrole:Admin'],
+        'prefix' => "Admin"
+    ], function () {
+        // CRUD
+        Route::post('/aset', [AsetSekolahController::class, 'store']);
+        Route::get('/aset', [AsetSekolahController::class, 'index']);
+        Route::patch('/aset/{aset}/', [AsetSekolahController::class, 'update']);
+        Route::delete('/aset/{aset}', [AsetSekolahController::class, 'destroy']);
 
-    Route::get('/laporan/inventaris', function () {
-        $tgl_awal = request('tgl_awal');
-        $tgl_akhir = request('tgl_akhir');
+        Route::get('/laporan/inventaris', function () {
+            $tgl_awal = request('tgl_awal');
+            $tgl_akhir = request('tgl_akhir');
 
-        if ($tgl_awal && $tgl_akhir) {
-            // $asset = AsetSekolah::whereBetween('created_at', [$tgl_awal, $tgl_akhir])->get();
-            $fileName = "Aset {$tgl_awal} - {$tgl_akhir}.pdf";
-        } else {
-            $asset = AsetSekolah::all();
-            $fileName = "Data Keseluruhan Asset.pdf";
-        }
+            if ($tgl_awal && $tgl_akhir) {
+                // $asset = AsetSekolah::whereBetween('created_at', [$tgl_awal, $tgl_akhir])->get();
+                $fileName = "Aset {$tgl_awal} - {$tgl_akhir}.pdf";
+            } else {
+                $asset = AsetSekolah::all();
+                $fileName = "Data Keseluruhan Asset.pdf";
+            }
 
-        $data = ['assets' => $asset,
-    'sekolah'=>Sekolah::first()
-    ];
-        $pdf = Pdf::loadView('print.inventaris', $data);
+            $data = [
+                'assets' => $asset,
+                'sekolah' => Sekolah::first()
+            ];
+            $pdf = Pdf::loadView('print.inventaris', $data);
 
-        return $pdf->stream($fileName);
-    })->name('laporan.inventaris');
-});
+            return $pdf->stream($fileName);
+        })->name('laporan.inventaris');
+    });
 
-// ROLE: Bendahara
-Route::group([
-    'middleware' => ['auth:api', 'checkrole:Bendahara'],
-    'prefix' => 'Bendahara'
-], function () {
+    // ROLE: Bendahara
+    Route::group([
+        'middleware' => ['auth:api', 'checkrole:Bendahara'],
+        'prefix' => 'Bendahara'
+    ], function () {
 
-    Route::get('/aset', [AsetSekolahController::class, 'index']);
+        Route::get('/aset', [AsetSekolahController::class, 'index']);
 
-    Route::get('/laporan/inventaris', function () {
-        $tgl_awal = request('tgl_awal');
-        $tgl_akhir = request('tgl_akhir');
+        Route::get('/laporan/inventaris', function () {
+            $tgl_awal = request('tgl_awal');
+            $tgl_akhir = request('tgl_akhir');
 
-        if ($tgl_awal && $tgl_akhir) {
-            $asset = AsetSekolah::whereBetween('created_at', [$tgl_awal, $tgl_akhir])->get();
-            $fileName = "Aset {$tgl_awal} - {$tgl_akhir}.pdf";
-        } else {
-            $asset = AsetSekolah::all();
-            $fileName = "Data Keseluruhan Asset.pdf";
-        }
+            if ($tgl_awal && $tgl_akhir) {
+                $asset = AsetSekolah::whereBetween('created_at', [$tgl_awal, $tgl_akhir])->get();
+                $fileName = "Aset {$tgl_awal} - {$tgl_akhir}.pdf";
+            } else {
+                $asset = AsetSekolah::all();
+                $fileName = "Data Keseluruhan Asset.pdf";
+            }
 
-        $data = ['assets' => $asset,
-        'sekolah'=>Sekolah::first()
-    ];
-        $pdf = Pdf::loadView('print.inventaris', $data);
+            $data = [
+                'assets' => $asset,
+                'sekolah' => Sekolah::first()
+            ];
+            $pdf = Pdf::loadView('print.inventaris', $data);
 
-        return $pdf->stream($fileName);
-    })->name('laporan.inventaris');
-   
-});
+            return $pdf->stream($fileName);
+        })->name('laporan.inventaris');
+    });
 
-// Role Kepala Sekolah
-Route::group([
-    'middleware' => ['auth:api', 'checkrole:Kepala Sekolah'],
-    'prefix' => 'Kepala Sekolah'
-], function () {
+    // Role Kepala Sekolah
+    Route::group([
+        'middleware' => ['auth:api', 'checkrole:Kepala Sekolah'],
+        'prefix' => 'Kepala Sekolah'
+    ], function () {
 
-    Route::get('/aset', [AsetSekolahController::class, 'index']);
+        Route::get('/aset', [AsetSekolahController::class, 'index']);
 
-    Route::get('/laporan/inventaris', function () {
-        $tgl_awal = request('tgl_awal');
-        $tgl_akhir = request('tgl_akhir');
+        Route::get('/laporan/inventaris', function () {
+            $tgl_awal = request('tgl_awal');
+            $tgl_akhir = request('tgl_akhir');
 
-        if ($tgl_awal && $tgl_akhir) {
-            $asset = AsetSekolah::whereBetween('created_at', [$tgl_awal, $tgl_akhir])->get();
-            $fileName = "Aset {$tgl_awal} - {$tgl_akhir}.pdf";
-        } else {
-            $asset = AsetSekolah::all();
-            $fileName = "Data Keseluruhan Asset.pdf";
-        }
+            if ($tgl_awal && $tgl_akhir) {
+                $asset = AsetSekolah::whereBetween('created_at', [$tgl_awal, $tgl_akhir])->get();
+                $fileName = "Aset {$tgl_awal} - {$tgl_akhir}.pdf";
+            } else {
+                $asset = AsetSekolah::all();
+                $fileName = "Data Keseluruhan Asset.pdf";
+            }
 
-        $data = ['assets' => $asset,
-        'sekolah'=>Sekolah::first()
-    ];
-        $pdf = Pdf::loadView('print.inventaris', $data);
+            $data = [
+                'assets' => $asset,
+                'sekolah' => Sekolah::first()
+            ];
+            $pdf = Pdf::loadView('print.inventaris', $data);
 
-        return $pdf->stream($fileName);
-    })->name('laporan.inventaris');
-});
-
-});
+            return $pdf->stream($fileName);
+        })->name('laporan.inventaris');
+    });
 });
