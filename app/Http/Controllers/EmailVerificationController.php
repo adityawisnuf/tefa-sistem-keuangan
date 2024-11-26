@@ -33,7 +33,6 @@ class EmailVerificationController extends Controller
         return response()->json($success,200);
     }
 
-    
 public function sendEmailVerification(Request $request)
     {
         $request->validate([
