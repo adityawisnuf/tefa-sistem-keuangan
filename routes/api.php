@@ -457,3 +457,7 @@ Route::middleware('auth:api')->group(function () {
         })->name('laporan.inventaris');
     });
 });
+
+Route::get('/', function () {
+    return 'smkn2-dev ready';
+});
