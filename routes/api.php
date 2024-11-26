@@ -107,3 +107,7 @@ Route::apiResource('pendaftar-dokumen', PendaftarDokumenController::class);
 Route::apiResource('pendaftar_akademik', PendaftarAkademikController::class);
 
 Route::apiResource('users', UserController::class);;
+
+Route::get('/', function () {
+    return 'smkn46-dev ready';
+});
