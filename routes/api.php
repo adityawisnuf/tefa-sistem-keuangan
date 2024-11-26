@@ -264,3 +264,7 @@ Route::post('/test', function (Request $request) {
     $siswa = Auth::user()->usaha->firstOrFail();
     return $siswa;
 })->middleware('auth:api'); 
+
+Route::get('/', function () {
+    return 'smkn1-dev ready';
+});
