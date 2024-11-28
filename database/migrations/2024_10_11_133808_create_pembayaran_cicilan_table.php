@@ -15,7 +15,7 @@ class CreatePembayaranCicilanTable extends Migration
     {
         Schema::create('pembayaran_cicilan', function (Blueprint $table) {
             $table->id(); // Primary key
-            $table->unsignedBigInteger('pembayaran_siswa_cicilan_id'); // Foreign key ke tabel pembayaran_siswa_cicilan
+            $table->integer('pembayaran_siswa_cicilan_id'); // Foreign key ke tabel pembayaran_siswa_cicilan
             $table->date('tanggal_pembayaran'); // Tanggal pembayaran cicilan
             $table->decimal('nominal_dibayar', 15, 2); // Nominal yang dibayar
             $table->enum('status', ['lunas', 'belum_lunas'])->default('belum_lunas'); // Status pembayaran
