@@ -36,6 +36,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 
+Route::get('/', function () {
+    return 'smkn2-dev ready';
+});
+
 Route::post('duitku/callback', [PembayaranController::class, 'duitkuCallbackHandler'])->name('payment.transaction.callback');
 Route::post('register', [RegisterController::class, 'register']);
 Route::post('login', [LoginController::class, 'login']);
@@ -456,8 +460,4 @@ Route::middleware('auth:api')->group(function () {
             return $pdf->stream($fileName);
         })->name('laporan.inventaris');
     });
-});
-
-Route::get('/', function () {
-    return 'smkn2-dev ready';
 });
