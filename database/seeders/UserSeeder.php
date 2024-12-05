@@ -13,7 +13,7 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        $user = [
+        $users = [
             [
                 'name' => 'Admin',
                 'email' => 'admin@gmail.com',
@@ -22,46 +22,20 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'Kepala Sekolah',
-                'email' => 'kepsek@gmail.com',
+                'email' => 'kepsek@example.com',
                 'role' => 'KepalaSekolah',
                 'password' => password_hash('kepsek123', PASSWORD_DEFAULT),
             ],
             [
                 'name' => 'Bendahara',
-                'email' => 'bendahara@gmail.com',
+                'email' => 'bendahara@example.com',
                 'role' => 'Bendahara',
                 'password' => password_hash('bendahara123', PASSWORD_DEFAULT),
-            ],
-            [
-                'name' => 'Budi Santoso',
-                'email' => 'budi@gmail.com',
-                'role' => 'OrangTua',
-                'password' => password_hash('budi123', PASSWORD_DEFAULT),
-            ],
-            [
-                'name' => 'Siti Aminah',
-                'email' => 'siti@gmail.com',
-                'role' => 'OrangTua',
-                'password' => password_hash('siti123', PASSWORD_DEFAULT),
-            ],
-            [
-                'name' => 'Ahmad Fauzi',
-                'email' => 'ahmad@gmail.com',
-                'role' => 'Siswa',
-                'password' => password_hash('ahmad123', PASSWORD_DEFAULT),
-            ],
-            [
-                'name' => 'Dewi Lestari',
-                'email' => 'dewi@gmail.com',
-                'role' => 'Siswa',
-                'password' => password_hash('dewi123', PASSWORD_DEFAULT),
-            ],
+            ]
         ];
 
-        foreach ($user as $data) {
+        foreach ($users as $data) {
             User::create($data);
         }
-
-        $this->call(SekolahSeeder::class);
     }
 }

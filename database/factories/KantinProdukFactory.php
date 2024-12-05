@@ -20,7 +20,7 @@ class KantinProdukFactory extends Factory
 
         return [
             'usaha_id' => 1,
-            'kantin_produk_kategori_id' => $this->faker->numberBetween(1, 2), 
+            'kantin_produk_kategori_id' => $this->faker->numberBetween(1, 3), 
             'nama_produk' => $this->faker->words(2, true), 
             'foto_produk' => $this->faker->imageUrl(640, 480, 'makanan', true), 
             'deskripsi' => $this->faker->sentence(),

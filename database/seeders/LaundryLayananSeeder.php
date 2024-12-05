@@ -14,10 +14,6 @@ class LaundryLayananSeeder extends Seeder
      */
     public function run()
     {
-        for ($usahaId = 6; $usahaId <= 10; $usahaId++) {
-            LaundryLayanan::factory(20)->create([
-                'usaha_id' => $usahaId,
-            ]);
-        }
+        LaundryLayanan::factory(15)->create();
     }
 }

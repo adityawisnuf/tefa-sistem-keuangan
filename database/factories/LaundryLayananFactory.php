@@ -26,7 +26,7 @@ class LaundryLayananFactory extends Factory
         $satuan = $tipe === 'satuan' ? 'pcs' : 'kg';
 
         return [
-            'usaha_id' => 6, 
+            'usaha_id' => 1, 
             'nama_layanan' => $this->faker->words(2, true), 
             'foto_layanan' => $this->faker->imageUrl(640, 480, 'laundry', true), 
             'deskripsi' => $this->faker->sentence(), 

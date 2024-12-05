@@ -12,11 +12,29 @@ class PembayaranKategori extends Seeder
      */
     public function run(): void
     {
-        \App\Models\PembayaranKategori::create([
-            'nama' => 'ppdb',
-            'jenis_pembayaran' => 1,
-            'tanggal_pembayaran' => now(),
-            'status' => 1
-        ]);
+        $pembayaran_kategori = [
+            [
+                'nama' => 'PPDB',
+                'jenis_pembayaran' => 2,
+                'tanggal_pembayaran' => '01-07',
+                'status' => 1
+            ],
+            [
+                'nama' => 'Uang Seragam',
+                'jenis_pembayaran' => 2,
+                'tanggal_pembayaran' => '10-07',
+                'status' => 1
+            ],
+            [
+                'nama' => 'SPP',
+                'jenis_pembayaran' => 1,
+                'tanggal_pembayaran' => '11',
+                'status' => 1
+            ]
+        ];
+
+        foreach($pembayaran_kategori as $p){
+            \App\Models\PembayaranKategori::create($p);
+        }
     }
 }
