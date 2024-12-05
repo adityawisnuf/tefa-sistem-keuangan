@@ -17,6 +17,6 @@ class Sekolah extends Model
 
     public function kelas() 
     {
-        return $this->hasMany(kelas::class, 'sekolah_id');
+        return $this->hasMany(Kelas::class, 'sekolah_id');
     }
 }
