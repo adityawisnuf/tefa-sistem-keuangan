@@ -10,7 +10,15 @@ class PembayaranController extends Controller
     // Menampilkan semua data pembayaran
     public function index()
     {
-        $pembayarans = Pembayaran::with('siswa', 'pembayaran_kategori', 'kelas')->get();
+        $pembayarans = Pembayaran
+        ::when(isset(request()->jenis_pembayaran), function ($q) {
+            $q->whereIn('pembayaran_kategori_id', function ($query) {
+                $query->select('id')->from('pembayaran_kategori')
+                    ->where('jenis_pembayaran', request()->jenis_pembayaran);
+            });
+        })
+        ->with('siswa', 'pembayaran_kategori', 'kelas')
+        ->get();
         return response()->json($pembayarans);
     }
     public function create()
