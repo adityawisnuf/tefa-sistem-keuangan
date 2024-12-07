@@ -50,6 +50,11 @@ Route::get('select/principal', fn() => response()->json([
     "data" => User::where('role', 'Kepala Sekolah')->get()
 ]));
 
+Route::get('/siswa/peringatan-jatuh-tempo', [PembayaranKategoriController::class, 'peringatanJatuhTempo']);
+Route::get('/orangtua/peringatan-jatuh-tempo', [PembayaranKategoriController::class, 'peringatanJatuhTempo']);
+Route::get('/siswa/pembayaran/notifications', [PembayaranKategoriController::class, 'notifications']);
+Route::get('/orangtua/pembayaran/notifications', [PembayaranKategoriController::class, 'notifications']);
+
 Route::middleware('auth:api')->group(function () {
     Route::post('/send-whatsapp', [SendPaymentSuccesController::class, 'sendMessage']);
     Route::get('/get-groups', [SendPaymentSuccesController::class, 'getGroups']);
@@ -199,7 +204,6 @@ Route::middleware('auth:api')->group(function () {
         Route::get('/riwayat-pembayaran', [PembayaranSiswaController::class, 'riwayatPembayaran']);
         Route::get('/riwayat-tagihan', [PembayaranSiswaController::class, 'riwayatTagihan']);
         Route::get('/pembayaran/notifications', [PembayaranKategoriController::class, 'notifications']);
-        Route::get('/peringatan-jatuh-tempo', [PembayaranKategoriController::class, 'peringatanJatuhTempo']);
         Route::post('/send-whatsapp', [SendPaymentSuccesController::class, 'sendMessage']);
         Route::get('/get-groups', [SendPaymentSuccesController::class, 'getGroups']);
         Route::get('/send-payment-reminder', [SendPaymentSuccesController::class, 'sendPaymentReminder']);
@@ -212,7 +216,6 @@ Route::middleware('auth:api')->group(function () {
         Route::get('/riwayat-pembayaran', [PembayaranSiswaController::class, 'riwayatPembayaran']);
         Route::get('/riwayat-tagihan', [PembayaranSiswaController::class, 'riwayatTagihan']);
         Route::get('/pembayaran/notifications', [PembayaranKategoriController::class, 'notifications']);
-        Route::get('/peringatan-jatuh-tempo', [PembayaranKategoriController::class, 'peringatanJatuhTempo']);
         Route::post('/send-whatsapp', [SendPaymentSuccesController::class, 'sendMessage']);
         Route::get('/get-groups', [SendPaymentSuccesController::class, 'getGroups']);
         Route::get('/send-payment-reminder', [SendPaymentSuccesController::class, 'sendPaymentReminder']);
