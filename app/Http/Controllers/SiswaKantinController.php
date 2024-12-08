@@ -10,7 +10,7 @@ use App\Models\SiswaWalletRiwayat;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
-use App\Http\Services\SocketIoService;
+use App\Http\Services\SocketIOService;
 
 class SiswaKantinController extends Controller
 {
@@ -50,7 +50,7 @@ class SiswaKantinController extends Controller
         return response()->json(['message' => 'Produk tidak tersedia.'], Response::HTTP_BAD_REQUEST);
     }
 
-    public function createProdukTransaksi(Request $request, SocketIoService $socketIoService)
+    public function createProdukTransaksi(Request $request, SocketIOService $socketIoService)
     {
         $validated = $request->validate([
             'detail_pesanan' => ['required', 'array', 'min:1'],
