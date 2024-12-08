@@ -260,6 +260,10 @@ Route::post('/validate-nik', [NIKController::class, 'validateNik']);
 Route::post('/payment-callback', [PembayaranController::class, 'handleCallback']);
 Route::get('test');
 
+if (ob_get_level()) {
+    ob_end_clean();
+}
+
 Route::get('open-img/{dir}/{file}', function ($dir, $file) {
     return response()->file(storage_path('app/public/' . $dir . '/' . $file));
 });
