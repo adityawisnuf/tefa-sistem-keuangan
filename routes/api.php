@@ -260,6 +260,14 @@ Route::post('/validate-nik', [NIKController::class, 'validateNik']);
 Route::post('/payment-callback', [PembayaranController::class, 'handleCallback']);
 Route::get('test');
 
+Route::get('open-img/{dir}/{file}', function ($dir, $file) {
+    return response()->file(storage_path('app/public/' . $dir . '/' . $file));
+});
+
+Route::get('open-img/{dir}/{subdir}/{file}', function ($dir, $subdir, $file) {
+    return response()->file(storage_path('app/public/' . $dir . '/' . $subdir . '/' . $file));
+});
+
 Route::post('/test', function (Request $request) {
     $siswa = Auth::user()->usaha->firstOrFail();
     return $siswa;
