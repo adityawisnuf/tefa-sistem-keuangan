@@ -16,7 +16,7 @@ class PengumumanController extends Controller
     // semua pengumuman yang disetujui
     public function AllAnnouncements(): JsonResponse
     {
-        if (Auth::user()->role === 'Kepala Sekolah') {
+        if (Auth::user()->role === 'KepalaSekolah') {
             $pengumuman = Pengumuman::whereIn('status', [2, 3])->get();
 
             return response()->json([
@@ -99,7 +99,7 @@ class PengumumanController extends Controller
             ], 422);
         }
 
-        if (Auth::user()->role === "Kepala Sekolah") {
+        if (Auth::user()->role === "KepalaSekolah") {
             $pengumuman = Pengumuman::create([
                 'judul' => $request->judul,
                 'isi' => $request->isi,
@@ -154,7 +154,7 @@ class PengumumanController extends Controller
             ], 404);
         }
 
-        if ($pengumuman->user_id === Auth::user()->id || Auth::user()->role === 'Kepala Sekolah') {
+        if ($pengumuman->user_id === Auth::user()->id || Auth::user()->role === 'KepalaSekolah') {
             $validator = Validator::make($request->all(), [
                 'judul' => 'required',
                 'isi' => 'required'
@@ -168,7 +168,7 @@ class PengumumanController extends Controller
                 ], 422);
             }
             
-            if (Auth::user()->role === 'Kepala Sekolah') {
+            if (Auth::user()->role === 'KepalaSekolah') {
                 $pengumuman->update([
                     'judul' => $request->judul,
                     'isi' => $request->isi
@@ -207,7 +207,7 @@ class PengumumanController extends Controller
             ], 404);
         }
 
-        if ($pengumuman->user_id === Auth::id() || Auth::user()->role === 'Kepala Sekolah') {
+        if ($pengumuman->user_id === Auth::id() || Auth::user()->role === 'KepalaSekolah') {
             $pengumuman->delete();
         
             return response()->json([

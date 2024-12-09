@@ -194,7 +194,7 @@ class PengeluaranController extends Controller
         }
 
         $role = auth()->user()->role;
-        if ($role !== 'Bendahara' && $role !== 'Kepala Sekolah') {
+        if ($role !== 'Bendahara' && $role !== 'KepalaSekolah') {
             abort(403);
         }
 
@@ -229,7 +229,7 @@ class PengeluaranController extends Controller
         }
 
         $role = auth()->user()->role;
-        if ($role !== 'Bendahara' && $role !== 'Kepala Sekolah') {
+        if ($role !== 'Bendahara' && $role !== 'KepalaSekolah') {
             abort(403);
         }
 
