@@ -46,8 +46,8 @@ Route::post('login', [LoginController::class, 'login']);
 
 Route::get('select/principal', fn() => response()->json([
     "sucess" => true,
-    "message" => "Berhasil mendapatkan kepala sekolah",
-    "data" => User::where('role', 'Kepala Sekolah')->get()
+    "message" => "Berhasil mendapatkan KepalaSekolah",
+    "data" => User::where('role', 'KepalaSekolah')->get()
 ]));
 
 Route::get('/siswa/peringatan-jatuh-tempo', [PembayaranKategoriController::class, 'peringatanJatuhTempo']);
@@ -315,8 +315,8 @@ Route::middleware('auth:api')->group(function () {
         Route::get('/laporan/pengeluaran', [PengeluaranController::class, 'report'])->name('laporan.pengeluaran');
     });
 
-    // Routes untuk role "Kepala Sekolah"
-    Route::middleware(['checkrole:Kepala Sekolah'])->prefix('Kepala Sekolah')->group(function () {
+    // Routes untuk role "KepalaSekolah"
+    Route::middleware(['checkrole:KepalaSekolah'])->prefix('KepalaSekolah')->group(function () {
         Route::post('/pemasukan', [PembayaranBukuKasController::class, 'index']);
         Route::post('/pengeluaran', [PengeluaranController::class, 'index']);
         Route::get('/export-pengeluaran', [PengeluaranExcelController::class, 'exportPengeluaran'])
@@ -331,10 +331,10 @@ Route::middleware('auth:api')->group(function () {
         Route::get('/laporan/pengeluaran', [PengeluaranController::class, 'report'])->name('laporan.pengeluaran');
     });
 
-    // Role: Kepala Sekolah
+    // Role: KepalaSekolah
     Route::group([
-        'middleware' => ['checkrole:Kepala Sekolah'],
-        'prefix' => 'Kepala Sekolah'
+        'middleware' => ['checkrole:KepalaSekolah'],
+        'prefix' => 'KepalaSekolah'
     ], function () {
         // Read Routes
         Route::post('/anggaran', [AnggaranController::class, 'store']);
@@ -434,10 +434,10 @@ Route::middleware('auth:api')->group(function () {
         })->name('laporan.inventaris');
     });
 
-    // Role Kepala Sekolah
+    // Role KepalaSekolah
     Route::group([
-        'middleware' => ['auth:api', 'checkrole:Kepala Sekolah'],
-        'prefix' => 'Kepala Sekolah'
+        'middleware' => ['auth:api', 'checkrole:KepalaSekolah'],
+        'prefix' => 'KepalaSekolah'
     ], function () {
 
         Route::get('/aset', [AsetSekolahController::class, 'index']);
