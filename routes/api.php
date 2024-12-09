@@ -75,8 +75,8 @@ Route::middleware(['auth:api'])->group(function () {
     Route::apiResource('pengeluaran', PengeluaranController::class);
     
     Route::group(['middleware' => 'checkrole:KepalaSekolah'], function () {
-        Route::patch('/pengeluaran/{id}/accept', [PengeluaranController::class, 'acceptPengeluaran']);
-        Route::patch('/pengeluaran/{id}/reject', [PengeluaranController::class, 'rejectPengeluaran']);
+        Route::put('/pengeluaran/{id}/accept', [PengeluaranController::class, 'acceptPengeluaran']);
+        Route::put('/pengeluaran/{id}/reject', [PengeluaranController::class, 'rejectPengeluaran']);
         
         Route::put('/pengumuman/{id}/approve', [PengumumanController::class, 'approve']);
         Route::put('/pengumuman/{id}/reject', [PengumumanController::class, 'reject']);
