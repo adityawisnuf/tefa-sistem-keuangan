@@ -59,6 +59,8 @@ Route::apiResource('pembayaransiswacicilan', PembayaranSiswaCicilanController::c
 Route::apiResource('pembayaran_kategori', PembayaranKategoriController::class);
 Route::apiResource('pembayaran-siswa', PembayaranSiswaController::class);
 
+Route::put('/pengeluaran/{id}/accept', [PengeluaranController::class, 'acceptPengeluaran']);
+Route::put('/pengeluaran/{id}/reject', [PengeluaranController::class, 'rejectPengeluaran']);
 // pengumuman
 Route::middleware(['auth:api'])->group(function () {
     // Pengeluaran Kategori
@@ -75,8 +77,6 @@ Route::middleware(['auth:api'])->group(function () {
     Route::apiResource('pengeluaran', PengeluaranController::class);
     
     Route::group(['middleware' => 'checkrole:KepalaSekolah'], function () {
-        Route::put('/pengeluaran/{id}/accept', [PengeluaranController::class, 'acceptPengeluaran']);
-        Route::put('/pengeluaran/{id}/reject', [PengeluaranController::class, 'rejectPengeluaran']);
         
         Route::put('/pengumuman/{id}/approve', [PengumumanController::class, 'approve']);
         Route::put('/pengumuman/{id}/reject', [PengumumanController::class, 'reject']);
