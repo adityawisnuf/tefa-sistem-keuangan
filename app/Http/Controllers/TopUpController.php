@@ -47,7 +47,9 @@ class TopUpController extends Controller
             ? Auth::user()->orangtua->siswa()->findOrFail($validated['siswa_id'])->user
             : Auth::user();
 
+        $validated['siswa'] = $user->siswa;
         $validated['email'] = $user->email;
+        $validated['role'] = $user->role;
         $validated['additionalParam'] = json_encode([
             'type' => 'topup',
             'data' => $user->email

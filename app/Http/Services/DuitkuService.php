@@ -76,42 +76,18 @@ class DuitkuService
     {
         $paymentAmount = $data['paymentAmount'];
         $paymentMethod = $data['paymentMethod'];
-        $merchantOrderId = time() . '';
-        $productDetails = 'Tes pembayaran menggunakan Duitku';
+        $merchantOrderId = 'ORDT-0-'.time();
+        $productDetails = 'Top Up Wallet Siswa';
         $email = $data['email'];
         $additionalParam = $data['email'];
-        $phoneNumber = '088888888888';
-        $firstName = 'Anjasmara';
-        $lastName = 'Tahu Bulat';
+        $phoneNumber = $data['siswa']->telepon;
+        $firstName = $data['siswa']->nama_depan;
+        $lastName = $data['siswa']->nama_belakang;
         $customerVaName = $firstName . ' ' . $lastName;
         $callbackUrl = env('CALLBACK_URL') . '/api/duitku/callback';
-        $returnUrl = 'http://localhost:5173/orang-tua';
-        $expiryPeriod = 10;
+        $returnUrl = $data['role'] == 'Siswa' ? env('RETURN_URL').'/siswa/wallet' : env('RETURN_URL').'/orang-tua/wallet';
+        $expiryPeriod = 60;
         $signature = md5($this->merchantCode . $merchantOrderId . $paymentAmount . $this->apiKey);
-
-        $alamat = 'Cijedil';
-        $city = "Jakarta";
-        $postalCode = "11530";
-        $countryCode = "ID";
-
-        $address = [
-            'firstName' => $firstName,
-            'lastName' => $lastName,
-            'address' => $alamat,
-            'city' => $city,
-            'postalCode' => $postalCode,
-            'phone' => $phoneNumber,
-            'countryCode' => $countryCode
-        ];
-
-        $customerDetail = [
-            'firstName' => $firstName,
-            'lastName' => $lastName,
-            'email' => $email,
-            'phoneNumber' => $phoneNumber,
-            'billingAddress' => $address,
-            'shippingAddress' => $address
-        ];
 
         $params = [
             'merchantCode' => $this->merchantCode,
@@ -124,7 +100,7 @@ class DuitkuService
             'additionalParam' => $additionalParam,
             'phoneNumber' => $phoneNumber,
             'itemDetails' => $data['itemDetails'] ?? null,
-            'customerDetail' => $customerDetail,
+            'customerDetail' => array(),
             'callbackUrl' => $callbackUrl,
             'returnUrl' => $returnUrl,
             'signature' => $signature,
